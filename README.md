@@ -32,4 +32,4 @@ make verify
 
 This runs Go race tests, vet, a binary build, and an actual-binary acceptance driver. The driver copies the executable outside the checkout and verifies restart persistence, bot identity, session survival, revocation, sign-out, and setup closure.
 
-See [the M01 API reference](docs/m01.md) for request contracts and verification limits. M01 checklist completion awaits independent backend review and parent verification.
+See [the M01 API reference](docs/m01.md) for request contracts and verification limits.

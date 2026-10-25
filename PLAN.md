@@ -1,8 +1,8 @@
 # Botstral plan
 
-The corrected M01 implementation is an API-only Go manager in `manager/`. Local Go verification passes. Parent verification and independent backend review remain pending. The manager has no user interface.
+M01 is implemented and verified as an API-only Go manager in `manager/`. Local Go checks, Ubuntu CI, and independent backend review passed. The manager has no user interface.
 
-Desktop and mobile are the only product frontends. They have separate designs and live in `desktop/` and `mobile/` when their client milestones begin. M01 checkboxes remain open until backend verification and review finish.
+Desktop and mobile are the only product frontends. They have separate designs and live in `desktop/` and `mobile/` when their client milestones begin. Later milestones remain planned.
 
 ## Product target
 
@@ -57,13 +57,13 @@ Build M01 through M06 in order. The client and computer tracks can progress alon
 
 ### M01. Start the manager and retain owner data
 
-- [ ] Create the Go service and SQLite migrations in `manager/`.
-- [ ] Add local owner setup, sign-in, sign-out, and session revocation.
-- [ ] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
-- [ ] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
-- [ ] Add authenticated bot listing and creation through the manager API.
-- [ ] Keep the manager API-only. Do not serve HTML, frontend assets, or a browser setup page.
-- [ ] Add Go development, build, and verification commands without frontend tooling.
+- [x] Create the Go service and SQLite migrations in `manager/`.
+- [x] Add local owner setup, sign-in, sign-out, and session revocation.
+- [x] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
+- [x] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
+- [x] Add authenticated bot listing and creation through the manager API.
+- [x] Keep the manager API-only. Do not serve HTML, frontend assets, or a browser setup page.
+- [x] Add Go development, build, and verification commands without frontend tooling.
 
 Complete when an API client can create a bot, restart the manager, sign in again, and retrieve the same bot. Unauthenticated requests must not expose bot data. The desktop and mobile interfaces belong to the client milestones.
 
