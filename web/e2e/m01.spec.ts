@@ -29,6 +29,19 @@ test("setup, durable bots, independent sessions, disconnection, and sign-out", a
     const setupOrigin = new URL(manager.setupURL).origin;
     await page.goto(manager.setupURL);
     await expect(page).toHaveURL(`${setupOrigin}/`);
+    const username = page.getByLabel("Username", { exact: true });
+    await username.fill("invalid!");
+    expect(
+      await username.evaluate(
+        (input) => input instanceof HTMLInputElement && input.checkValidity(),
+      ),
+    ).toBe(false);
+    await username.fill("valid-owner");
+    expect(
+      await username.evaluate(
+        (input) => input instanceof HTMLInputElement && input.checkValidity(),
+      ),
+    ).toBe(true);
     await page.getByLabel("Username", { exact: true }).fill("Owner");
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByLabel("Confirm password").fill(password);
