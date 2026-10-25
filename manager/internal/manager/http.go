@@ -198,7 +198,6 @@ func localBoundary(host string, next http.Handler) http.Handler {
 			problem(w, 403, "forbidden", "The request host is invalid.")
 			return
 		}
-		// Route directly so escaped or unclean paths never acquire ServeMux redirects.
 		if r.URL.EscapedPath() != r.URL.Path || path.Clean(r.URL.Path) != r.URL.Path {
 			notFound(w)
 			return

@@ -1,6 +1,8 @@
 # Botstral
 
-Botstral is a single-owner assistant system under development. The M01 manager is a local Go API with durable owner, session, and bot storage. It has no user interface.
+Botstral is a single-owner assistant system under development. Its manager is an always-on Go server with no user interface. M01 provides a local API with durable owner, session, and bot storage.
+
+Desktop and mobile connect to the manager as clients. The bot virtual machine also stays running independently of those clients. VM connectivity and task execution belong to later milestones.
 
 The Go module lives in `manager/`. Future desktop and mobile apps will live in `desktop/` and `mobile/`, with separate designs. Neither app exists yet. See [the plan](PLAN.md) for later milestones.
 

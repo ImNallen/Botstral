@@ -15,8 +15,8 @@ The parity baseline is the personal Grok Bot documentation reviewed on October 2
 ## Agreed design
 
 - Each installation serves one owner and their paired devices.
-- One Go manager coordinates bots, conversations, tasks, permissions, and connections.
-- One persistent Linux virtual machine provides the bots' shared computer.
+- One always-on Go manager coordinates bots, conversations, tasks, permissions, and connections.
+- One persistent, always-on Linux virtual machine provides the bots' shared computer.
 - Many bots can work concurrently, each with its own screen, conversation, instructions, and memory.
 - Bots share files, installed tools, browser logins, and command-line credentials.
 - Bots have access across the guest filesystem and command line under the configured guest account.
@@ -31,6 +31,7 @@ The parity baseline is the personal Grok Bot documentation reviewed on October 2
 - Mistral-developed models are the default for reasoning, coding, helper tasks, and supported speech or vision features. Do not silently substitute another model developer or provider.
 - Model Context Protocol connections belong to the owner, with tool permissions configured per bot.
 - Tasks continue when a desktop or mobile app closes.
+- Desktop and mobile connect to the manager. Closing a client does not shut down the manager or bot virtual machine.
 
 The first deployment targets Linux guests on Proxmox. The manager and worker must also run on other compatible Linux hosts.
 
