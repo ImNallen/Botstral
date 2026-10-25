@@ -22,7 +22,7 @@ Each browser session expires seven days after sign-in. Use **Sessions** to revok
 make dev
 ```
 
-Development serves `web/dist` from the manager at port 8080 and watches frontend changes. Refresh the browser after a rebuild. Restart `make dev` after Go changes. Development data lives in `.local/data`. Interrupting the command stops both process groups.
+Development serves `web/dist` from the manager at port 8080 and watches frontend changes. Watch rebuilds preserve existing assets so startup and open pages retain valid files. A normal build clears old assets. Refresh the browser after a rebuild. Restart `make dev` after Go changes. Development data lives in `.local/data`. Interrupting the command stops both process groups.
 
 ```sh
 npm --prefix web exec playwright install chromium

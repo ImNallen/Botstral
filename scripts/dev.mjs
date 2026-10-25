@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 const children = [
   spawn(
     process.execPath,
-    ["node_modules/vite/bin/vite.js", "build", "--watch"],
+    ["node_modules/vite/bin/vite.js", "build", "--watch", "--emptyOutDir=false"],
     { cwd: "web", stdio: "inherit", detached: true },
   ),
   spawn(
