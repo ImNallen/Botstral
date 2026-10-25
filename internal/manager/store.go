@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -118,31 +119,67 @@ func (s *store) applyMigrations(ctx context.Context, files fs.FS) error {
 	if err != nil {
 		return err
 	}
-	known := make(map[int]bool)
+	type migration struct {
+		version  int
+		body     []byte
+		checksum string
+	}
+	ordered := make([]migration, 0, len(names))
+	known := make(map[int]string)
 	for _, name := range names {
 		version, err := strconv.Atoi(strings.SplitN(filepath.Base(name), "_", 2)[0])
-		if err != nil || version < 1 || known[version] {
+		if err != nil || version < 1 || known[version] != "" {
 			return errors.New("invalid migration version")
 		}
-		known[version] = true
 		body, err := fs.ReadFile(files, name)
 		if err != nil {
 			return err
 		}
 		checksum := fmt.Sprintf("%x", sha256.Sum256(body))
+		known[version] = checksum
+		ordered = append(ordered, migration{version, body, checksum})
+	}
+	rows, err := s.db.QueryContext(ctx, "SELECT version, checksum FROM schema_migrations")
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		var version int
+		var checksum string
+		if err = rows.Scan(&version, &checksum); err != nil {
+			break
+		}
+		if known[version] == "" {
+			err = fmt.Errorf("database migration %d is newer than this binary", version)
+			break
+		}
+		if known[version] != checksum {
+			err = fmt.Errorf("migration %d checksum changed", version)
+			break
+		}
+	}
+	if err == nil {
+		err = rows.Err()
+	}
+	rows.Close()
+	if err != nil {
+		return err
+	}
+	sort.Slice(ordered, func(i, j int) bool { return ordered[i].version < ordered[j].version })
+	for _, migration := range ordered {
 		tx, err := s.db.BeginTx(ctx, nil)
 		if err != nil {
 			return err
 		}
 		var applied string
-		err = tx.QueryRowContext(ctx, "SELECT checksum FROM schema_migrations WHERE version = ?", version).Scan(&applied)
+		err = tx.QueryRowContext(ctx, "SELECT checksum FROM schema_migrations WHERE version = ?", migration.version).Scan(&applied)
 		switch {
-		case err == nil && applied != checksum:
-			err = fmt.Errorf("migration %d checksum changed", version)
+		case err == nil && applied != migration.checksum:
+			err = fmt.Errorf("migration %d checksum changed", migration.version)
 		case errors.Is(err, sql.ErrNoRows):
-			_, err = tx.ExecContext(ctx, string(body))
+			_, err = tx.ExecContext(ctx, string(migration.body))
 			if err == nil {
-				_, err = tx.ExecContext(ctx, "INSERT INTO schema_migrations VALUES (?, ?, ?)", version, checksum, time.Now().Unix())
+				_, err = tx.ExecContext(ctx, "INSERT INTO schema_migrations VALUES (?, ?, ?)", migration.version, migration.checksum, time.Now().Unix())
 			}
 		}
 		if err != nil {
@@ -153,21 +190,7 @@ func (s *store) applyMigrations(ctx context.Context, files fs.FS) error {
 			return err
 		}
 	}
-	rows, err := s.db.QueryContext(ctx, "SELECT version FROM schema_migrations")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var version int
-		if err = rows.Scan(&version); err != nil {
-			return err
-		}
-		if !known[version] {
-			return fmt.Errorf("database migration %d is newer than this binary", version)
-		}
-	}
-	return rows.Err()
+	return nil
 }
 
 func (s *store) configured(ctx context.Context) (bool, error) {

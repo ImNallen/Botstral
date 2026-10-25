@@ -26,18 +26,18 @@ type credentials struct{ username, password string }
 type passwordHash struct{ encoded string }
 type sessionToken struct{ raw [32]byte }
 
-var usernamePattern = regexp.MustCompile(`^[a-z0-9._-]{3,64}$`)
+var usernamePattern = regexp.MustCompile(`^[a-zA-Z0-9._-]{3,64}$`)
 var kdfSlots = make(chan struct{}, 2)
 
 func parseCredentials(username, password string) (credentials, error) {
-	username = strings.ToLower(strings.TrimSpace(username))
+	username = strings.TrimSpace(username)
 	if !usernamePattern.MatchString(username) {
 		return credentials{}, inputError("Use 3 to 64 letters, numbers, dots, underscores, or hyphens for the username.")
 	}
 	if !utf8.ValidString(password) || utf8.RuneCountInString(password) < 12 || utf8.RuneCountInString(password) > 128 || len(password) > 1024 {
 		return credentials{}, inputError("Use a password with 12 to 128 characters.")
 	}
-	return credentials{username: username, password: password}, nil
+	return credentials{username: strings.ToLower(username), password: password}, nil
 }
 
 func parseBotName(raw string) (botName, error) {

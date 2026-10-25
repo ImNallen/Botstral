@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"testing/fstest"
 	"time"
@@ -280,7 +281,7 @@ func TestExpiryFixedAndSignInRotation(t *testing.T) {
 }
 
 func TestCredentialAndNameBoundaries(t *testing.T) {
-	for _, input := range []string{"", "ab", "Üser", "owner space"} {
+	for _, input := range []string{"", "ab", "Üser", "Kelvin", "owner space"} {
 		if _, err := parseCredentials(input, "synthetic passphrase"); err == nil {
 			t.Fatalf("username %q accepted", input)
 		}
@@ -313,5 +314,46 @@ func TestCredentialAndNameBoundaries(t *testing.T) {
 		if _, err := parseSessionCookie(raw); err == nil {
 			t.Fatal("malformed cookie accepted")
 		}
+	}
+}
+
+func TestSessionChecksExpiryAfterTransactionAdmission(t *testing.T) {
+	m := testManager(t)
+	var clock atomic.Int64
+	clock.Store(time.Now().Unix())
+	m.now = func() time.Time { return time.Unix(clock.Load(), 0) }
+	token, current := testSession(t, m)
+	tx, err := m.store.db.BeginTx(t.Context(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := make(chan error, 1)
+	go func() { _, _, err := m.currentSession(context.Background(), token); result <- err }()
+	clock.Store(current.expiresAt.Unix())
+	if err = tx.Commit(); err != nil {
+		t.Fatal(err)
+	}
+	if err = <-result; !errors.Is(err, errUnauthorized) {
+		t.Fatalf("expired queued session authorized: %v", err)
+	}
+}
+
+func TestMigrationNumericOrdering(t *testing.T) {
+	m := testManager(t)
+	body, err := migrations.ReadFile("migrations/001_initial.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := fstest.MapFS{
+		"migrations/001_initial.sql": &fstest.MapFile{Data: body},
+		"migrations/2_second.sql":    &fstest.MapFile{Data: []byte("CREATE TABLE sequence(id INTEGER);")},
+		"migrations/10_tenth.sql":    &fstest.MapFile{Data: []byte("INSERT INTO sequence VALUES (10);")},
+	}
+	if err = m.store.applyMigrations(t.Context(), files); err != nil {
+		t.Fatal(err)
+	}
+	var value int
+	if err = m.store.db.QueryRow("SELECT id FROM sequence").Scan(&value); err != nil || value != 10 {
+		t.Fatalf("numeric migration order: %d %v", value, err)
 	}
 }
