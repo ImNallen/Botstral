@@ -1,8 +1,8 @@
 # Botstral plan
 
-Botstral is in early planning. Product implementation has not started.
+M01 is implemented in an isolated worktree. Integration review and the parent's browser proof remain pending.
 
-The first build milestone is M01. All implementation checkboxes remain open.
+M01 checkboxes remain open until the parent completes final verification. Later milestones remain planned.
 
 ## Product target
 
