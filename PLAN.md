@@ -1,8 +1,8 @@
 # Botstral plan
 
-M01 is implemented and passes local acceptance. Final independent review closure remains pending.
+M01 is being built as a backend-only manager in `manager/`. The manager has no user interface.
 
-M01 checkboxes remain open until review closes. Later milestones remain planned.
+Desktop and mobile are the only product frontends. They have separate designs and live in `desktop/` and `mobile/` when their client milestones begin. M01 checkboxes remain open until backend verification and review finish.
 
 ## Product target
 
@@ -22,7 +22,9 @@ The parity baseline is the personal Grok Bot documentation reviewed on October 2
 - Bots have access across the guest filesystem and command line under the configured guest account.
 - Coding workspaces organize work and reduce conflicts. They do not restrict filesystem access.
 - Guest administrator permissions belong to virtual machine setup. Bot access does not extend to the manager host or Proxmox host.
-- Desktop and mobile apps use Tauri 2 with a shared React, TypeScript, and Vite frontend.
+- Desktop and mobile apps use Tauri 2 with separate React, TypeScript, and Vite frontends in `desktop/` and `mobile/`.
+- The Go service lives in `manager/` and exposes an API without serving a browser interface.
+- Share API contracts and nonvisual client code where useful. Do not require desktop and mobile to share screens or navigation.
 - A small Rust layer handles native device features. The manager remains an independent server.
 - The manager provides secure device pairing, remote access, reconnection, and revocation.
 - Mistral provides hosted reasoning. Vibe runs coding jobs inside the shared virtual machine.
@@ -54,15 +56,15 @@ Build M01 through M06 in order. The client and computer tracks can progress alon
 
 ### M01. Start the manager and retain owner data
 
-- [ ] Create the Go service and SQLite migrations.
+- [ ] Create the Go service and SQLite migrations in `manager/`.
 - [ ] Add local owner setup, sign-in, sign-out, and session revocation.
 - [ ] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
 - [ ] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
-- [ ] Create the shared React frontend with a sign-in page, bot list, bot creation form, and connection status.
-- [ ] Serve the browser build from the manager.
-- [ ] Add development, build, and verification commands.
+- [ ] Add authenticated bot listing and creation through the manager API.
+- [ ] Keep the manager API-only. Do not serve HTML, frontend assets, or a browser setup page.
+- [ ] Add Go development, build, and verification commands without frontend tooling.
 
-Complete when the owner can create a bot, restart the manager, and see the same bot after signing in. Unauthenticated requests must not expose bot data.
+Complete when an API client can create a bot, restart the manager, sign in again, and retrieve the same bot. Unauthenticated requests must not expose bot data. The desktop and mobile interfaces belong to the client milestones.
 
 ### M02. Connect the shared computer and track bot sessions
 
@@ -120,7 +122,7 @@ Depends on M04.
 - [ ] Support a reachable relay that can also be self-hosted.
 - [ ] Keep the encrypted client connection terminated at the manager.
 - [ ] Add expiring device invitations, confirmation, pairing, and separately revocable credentials.
-- [ ] Handle browser sessions and packaged Tauri client credentials explicitly.
+- [ ] Handle desktop and mobile application sessions and paired-device credentials explicitly.
 - [ ] Route authenticated screen streams, input, and task events through the manager.
 - [ ] Close existing connections when a device is revoked.
 - [ ] Bound stream queues so a slow viewer does not block other clients.
@@ -284,16 +286,17 @@ Complete when the owner can understand ongoing work, control unattended usage, r
 
 ## Desktop and mobile client track
 
-### C01. Start the shared Tauri client
+### C01. Start the desktop and mobile clients
 
 Depends on M01.
 
-- [ ] Wrap the shared frontend in Tauri 2.
-- [ ] Keep frontend source in `web/` and the native host in `web/src-tauri/`.
-- [ ] Launch the same basic interface on a desktop, an Android emulator, and an iOS simulator.
-- [ ] Adapt navigation and layout for desktop and mobile screens.
+- [ ] Create a desktop Tauri 2 app in `desktop/` with its own frontend and native host.
+- [ ] Create a mobile Tauri 2 app in `mobile/` with its own frontend and native host.
+- [ ] Design desktop and mobile screens and navigation independently for their platforms.
+- [ ] Launch the desktop app, an Android emulator build, and an iOS simulator build.
+- [ ] Share API contracts and nonvisual code only where useful.
 
-Complete when each target renders the shared interface. This establishes packaging, not authenticated mobile access.
+Complete when each target renders its own interface. This establishes packaging, not authenticated mobile access.
 
 ### C02. Connect and pair native clients
 
@@ -303,7 +306,7 @@ Depends on C01 and M05.
 - [ ] Validate manager identity and packaged-client origins.
 - [ ] Add protected device credential storage and pairing links.
 - [ ] Verify sign-out, revocation, suspension, resumption, and reconnection.
-- [ ] Bundle the frontend with the app and keep native capabilities separate from remote content.
+- [ ] Bundle each frontend with its app and keep native capabilities separate from remote content.
 
 Complete when a paired native client can reconnect and a revoked client cannot regain access.
 
