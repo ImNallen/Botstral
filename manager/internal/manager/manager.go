@@ -42,7 +42,15 @@ func ParseConfig(args []string) (Config, error) {
 }
 
 func httpServer(handler http.Handler) *http.Server {
-	return &http.Server{Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 * 1024}
+	return &http.Server{
+		Handler:                      handler,
+		DisableGeneralOptionsHandler: true,
+		ReadHeaderTimeout:            5 * time.Second,
+		ReadTimeout:                  15 * time.Second,
+		WriteTimeout:                 30 * time.Second,
+		IdleTimeout:                  60 * time.Second,
+		MaxHeaderBytes:               16 * 1024,
+	}
 }
 
 func drain(server *http.Server) error {

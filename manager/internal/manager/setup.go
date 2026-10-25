@@ -70,7 +70,11 @@ func (m *manager) serveSetup(ctx context.Context, terminal io.Writer) error {
 		}
 		return err
 	}
-	return drain(server)
+	err = drain(server)
+	if errors.Is(err, context.DeadlineExceeded) {
+		return nil
+	}
+	return err
 }
 
 func (m *manager) setupHandler(ctx context.Context, activation *setupActivation) http.Handler {
