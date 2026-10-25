@@ -1,6 +1,6 @@
 # Botstral plan
 
-The corrected M01 implementation is an API-only Go manager in `manager/`. Backend verification and independent review remain pending. The manager has no user interface.
+The corrected M01 implementation is an API-only Go manager in `manager/`. Local Go verification passes. Parent verification and independent backend review remain pending. The manager has no user interface.
 
 Desktop and mobile are the only product frontends. They have separate designs and live in `desktop/` and `mobile/` when their client milestones begin. M01 checkboxes remain open until backend verification and review finish.
 
