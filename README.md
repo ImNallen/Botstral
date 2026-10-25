@@ -33,4 +33,4 @@ make verify
 
 The acceptance script copies the binary outside the repository. It proves owner creation, embedded assets, the same bot ID after restart and explicit sign-in, durable cookies, anonymous rejection, setup isolation and closure, revocation, and sign-out. Browser tests cover the real forms, narrow layout, connection loss, preserved drafts, and late responses after sign-out.
 
-See [PLAN.md](PLAN.md) for the remaining manager, client, and shared-computer milestones.
+See [M01 design and verification](docs/m01.md) for implementation choices and browser evidence. [PLAN.md](PLAN.md) tracks the remaining milestones.

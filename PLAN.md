@@ -1,8 +1,8 @@
 # Botstral plan
 
-M01 is implemented in an isolated worktree. Integration review and the parent's browser proof remain pending.
+M01 is implemented and passes local acceptance. Final independent review closure remains pending.
 
-M01 checkboxes remain open until the parent completes final verification. Later milestones remain planned.
+M01 checkboxes remain open until review closes. Later milestones remain planned.
 
 ## Product target
 
