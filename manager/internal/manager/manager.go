@@ -6,19 +6,16 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/fs"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 )
 
 type Config struct {
-	dataDir   string
-	port      uint16
-	setup     bool
-	devAssets string
+	dataDir string
+	port    uint16
+	setup   bool
 }
 
 func ParseConfig(args []string) (Config, error) {
@@ -28,7 +25,6 @@ func ParseConfig(args []string) (Config, error) {
 	flags.StringVar(&cfg.dataDir, "data-dir", "./data", "persistent data directory")
 	port := flags.Int("port", 8080, "loopback HTTP port, or 0 for an ephemeral port")
 	flags.BoolVar(&cfg.setup, "setup", false, "open temporary local owner setup when unconfigured")
-	flags.StringVar(&cfg.devAssets, "dev-assets", "", "serve a built frontend directory during development")
 	if err := flags.Parse(args); err != nil {
 		return cfg, err
 	}
@@ -59,15 +55,9 @@ func drain(server *http.Server) error {
 	return err
 }
 
-func Run(ctx context.Context, cfg Config, assets fs.FS, terminal io.Writer) error {
+func Run(ctx context.Context, cfg Config, terminal io.Writer) error {
 	if cfg.dataDir == "" {
 		return errors.New("configuration must come from ParseConfig")
-	}
-	if cfg.devAssets != "" {
-		assets = os.DirFS(cfg.devAssets)
-	}
-	if _, err := fs.Stat(assets, "index.html"); err != nil {
-		return fmt.Errorf("built frontend is missing: %w", err)
 	}
 	s, err := openStore(ctx, cfg.dataDir)
 	if err != nil {
@@ -89,13 +79,13 @@ func Run(ctx context.Context, cfg Config, assets fs.FS, terminal io.Writer) erro
 	if err != nil {
 		return fmt.Errorf("listen on main: %w", err)
 	}
-	m.origin = "http://" + listener.Addr().String()
+	endpoint := "http://" + listener.Addr().String()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	server := httpServer(m.mainHandler(m.origin, assets))
+	server := httpServer(m.mainHandler(listener.Addr().String()))
 	mainDone := make(chan error, 1)
 	go func() { mainDone <- server.Serve(listener) }()
-	fmt.Fprintf(terminal, "Manager: %s\n", m.origin)
+	fmt.Fprintf(terminal, "Manager: %s\n", endpoint)
 	var setupDone <-chan error
 	if !configured {
 		done := make(chan error, 1)

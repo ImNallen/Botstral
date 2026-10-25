@@ -2,7 +2,6 @@ package manager
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -83,14 +82,22 @@ func verifyPassword(hash passwordHash, password string) bool {
 	return subtle.ConstantTimeCompare(key, want) == 1
 }
 
-func parseSessionCookie(raw string) (sessionToken, error) {
-	var token sessionToken
-	value, err := base64.RawURLEncoding.Strict().DecodeString(raw)
-	if err != nil || len(value) != len(token.raw) {
-		return token, errUnauthorized
+func parseSecret(raw string) ([32]byte, error) {
+	var secret [32]byte
+	if len(raw) != 43 {
+		return secret, errUnauthorized
 	}
-	copy(token.raw[:], value)
-	return token, nil
+	value, err := base64.RawURLEncoding.Strict().DecodeString(raw)
+	if err != nil || len(value) != len(secret) || base64.RawURLEncoding.EncodeToString(value) != raw {
+		return secret, errUnauthorized
+	}
+	copy(secret[:], value)
+	return secret, nil
+}
+
+func parseSessionToken(raw string) (sessionToken, error) {
+	secret, err := parseSecret(raw)
+	return sessionToken{raw: secret}, err
 }
 
 func newToken() sessionToken {
@@ -103,13 +110,8 @@ func randomID() string {
 	rand.Read(id[:])
 	return hex.EncodeToString(id[:])
 }
-func (t sessionToken) cookie() string   { return base64.RawURLEncoding.EncodeToString(t.raw[:]) }
+func (t sessionToken) encode() string   { return base64.RawURLEncoding.EncodeToString(t.raw[:]) }
 func (t sessionToken) digest() [32]byte { return sha256.Sum256(t.raw[:]) }
-func (t sessionToken) csrf() string {
-	mac := hmac.New(sha256.New, t.raw[:])
-	mac.Write([]byte("botstral csrf v1"))
-	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
-}
 
 type attemptBudget struct {
 	mu     sync.Mutex
@@ -136,7 +138,6 @@ func (b *attemptBudget) allow(now time.Time) bool {
 type manager struct {
 	store       *store
 	now         func() time.Time
-	origin      string
 	loginBudget attemptBudget
 	dummy       passwordHash
 }
@@ -149,7 +150,7 @@ func newManager(s *store) (*manager, error) {
 	return &manager{store: s, now: time.Now, dummy: dummy}, nil
 }
 
-func (m *manager) signIn(ctx context.Context, input credentials, previous *sessionToken) (sessionToken, session, owner, error) {
+func (m *manager) signIn(ctx context.Context, input credentials) (sessionToken, session, owner, error) {
 	var token sessionToken
 	var value session
 	var profile owner
@@ -188,12 +189,6 @@ func (m *manager) signIn(ctx context.Context, input credentials, previous *sessi
 	value = session{id: sessionID(randomID()), createdAt: now, expiresAt: now.Add(sessionLifetime)}
 	if _, err = tx.ExecContext(ctx, "DELETE FROM sessions WHERE expires_at <= ?", now.Unix()); err != nil {
 		return token, value, profile, errUnavailable
-	}
-	if previous != nil {
-		digest := previous.digest()
-		if _, err = tx.ExecContext(ctx, "DELETE FROM sessions WHERE token_hash = ?", digest[:]); err != nil {
-			return token, value, profile, errUnavailable
-		}
 	}
 	if _, err = tx.ExecContext(ctx, "INSERT INTO sessions(id, token_hash, created_at, expires_at) VALUES (?, ?, ?, ?)", value.id, digest[:], value.createdAt.Unix(), value.expiresAt.Unix()); err != nil {
 		return token, value, profile, errUnavailable

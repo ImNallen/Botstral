@@ -2,23 +2,17 @@
 .NOTPARALLEL:
 
 deps:
-	go mod download
-	npm --prefix web ci
-
-build:
-	npm --prefix web run build
-	go build -o bin/botstral ./cmd/botstral
+	go -C manager mod download
 
 dev:
-	npm --prefix web run build
-	node scripts/dev.mjs
+	go -C manager run ./cmd/botstral --data-dir ../data --setup
+
+build:
+	go -C manager build -o ../bin/botstral ./cmd/botstral
 
 test:
-	npm --prefix web run build
-	go test -race ./...
-	go vet ./...
-	npm --prefix web run typecheck
+	go -C manager test -race ./...
+	go -C manager vet ./...
 
 verify: test build
-	node scripts/acceptance.mjs
-	npm --prefix web run test:e2e
+	go -C manager run ./cmd/acceptance --binary ../bin/botstral

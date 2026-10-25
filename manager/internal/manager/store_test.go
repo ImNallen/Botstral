@@ -244,7 +244,7 @@ func TestRevocationSerializesWithOperations(t *testing.T) {
 	}
 }
 
-func TestExpiryFixedAndSignInRotation(t *testing.T) {
+func TestExpiryFixedAndIndependentSignIns(t *testing.T) {
 	m := testManager(t)
 	ctx := t.Context()
 	now := time.Now().UTC().Truncate(time.Second)
@@ -253,23 +253,23 @@ func TestExpiryFixedAndSignInRotation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	token, value, _, err := m.signIn(ctx, input, nil)
+	token, value, _, err := m.signIn(ctx, input)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if value.expiresAt.Sub(value.createdAt) != sessionLifetime {
 		t.Fatal("session lifetime differs")
 	}
-	other, _, _, err := m.signIn(ctx, input, nil)
+	other, _, _, err := m.signIn(ctx, input)
 	if err != nil {
 		t.Fatal(err)
 	}
-	replacement, _, _, err := m.signIn(ctx, input, &token)
+	replacement, _, _, err := m.signIn(ctx, input)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err = m.currentSession(ctx, token); !errors.Is(err, errUnauthorized) {
-		t.Fatalf("old session valid: %v", err)
+	if _, _, err = m.currentSession(ctx, token); err != nil {
+		t.Fatalf("original session lost: %v", err)
 	}
 	if _, _, err = m.currentSession(ctx, other); err != nil {
 		t.Fatalf("independent session lost: %v", err)
@@ -306,13 +306,13 @@ func TestCredentialAndNameBoundaries(t *testing.T) {
 		}
 	}
 	token := newToken()
-	parsed, err := parseSessionCookie(token.cookie())
+	parsed, err := parseSessionToken(token.encode())
 	if err != nil || parsed != token {
-		t.Fatal("cookie round trip failed")
+		t.Fatal("token round trip failed")
 	}
-	for _, raw := range []string{"", "bad", token.cookie() + "="} {
-		if _, err := parseSessionCookie(raw); err == nil {
-			t.Fatal("malformed cookie accepted")
+	for _, raw := range []string{"", "bad", token.encode() + "="} {
+		if _, err := parseSessionToken(raw); err == nil {
+			t.Fatal("malformed token accepted")
 		}
 	}
 }
@@ -355,5 +355,49 @@ func TestMigrationNumericOrdering(t *testing.T) {
 	var value int
 	if err = m.store.db.QueryRow("SELECT id FROM sequence").Scan(&value); err != nil || value != 10 {
 		t.Fatalf("numeric migration order: %d %v", value, err)
+	}
+}
+
+func TestAuthenticatedOperationRollsBack(t *testing.T) {
+	m := testManager(t)
+	token, _ := testSession(t, m)
+	stopped := errors.New("operation stopped")
+	err := m.store.withSession(t.Context(), token, m.now, func(tx *sql.Tx, _ session) error {
+		if _, err := tx.Exec("INSERT INTO bots(id,name,created_at) VALUES (?, 'partial',1)", randomID()); err != nil {
+			return err
+		}
+		return stopped
+	})
+	if !errors.Is(err, stopped) {
+		t.Fatal("operation error was lost")
+	}
+	bots, err := m.listBots(t.Context(), token)
+	if err != nil || len(bots) != 0 {
+		t.Fatal("partial authenticated mutation survived rollback")
+	}
+}
+
+func TestBotListsAreEmptyOrOrdered(t *testing.T) {
+	m := testManager(t)
+	token, _ := testSession(t, m)
+	bots, err := m.listBots(t.Context(), token)
+	if err != nil || bots == nil || len(bots) != 0 {
+		t.Fatal("empty list differs")
+	}
+	for _, row := range []struct {
+		id      string
+		created int64
+	}{
+		{"cccccccccccccccccccccccccccccccc", 2},
+		{"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 1},
+		{"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1},
+	} {
+		if _, err := m.store.db.Exec("INSERT INTO bots(id,name,created_at) VALUES (?, 'ordered',?)", row.id, row.created); err != nil {
+			t.Fatal(err)
+		}
+	}
+	bots, err = m.listBots(t.Context(), token)
+	if err != nil || len(bots) != 3 || bots[0].id != "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" || bots[1].id != "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" || bots[2].id != "cccccccccccccccccccccccccccccccc" {
+		t.Fatal("bot list order differs")
 	}
 }

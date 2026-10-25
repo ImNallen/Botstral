@@ -1,36 +1,33 @@
 # Botstral
 
-Botstral is a local, single-owner manager for named bot identities. Owner credentials, bots, and browser sessions persist in SQLite. Bots do not execute tasks yet.
+Botstral is a single-owner assistant system under development. The M01 manager is a local Go API with durable owner, session, and bot storage. It has no user interface.
 
-Use Go 1.26, Node 26, and npm 11.
+The Go module lives in `manager/`. Future desktop and mobile apps will live in `desktop/` and `mobile/`, with separate designs. Neither app exists yet. See [the plan](PLAN.md) for later milestones.
+
+## Run the manager
+
+Install Go 1.26 or later and Make. No frontend toolchain is required.
 
 ```sh
 make deps
 make build
-./bin/botstral --data-dir ./data --port 8080 --setup
+./bin/botstral --data-dir /absolute/path/to/botstral-data --port 8080 --setup
 ```
 
-Open the separate setup link printed in the terminal. Create your owner username and password, then sign in at `http://127.0.0.1:8080`. Setup expires after 15 minutes and closes after owner creation. It never signs you in or replaces an existing owner.
+For an unconfigured installation, `--setup` opens a separate temporary IPv4 loopback listener. Standard error contains one operator-only JSON record with `bootstrapEndpoint`, `capability`, and `expiresAt`. Send a JSON `POST` to that endpoint with `username` and `password`, authenticated by `Authorization: Bearer <capability>`. Omit `Origin`. Setup creates the owner without a session, then closes. The capability expires after fifteen minutes.
 
-For subsequent starts, omit `--setup`. Use the same data directory to keep your bots and sessions. An uninitialized start without `--setup` exits before listening. The manager binds only to `127.0.0.1`. Remote access, reverse proxies, paired devices, model connections, and task execution are outside M01.
+Sign in through `POST /api/v1/sign-in` on the main listener with the same credential fields and no Authorization header. Retain the returned token privately. Use `Authorization: Bearer <token>` for subsequent calls. Each sign-in creates an independent seven-day session. Session lists contain metadata only.
 
-The binary embeds the production frontend. Run it from any directory without `web/` or Node installed. Protect and retain the data directory. It contains `botstral.sqlite` and its SQLite journal files. Stop the manager before copying the entire directory for a backup.
+Restart with the same data directory. Normal startup needs no `--setup` after owner creation. A configured installation never reopens setup, even with that flag. `make dev` runs the manager with `./data` at the repository root and opts into setup when needed.
 
-Each browser session expires seven days after sign-in. Use **Sessions** to revoke one session, including the current one, or **Sign out** to end the current session. No authentication is stored in local storage.
+The manager binds only `127.0.0.1`. M01 does not provide remote access, device pairing, or TLS. Keep bootstrap capabilities, passwords, and session tokens out of shell history, shared terminals, and logs. Protect the data directory and let the manager enforce its file modes.
 
-```sh
-make dev
-```
-
-Development serves `web/dist` from the manager at port 8080 and watches frontend changes. Watch rebuilds preserve existing assets so startup and open pages retain valid files. A normal build clears old assets. Refresh the browser after a rebuild. Restart `make dev` after Go changes. Development data lives in `.local/data`. Interrupting the command stops both process groups.
+## Verify
 
 ```sh
-npm --prefix web exec playwright install chromium
 make verify
 ```
 
-`make verify` builds the frontend, runs Go race tests and vet, checks TypeScript, builds `bin/botstral`, and runs built-binary and Playwright acceptance checks. CI runs the same command. Browser screenshots and failure traces appear in `web/test-results`. On Linux, install browser system dependencies with `npm --prefix web exec playwright install --with-deps chromium`.
+This runs Go race tests, vet, a binary build, and an actual-binary acceptance driver. The driver copies the executable outside the checkout and verifies restart persistence, bot identity, session survival, revocation, sign-out, and setup closure.
 
-The acceptance script copies the binary outside the repository. It proves owner creation, embedded assets, the same bot ID after restart and explicit sign-in, durable cookies, anonymous rejection, setup isolation and closure, revocation, and sign-out. Browser tests cover the real forms, narrow layout, connection loss, preserved drafts, and late responses after sign-out.
-
-See [M01 design and verification](docs/m01.md) for implementation choices and browser evidence. [PLAN.md](PLAN.md) tracks the remaining milestones.
+See [the M01 API reference](docs/m01.md) for request contracts and verification limits. M01 checklist completion awaits independent backend review and parent verification.

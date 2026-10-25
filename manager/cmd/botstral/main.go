@@ -3,13 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"botstral/internal/manager"
-	"botstral/web"
 )
 
 func main() {
@@ -26,9 +24,5 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	assets, err := fs.Sub(web.Files, "dist")
-	if err != nil {
-		return err
-	}
-	return manager.Run(ctx, cfg, assets, os.Stderr)
+	return manager.Run(ctx, cfg, os.Stderr)
 }
