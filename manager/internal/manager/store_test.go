@@ -264,7 +264,7 @@ func TestExpiryFixedAndIndependentSignIns(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	replacement, _, _, err := m.signIn(ctx, input)
+	third, _, _, err := m.signIn(ctx, input)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -275,7 +275,7 @@ func TestExpiryFixedAndIndependentSignIns(t *testing.T) {
 		t.Fatalf("independent session lost: %v", err)
 	}
 	now = value.expiresAt
-	if _, _, err = m.currentSession(ctx, replacement); !errors.Is(err, errUnauthorized) {
+	if _, _, err = m.currentSession(ctx, third); !errors.Is(err, errUnauthorized) {
 		t.Fatalf("expired session valid: %v", err)
 	}
 }

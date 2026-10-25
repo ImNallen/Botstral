@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -316,8 +317,8 @@ func TestSetupPolicyExpiryAndReplay(t *testing.T) {
 		base["Forwarded"] = "for=127.0.0.1;host=" + testHost
 		requireStatus(t, apiRequest(handler, "POST", "/owner", testCredentials, nil, base), 403)
 	}
-	sessionToken, _ := testSession(t, testManager(t))
-	requireStatus(t, apiRequest(handler, "POST", "/owner", testCredentials, &sessionToken, nil), 403)
+	otherToken, _ := testSession(t, testManager(t))
+	requireStatus(t, apiRequest(handler, "POST", "/owner", testCredentials, &otherToken, nil), 403)
 	for _, path := range []string{"/", "/setup.js", "/api/v1/health", "/api/v1/sign-in", "/api/v1/bots", "/owner/", "/%6fwner", "//owner", "/x/../owner"} {
 		requireStatus(t, apiRequest(handler, "POST", path, testCredentials, nil, setupHeaders(capability)), 404)
 	}
@@ -512,5 +513,112 @@ func TestSecretsAreNotStoredPlaintext(t *testing.T) {
 		if bytes.Contains(body, []byte(token.encode())) || bytes.Contains(body, token.raw[:]) || bytes.Contains(body, []byte("synthetic passphrase")) {
 			t.Fatal("storage contains plaintext credentials")
 		}
+	}
+}
+
+type bodyBarrier struct {
+	io.Reader
+	entered chan struct{}
+	release <-chan struct{}
+	once    sync.Once
+}
+
+func (b *bodyBarrier) Read(p []byte) (int, error) {
+	b.once.Do(func() { close(b.entered); <-b.release })
+	return b.Reader.Read(p)
+}
+
+func TestBotMutationRechecksSessionAfterBodyRead(t *testing.T) {
+	for _, invalidation := range []string{"revoked", "expired"} {
+		t.Run(invalidation, func(t *testing.T) {
+			m := testManager(t)
+			var clock atomic.Int64
+			clock.Store(time.Now().Unix())
+			m.now = func() time.Time { return time.Unix(clock.Load(), 0) }
+			token, current := testSession(t, m)
+			admin, _ := testSession(t, m)
+			entered, release := make(chan struct{}), make(chan struct{})
+			var releaseOnce sync.Once
+			t.Cleanup(func() { releaseOnce.Do(func() { close(release) }) })
+			body := &bodyBarrier{Reader: strings.NewReader(`{"name":"too late"}`), entered: entered, release: release}
+			request := httptest.NewRequest("POST", testEndpoint+"/api/v1/bots", body)
+			request.Header.Set("Authorization", "Bearer "+token.encode())
+			request.Header.Set("Content-Type", "application/json")
+			response := httptest.NewRecorder()
+			done := make(chan struct{})
+			go func() { defer close(done); m.mainHandler(testHost).ServeHTTP(response, request) }()
+			select {
+			case <-entered:
+			case <-time.After(5 * time.Second):
+				t.Fatal("authenticated request did not reach body")
+			}
+			if invalidation == "revoked" {
+				if err := m.revokeSession(t.Context(), admin, current.id); err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				clock.Store(current.expiresAt.Unix())
+			}
+			releaseOnce.Do(func() { close(release) })
+			select {
+			case <-done:
+			case <-time.After(5 * time.Second):
+				t.Fatal("request did not finish")
+			}
+			requireStatus(t, response, 401)
+			var count int
+			if err := m.store.db.QueryRow("SELECT count(*) FROM bots").Scan(&count); err != nil || count != 0 {
+				t.Fatal("invalidated session committed a bot")
+			}
+		})
+	}
+}
+
+func TestSetupQueuedForTransactionCannotOutliveActivation(t *testing.T) {
+	for _, invalidation := range []string{"expired", "cancelled"} {
+		t.Run(invalidation, func(t *testing.T) {
+			m := unconfiguredManager(t)
+			var clock atomic.Int64
+			clock.Store(time.Now().Unix())
+			m.now = func() time.Time { return time.Unix(clock.Load(), 0) }
+			capability, activation := testActivation(m)
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+			tx, err := m.store.db.BeginTx(t.Context(), nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer tx.Rollback()
+			waits := m.store.db.Stats().WaitCount
+			result := make(chan *httptest.ResponseRecorder, 1)
+			go func() {
+				result <- apiRequest(m.setupHandler(ctx, activation), "POST", "/owner", testCredentials, nil, setupHeaders(capability))
+			}()
+			deadline := time.Now().Add(5 * time.Second)
+			for m.store.db.Stats().WaitCount == waits && time.Now().Before(deadline) {
+				time.Sleep(time.Millisecond)
+			}
+			if m.store.db.Stats().WaitCount == waits {
+				t.Fatal("setup did not wait for transaction admission")
+			}
+			if invalidation == "expired" {
+				clock.Store(activation.expiresAt.Unix())
+			} else {
+				cancel()
+			}
+			if err = tx.Commit(); err != nil {
+				t.Fatal(err)
+			}
+			select {
+			case response := <-result:
+				requireStatus(t, response, 410)
+			case <-time.After(5 * time.Second):
+				t.Fatal("queued setup did not finish")
+			}
+			configured, err := m.store.configured(t.Context())
+			if err != nil || configured {
+				t.Fatal("inactive setup committed after waiting")
+			}
+		})
 	}
 }
