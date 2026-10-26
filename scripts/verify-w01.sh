@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 umask 077
+python3 -m unittest discover -s agent/tests -p 'test_w01_*.py'
 if [[ $(uname -s) != Linux ]]; then
     echo 'W01 process acceptance requires Linux and a systemd 255 user manager.' >&2
     exit 1
