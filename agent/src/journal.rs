@@ -24,6 +24,7 @@ pub(crate) struct Journal {
     ready: bool,
     deliveries: std::collections::HashMap<ExecutionId, Delivery>,
     sent_through: u64,
+    claims: std::collections::HashMap<ExecutionId, std::time::Instant>,
     #[cfg(feature = "nonproduction-test-worker")]
     provider: crate::effect_provider::Provider,
 }
@@ -135,6 +136,7 @@ impl Journal {
             ready: false,
             deliveries: Default::default(),
             sent_through: 0,
+            claims: Default::default(),
             #[cfg(feature = "nonproduction-test-worker")]
             provider: crate::effect_provider::Provider::open(directory)?,
         };
@@ -151,6 +153,7 @@ impl Journal {
         self.ready = false;
         self.deliveries.clear();
         self.sent_through = 0;
+        self.claims.clear();
     }
     fn executions(&self) -> io::Result<Vec<Execution>> {
         self.db
@@ -386,6 +389,7 @@ impl Journal {
                 vec![]
             }
             ManagerMessage::ClaimDenied { execution } => {
+                self.claims.remove(execution);
                 if let Some(delivery) = self.deliveries.remove(execution) {
                     let body: String = self
                         .db
@@ -433,6 +437,7 @@ impl Journal {
                     self.reconcile()?;
                     return Ok(Some(vec![]));
                 }
+                self.claims.remove(&binding.execution);
                 e.phase = Phase::Admitted;
                 let tx = self.db.transaction().map_err(err)?;
                 save(&tx, &e)?;
@@ -454,6 +459,24 @@ impl Journal {
         let paused = cfg!(all(feature = "nonproduction-test-worker", debug_assertions))
             && self.directory.join("pause-before-claim").exists();
         for mut e in self.executions()? {
+            if e.phase == Phase::ClaimPending
+                && self
+                    .claims
+                    .get(&e.body.execution)
+                    .is_some_and(|started| started.elapsed() >= std::time::Duration::from_secs(5))
+            {
+                e.phase = Phase::Uncertain;
+                let outcome = ExecutionEvent::Uncertain {
+                    reason: "permit_timeout".into(),
+                };
+                e.outcome = Some(outcome.clone());
+                self.deliveries.remove(&e.body.execution);
+                self.claims.remove(&e.body.execution);
+                let tx = self.db.transaction().map_err(err)?;
+                save(&tx, &e)?;
+                report(&tx, &e, outcome)?;
+                tx.commit().map_err(err)?;
+            }
             if matches!(e.body.work, WorkSpec::Unavailable) && e.phase == Phase::Prepared {
                 e.phase = Phase::Resolved;
                 e.outcome = Some(ExecutionEvent::Failed {
@@ -474,6 +497,8 @@ impl Journal {
                 && binding.expires_at > now()
             {
                 e.phase = Phase::ClaimPending;
+                self.claims
+                    .insert(e.body.execution, std::time::Instant::now());
                 save(&self.db, &e)?;
                 messages.push(Envelope::new(WorkerMessage::Claim {
                     incarnation: self.incarnation,
@@ -578,5 +603,28 @@ mod tests {
                 .incarnation,
             incarnation
         );
+    }
+}
+
+#[cfg(test)]
+mod corruption_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+    #[test]
+    fn corrupt_or_linked_journals_never_become_empty_replacements() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("agent.sqlite3");
+        let original = b"corrupt durable journal";
+        std::fs::write(&path, original).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        assert!(Journal::open(root.path(), false).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        std::fs::remove_file(&path).unwrap();
+        let target = root.path().join("unrelated");
+        std::fs::write(&target, original).unwrap();
+        std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o600)).unwrap();
+        std::fs::hard_link(&target, &path).unwrap();
+        assert!(Journal::open(root.path(), false).is_err());
+        assert_eq!(std::fs::read(&target).unwrap(), original);
     }
 }

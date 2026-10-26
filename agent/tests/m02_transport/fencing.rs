@@ -339,6 +339,60 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
     assert!(
         matches!(duplicate.message,WorkerMessage::Reports{reports,..} if reports.iter().any(|r|Some(r.sequence)==completed_sequence && matches!(r.event,ExecutionEvent::Completed{..})))
     );
+    let timeout_body = CommandBody {
+        id: CommandId::new(),
+        task: TaskId::new(),
+        operation: OperationId::new(),
+        execution: ExecutionId::new(),
+        ..next.clone()
+    };
+    let timeout_binding = ExecutionBinding {
+        owner: timeout_body.owner,
+        bot: timeout_body.bot,
+        task: timeout_body.task,
+        operation: timeout_body.operation,
+        arguments: timeout_body.argument_digest(),
+        permission_revision: 1,
+        approval: ApprovalId::new(),
+        execution: timeout_body.execution,
+        expires_at: 4000000000,
+    };
+    send_probe(
+        &mut socket,
+        ManagerMessage::Delivery(Delivery {
+            body: timeout_body.clone(),
+            fence: bot.fence(generation),
+            authority: Some(timeout_binding.clone()),
+            cancel: false,
+        }),
+    )
+    .await;
+    let mut timed_out = false;
+    while !timed_out {
+        match report(&mut socket).await.message {
+            WorkerMessage::Claim { .. } => {}
+            WorkerMessage::Reports { reports, .. } => {
+                timed_out=reports.iter().any(|r|r.execution==timeout_body.execution && matches!(&r.event,ExecutionEvent::Uncertain{reason} if reason=="permit_timeout"));
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::ReportAck {
+                        through: reports.last().unwrap().sequence,
+                    },
+                )
+                .await;
+            }
+            other => panic!("permit timeout {other:?}"),
+        }
+    }
+    send_probe(
+        &mut socket,
+        ManagerMessage::Permit {
+            incarnation,
+            fence: bot.fence(generation),
+            binding: timeout_binding,
+        },
+    )
+    .await;
     let mut changed = delivery;
     changed.body.work = WorkSpec::TestEffect {
         value: 2,

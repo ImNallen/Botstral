@@ -143,6 +143,24 @@ impl State {
         message: &ManagerMessage,
     ) -> Result<(), OperationError> {
         self.check_lease(lease)?;
+        match message {
+            ManagerMessage::Delivery(delivery) => {
+                self.check_input_fence(lease.worker, delivery.fence)?
+            }
+            ManagerMessage::Permit { fence, binding, .. } => {
+                self.check_input_fence(lease.worker, *fence)?;
+                let task = self.load_task(binding.task)?;
+                if matches!(
+                    task.state,
+                    botstral_link::TaskState::Cancelling
+                        | botstral_link::TaskState::AwaitingAttention
+                ) || binding.expires_at <= self.now()
+                {
+                    return Err(ErrorCode::WrongPhase.into());
+                }
+            }
+            _ => {}
+        }
         if let ManagerMessage::Receipt {
             command_id,
             outcome: Acknowledgment::Accepted,

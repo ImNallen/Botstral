@@ -65,8 +65,12 @@ impl State {
                     bot == Some(document.bot.to_string())
                 }
                 SourceReference::External { reference } => {
-                    reference.starts_with("https://")
-                        && reference.len() <= 512
+                    reference.parse::<hyper::Uri>().ok().is_some_and(|uri| {
+                        uri.scheme_str() == Some("https")
+                            && uri
+                                .authority()
+                                .is_some_and(|a| !a.host().is_empty() && !a.as_str().contains('@'))
+                    }) && reference.len() <= 512
                         && !reference
                             .chars()
                             .any(|c| c.is_whitespace() || c.is_control())
