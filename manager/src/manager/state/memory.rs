@@ -67,7 +67,9 @@ impl State {
                 SourceReference::External { reference } => {
                     reference.starts_with("https://")
                         && reference.len() <= 512
-                        && !reference.chars().any(char::is_whitespace)
+                        && !reference
+                            .chars()
+                            .any(|c| c.is_whitespace() || c.is_control())
                         && reference.len() > 8
                 }
             };
@@ -122,6 +124,16 @@ impl State {
             if prior != Some((document.revision, digest.clone())) {
                 tx.execute("INSERT INTO document_publications VALUES(?1,?2,?3) ON CONFLICT(name) DO UPDATE SET revision=excluded.revision,digest=excluded.digest", params![name,document.revision as i64,digest])?;
                 event(&tx, "document_published", name)?;
+            }
+        }
+        let published = tx
+            .prepare("SELECT name FROM document_publications")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .collect::<Result<Vec<_>, _>>()?;
+        for name in published {
+            if !documents.iter().any(|d| filename(d.bot, &d.kind) == name) {
+                tx.execute("DELETE FROM document_publications WHERE name=?1", [&name])?;
+                event(&tx, "document_removed", &name)?;
             }
         }
         tx.commit()?;

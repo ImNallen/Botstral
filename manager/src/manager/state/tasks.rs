@@ -157,6 +157,7 @@ impl State {
             state: TaskState::Queued,
             progress: 0,
             outcome: None,
+            effect_evidence: Vec::new(),
             approval: ApprovalView {
                 id: ApprovalId::new(),
                 binding: None,

@@ -25,3 +25,9 @@ Legacy task-start shapes are refused instead of translated. New callers use the 
 The debug synthetic provider has its own durable SQLite ledger. Its invocation count detects repeated effects independently of the worker journal. Test effects are synchronous and have no external process group. Synthetic input work is a bounded single adapter operation. It does not prove operating-system input, desktop independence, production provider reconciliation or real shell supervision.
 
 Independent correctness and comment review belongs to the parent. This implementation run does not claim an independent verdict.
+
+Recovery includes a complete journal inventory after report replay. Inventory pages are bounded by the same entry and byte limits, and fresh execution waits for all pages. A consumed execution missing from that inventory requires attention. Terminal outcome reports remain in a separate journal table after transport payload pruning so repeated delivery can return the original report identity.
+
+The lifetime report sequence is capped at 16384 per worker journal. Storage exhaustion fails closed and retains semantic tombstones. This milestone provides no journal compaction or task deletion API. Both machines retain evidence rather than freeing duplicate protection for new work.
+
+Task views preserve prior effect and uncertainty evidence when cancellation later records stopped confirmation. A stopped confirmation does not assert that earlier uncertain effects did not occur.

@@ -422,6 +422,7 @@ export interface Permission {
 export interface TaskView {
   approval: ApprovalView;
   command: CommandBody;
+  effect_evidence: ExecutionEvent[];
   id: TaskId;
   outcome?: ExecutionEvent | null;
   progress: number;

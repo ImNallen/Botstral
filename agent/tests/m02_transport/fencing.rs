@@ -102,19 +102,65 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
         report(&mut socket).await.message,
         WorkerMessage::SnapshotApplied { .. }
     ));
-    let start = botstral_link::Command {
+
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::RecoveryHello { .. }
+    ));
+    send_probe(&mut socket, ManagerMessage::InventoryRequest { offset: 0 }).await;
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::Inventory { total: 0, .. }
+    ));
+    send_probe(&mut socket, ManagerMessage::RecoveryReady { generation }).await;
+    let body = CommandBody {
         id: CommandId::new(),
-        task_id: TaskId::new(),
-        fence: a.fence(generation),
-        action: CommandAction::Start {
-            work: WorkSpec::TestInput { steps: 10 },
+        owner: OwnerId::new(),
+        task: TaskId::new(),
+        bot: a.bot_id,
+        worker,
+        session: a.id,
+        operation: OperationId::new(),
+        execution: ExecutionId::new(),
+        work: WorkSpec::TestEffect {
+            value: 1,
+            observable: true,
         },
     };
-    send_probe(&mut socket, ManagerMessage::Command(start.clone())).await;
-    let queued = loop {
-        let report = report(&mut socket).await;
-        if matches!(report.message, WorkerMessage::BotInput { .. }) {
-            break report;
+    let binding = ExecutionBinding {
+        owner: body.owner,
+        bot: body.bot,
+        task: body.task,
+        operation: body.operation,
+        arguments: body.argument_digest(),
+        permission_revision: 1,
+        approval: ApprovalId::new(),
+        execution: body.execution,
+        expires_at: 4000000000,
+    };
+    send_probe(
+        &mut socket,
+        ManagerMessage::Delivery(Delivery {
+            body: body.clone(),
+            fence: a.fence(generation),
+            authority: Some(binding.clone()),
+            cancel: false,
+        }),
+    )
+    .await;
+    let incarnation = loop {
+        match report(&mut socket).await.message {
+            WorkerMessage::Claim { incarnation, .. } => break incarnation,
+            WorkerMessage::Reports { reports, .. } => {
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::ReportAck {
+                        through: reports.last().unwrap().sequence,
+                    },
+                )
+                .await
+            }
+            other => panic!("claim expected {other:?}"),
         }
     };
     let mut owned = a.clone();
@@ -128,46 +174,31 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
         },
     )
     .await;
-    assert!(matches!(
-        report(&mut socket).await.message,
-        WorkerMessage::ControlApplied { .. }
-    ));
-    socket
-        .send(Message::Text(
-            serde_json::to_string(&Envelope {
-                version: VERSION,
-                request_id: queued.request_id,
-                message: ManagerMessage::Receipt {
-                    command_id: start.id,
-                    outcome: Acknowledgment::Accepted,
-                },
-            })
-            .unwrap()
-            .into(),
-        ))
-        .await
-        .unwrap();
-    let status = botstral_link::Command {
-        id: CommandId::new(),
-        task_id: start.task_id,
-        fence: owned.fence(generation),
-        action: CommandAction::Status,
-    };
-    send_probe(&mut socket, ManagerMessage::Command(status)).await;
-    assert!(matches!(
-        report(&mut socket).await.message,
-        WorkerMessage::Acknowledgment { .. }
-    ));
-    assert!(matches!(
-        report(&mut socket).await.message,
-        WorkerMessage::Event {
-            event: TaskEvent::Status {
-                status: TaskStatus::Suspended,
-                applied: 0
-            },
-            ..
+    loop {
+        match report(&mut socket).await.message {
+            WorkerMessage::ControlApplied { .. } => break,
+            WorkerMessage::Reports { reports, .. } => {
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::ReportAck {
+                        through: reports.last().unwrap().sequence,
+                    },
+                )
+                .await
+            }
+            other => panic!("control expected {other:?}"),
         }
-    ));
+    }
+    send_probe(
+        &mut socket,
+        ManagerMessage::Permit {
+            incarnation,
+            fence: a.fence(generation),
+            binding,
+        },
+    )
+    .await;
+    let db = rusqlite::Connection::open(state.join("synthetic-provider.sqlite3")).unwrap();
     for (fence, code) in [
         (a.fence(generation), ErrorCode::StaleRevision),
         (owned.fence(Generation::INITIAL), ErrorCode::StaleGeneration),
@@ -181,10 +212,152 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
             },
         )
         .await;
-        assert!(
-            matches!(report(&mut socket).await.message, WorkerMessage::Acknowledgment { outcome: Acknowledgment::Rejected { code: received }, .. } if received == code)
-        );
+        loop {
+            match report(&mut socket).await.message {
+                WorkerMessage::Acknowledgment {
+                    outcome: Acknowledgment::Rejected { code: received },
+                    ..
+                } => {
+                    assert_eq!(received, code);
+                    break;
+                }
+                WorkerMessage::Reports { reports, .. } => {
+                    send_probe(
+                        &mut socket,
+                        ManagerMessage::ReportAck {
+                            through: reports.last().unwrap().sequence,
+                        },
+                    )
+                    .await
+                }
+                other => panic!("refusal expected {other:?}"),
+            }
+        }
     }
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT count(*) FROM effects", [], |r| r.get(0))
+            .unwrap(),
+        0,
+        "stale permit never invoked provider"
+    );
+
+    let mut bot = owned.clone();
+    bot.owner = InputOwner::Bot;
+    bot.revision = bot.revision.advance().unwrap();
+    send_probe(
+        &mut socket,
+        ManagerMessage::Control {
+            generation,
+            session: bot.clone(),
+        },
+    )
+    .await;
+    loop {
+        match report(&mut socket).await.message {
+            WorkerMessage::ControlApplied { .. } => break,
+            WorkerMessage::Reports { reports, .. } => {
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::ReportAck {
+                        through: reports.last().unwrap().sequence,
+                    },
+                )
+                .await
+            }
+            other => panic!("control {other:?}"),
+        }
+    }
+    let next = CommandBody {
+        id: CommandId::new(),
+        task: TaskId::new(),
+        operation: OperationId::new(),
+        execution: ExecutionId::new(),
+        ..body
+    };
+    let authority = ExecutionBinding {
+        owner: next.owner,
+        bot: next.bot,
+        task: next.task,
+        operation: next.operation,
+        arguments: next.argument_digest(),
+        permission_revision: 1,
+        approval: ApprovalId::new(),
+        execution: next.execution,
+        expires_at: 4000000000,
+    };
+    let delivery = Delivery {
+        body: next.clone(),
+        fence: bot.fence(generation),
+        authority: Some(authority.clone()),
+        cancel: false,
+    };
+    send_probe(&mut socket, ManagerMessage::Delivery(delivery.clone())).await;
+    let mut completed_sequence = None;
+    while completed_sequence.is_none() {
+        match report(&mut socket).await.message {
+            WorkerMessage::Claim {
+                incarnation,
+                fence,
+                binding,
+            } => {
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::Permit {
+                        incarnation,
+                        fence,
+                        binding,
+                    },
+                )
+                .await
+            }
+            WorkerMessage::Reports { reports, .. } => {
+                completed_sequence = reports
+                    .iter()
+                    .find(|r| {
+                        r.execution == next.execution
+                            && matches!(r.event, ExecutionEvent::Completed { .. })
+                    })
+                    .map(|r| r.sequence);
+                send_probe(
+                    &mut socket,
+                    ManagerMessage::ReportAck {
+                        through: reports.last().unwrap().sequence,
+                    },
+                )
+                .await;
+            }
+            other => panic!("execution {other:?}"),
+        }
+    }
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT sum(invocations) FROM effects", [], |r| r.get(0))
+            .unwrap(),
+        1
+    );
+    send_probe(&mut socket, ManagerMessage::Delivery(delivery.clone())).await;
+    let duplicate = report(&mut socket).await;
+    assert!(
+        matches!(duplicate.message,WorkerMessage::Reports{reports,..} if reports.iter().any(|r|Some(r.sequence)==completed_sequence && matches!(r.event,ExecutionEvent::Completed{..})))
+    );
+    let mut changed = delivery;
+    changed.body.work = WorkSpec::TestEffect {
+        value: 2,
+        observable: true,
+    };
+    send_probe(&mut socket, ManagerMessage::Delivery(changed)).await;
+    let closed = tokio::time::timeout(Duration::from_secs(5), socket.next())
+        .await
+        .unwrap();
+    assert!(
+        closed.is_none()
+            || closed.is_some_and(|r| r.is_err() || matches!(r, Ok(Message::Close(_))))
+    );
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT sum(invocations) FROM effects", [], |r| r.get(0))
+            .unwrap(),
+        1,
+        "changed identity never replaced execution"
+    );
     daemon.stop().await;
     f.manager.stop().await;
 }

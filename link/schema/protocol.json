@@ -1636,6 +1636,12 @@
         "command": {
           "$ref": "#/$defs/CommandBody"
         },
+        "effect_evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExecutionEvent"
+          }
+        },
         "id": {
           "$ref": "#/$defs/TaskId"
         },
@@ -1668,6 +1674,7 @@
         "command",
         "state",
         "progress",
+        "effect_evidence",
         "approval"
       ]
     },

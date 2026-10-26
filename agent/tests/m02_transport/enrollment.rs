@@ -362,37 +362,48 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     let generation = Generation::try_from(next["generation"].as_u64().unwrap()).unwrap();
     let session = f.create_session(worker, "Production refusal").await;
     let session = f.confirmed(session.id).await;
-    let unsupported = f
-        .command(
-            &session,
-            generation,
-            TaskId::new(),
-            CommandAction::Start {
-                work: WorkSpec::Unavailable,
-            },
-        )
-        .await;
-    f.receipt(worker, unsupported.id, |v| {
-        v["acknowledgment"] == json!({"type":"rejected","code":"unsupported_execution"})
+    let (status, task)=f.owner("POST","/v1/tasks",json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,"settings":{"model":"unavailable","max_turns":1,"max_tokens":1,"deadline":4000000000i64,"max_cost_micros":0},"work":{"type":"unavailable"}})).await;
+    assert_eq!(status, 200);
+    tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            let result = f
+                .owner(
+                    "GET",
+                    &format!("/v1/tasks/{}", task["id"].as_str().unwrap()),
+                    json!({}),
+                )
+                .await
+                .1;
+            if result["state"] == "failed" {
+                assert_eq!(result["outcome"]["code"], "unsupported_execution");
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
     })
-    .await;
-    let approved = f
-        .command(
-            &session,
-            generation,
-            TaskId::new(),
-            CommandAction::ExecuteApproved {
-                approval_id: ApprovalId::new(),
-                operation_id: OperationId::new(),
-                argument_digest: CertificateFingerprint::from_der(b"synthetic arguments"),
-                expires_at: 9999999999,
-            },
+    .await
+    .unwrap();
+    let approved = botstral_link::Command {
+        id: CommandId::new(),
+        task_id: TaskId::new(),
+        fence: session.fence(generation),
+        action: CommandAction::ExecuteApproved {
+            approval_id: ApprovalId::new(),
+            operation_id: OperationId::new(),
+            argument_digest: CertificateFingerprint::from_der(b"arguments"),
+            expires_at: 4000000000,
+        },
+    };
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-commands",
+            serde_json::to_value(approved).unwrap()
         )
-        .await;
-    f.receipt(worker, approved.id, |v| {
-        v["acknowledgment"] == json!({"type":"rejected","code":"unsupported_execution"})
-    })
-    .await;
+        .await
+        .1["error"],
+        "unsupported_execution"
+    );
     let taken = f.takeover(&session, InputOwner::Owner).await;
     let input = CommandId::new();
     assert_eq!(

@@ -383,29 +383,6 @@ impl Fixture {
         .await
         .expect("confirmed ownership")
     }
-    async fn command(
-        &self,
-        session: &ComputerSession,
-        generation: Generation,
-        task_id: TaskId,
-        action: CommandAction,
-    ) -> botstral_link::Command {
-        let command = botstral_link::Command {
-            id: CommandId::new(),
-            task_id,
-            fence: session.fence(generation),
-            action,
-        };
-        let (status, receipt) = self
-            .owner(
-                "POST",
-                "/v1/worker-commands",
-                serde_json::to_value(&command).unwrap(),
-            )
-            .await;
-        assert_eq!(status, 200, "dispatch {receipt}");
-        command
-    }
     async fn receipt(
         &self,
         worker: WorkerId,
@@ -450,6 +427,9 @@ impl Fixture {
 
 #[path = "m02_transport/enrollment.rs"]
 mod enrollment;
+
+#[path = "m03_recovery/mod.rs"]
+mod recovery;
 
 #[cfg(feature = "nonproduction-test-worker")]
 #[path = "m02_transport/sessions.rs"]

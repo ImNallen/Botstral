@@ -117,13 +117,20 @@ pub async fn connect_socket(config: &Config) -> io::Result<WebSocketStream<TlsSt
     .map_err(io::Error::other)
 }
 
-pub async fn run(config: Config, test_worker: bool, once: bool) -> io::Result<()> {
+pub async fn run(
+    config: Config,
+    directory: &std::path::Path,
+    test_worker: bool,
+    once: bool,
+) -> io::Result<()> {
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     let mut interrupt = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
+    let mut journal = crate::journal::Journal::open(directory, test_worker)?;
     let operation = async {
         let mut retry = Duration::from_millis(200);
         loop {
-            let result = connection(&config, test_worker, once).await;
+            let result = connection(&config, test_worker, once, &mut journal).await;
+            journal.disconnected()?;
             if once {
                 return result;
             }
@@ -162,7 +169,12 @@ async fn receive<S: AsyncRead + AsyncWrite + Unpin>(
     }
 }
 
-async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Result<()> {
+async fn connection(
+    config: &Config,
+    test_worker: bool,
+    once: bool,
+    journal: &mut crate::journal::Journal,
+) -> io::Result<()> {
     let mut socket = connect_socket(config).await?;
     send(
         &mut socket,
@@ -189,6 +201,17 @@ async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Resul
         WorkerMessage::SnapshotApplied { generation },
     )
     .await?;
+    journal.attach();
+    send(
+        &mut socket,
+        RequestId::new(),
+        WorkerMessage::RecoveryHello {
+            generation,
+            incarnation: journal.incarnation,
+            high_water: journal.high_water()?,
+        },
+    )
+    .await?;
     println!("worker ready");
     if once {
         return Ok(());
@@ -203,11 +226,13 @@ async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Resul
             message = receive(&mut socket) => {
                 let message = message?;
                 idle.as_mut().reset(tokio::time::Instant::now() + Duration::from_secs(30));
-                for report in runtime.handle(message).map_err(io::Error::other)? {
+                let reports = match journal.handle(&runtime.sessions, &message.message)? { Some(reports) => reports, None => runtime.handle(message).map_err(io::Error::other)? };
+                for report in reports {
                     send(&mut socket, report.request_id, report.message).await?;
                 }
             }
-            _ = ticks.tick(), if runtime.has_executor() => {
+            _ = ticks.tick() => {
+                for report in journal.tick(&runtime.sessions)? { send(&mut socket, report.request_id, report.message).await?; }
                 for report in runtime.tick() { send(&mut socket, report.request_id, report.message).await?; }
             }
             _ = &mut idle => return Err(io::Error::other("manager idle")),

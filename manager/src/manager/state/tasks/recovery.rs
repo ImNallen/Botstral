@@ -327,6 +327,11 @@ impl State {
                 return Err(ErrorCode::InvalidMessage.into());
             }
             let body = json(&report)?;
+            if body.len() > 1024
+                || matches!(&report.event,ExecutionEvent::Uncertain {reason} if reason.len()>256)
+            {
+                return Err(ErrorCode::InvalidMessage.into());
+            }
             let prior: Option<String> = tx.query_row("SELECT body FROM report_receipts WHERE worker=?1 AND incarnation=?2 AND sequence=?3", params![lease.worker.to_string(),current, report.sequence as i64], |r| r.get(0)).optional()?;
             if let Some(prior) = prior {
                 if prior != body {
@@ -343,6 +348,18 @@ impl State {
                 return Err(ErrorCode::Conflict.into());
             }
             let was_terminal = task.state.terminal();
+            if !was_terminal
+                && matches!(
+                    report.event,
+                    ExecutionEvent::Completed { .. } | ExecutionEvent::Uncertain { .. }
+                )
+                && !task.effect_evidence.contains(&report.event)
+            {
+                if task.effect_evidence.len() >= 4 {
+                    return Err(ErrorCode::InvalidMessage.into());
+                }
+                task.effect_evidence.push(report.event.clone());
+            }
             if !(was_terminal
                 || task.approval.consumed
                     && matches!(report.event, ExecutionEvent::ApprovalRequired))
@@ -434,7 +451,13 @@ impl State {
             [lease.worker.to_string()],
             |r| r.get(0),
         )?;
+        let delivered: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM commands WHERE id=?1 AND incarnation=?2 AND delivered=1)",
+            params![task.command.id.to_string(), current],
+            |r| r.get(0),
+        )?;
         let valid = allowed
+            && delivered
             && current == incarnation.to_string()
             && task.command.worker == lease.worker
             && task.command.session == fence.session_id

@@ -215,6 +215,7 @@ pub struct TaskView {
     pub state: TaskState,
     pub progress: u32,
     pub outcome: Option<ExecutionEvent>,
+    pub effect_evidence: Vec<ExecutionEvent>,
     pub approval: ApprovalView,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
