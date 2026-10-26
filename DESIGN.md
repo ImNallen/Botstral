@@ -2,7 +2,7 @@
 
 Version v0.3. October 2026.
 
-Status. Design draft. Product implementation has not started.
+Status. Product design. M01 has an implemented and locally verified manager foundation. Later milestones remain planned.
 
 Author. Adam Nilsson. Personal, non-commercial project.
 
@@ -89,6 +89,8 @@ The diagram shows service dependencies. The voice media path remains to be selec
 ### Authentication and onboarding
 
 Apps authenticate to the owner's Manager. Initial owner setup uses a dedicated local-only path. Remote routes and worker credentials cannot create the first owner.
+
+M01 implements separate loopback setup and regular HTTP listeners, revocable local sessions, and an age-encrypted credential store. [The M01 architecture](docs/m01-architecture.md) records its actual interfaces and design reconciliation. [The recovery reference](docs/security.md) defines explicit unlock and no escrow.
 
 The owner configures Mistral access through protected secret entry. The Manager stores provider credentials outside ordinary conversations and logs. Apps do not retain provider keys or retrieve stored vault values.
 
@@ -315,7 +317,7 @@ The [feature-parity milestones](PLAN.md#feature-parity-milestones) remain the fu
 
 1. Which Mistral model and region satisfy the initial reasoning, vision, privacy, and usage requirements without relying on unapproved preview terms?
 2. Which Vibe interface supports the required approval, cancellation, session, and usage behavior, and what integration rights apply to public distribution?
-3. Which encrypted credential store, unlock mechanism, key recovery, and backup format will v1 use?
+3. How will backup restoration and later credential policies extend M01's age store and explicit passphrase recovery policy?
 4. Which Playwright runtime and Rust integration will be packaged, and how will protected capture and supported website fills be verified?
 5. Which remote-access route and certificate lifecycle will desktop support first? Select mobile push delivery with the later mobile client.
 6. How will independent desktop sessions, shared browser authentication, streaming, and manual takeover be implemented and verified?

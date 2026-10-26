@@ -1,27 +1,31 @@
 # Botstral
 
-Botstral aims to be a self-hosted Grok Bot using Mistral-developed models instead of US models. Its bots will browse websites, manage files, and write code.
+Botstral is a self-hosted bot manager built around Mistral-developed models. Its first milestone runs locally and retains one owner's bots and encrypted provider credentials. Model execution and native apps follow later.
 
-The project is in early planning.
+## Repository layout
 
-## How it will work
+`manager/` contains the implemented manager. Planned components are `agent/` for bot execution, `link/` for shared schemas and Rust and TypeScript bindings, and `desktop/` and `mobile/` for native apps. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
 
-One manager serves one owner and their paired devices. It runs in its own virtual machine. Your bots share a separate persistent Computer VM, with access to its filesystem and command line.
+## Run the manager
 
-Each bot has its own screen and conversation. Files, installed tools, and browser logins are shared across bots.
+Use Rust 1.93.0 on Linux or macOS with a C compiler for bundled SQLite.
 
-The desktop app connects securely to the manager. Tasks continue when you close the app. Mobile companions follow after the desktop workflow is stable.
+```sh
+make verify
+make dev
+```
 
-Model Context Protocol plugins connect bots to external tools.
+Verification uses synthetic credentials and real TCP connections. Development starts the regular listener at `127.0.0.1:43120` and temporary setup at `127.0.0.1:43121`.
 
-## Planned stack
+Use the [local API reference and protected input example](docs/local-api.md) to create the owner, sign in, and create a bot. The bootstrap capability is in `.state/bootstrap.token` until setup completes. Keep credentials out of command arguments and environment variables.
 
-- The manager and worker use Rust, with SQLite for manager state.
-- The desktop app uses Tauri, React, and TypeScript.
-- Later mobile apps will use React Native for iOS and Android.
-- A TypeScript protocol library supports secure WebSocket connections and can be reused by mobile.
-- Mistral provides hosted reasoning, and Vibe handles coding.
+Keep an offline copy of the separate vault passphrase before setup. Setup leaves the vault locked. Every restart requires sign-in and explicit vault unlock. The [security and recovery reference](docs/security.md) describes the no-escrow policy.
 
-The manager and shared computer run on your infrastructure. Model inference uses the configured Mistral service.
+```sh
+make build
+./target/release/botstral-manager --state-dir .state
+```
 
-See [DESIGN.md](DESIGN.md) for the architecture and [PLAN.md](PLAN.md) for milestones and feature-parity tracking.
+Stop the manager with Control-C. Its SQLite database and encrypted credentials remain in `.state`. The [M01 architecture](docs/m01-architecture.md) records ownership, interfaces, verification, and design reconciliation.
+
+See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. One manager and a separate Computer VM remain the product target. M01 has no worker, inference, pairing, remote access, or native client.
