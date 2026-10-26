@@ -1,0 +1,14 @@
+{
+  "name": "@botstral/link",
+  "version": "0.1.0",
+  "private": true,
+  "types": "typescript/protocol.d.ts",
+  "exports": {
+    ".": {
+      "types": "./typescript/protocol.d.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  }
+}

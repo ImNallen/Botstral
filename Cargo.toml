@@ -1,5 +1,6 @@
 [workspace]
 members = ["manager", "link", "agent"]
+exclude = ["desktop/src-tauri"]
 resolver = "3"
 
 [workspace.package]

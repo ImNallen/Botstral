@@ -1,12 +1,18 @@
 # Security and recovery reference
 
-M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. M02 adds a separate mutual TLS worker listener. Owner-device pairing, remote access, model calls, and native apps remain unimplemented.
+M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. M02 adds a separate mutual TLS worker listener. C01 adds a native desktop client for local owner sign-in, bots, and status. Owner-device pairing, remote access, and model calls remain unimplemented.
 
 ## Authentication
 
 The only owner row has SQL primary key `1` and a constraint rejecting other identifiers. Setup commits that row and the vault row in one immediate transaction. The owner password uses Argon2id version 19 with a random salt, 65,536 KiB of memory, three passes, one lane, and a 32-byte output.
 
 Session tokens contain 256 random bits and are returned once. SQLite stores SHA-256 token hashes, public session identifiers, and absolute expiry times. Sessions expire after 24 hours. Startup transactionally removes all old sessions. Every protected operation authorizes when it executes on the state thread. Revocation, sign-out, locking, and writes execute in that same order. Other valid sessions retain their authority after a session is revoked or signed out.
+
+## Desktop authentication boundary
+
+The desktop keeps its bearer in native memory and returns credential-free application snapshots. Its fixed native operations accept only literal loopback endpoints. Environment proxies and redirects are disabled. The renderer cannot make general HTTP, shell, or filesystem requests through native commands. The packaged main document has limited capabilities and cannot navigate to remote content with those capabilities.
+
+Desktop sign-out immediately clears native auth and protected interface state. Server revocation is best effort and unconfirmed. In-flight requests can still commit. Queued operations and stale results are fenced by an auth generation. Passwords, tokens, and uncertain creation drafts are not persisted by the desktop. See [the desktop contract, limits, and acceptance gaps](c01-architecture.md).
 
 ## Vault format and unlock
 
