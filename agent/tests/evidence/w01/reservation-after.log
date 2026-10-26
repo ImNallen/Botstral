@@ -1,0 +1,23 @@
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `release` profile [optimized] target(s) in 3.55s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.29s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 2 tests
+test process_acceptance::w01_crash_runtime_bound ... ok
+test process_acceptance::w01_production_contract ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 40.30s
+
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.91s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.50s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bb5dc9af5797efc5)
+
+running 1 test
+test process_acceptance::w01_crash_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 17.44s
+

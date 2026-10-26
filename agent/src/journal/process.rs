@@ -222,6 +222,11 @@ impl Journal {
         let tx = self.db.transaction().map_err(err)?;
         save(&tx, e)?;
         report(&tx, e, e.outcome.clone().unwrap())?;
+        tx.execute(
+            "DELETE FROM reservations WHERE execution=?1",
+            [e.body.execution.to_string()],
+        )
+        .map_err(err)?;
         tx.commit().map_err(err)
     }
     fn request_stop(&mut self, e: &mut Execution, reason: StopReason) -> io::Result<()> {
@@ -244,6 +249,11 @@ impl Journal {
                     let tx = self.db.transaction().map_err(err)?;
                     save(&tx, e)?;
                     report(&tx, e, e.outcome.clone().unwrap())?;
+                    tx.execute(
+                        "DELETE FROM reservations WHERE execution=?1",
+                        [e.body.execution.to_string()],
+                    )
+                    .map_err(err)?;
                     tx.commit().map_err(err)?;
                 }
                 return Ok(());
@@ -530,9 +540,15 @@ impl Journal {
         let tx = self.db.transaction().map_err(err)?;
         save(&tx, e)?;
         report(&tx, e, event)?;
-        if e.phase != Phase::Uncertain {
+        if e.phase == Phase::Stopped {
             tx.execute(
                 "DELETE FROM reservations WHERE execution=?1",
+                [e.body.execution.to_string()],
+            )
+            .map_err(err)?;
+        } else {
+            tx.execute(
+                "UPDATE reservations SET remaining=min(remaining,1) WHERE execution=?1",
                 [e.body.execution.to_string()],
             )
             .map_err(err)?;

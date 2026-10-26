@@ -161,6 +161,20 @@ os.write(2,b'actual stderr')
         f.owner("POST", "/v1/tasks", input).await.1["command"],
         original["command"]
     );
+    let journal =
+        rusqlite::Connection::open(f.root.path().join("production-agent/agent.sqlite3")).unwrap();
+    let reserved: i64 = journal
+        .query_row(
+            "SELECT remaining FROM reservations WHERE execution=?1",
+            [original["command"]["execution"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(
+        reserved, 1,
+        "completion retains capacity for a cancellation racing its report"
+    );
+    drop(journal);
     evidence("success", &json!({"task":completed,"effect":effect}));
     exercise_processes(&mut f, &session, &mut daemon).await;
     daemon.stop().await;
