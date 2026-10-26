@@ -1,8 +1,8 @@
 # Botstral plan
 
-Botstral is in early planning. Product implementation has not started.
+Botstral has an implemented local manager foundation. Worker execution, model integration, and native clients remain planned.
 
-The first build milestone is M01. All implementation checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope. This plan turns those decisions into milestones and acceptance checks.
+M01 has local acceptance evidence. Independent review and Linux CI execution are pending integration. Later milestone checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
 ## Product target
 
@@ -77,16 +77,18 @@ Build M01 through M04 in order. M05 can proceed after M03 alongside M04. M06 req
 
 ### M01. Start the manager and retain owner data
 
-- [ ] Create the Rust workspace, manager service, and SQLite migrations using tokio, axum, and rusqlite.
-- [ ] Add local owner setup, sign-in, sign-out, and session revocation.
-- [ ] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
-- [ ] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
-- [ ] Add interfaces for owner authentication, bot records, and connection status that C01 and C02 can use.
-- [ ] Keep provider-key setup in protected secret entry outside ordinary conversations and logs. Apps must not retain provider keys or retrieve stored vault values.
-- [ ] Select an established encryption implementation for the credential store. Add locked and unlocked states, owner-provisioned unlock credentials, and a key recovery policy before storing provider keys.
-- [ ] Add development, build, and verification commands.
+- [x] Create the Rust workspace, manager service, and SQLite migrations using tokio, axum, and rusqlite.
+- [x] Add local owner setup, sign-in, sign-out, and session revocation.
+- [x] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
+- [x] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
+- [x] Add interfaces for owner authentication, bot records, and connection status that C01 and C02 can use.
+- [x] Keep provider-key setup in protected secret entry outside ordinary conversations and logs. Apps must not retain provider keys or retrieve stored vault values.
+- [x] Select an established encryption implementation for the credential store. Add locked and unlocked states, owner-provisioned unlock credentials, and a key recovery policy before storing provider keys.
+- [x] Add development, build, and verification commands.
 
 Complete when a local authenticated client can create a bot, restart the manager, and retrieve the same bot after signing in. Unauthenticated requests must not expose bot data. C01 and C02 provide the native client experience.
+
+Local evidence comes from `make verify` on Rust 1.93.0. Seven focused tests and [the actual-binary TCP test](crates/botstral-manager/tests/m01_local.rs) pass. TCP acceptance compares the full bot after forced restart, rejects missing and revoked authentication, verifies locked startup and protected key replacement, and scans generated files and logs for synthetic secrets. Formatting, clippy with warnings denied, and the release build pass. [The M01 architecture](docs/m01-architecture.md) records reconciliation and remaining integration checks. [The Linux workflow](.github/workflows/verify.yml) runs the same command.
 
 ### M02. Connect the shared computer and track bot sessions
 
