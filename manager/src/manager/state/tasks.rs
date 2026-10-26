@@ -2,6 +2,12 @@ mod recovery;
 use super::*;
 use botstral_link::*;
 
+#[derive(PartialEq)]
+pub(in crate::manager) enum ProcessControlStatus {
+    AwaitingStop,
+    Unproved,
+}
+
 pub(super) fn json<T: serde::Serialize>(value: &T) -> Result<String, OperationError> {
     serde_json::to_string(value).map_err(|_| OperationError::Internal)
 }
@@ -46,6 +52,35 @@ fn save(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
     Ok(())
 }
 impl State {
+    pub(in crate::manager) fn process_control_status(
+        &self,
+        worker: WorkerId,
+    ) -> Result<std::collections::HashMap<ComputerSessionId, ProcessControlStatus>, OperationError>
+    {
+        let mut status = std::collections::HashMap::new();
+        let mut statement = self
+            .connection
+            .prepare("SELECT view FROM tasks WHERE worker=?1")?;
+        let rows = statement.query_map([worker.to_string()], |row| row.get::<_, String>(0))?;
+        for row in rows {
+            let task: TaskView = parse(row?)?;
+            if task.state.terminal()
+                || !task.approval.consumed
+                || !matches!(task.command.work, WorkSpec::Process { .. })
+            {
+                continue;
+            }
+            if recovery::missing_process_scope(&task) {
+                status.insert(task.command.session, ProcessControlStatus::Unproved);
+            } else {
+                status
+                    .entry(task.command.session)
+                    .or_insert(ProcessControlStatus::AwaitingStop);
+            }
+        }
+        Ok(status)
+    }
+
     pub(in crate::manager) fn load_task(&self, id: TaskId) -> Result<TaskView, OperationError> {
         parse(
             self.connection

@@ -32,6 +32,10 @@ impl Worker {
         sessions: Vec<ComputerSession>,
         worker: WorkerId,
     ) -> io::Result<WorkerMessage> {
+        let fences: Vec<_> = sessions
+            .iter()
+            .map(|session| session.fence(generation))
+            .collect();
         if let Some(runtime) = &mut self.runtime {
             runtime.sessions = crate::session::Sessions::new(generation, sessions, worker)
                 .map_err(io::Error::other)?;
@@ -42,6 +46,12 @@ impl Worker {
             );
         }
         self.pending.clear();
+        for fence in fences {
+            self.pending.insert(
+                fence.session_id,
+                Envelope::new(WorkerMessage::ControlApplied { fence }),
+            );
+        }
         self.journal.attach();
         Ok(WorkerMessage::RecoveryHello {
             generation,
@@ -69,7 +79,7 @@ impl Worker {
         let mut output = Vec::new();
         for message in messages {
             if let WorkerMessage::ControlApplied { fence } = &message.message
-                && !self.journal.session_stopped(fence.session_id)?
+                && !self.journal.can_confirm_session(fence.session_id)?
             {
                 self.pending.insert(fence.session_id, message);
             } else {
@@ -96,7 +106,7 @@ impl Worker {
         let mut messages = self.journal.tick(&runtime.sessions)?;
         messages.extend(runtime.tick());
         for id in self.pending.keys().copied().collect::<Vec<_>>() {
-            if self.journal.session_stopped(id)? {
+            if self.journal.can_confirm_session(id)? {
                 messages.push(self.pending.remove(&id).unwrap());
             }
         }

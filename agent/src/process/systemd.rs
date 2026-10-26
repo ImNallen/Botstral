@@ -65,6 +65,54 @@ fn cgroup(scope: &ProcessScope) -> PathBuf {
     Path::new("/sys/fs/cgroup").join(scope.cgroup.trim_start_matches('/'))
 }
 
+async fn discard_probe(directory: &Path) -> io::Result<()> {
+    if directory.join("release.json").try_exists()? {
+        return Err(io::Error::other("probe unexpectedly released"));
+    }
+    if directory.join("manifest.json").try_exists()? {
+        let manifest: Manifest = read(&directory.join("manifest.json"))?;
+        let name = manifest.unit();
+        let unit = show(&name).await?;
+        match unit.get("LoadState").map(String::as_str) {
+            Some("not-found") => {}
+            Some("loaded") => {
+                if unit.get("KillMode").map(String::as_str) != Some("control-group")
+                    || unit.get("Restart").map(String::as_str) != Some("no")
+                {
+                    return Err(io::Error::other("probe supervision mismatch"));
+                }
+                let group = unit.get("ControlGroup").filter(|value| !value.is_empty());
+                if let Some(group) = group
+                    && (!group.starts_with('/')
+                        || group.split('/').any(|part| matches!(part, "." | ".."))
+                        || !group.ends_with(&name))
+                {
+                    return Err(io::Error::other("probe scope mismatch"));
+                }
+                command(
+                    "/usr/bin/systemctl",
+                    &["--user".into(), "stop".into(), name],
+                    5,
+                )
+                .await?;
+                if let Some(group) = group {
+                    match fs::read_to_string(
+                        Path::new("/sys/fs/cgroup")
+                            .join(group.trim_start_matches('/'))
+                            .join("cgroup.events"),
+                    ) {
+                        Ok(events) if events.lines().any(|line| line == "populated 0") => {}
+                        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                        _ => return Err(io::Error::other("probe scope still populated")),
+                    }
+                }
+            }
+            _ => return Err(io::Error::other("probe service state unavailable")),
+        }
+    }
+    fs::remove_dir_all(directory)
+}
+
 impl Backend {
     pub async fn probe(
         root: &Path,
@@ -101,10 +149,7 @@ impl Backend {
         };
         let probes = root.join("process-probe");
         if probes.try_exists()? {
-            let previous: Manifest = read(&probes.join("manifest.json"))?;
-            let ready = backend.observe(&probes, &previous).await?;
-            backend.stop(&ready.scope).await?;
-            fs::remove_dir_all(&probes)?;
+            discard_probe(&probes).await?;
         }
         fs::DirBuilder::new().mode(0o700).create(&probes)?;
         let manifest = Manifest {

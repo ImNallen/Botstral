@@ -291,16 +291,17 @@ impl Journal {
         }
         Ok(())
     }
-    pub fn session_stopped(&self, session: ComputerSessionId) -> io::Result<bool> {
-        Ok(self
-            .executions()?
-            .iter()
-            .filter(|e| e.body.session == session)
-            .all(|e| {
-                e.process
-                    .as_ref()
-                    .is_none_or(|p| matches!(p.lifecycle, Lifecycle::Stopped { .. }))
-            }))
+    pub fn can_confirm_session(&self, session: ComputerSessionId) -> io::Result<bool> {
+        Ok(self.ready
+            && self
+                .executions()?
+                .iter()
+                .filter(|e| e.body.session == session)
+                .all(|e| {
+                    e.process
+                        .as_ref()
+                        .is_none_or(|p| matches!(p.lifecycle, Lifecycle::Stopped { .. }))
+                }))
     }
     pub fn processes_stopped(&self) -> io::Result<bool> {
         Ok(self.executions()?.iter().all(|e| {

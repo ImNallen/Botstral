@@ -576,7 +576,7 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
     }
 }
 
-fn missing_process_scope(task: &TaskView) -> bool {
+pub(super) fn missing_process_scope(task: &TaskView) -> bool {
     !task.state.terminal()
         && task.approval.consumed
         && matches!(task.command.work, WorkSpec::Process { .. })
