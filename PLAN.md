@@ -88,7 +88,7 @@ Build M01 through M04 in order. M05 can proceed after M03 alongside M04. M06 req
 
 Complete when a local authenticated client can create a bot, restart the manager, and retrieve the same bot after signing in. Unauthenticated requests must not expose bot data. C01 and C02 provide the native client experience.
 
-Local evidence comes from `make verify` on Rust 1.93.0. Seven focused tests and [the actual-binary TCP test](crates/botstral-manager/tests/m01_local.rs) pass. TCP acceptance compares the full bot after forced restart, rejects missing and revoked authentication, verifies locked startup and protected key replacement, and scans generated files and logs for synthetic secrets. Formatting, clippy with warnings denied, and the release build pass. [The M01 architecture](docs/m01-architecture.md) records reconciliation and remaining integration checks. [The Linux workflow](.github/workflows/verify.yml) runs the same command.
+Local evidence comes from `make verify` on Rust 1.93.0. Seven focused tests and [the actual-binary TCP test](manager/tests/m01_local.rs) pass. TCP acceptance compares the full bot after forced restart, rejects missing and revoked authentication, verifies locked startup and protected key replacement, and scans generated files and logs for synthetic secrets. Formatting, clippy with warnings denied, and the release build pass. [The M01 architecture](docs/m01-architecture.md) records reconciliation and remaining integration checks. [The Linux workflow](.github/workflows/verify.yml) runs the same command.
 
 ### M02. Connect the shared computer and track bot sessions
 

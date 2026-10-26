@@ -21,3 +21,10 @@
 
 - `README.md` is for humans. Keep it readable and concise.
 - `AGENTS.md` is for agents. Put agent instructions here, not in `README.md`.
+
+## Repository layout
+
+- Keep component code, tests, configuration, and packaging under `manager/`, `agent/`, `link/`, `desktop/`, or `mobile/`.
+- Keep shared workspaces, tooling, scripts, and documentation at the root.
+- Put shared schemas and Rust and TypeScript bindings in `link/`.
+- Create component directories when their implementation starts.

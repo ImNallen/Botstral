@@ -2,6 +2,10 @@
 
 Botstral is a self-hosted bot manager built around Mistral-developed models. Its first milestone runs locally and retains one owner's bots and encrypted provider credentials. Model execution and native apps follow later.
 
+## Repository layout
+
+`manager/` contains the implemented manager. Planned components are `agent/` for bot execution, `link/` for shared schemas and Rust and TypeScript bindings, and `desktop/` and `mobile/` for native apps. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
+
 ## Run the manager
 
 Use Rust 1.93.0 on Linux or macOS with a C compiler for bundled SQLite.

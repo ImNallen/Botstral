@@ -14,7 +14,7 @@ Serial credential latency keeps revocation and vault locking in the same order a
 
 ## Module ownership
 
-The workspace contains one package and one executable. These paths are relative to `crates/botstral-manager`.
+The workspace contains one package and one executable. These paths are relative to `manager`.
 
 | File | Responsibility |
 | --- | --- |
