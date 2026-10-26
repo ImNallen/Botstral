@@ -66,7 +66,6 @@ impl StateDir {
 }
 
 pub fn entry(test_worker: bool) -> ExitCode {
-    // Set process protections before Tokio creates threads.
     unsafe {
         libc::umask(0o077);
         let limit = libc::rlimit {

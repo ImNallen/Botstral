@@ -367,11 +367,37 @@ mod tests {
                 .await,
             Err(OperationError::Busy)
         );
-        release_tx.send(()).unwrap();
-        blocker.await.unwrap().unwrap();
+        let (waited, outcome) = {
+            let gateway = manager.worker_gateway();
+            let delivery = gateway.admit_delivery(
+                ConnectionLease {
+                    worker: botstral_link::WorkerId::new(),
+                    generation: botstral_link::Generation::INITIAL,
+                },
+                botstral_link::ManagerMessage::Pong,
+            );
+            tokio::pin!(delivery);
+            let early =
+                tokio::time::timeout(std::time::Duration::from_millis(20), &mut delivery).await;
+            let waited = early.is_err();
+            release_tx.send(()).unwrap();
+            blocker.await.unwrap().unwrap();
+            let outcome = match early {
+                Ok(outcome) => outcome,
+                Err(_) => delivery.await,
+            };
+            (waited, outcome)
+        };
         while let Some(result) = pending.join_next().await {
             assert_eq!(result.unwrap(), Err(OperationError::Unauthorized));
         }
+        assert!(waited, "delivery bypassed queue admission with {outcome:?}");
+        assert_eq!(
+            outcome,
+            Err(OperationError::Protocol(
+                botstral_link::ErrorCode::Disconnected
+            ))
+        );
         assert_eq!(
             manager
                 .owner(SessionToken::new("x".repeat(43)).unwrap())

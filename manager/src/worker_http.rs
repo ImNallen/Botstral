@@ -95,7 +95,6 @@ impl WorkerListener {
                     let gateway = manager.worker_gateway();
                     let mut stop = stopped.clone();
                     tasks.spawn(async move {
-                        // The permit stays here through HTTP upgrade and the entire socket lifetime.
                         let _permit = permit;
                         let connection = async {
                             let stream = tokio::time::timeout(DEADLINE, acceptor.accept(stream)).await.map_err(io::Error::other)??;

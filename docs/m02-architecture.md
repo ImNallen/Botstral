@@ -40,7 +40,7 @@ Actual two-VM deployment requires infrastructure and remains unverified. Local W
 
 A connection has a synchronizing or ready phase. The manager retains the precise snapshot awaiting acknowledgment, so a concurrent session mutation cannot become confirmed accidentally. A superseded control acknowledgment is ignored. It cannot confirm a later revision or disconnect unrelated sessions. Old-generation disconnects do not remove the replacement connection.
 
-The existing state queue serializes owner authorization and SQLite mutations. Dispatch stores bounded connection-local correlations. Socket tasks reauthorize queued delivery through that same owner. Disconnect cleanup waits for queue admission so queue saturation cannot leave a dead worker marked ready.
+The existing state queue serializes owner authorization and SQLite mutations. Dispatch stores bounded connection-local correlations. Socket tasks reauthorize queued delivery through that same owner. Delivery admission retains the outbound message while waiting for queue capacity. Disconnect cleanup also waits for admission. Saturation cannot silently discard a control message or leave a dead worker marked ready.
 
 Takeover persists the desired owner and revision before sending control. Pending input is blocked. The worker applies control before confirming it. Its test executor stops the selected producer and discards queued old input. Each bot input also requires a manager receipt and a final daemon fence check. The other session continues under its own revision.
 
@@ -56,7 +56,9 @@ Certificate renewal exposed a necessary owner action. Rebinding an existing bot 
 
 `make verify` checks formatting, warnings, schema drift, the populated-v1 migration, all M01 acceptance, production daemon refusal, invitation races and lost-response recovery, certificate failures, protocol and credential separation, connection permits, session fencing, cancellation, and bounded shutdown. It also builds into a fresh production directory, checks that the test binary is absent, and verifies that a release build with the test feature fails. A TLS probe drives the actual test daemon to verify stale-frame rejection and a delayed input receipt after confirmed takeover.
 
-The implementation uses Model the Domain through typed session ownership, connection phases, and separate revision and generation fences. Prove It Works determines the use of actual binaries and reproducible acceptance tests. Independent correctness and comment review remain with the parent. No deployment, push, pull request, or merge occurred in this worktree.
+Independent review exposed delivery loss when the state queue was full. The focused queue test reproduced `delivery bypassed queue admission with Err(Busy)` before the fix. It now proves that delivery waits for capacity and reaches the state owner. The takeover test observes increasing applied effects in the other session while the selected session remains suspended. Transport acceptance is separated into enrollment, session, and fencing modules under `agent/tests/m02_transport/`.
+
+The implementation uses Model the Domain through typed session ownership, connection phases, and separate revision and generation fences. Prove It Works determines the use of actual binaries and reproducible acceptance tests.
 
 ## Verified commands
 

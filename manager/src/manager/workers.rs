@@ -224,8 +224,14 @@ impl WorkerGateway {
         lease: ConnectionLease,
         message: botstral_link::ManagerMessage,
     ) -> Result<(), OperationError> {
+        let (reply, receive) = oneshot::channel();
         self.queue
-            .call(false, move |s| s.admit_delivery(lease, &message))
+            .sender
+            .send(Box::new(move |state| {
+                let _ = reply.send(state.admit_delivery(lease, &message));
+            }))
             .await
+            .map_err(|_| OperationError::Internal)?;
+        receive.await.map_err(|_| OperationError::Internal)?
     }
 }

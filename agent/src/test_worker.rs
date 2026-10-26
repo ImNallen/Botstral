@@ -283,7 +283,6 @@ impl Executor {
             task.status = TaskStatus::Suspended;
             return vec![];
         }
-        // This counter is the test worker's entire input effect, after both peers' checks.
         task.applied += 1;
         let report = if task.applied == task.total {
             task.status = TaskStatus::Completed;
