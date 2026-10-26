@@ -1,3 +1,5 @@
+mod workers;
+
 use super::{crypto, *};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 use std::{
@@ -58,12 +60,17 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 1 {
+    if version > 2 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0001.sql"))?;
+        tx.commit()?;
+    }
+    if version < 2 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0002.sql"))?;
         tx.commit()?;
     }
     Ok(())
@@ -510,12 +517,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 2).unwrap();
+        db.pragma_update(None, "user_version", 3).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            2
+            3
         );
     }
 
@@ -667,5 +674,125 @@ mod tests {
         assert_eq!(attempts.admit(), Err(OperationError::RateLimited));
         attempts.start = Instant::now() - Duration::from_secs(61);
         assert!(attempts.admit().is_ok());
+    }
+}
+
+#[cfg(test)]
+mod migration_tests {
+    use super::*;
+    use std::io::Read;
+
+    #[test]
+    fn populated_v1_preserves_owner_bot_and_encrypted_credentials() {
+        let temp = tempfile::tempdir().unwrap();
+        let db = Connection::open_in_memory().unwrap();
+        db.execute_batch(include_str!("../../migrations/0001.sql"))
+            .unwrap();
+        let password = || LoginPassword::new("synthetic migration password".into()).unwrap();
+        let passphrase = || VaultPassphrase::new("synthetic migration passphrase".into()).unwrap();
+        let vault = crypto::new_identity(passphrase()).unwrap();
+        let identity = crypto::unlock(&vault, passphrase()).unwrap();
+        let credential = crypto::encrypt_provider(
+            &identity,
+            ProviderSecret::new("synthetic migration provider key".into()).unwrap(),
+        )
+        .unwrap();
+        let bot = BotId::new();
+        db.execute(
+            "INSERT INTO owner VALUES(1, 'Migration owner', ?1)",
+            [crypto::hash_password(&password()).unwrap()],
+        )
+        .unwrap();
+        db.execute("INSERT INTO vault VALUES(1, 1, ?1)", [&vault])
+            .unwrap();
+        db.execute(
+            "INSERT INTO provider_keys VALUES('mistral', 1, ?1, 123)",
+            [&credential],
+        )
+        .unwrap();
+        db.execute(
+            "INSERT INTO bots VALUES(?1, 'Preserved bot', 123)",
+            [bot.to_string()],
+        )
+        .unwrap();
+        db.execute(
+            "INSERT INTO sessions VALUES(?1, ?2, 1, 1, 9999999999)",
+            params![
+                Uuid::new_v4().to_string(),
+                crypto::token_hash(&"s".repeat(43)).as_slice()
+            ],
+        )
+        .unwrap();
+        let (configured, _) = watch::channel(false);
+        let mut state = State::from_connection(db, temp.path().into(), configured).unwrap();
+        assert_eq!(
+            state.owner(SessionToken::new("s".repeat(43)).unwrap()),
+            Err(OperationError::Unauthorized)
+        );
+        let grant = state.sign_in(password()).unwrap();
+        let token = || SessionToken::new(grant.token.0.expose_secret().into()).unwrap();
+        assert_eq!(
+            state.owner(token()).unwrap().name.as_str(),
+            "Migration owner"
+        );
+        let preserved = state.get_bot(token(), bot).unwrap();
+        assert_eq!(preserved.name.as_str(), "Preserved bot");
+        assert_eq!(preserved.created_at, 123);
+        assert_eq!(
+            state.connection_status(token()).unwrap().vault,
+            VaultStatus::Locked
+        );
+        state.unlock_vault(token(), passphrase()).unwrap();
+        let after_vault: Vec<u8> = state
+            .connection
+            .query_row("SELECT identity_ciphertext FROM vault", [], |r| r.get(0))
+            .unwrap();
+        let after_credential: Vec<u8> = state
+            .connection
+            .query_row("SELECT ciphertext FROM provider_keys", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(after_vault, vault);
+        assert_eq!(after_credential, credential);
+        let Installation::Configured {
+            vault: VaultState::Unlocked { identity },
+        } = &state.installation
+        else {
+            panic!("unlocked")
+        };
+        let mut plaintext = Vec::new();
+        age::Decryptor::new(after_credential.as_slice())
+            .unwrap()
+            .decrypt(std::iter::once(identity as &dyn age::Identity))
+            .unwrap()
+            .read_to_end(&mut plaintext)
+            .unwrap();
+        assert_eq!(
+            plaintext,
+            b"botstral-provider-v1\0mistral\0synthetic migration provider key"
+        );
+        let fingerprint = botstral_link::CertificateFingerprint::from_der(b"synthetic certificate");
+        let invitation = state
+            .invite_worker(token(), fingerprint.clone(), 600)
+            .unwrap();
+        let stored: Vec<u8> = state
+            .connection
+            .query_row("SELECT token_hash FROM worker_invitations", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(
+            stored,
+            crypto::token_hash(invitation.secret.expose_secret())
+        );
+        assert!(
+            !stored
+                .windows(invitation.secret.expose_secret().len())
+                .any(|v| v == invitation.secret.expose_secret().as_bytes())
+        );
+        state.sign_out(token()).unwrap();
+        assert!(matches!(
+            state.invite_worker(token(), fingerprint, 600),
+            Err(OperationError::Unauthorized)
+        ));
     }
 }

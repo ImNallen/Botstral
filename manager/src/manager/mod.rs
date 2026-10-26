@@ -1,5 +1,7 @@
 mod crypto;
 mod state;
+mod workers;
+pub use workers::*;
 
 use age::secrecy::{ExposeSecret, SecretString};
 use std::{path::PathBuf, sync::Arc, thread};
@@ -63,8 +65,7 @@ macro_rules! name_input {
 name_input!(OwnerName);
 name_input!(BotName);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BotId(pub Uuid);
+pub use botstral_link::BotId;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SessionId(pub Uuid);
 
