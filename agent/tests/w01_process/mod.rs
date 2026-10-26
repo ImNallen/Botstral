@@ -14,7 +14,7 @@ fn request(session: &ComputerSession, executable: &str, args: &[&str], cwd: &Pat
     json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,
         "settings":{"model":"unavailable","max_turns":1,"max_tokens":1,"deadline":deadline,"max_cost_micros":0},
         "work":{"type":"process","spec":{"profile":"linux_systemd_v1","account":{"uid":unsafe { libc::geteuid() },"gid":unsafe { libc::getegid() }},
-            "executable":executable,"args":args,"environment":{"LITERAL":"$HOME %n"},"cwd":cwd,"deadline":deadline,"limits":limits()}}})
+            "executable":executable,"args":args,"environment":{"LITERAL":"$HOME %n","LC_ALL":"C"},"cwd":cwd,"deadline":deadline,"limits":limits()}}})
 }
 async fn task(f: &Fixture, original: &Value, state: &str) -> Value {
     let path = format!("/v1/tasks/{}", original["id"].as_str().unwrap());
@@ -151,8 +151,7 @@ os.write(2,b'actual stderr')
         serde_json::from_slice(&fs::read(f.root.path().join("effect.json")).unwrap()).unwrap();
     assert_eq!(effect["args"], json!(["$HOME", "%n", "a b"]));
     assert_eq!(effect["cwd"], f.root.path().to_str().unwrap());
-    assert_eq!(effect["env"]["LITERAL"], "$HOME %n");
-    assert!(effect["env"].get("HOME").is_none());
+    assert_eq!(effect["env"], json!({"LITERAL":"$HOME %n","LC_ALL":"C"}));
     assert_eq!(
         fs::read_to_string(f.root.path().join("invocations")).unwrap(),
         "one\n"
