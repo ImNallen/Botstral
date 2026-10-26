@@ -196,6 +196,104 @@ async fn wait_file(path: &Path) {
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
 }
+
+#[tokio::test]
+#[ignore = "Verifies interrupted capability probes on Linux with the production daemon."]
+async fn w01_review_interrupted_probe() {
+    for manifest_present in [false, true] {
+        let mut f = Fixture::new().await;
+        let _cleanup = UnitCleanup(f.root.path().join("production-agent"));
+        let session = f.durable_session().await;
+        let mut disabled = production_agent(&f, "before-probe", false);
+        f.wait_phase("ready", 1).await;
+        disabled.stop().await;
+        let state = f.root.path().join("production-agent");
+        let probe = state.join("process-probe");
+        fs::create_dir(&probe).unwrap();
+        fs::set_permissions(&probe, fs::Permissions::from_mode(0o700)).unwrap();
+        let input = request(&session, "/usr/bin/true", &[], f.root.path());
+        if manifest_present {
+            let db = rusqlite::Connection::open(state.join("agent.sqlite3")).unwrap();
+            let journal: String = db
+                .query_row("SELECT incarnation FROM metadata", [], |r| r.get(0))
+                .unwrap();
+            let manifest = json!({
+                "journal":journal,"execution":ExecutionId::new(),
+                "host":CertificateFingerprint::from_der(&fs::read("/etc/machine-id").unwrap()),
+                "boot":fs::read_to_string("/proc/sys/kernel/random/boot_id").unwrap().trim(),
+                "spec":input["work"]["spec"],"expires_at":epoch()+30
+            });
+            private(
+                &probe.join("manifest.json"),
+                &serde_json::to_vec(&manifest).unwrap(),
+            );
+        }
+        let mut daemon = production_agent(&f, "after-probe", true);
+        f.wait_phase("ready", 2).await;
+        let original = submit(&f, input).await;
+        approve(&f, &original).await;
+        let completed = task(&f, &original, "completed").await;
+        evidence(
+            if manifest_present {
+                "probe-manifest-recovery"
+            } else {
+                "probe-directory-recovery"
+            },
+            &completed,
+        );
+        daemon.stop().await;
+        f.manager.stop().await;
+    }
+}
+
+#[tokio::test]
+#[ignore = "Verifies reconnect confirmation waits for the previous process scope to stop."]
+async fn w01_review_reconnect_confirmation() {
+    let mut f = Fixture::new().await;
+    let _cleanup = UnitCleanup(f.root.path().join("production-agent"));
+    let session = f.durable_session().await;
+    let mut daemon = production_agent(&f, "reconnect-confirmation", true);
+    f.wait_phase("ready", 1).await;
+    f.confirmed(session.id).await;
+    let (original, pids) = descendants(&f, &session, "reconnect-confirmation").await;
+    f.restart_manager(None).await;
+    let deadline = Instant::now() + Duration::from_secs(12);
+    let mut observations = Vec::new();
+    loop {
+        let current = f
+            .owner(
+                "GET",
+                &format!("/v1/computer-sessions/{}", session.id),
+                json!({}),
+            )
+            .await;
+        assert_eq!(current.0, 200);
+        let any_live = pids.iter().any(|pid| live(*pid));
+        let confirmed = current.1["status"] == "confirmed";
+        observations.push(json!({"session":current.1,"previous_process_live":any_live}));
+        assert!(
+            !confirmed || !any_live,
+            "reconnect confirmed control while the previous process was live"
+        );
+        if confirmed && !any_live {
+            break;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "reconnect confirmation did not settle"
+        );
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+    let interrupted = task(&f, &original, "awaiting_attention").await;
+    evidence(
+        "reconnect-confirmation",
+        &json!({"observations":observations,"task":interrupted}),
+    );
+    cancel(&f, &original).await;
+    daemon.stop().await;
+    f.manager.stop().await;
+}
+
 fn live(pid: i32) -> bool {
     let path = format!("/proc/{pid}/stat");
     fs::read_to_string(path).is_ok_and(|value| !value.rsplit_once(") ").unwrap().1.starts_with('Z'))
@@ -665,6 +763,18 @@ async fn w01_journal_replacement() {
             .any(|event| event["reason"] == "journal_replaced")
     );
     assert!(pids.iter().all(|p| live(*p)));
+    let control = f
+        .owner(
+            "GET",
+            &format!("/v1/computer-sessions/{}", session.id),
+            json!({}),
+        )
+        .await;
+    assert_eq!(control.0, 200);
+    assert_ne!(
+        control.1["status"], "confirmed",
+        "a missing journal cannot confirm control of a live scope"
+    );
     let next = submit(
         &f,
         request(
