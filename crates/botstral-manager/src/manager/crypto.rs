@@ -12,7 +12,7 @@ pub(super) fn random_token() -> String {
     use base64::Engine;
     let mut bytes = Zeroizing::new([0; 32]);
     OsRng.fill_bytes(bytes.as_mut());
-    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(*bytes)
+    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes.as_slice())
 }
 
 pub(super) fn token_hash(token: &str) -> [u8; 32] {

@@ -544,6 +544,19 @@ mod tests {
         )
         .unwrap();
         state.create_owner(proof, setup_input()).unwrap();
+        assert_eq!(
+            state.create_owner(BootstrapToken::new("x".repeat(43)).unwrap(), setup_input()),
+            Err(OperationError::Conflict)
+        );
+        assert!(
+            state
+                .connection
+                .execute(
+                    "INSERT INTO owner(id, name, password_hash) VALUES(2, 'other', 'unused')",
+                    []
+                )
+                .is_err()
+        );
         let grant = state.sign_in(password()).unwrap();
         state.unlock_vault(token(&grant), passphrase()).unwrap();
         state

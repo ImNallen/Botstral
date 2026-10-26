@@ -24,7 +24,9 @@ macro_rules! secret_input {
         pub struct $name(SecretString);
         impl $name {
             pub fn new(value: String) -> Result<Self, OperationError> {
-                let value = SecretString::from(value);
+                Self::from_secret(SecretString::from(value))
+            }
+            pub(crate) fn from_secret(value: SecretString) -> Result<Self, OperationError> {
                 if !($min..=$max).contains(&value.expose_secret().len()) {
                     return Err(OperationError::InvalidInput);
                 }
@@ -92,6 +94,11 @@ pub struct NewBot {
 pub struct SessionGrant {
     pub token: SessionToken,
     pub session: SessionMetadata,
+}
+impl SessionGrant {
+    pub(crate) fn into_response_parts(self) -> (SecretString, SessionMetadata) {
+        (self.token.0, self.session)
+    }
 }
 #[derive(Debug)]
 pub struct SessionMetadata {
@@ -301,5 +308,78 @@ impl LocalSetup {
         self.queue
             .call(true, move |state| state.create_owner(proof, input))
             .await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn queue_saturation_and_credential_admission_are_bounded() {
+        let temp = tempfile::tempdir().unwrap();
+        let local = crate::LocalState::open(&temp.path().join("state")).unwrap();
+        let Runtime {
+            manager,
+            setup,
+            thread,
+        } = Manager::start(local.directory().to_owned()).unwrap();
+        let (entered_tx, entered_rx) = oneshot::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let queue = manager.queue.clone();
+        let blocker = tokio::spawn(async move {
+            queue
+                .call(true, move |_| {
+                    let _ = entered_tx.send(());
+                    let _ = release_rx.recv();
+                    Ok(())
+                })
+                .await
+        });
+        entered_rx.await.unwrap();
+        assert!(matches!(
+            manager
+                .sign_in(LoginPassword::new("synthetic login password".into()).unwrap())
+                .await,
+            Err(OperationError::Busy)
+        ));
+        let mut pending = tokio::task::JoinSet::new();
+        for _ in 0..32 {
+            let manager = manager.clone();
+            pending.spawn(async move {
+                manager
+                    .owner(SessionToken::new("x".repeat(43)).unwrap())
+                    .await
+            });
+        }
+        tokio::time::timeout(std::time::Duration::from_secs(2), async {
+            while manager.queue.sender.capacity() != 0 {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            manager
+                .owner(SessionToken::new("x".repeat(43)).unwrap())
+                .await,
+            Err(OperationError::Busy)
+        );
+        release_tx.send(()).unwrap();
+        blocker.await.unwrap().unwrap();
+        while let Some(result) = pending.join_next().await {
+            assert_eq!(result.unwrap(), Err(OperationError::Unauthorized));
+        }
+        assert_eq!(
+            manager
+                .owner(SessionToken::new("x".repeat(43)).unwrap())
+                .await,
+            Err(OperationError::Unauthorized)
+        );
+        drop(setup);
+        drop(manager);
+        tokio::task::spawn_blocking(move || thread.join().unwrap())
+            .await
+            .unwrap();
     }
 }

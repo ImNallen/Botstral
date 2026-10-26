@@ -22,6 +22,7 @@ impl LocalState {
             Err(error) => return Err(error),
         }
         let directory = directory.canonicalize()?;
+        check_metadata(&fs::symlink_metadata(&directory)?, true)?;
         for entry in fs::read_dir(&directory)? {
             check_metadata(&fs::symlink_metadata(entry?.path())?, false)?;
         }
@@ -39,10 +40,12 @@ impl LocalState {
     }
 
     pub(crate) fn write(&self, name: &str, bytes: &[u8]) -> io::Result<()> {
-        let mut file = private_file(&self.directory.join(name))?;
+        let temporary = self.directory.join(format!(".{name}.tmp"));
+        let mut file = private_file(&temporary)?;
         file.set_len(0)?;
         file.write_all(bytes)?;
-        file.sync_all()
+        file.sync_all()?;
+        fs::rename(temporary, self.directory.join(name))
     }
 
     pub(crate) fn remove(&self, name: &str) -> io::Result<()> {
@@ -70,7 +73,6 @@ fn private_file(path: &Path) -> io::Result<File> {
 }
 
 fn check_metadata(metadata: &fs::Metadata, directory: bool) -> io::Result<()> {
-    // Files owned by another account or linked elsewhere are outside this installation.
     let owned = metadata.uid() == unsafe { libc::geteuid() };
     let kind = if directory {
         metadata.is_dir()
