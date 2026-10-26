@@ -19,8 +19,12 @@ pub fn certificates(path: &Path) -> io::Result<Vec<CertificateDer<'static>>> {
     Ok(certificates)
 }
 
-pub fn private_bytes(path: &Path) -> io::Result<Zeroizing<Vec<u8>>> {
-    let mut file = OpenOptions::new()
+pub fn check_private_file(path: &Path) -> io::Result<()> {
+    private_file(path).map(|_| ())
+}
+
+fn private_file(path: &Path) -> io::Result<File> {
+    let file = OpenOptions::new()
         .read(true)
         .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC)
         .open(path)?;
@@ -29,9 +33,16 @@ pub fn private_bytes(path: &Path) -> io::Result<Zeroizing<Vec<u8>>> {
         || metadata.nlink() != 1
         || metadata.mode() & 0o7777 != 0o600
         || metadata.uid() != unsafe { libc::geteuid() }
-        || metadata.len() > 64 * 1024
     {
         return Err(io::Error::other("unsafe secret file"));
+    }
+    Ok(file)
+}
+
+pub fn private_bytes(path: &Path) -> io::Result<Zeroizing<Vec<u8>>> {
+    let mut file = private_file(path)?;
+    if file.metadata()?.len() > 64 * 1024 {
+        return Err(io::Error::other("secret file too large"));
     }
     let mut bytes = Zeroizing::new(Vec::new());
     file.read_to_end(&mut bytes)?;

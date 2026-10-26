@@ -4,7 +4,7 @@ use super::*;
 use botstral_link::{
     Acknowledgment, Capability, CertificateFingerprint, CommandAction, CommandId, ComputerSession,
     ComputerSessionId, ControlStatus, Envelope, ErrorCode, Generation, Hello, InputFence,
-    InputOwner, MAX_PENDING, MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkSpec, WorkerId,
+    InputOwner, MAX_PENDING, MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkerId,
     WorkerMessage,
 };
 
@@ -190,7 +190,7 @@ impl State {
         self.find_computer_session(id)
     }
 
-    fn find_computer_session(
+    pub(super) fn find_computer_session(
         &self,
         id: ComputerSessionId,
     ) -> Result<ComputerSession, OperationError> {
@@ -231,13 +231,18 @@ impl State {
 }
 
 pub(super) struct WorkerConnection {
-    generation: Generation,
+    pub(super) generation: Generation,
+    pub(super) recovered: bool,
+    pub(super) recovery_high: u64,
+    pub(super) inventory: Vec<CommandId>,
+    pub(super) inventory_total: Option<u16>,
+    pub(super) deliveries: std::collections::HashMap<CommandId, botstral_link::Delivery>,
     phase: WorkerPhase,
     confirmed: std::collections::HashMap<ComputerSessionId, Revision>,
     snapshot: std::collections::HashMap<ComputerSessionId, Revision>,
     commands: std::collections::HashMap<CommandId, PendingCommand>,
-    capabilities: Vec<Capability>,
-    outbound: mpsc::Sender<Envelope<ManagerMessage>>,
+    pub(super) capabilities: Vec<Capability>,
+    pub(super) outbound: mpsc::Sender<Envelope<ManagerMessage>>,
     stop: watch::Sender<bool>,
 }
 
@@ -336,6 +341,11 @@ impl State {
             worker,
             WorkerConnection {
                 generation,
+                recovered: false,
+                recovery_high: 0,
+                deliveries: Default::default(),
+                inventory: Vec::new(),
+                inventory_total: None,
                 phase: WorkerPhase::Synchronizing,
                 confirmed: Default::default(),
                 snapshot: Default::default(),
@@ -363,7 +373,7 @@ impl State {
         Ok(ConnectionLease { worker, generation })
     }
 
-    fn deliver(
+    pub(super) fn deliver(
         &mut self,
         worker: WorkerId,
         message: Envelope<ManagerMessage>,
@@ -401,6 +411,40 @@ impl State {
     ) -> Result<(), OperationError> {
         let connection = self.check_lease(lease)?;
         match report.message {
+            WorkerMessage::Inventory {
+                generation,
+                incarnation,
+                offset,
+                total,
+                entries,
+            } if generation == lease.generation
+                && connection.phase == WorkerPhase::Ready
+                && !connection.recovered =>
+            {
+                self.reconcile_inventory(lease, incarnation, offset, total, entries)?
+            }
+            WorkerMessage::RecoveryHello {
+                generation,
+                incarnation,
+                high_water,
+            } if generation == lease.generation && connection.phase == WorkerPhase::Ready => {
+                self.recovery_hello(lease, incarnation, high_water)?
+            }
+            WorkerMessage::Reports {
+                generation,
+                incarnation,
+                high_water,
+                reports,
+            } if generation == lease.generation && connection.phase == WorkerPhase::Ready => {
+                self.durable_reports(lease, incarnation, high_water, reports)?
+            }
+            WorkerMessage::Claim {
+                incarnation,
+                fence,
+                binding,
+            } if connection.phase == WorkerPhase::Ready => {
+                self.claim(lease, incarnation, fence, binding)?
+            }
             WorkerMessage::SnapshotApplied { generation }
                 if generation == lease.generation
                     && connection.phase == WorkerPhase::Synchronizing =>
@@ -425,6 +469,7 @@ impl State {
                     .unwrap()
                     .confirmed
                     .insert(session.id, session.revision);
+                self.pump_tasks(lease.worker)?;
             }
             WorkerMessage::Acknowledgment {
                 generation,
@@ -544,6 +589,7 @@ impl State {
                         message: ManagerMessage::Pong,
                     },
                 )?;
+                self.pump_tasks(lease.worker)?;
             }
             _ => return Err(ErrorCode::WrongPhase.into()),
         }

@@ -93,7 +93,7 @@ impl TaskState {
             ExecutionEvent::Completed { .. } => Self::Completed,
             ExecutionEvent::Failed { .. } => Self::Failed,
             ExecutionEvent::Uncertain { .. } => Self::AwaitingAttention,
-            ExecutionEvent::Stopped { .. } => Self::Cancelled,
+            ExecutionEvent::Stopped { .. } => self,
         }
     }
 }
@@ -379,4 +379,21 @@ mod tests {
             .is_err()
         );
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum JournalPhase {
+    Prepared,
+    ClaimPending,
+    Admitted,
+    Resolved,
+    Uncertain,
+    Stopped,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct JournalEntry {
+    pub body: CommandBody,
+    pub phase: JournalPhase,
 }

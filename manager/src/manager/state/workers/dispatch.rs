@@ -43,7 +43,7 @@ impl State {
         self.find_computer_session(id)
     }
 
-    pub(super) fn check_input_fence(
+    pub(in crate::manager::state) fn check_input_fence(
         &self,
         worker: WorkerId,
         fence: InputFence,
@@ -86,23 +86,7 @@ impl State {
             ManagerMessage::Input { fence, .. } if fence.owner != InputOwner::Owner => {
                 return Err(ErrorCode::WrongInputOwner.into());
             }
-            ManagerMessage::Command(command) => {
-                if let CommandAction::Start { work } = &command.action {
-                    if fence.owner != InputOwner::Bot {
-                        return Err(ErrorCode::WrongInputOwner.into());
-                    }
-                    if let WorkSpec::TestInput { steps } = work {
-                        if !cfg!(feature = "nonproduction-test-worker")
-                            || !connection.capabilities.contains(&Capability::TestInput)
-                        {
-                            return Err(ErrorCode::UnsupportedExecution.into());
-                        }
-                        if !(1..=10000).contains(steps) {
-                            return Err(OperationError::InvalidInput);
-                        }
-                    }
-                }
-            }
+            ManagerMessage::Command(_) => return Err(ErrorCode::UnsupportedExecution.into()),
             _ => {}
         }
         if let Some(previous) = connection.commands.get(&id) {

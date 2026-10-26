@@ -389,6 +389,13 @@ pub enum TaskEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum WorkerMessage {
+    Inventory {
+        generation: Generation,
+        incarnation: JournalId,
+        offset: u16,
+        total: u16,
+        entries: Vec<JournalEntry>,
+    },
     RecoveryHello {
         generation: Generation,
         incarnation: JournalId,
@@ -437,6 +444,9 @@ pub enum WorkerMessage {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ManagerMessage {
+    InventoryRequest {
+        offset: u16,
+    },
     Recover {
         after: u64,
         high_water: u64,

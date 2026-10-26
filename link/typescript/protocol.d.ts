@@ -17,6 +17,10 @@ export type TaskId = string;
 export type MessageId = string;
 export type ManagerMessage =
   | {
+      offset: number;
+      type: 'inventory_request';
+    }
+  | {
       after: number;
       high_water: number;
       type: 'recover';
@@ -216,6 +220,14 @@ export type EventReplay =
     };
 export type WorkerMessage =
   | {
+      entries: JournalEntry[];
+      generation: Generation;
+      incarnation: JournalId;
+      offset: number;
+      total: number;
+      type: 'inventory';
+    }
+  | {
       generation: Generation;
       high_water: number;
       incarnation: JournalId;
@@ -273,6 +285,7 @@ export type WorkerMessage =
       generation: Generation;
       type: 'heartbeat';
     };
+export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved' | 'uncertain' | 'stopped';
 export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input';
 export type ReleaseChannel = 'stable' | 'experimental';
 export type TaskEvent =
@@ -445,6 +458,10 @@ export interface Envelope {
   message: WorkerMessage;
   request_id: RequestId;
   version: number;
+}
+export interface JournalEntry {
+  body: CommandBody;
+  phase: JournalPhase;
 }
 export interface DurableReport {
   command: CommandId;

@@ -1,3 +1,5 @@
+mod memory;
+mod tasks;
 mod workers;
 
 use super::{crypto, *};
@@ -62,7 +64,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 2 {
+    if version > 3 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -75,6 +77,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
         tx.execute_batch(include_str!("../../migrations/0002.sql"))?;
         tx.commit()?;
     }
+    if version < 3 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0003.sql"))?;
+        tx.commit()?;
+    }
     Ok(())
 }
 
@@ -84,6 +91,9 @@ impl State {
         directory: PathBuf,
         configured: watch::Sender<bool>,
     ) -> Result<Self, OperationError> {
+        let directory = directory
+            .canonicalize()
+            .map_err(|_| OperationError::Internal)?;
         connection.busy_timeout(Duration::from_secs(2))?;
         connection.pragma_update(None, "foreign_keys", true)?;
         migrate(&mut connection)?;
@@ -123,7 +133,11 @@ impl State {
                 bootstrap_hash: crypto::token_hash(capability.expose_secret()),
             }
         };
-        Ok(Self {
+        connection.execute(
+            "INSERT OR IGNORE INTO owner_identity VALUES(1, ?1)",
+            [Uuid::new_v4().to_string()],
+        )?;
+        let mut state = Self {
             connection,
             directory,
             installation,
@@ -134,7 +148,9 @@ impl State {
             worker_connections: Default::default(),
             #[cfg(test)]
             test_time: None,
-        })
+        };
+        state.reconcile_documents()?;
+        Ok(state)
     }
 
     pub(super) fn open(
@@ -520,12 +536,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 3).unwrap();
+        db.pragma_update(None, "user_version", 4).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            3
+            4
         );
     }
 

@@ -820,9 +820,36 @@
         "owner"
       ]
     },
+    "JournalEntry": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/CommandBody"
+        },
+        "phase": {
+          "$ref": "#/$defs/JournalPhase"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "phase"
+      ]
+    },
     "JournalId": {
       "type": "string",
       "format": "uuid"
+    },
+    "JournalPhase": {
+      "type": "string",
+      "enum": [
+        "prepared",
+        "claim_pending",
+        "admitted",
+        "resolved",
+        "uncertain",
+        "stopped"
+      ]
     },
     "LogCode": {
       "type": "string",
@@ -834,6 +861,26 @@
     },
     "ManagerMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "offset": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "inventory_request"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "offset"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -1689,6 +1736,48 @@
     },
     "WorkerMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/JournalEntry"
+              }
+            },
+            "generation": {
+              "$ref": "#/$defs/Generation"
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "offset": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "total": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "inventory"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "generation",
+            "incarnation",
+            "offset",
+            "total",
+            "entries"
+          ]
+        },
         {
           "type": "object",
           "properties": {

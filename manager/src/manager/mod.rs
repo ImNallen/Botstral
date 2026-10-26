@@ -1,5 +1,6 @@
 mod crypto;
 mod state;
+mod tasks;
 mod workers;
 pub use workers::*;
 
