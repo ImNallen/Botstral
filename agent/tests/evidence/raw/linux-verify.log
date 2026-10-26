@@ -1,0 +1,830 @@
+./scripts/verify.sh
+ Downloading crates ...
+  Downloaded fastrand v2.5.0
+  Downloaded num-conv v0.2.2
+  Downloaded yasna v0.5.2
+  Downloaded powerfmt v0.2.1
+  Downloaded time-core v0.1.9
+  Downloaded pem v3.0.6
+  Downloaded deranged v0.5.9
+  Downloaded rustix v1.1.5
+  Downloaded linux-raw-sys v0.12.1
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling libc v0.2.191
+    Checking cfg-if v1.0.5
+    Checking typenum v1.20.1
+   Compiling version_check v0.9.5
+    Checking subtle v2.6.1
+    Checking cpufeatures v0.2.17
+    Checking memchr v2.8.3
+    Checking itoa v1.0.18
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling serde_core v1.0.229
+    Checking pin-project-lite v0.2.17
+   Compiling thiserror v2.0.21
+    Checking futures-core v0.3.34
+   Compiling cc v1.10.0
+   Compiling serde v1.0.229
+    Checking once_cell v1.21.4
+    Checking bytes v1.12.1
+   Compiling generic-array v0.14.7
+   Compiling zerocopy v0.8.63
+    Checking futures-sink v0.3.34
+    Checking smallvec v1.16.4
+    Checking futures-channel v0.3.34
+   Compiling getrandom v0.4.3
+    Checking slab v0.4.12
+    Checking untrusted v0.9.0
+    Checking futures-task v0.3.34
+    Checking futures-io v0.3.34
+   Compiling zmij v1.0.23
+    Checking log v0.4.34
+    Checking http v1.5.0
+   Compiling serde_json v1.0.154
+   Compiling rustls v0.23.46
+   Compiling getrandom v0.3.4
+   Compiling ref-cast v1.0.27
+   Compiling syn v2.0.119
+   Compiling syn v3.0.9
+   Compiling httparse v1.10.1
+    Checking dyn-clone v1.0.20
+   Compiling const-oid v0.10.2
+   Compiling unicase v2.10.0
+    Checking http-body v1.1.0
+    Checking getrandom v0.2.17
+    Checking errno v0.3.14
+    Checking mio v1.2.4
+    Checking socket2 v0.6.5
+    Checking rand_core v0.6.4
+    Checking signal-hook-registry v1.4.8
+   Compiling mime_guess v2.0.5
+    Checking rand_core v0.9.5
+   Compiling same-file v1.0.6
+   Compiling hybrid-array v0.4.15
+    Checking try-lock v0.2.5
+   Compiling thiserror v1.0.69
+   Compiling parking_lot_core v0.9.12
+    Checking tower-service v0.3.3
+   Compiling cpufeatures v0.3.1
+    Checking want v0.3.2
+   Compiling walkdir v2.5.0
+    Checking httpdate v1.0.3
+    Checking const-oid v0.9.6
+    Checking opaque-debug v0.3.1
+   Compiling rustversion v1.0.23
+   Compiling mime v0.3.17
+    Checking atomic-waker v1.1.2
+    Checking ff v0.13.1
+    Checking http-body-util v0.1.5
+   Compiling ring v0.17.14
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+    Checking uuid v1.29.0
+   Compiling pkg-config v0.3.34
+   Compiling vcpkg v0.2.15
+   Compiling rustc-hash v2.1.3
+    Checking base16ct v0.2.0
+    Checking base64 v0.22.1
+    Checking utf-8 v0.7.6
+    Checking data-encoding v2.11.1
+   Compiling type-map v0.5.1
+   Compiling digest v0.11.3
+    Checking group v0.13.0
+   Compiling sha2 v0.11.1
+    Checking bitflags v2.13.2
+   Compiling semver v1.0.28
+   Compiling libsqlite3-sys v0.36.0
+    Checking foldhash v0.2.0
+   Compiling rustc_version v0.4.1
+    Checking hashbrown v0.16.1
+   Compiling scopeguard v1.2.0
+   Compiling self_cell v1.3.0
+   Compiling curve25519-dalek v4.1.3
+   Compiling serde_derive_internals v0.30.0
+   Compiling rust-embed-utils v8.13.0
+   Compiling lock_api v0.4.14
+    Checking tracing-core v0.1.36
+    Checking fallible-iterator v0.3.0
+    Checking hashlink v0.11.1
+   Compiling rustix v1.1.5
+    Checking fallible-streaming-iterator v0.1.9
+    Checking tracing v0.1.44
+   Compiling arc-swap v1.9.3
+   Compiling proc-macro-error-attr3 v3.1.1
+    Checking sync_wrapper v1.0.2
+    Checking keccak v0.1.6
+    Checking tower-layer v0.3.3
+    Checking linux-raw-sys v0.12.1
+    Checking percent-encoding v2.3.2
+    Checking ppv-lite86 v0.2.21
+    Checking parking_lot v0.12.5
+    Checking form_urlencoded v1.2.2
+   Compiling proc-macro-error3 v3.1.1
+    Checking hybrid-array v0.2.3
+    Checking nom v8.0.0
+    Checking bech32 v0.11.1
+    Checking io_tee v0.1.1
+   Compiling strsim v0.11.1
+    Checking rand_chacha v0.9.0
+    Checking rand_chacha v0.3.1
+    Checking base64ct v1.8.3
+    Checking rand v0.9.5
+    Checking rand v0.8.8
+    Checking fastrand v2.5.0
+    Checking ryu v1.0.23
+    Checking password-hash v0.5.0
+    Checking axum-core v0.5.6
+    Checking serde_path_to_error v0.1.20
+   Compiling serde_derive v1.0.229
+   Compiling displaydoc v0.2.7
+   Compiling thiserror-impl v2.0.21
+   Compiling futures-macro v0.3.34
+   Compiling tokio-macros v2.7.2
+   Compiling ref-cast-impl v1.0.27
+   Compiling schemars_derive v1.2.3
+    Checking deranged v0.5.9
+   Compiling tinystr v0.8.5
+    Checking tokio v1.54.1
+    Checking futures-util v0.3.34
+    Checking tempfile v3.27.0
+    Checking unic-langid-impl v0.9.6
+    Checking lazy_static v1.5.1
+    Checking num-conv v0.2.2
+   Compiling zeroize_derive v1.5.0
+   Compiling thiserror-impl v1.0.69
+    Checking unic-langid v0.9.6
+   Compiling rust-embed-impl v8.13.0
+    Checking fluent-langneg v0.13.1
+    Checking intl_pluralrules v7.0.2
+   Compiling fluent-syntax v0.12.0
+    Checking zeroize v1.9.1
+    Checking rustls-pki-types v1.15.1
+    Checking der v0.7.10
+    Checking intl-memoizer v0.5.3
+   Compiling rust-embed v8.13.0
+   Compiling curve25519-dalek-derive v0.1.1
+    Checking fluent-bundle v0.16.0
+    Checking rustls-webpki v0.103.16
+    Checking rustls-pemfile v2.2.0
+    Checking kem v0.3.0-pre.0
+   Compiling pin-project-internal v1.1.13
+    Checking time-core v0.1.9
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+    Checking inout v0.1.4
+    Checking universal-hash v0.5.1
+    Checking digest v0.10.7
+    Checking crypto-bigint v0.5.5
+    Checking sec1 v0.7.3
+    Checking cipher v0.4.4
+    Checking polyval v0.6.2
+    Checking sha2 v0.10.9
+    Checking hmac v0.12.1
+    Checking sha1 v0.10.7
+    Checking aead v0.5.2
+    Checking hkdf v0.12.4
+    Checking ghash v0.5.1
+    Checking tungstenite v0.28.0
+    Checking chacha20 v0.9.1
+    Checking ctr v0.9.2
+    Checking aes v0.8.4
+    Checking poly1305 v0.8.0
+    Checking pbkdf2 v0.12.2
+    Checking salsa20 v0.10.2
+    Checking sha3 v0.10.9
+    Checking chacha20poly1305 v0.10.1
+    Checking fluent v0.17.0
+    Checking scrypt v0.11.0
+    Checking blake2 v0.10.6
+    Checking aes-gcm v0.10.3
+    Checking ml-kem v0.2.3
+    Checking powerfmt v0.2.1
+    Checking matchit v0.8.4
+    Checking argon2 v0.5.3
+    Checking time v0.3.55
+    Checking pin-project v1.1.13
+    Checking pem v3.0.6
+    Checking futures-executor v0.3.34
+    Checking elliptic-curve v0.13.8
+    Checking futures v0.3.34
+    Checking cookie-factory v0.3.3
+    Checking x25519-dalek v2.0.1
+    Checking primeorder v0.13.6
+    Checking schemars v1.2.3
+    Checking secrecy v0.10.3
+    Checking serde_urlencoded v0.7.1
+   Compiling basic-toml v0.1.10
+   Compiling toml v0.5.11
+    Checking yasna v0.5.2
+    Checking p256 v0.13.2
+    Checking hpke v0.12.0
+   Compiling i18n-config v0.4.8
+    Checking rcgen v0.13.2
+    Checking age-core v0.12.0
+    Checking hyper v1.12.0
+    Checking tokio-tungstenite v0.28.0
+    Checking tower v0.5.3
+   Compiling find-crate v0.6.3
+   Compiling i18n-embed-impl v0.8.4
+   Compiling i18n-embed v0.16.0
+    Checking botstral-link v0.1.0 (/home/botstral/m02-acceptance/source/link)
+    Checking tokio-rustls v0.26.6
+    Checking hyper-util v0.1.21
+    Checking axum v0.8.9
+   Compiling i18n-embed-fl v0.10.1
+    Checking age v0.12.1
+    Checking botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+    Checking rusqlite v0.38.0
+    Checking botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.43s
+   Compiling cfg-if v1.0.5
+   Compiling typenum v1.20.1
+   Compiling subtle v2.6.1
+   Compiling memchr v2.8.3
+   Compiling cpufeatures v0.2.17
+   Compiling pin-project-lite v0.2.17
+   Compiling libc v0.2.191
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.34
+   Compiling zeroize v1.9.1
+   Compiling tinystr v0.8.5
+   Compiling serde_core v1.0.229
+   Compiling log v0.4.34
+   Compiling bytes v1.12.1
+   Compiling thiserror v2.0.21
+   Compiling smallvec v1.16.4
+   Compiling futures-sink v0.3.34
+   Compiling zerocopy v0.8.63
+   Compiling unic-langid-impl v0.9.6
+   Compiling futures-channel v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling rustc-hash v2.1.3
+   Compiling once_cell v1.21.4
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling type-map v0.5.1
+   Compiling unic-langid v0.9.6
+   Compiling const-oid v0.10.2
+   Compiling mime v0.3.17
+   Compiling rustls-pki-types v1.15.1
+   Compiling cpufeatures v0.3.1
+   Compiling futures-util v0.3.34
+   Compiling fluent-syntax v0.12.0
+   Compiling http v1.5.0
+   Compiling const-oid v0.9.6
+   Compiling untrusted v0.9.0
+   Compiling opaque-debug v0.3.1
+   Compiling self_cell v1.3.0
+   Compiling same-file v1.0.6
+   Compiling der v0.7.10
+   Compiling httparse v1.10.1
+   Compiling zmij v1.0.23
+   Compiling walkdir v2.5.0
+   Compiling generic-array v0.14.7
+   Compiling hybrid-array v0.4.15
+   Compiling base16ct v0.2.0
+   Compiling getrandom v0.2.17
+   Compiling errno v0.3.14
+   Compiling signal-hook-registry v1.4.8
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling rand_core v0.6.4
+   Compiling ring v0.17.14
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling inout v0.1.4
+   Compiling tokio v1.54.1
+   Compiling digest v0.10.7
+   Compiling cipher v0.4.4
+   Compiling universal-hash v0.5.1
+   Compiling hmac v0.12.1
+   Compiling sha2 v0.10.9
+   Compiling http-body v1.1.0
+   Compiling ff v0.13.1
+   Compiling getrandom v0.3.4
+   Compiling scopeguard v1.2.0
+   Compiling group v0.13.0
+   Compiling hkdf v0.12.4
+   Compiling lock_api v0.4.14
+   Compiling sec1 v0.7.3
+   Compiling crypto-bigint v0.5.5
+   Compiling rand_core v0.9.5
+   Compiling getrandom v0.4.3
+   Compiling digest v0.11.3
+   Compiling thiserror v1.0.69
+   Compiling mime_guess v2.0.5
+   Compiling tower-service v0.3.3
+   Compiling try-lock v0.2.5
+   Compiling sha2 v0.11.1
+   Compiling ref-cast v1.0.27
+   Compiling i18n-config v0.4.8
+   Compiling want v0.3.2
+   Compiling polyval v0.6.2
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.154
+   Compiling uuid v1.29.0
+   Compiling aead v0.5.2
+   Compiling intl-memoizer v0.5.3
+   Compiling intl_pluralrules v7.0.2
+   Compiling rustls-webpki v0.103.16
+   Compiling rust-embed-utils v8.13.0
+   Compiling fluent-langneg v0.13.1
+   Compiling elliptic-curve v0.13.8
+   Compiling httpdate v1.0.3
+   Compiling atomic-waker v1.1.2
+   Compiling dyn-clone v1.0.20
+   Compiling rust-embed-impl v8.13.0
+   Compiling i18n-embed-impl v0.8.4
+   Compiling fluent-bundle v0.16.0
+   Compiling ghash v0.5.1
+   Compiling arc-swap v1.9.3
+   Compiling rustls v0.23.46
+   Compiling primeorder v0.13.6
+   Compiling schemars v1.2.3
+   Compiling futures-executor v0.3.34
+   Compiling parking_lot_core v0.9.12
+   Compiling http-body-util v0.1.5
+   Compiling aes v0.8.4
+   Compiling ppv-lite86 v0.2.21
+   Compiling chacha20 v0.9.1
+   Compiling rust-embed v8.13.0
+   Compiling ctr v0.9.2
+   Compiling poly1305 v0.8.0
+   Compiling sha1 v0.10.7
+   Compiling rustls-pemfile v2.2.0
+   Compiling tracing-core v0.1.36
+   Compiling rand_chacha v0.9.0
+   Compiling utf-8 v0.7.6
+   Compiling data-encoding v2.11.1
+   Compiling chacha20poly1305 v0.10.1
+   Compiling rand_chacha v0.3.1
+   Compiling aes-gcm v0.10.3
+   Compiling parking_lot v0.12.5
+   Compiling rand v0.9.5
+   Compiling tracing v0.1.44
+   Compiling futures v0.3.34
+   Compiling fluent v0.17.0
+   Compiling p256 v0.13.2
+   Compiling sync_wrapper v1.0.2
+   Compiling keccak v0.1.6
+   Compiling foldhash v0.2.0
+   Compiling tower-layer v0.3.3
+   Compiling percent-encoding v2.3.2
+   Compiling form_urlencoded v1.2.2
+   Compiling hpke v0.12.0
+   Compiling hashbrown v0.16.1
+   Compiling sha3 v0.10.9
+   Compiling tungstenite v0.28.0
+   Compiling curve25519-dalek v4.1.3
+   Compiling i18n-embed v0.16.0
+   Compiling cookie-factory v0.3.3
+   Compiling rand v0.8.8
+   Compiling secrecy v0.10.3
+   Compiling pbkdf2 v0.12.2
+   Compiling salsa20 v0.10.2
+   Compiling kem v0.3.0-pre.0
+   Compiling hybrid-array v0.2.3
+   Compiling nom v8.0.0
+   Compiling base64 v0.22.1
+   Compiling io_tee v0.1.1
+   Compiling ryu v1.0.23
+   Compiling base64ct v1.8.3
+   Compiling bech32 v0.11.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling password-hash v0.5.0
+   Compiling hashlink v0.11.1
+   Compiling scrypt v0.11.0
+   Compiling pin-project v1.1.13
+   Compiling x25519-dalek v2.0.1
+   Compiling hyper v1.12.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling i18n-embed-fl v0.10.1
+   Compiling tower v0.5.3
+   Compiling libsqlite3-sys v0.36.0
+   Compiling ml-kem v0.2.3
+   Compiling axum-core v0.5.6
+   Compiling serde_path_to_error v0.1.20
+   Compiling blake2 v0.10.6
+   Compiling lazy_static v1.5.1
+   Compiling matchit v0.8.4
+   Compiling bitflags v2.13.2
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling fallible-iterator v0.3.0
+   Compiling argon2 v0.5.3
+   Compiling hyper-util v0.1.21
+   Compiling rusqlite v0.38.0
+   Compiling botstral-link v0.1.0 (/home/botstral/m02-acceptance/source/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling axum v0.8.9
+   Compiling age-core v0.12.0
+   Compiling age v0.12.1
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+   Compiling botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.00s
+   Compiling bitflags v2.13.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling fastrand v2.5.0
+   Compiling time-core v0.1.9
+   Compiling powerfmt v0.2.1
+   Compiling num-conv v0.2.2
+   Compiling deranged v0.5.9
+   Compiling pem v3.0.6
+   Compiling botstral-link v0.1.0 (/home/botstral/m02-acceptance/source/link)
+   Compiling rusqlite v0.38.0
+   Compiling rustix v1.1.5
+   Compiling botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+   Compiling time v0.3.55
+   Compiling yasna v0.5.2
+   Compiling tempfile v3.27.0
+   Compiling rcgen v0.13.2
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.06s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-332a88cc0d0664dd)
+
+running 1 test
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_agent-9d9a85afb5ceb7c4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-fcbf3e01fbcae054)
+
+running 1 test
+test enrollment::enrollment_tls_negotiation_and_lifecycle_use_actual_binaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.66s
+
+     Running unittests src/lib.rs (target/debug/deps/botstral_link-0ca85656967c01da)
+
+running 2 tests
+test tests::negotiation_and_strict_messages ... ok
+test tests::schema_has_no_drift ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/export-schema.rs (target/debug/deps/export_schema-982c006f0a9b8405)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-c264c1f6b671990b)
+
+running 12 tests
+test manager::state::tests::credential_budget_resets_only_after_window ... ok
+test local_state::tests::rejects_unsafe_state_and_second_owner ... ok
+test manager::state::tests::migrations_are_atomic_and_refuse_future_versions ... ok
+test manager::state::workers::tests::invitation_binding_expiry_atomicity_and_replay ... ok
+test manager::state::workers::tests::snapshots_generations_late_disconnect_and_full_channels ... ok
+test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
+test manager::state::workers::tests::pending_takeover_blocks_input_and_fences_queued_delivery ... ok
+test manager::tests::queue_saturation_and_credential_admission_are_bounded ... ok
+test manager::state::tests::expiry_and_revocation_are_checked_at_operation_time ... ok
+test manager::crypto::tests::vault_round_trip_and_authenticated_tampering ... ok
+test manager::state::migration_tests::populated_v1_preserves_owner_bot_and_encrypted_credentials ... ok
+test manager::state::tests::setup_and_provider_replacement_roll_back_without_losing_values ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.71s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_manager-93bbdeb1932e78ed)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+     Running tests/m01_local.rs (target/debug/deps/m01_local-469c2ce504472c9b)
+Manager stopped with exit status: 0.
+Setup is atomic, capability protected, and isolated from the regular listener.
+Bots, sessions, revocation, explicit locking, protected replacement, and read refusal pass over TCP.
+Browser boundaries, strict JSON, body and header limits, deadlines, and credential limits pass.
+Refused startup with exit status: 1.
+Manager stopped with signal: 9 (SIGKILL).
+Manager stopped with exit status: 0.
+Graceful shutdown completes with an unread bot-list response.
+Manager stopped with exit status: 0.
+A forced restart preserves the full bot and encrypted metadata, invalidates sessions, and locks the vault. Tampering fails unlock.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Private permissions, second-process exclusion, unsafe binds and state rejection, migration refusal, and complete secret scans pass.
+test m01_real_binary_over_tcp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 42.62s
+
+   Doc-tests botstral_agent
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_link
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_manager
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Checking botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+    Checking botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+   Compiling botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.96s
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zeroize v1.9.1
+   Compiling getrandom v0.2.17
+   Compiling serde_json v1.0.154
+   Compiling once_cell v1.21.4
+   Compiling subtle v2.6.1
+   Compiling memchr v2.8.3
+   Compiling base64 v0.22.1
+   Compiling futures-sink v0.3.34
+   Compiling hyper v1.12.0
+   Compiling futures-util v0.3.34
+   Compiling rustls-pki-types v1.15.1
+   Compiling ring v0.17.14
+   Compiling tempfile v3.27.0
+   Compiling pem v3.0.6
+   Compiling rustls-pemfile v2.2.0
+   Compiling hyper-util v0.1.21
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling sha1 v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling tungstenite v0.28.0
+   Compiling rustls-webpki v0.103.16
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling uuid v1.29.0
+   Compiling serde v1.0.229
+   Compiling tokio-tungstenite v0.28.0
+   Compiling schemars v1.2.3
+   Compiling botstral-link v0.1.0 (/home/botstral/m02-acceptance/source/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.05s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-c447eddf519a3b55)
+
+running 2 tests
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+test session::tests::queued_input_is_discarded_before_control_confirmation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.20s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-5cf2b8f1364a51f5)
+
+running 2 tests
+test fencing::actual_daemon_rejects_stale_frames_and_queued_receipts ... ok
+test sessions::confirmed_takeover_two_sessions_cancellation_and_results ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 4.87s
+
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling libc v0.2.191
+   Compiling cfg-if v1.0.5
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling subtle v2.6.1
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling thiserror v2.0.21
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling shlex v2.0.1
+   Compiling futures-core v0.3.34
+   Compiling find-msvc-tools v0.1.15
+   Compiling generic-array v0.14.7
+   Compiling bytes v1.12.1
+   Compiling zerocopy v0.8.63
+   Compiling smallvec v1.16.4
+   Compiling cc v1.10.0
+   Compiling futures-sink v0.3.34
+   Compiling futures-channel v0.3.34
+   Compiling futures-task v0.3.34
+   Compiling once_cell v1.21.4
+   Compiling syn v2.0.119
+   Compiling syn v3.0.9
+   Compiling slab v0.4.12
+   Compiling futures-io v0.3.34
+   Compiling http v1.5.0
+   Compiling hybrid-array v0.4.15
+   Compiling log v0.4.34
+   Compiling thiserror v1.0.69
+   Compiling unicase v2.10.0
+   Compiling getrandom v0.2.17
+   Compiling errno v0.3.14
+   Compiling const-oid v0.10.2
+   Compiling parking_lot_core v0.9.12
+   Compiling rand_core v0.6.4
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling signal-hook-registry v1.4.8
+   Compiling mime_guess v2.0.5
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling getrandom v0.3.4
+   Compiling ring v0.17.14
+   Compiling digest v0.11.3
+   Compiling httparse v1.10.1
+   Compiling same-file v1.0.6
+   Compiling zmij v1.0.23
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.11.1
+   Compiling walkdir v2.5.0
+   Compiling untrusted v0.9.0
+   Compiling rustversion v1.0.23
+   Compiling mime v0.3.17
+   Compiling const-oid v0.9.6
+   Compiling opaque-debug v0.3.1
+   Compiling serde_json v1.0.154
+   Compiling getrandom v0.4.3
+   Compiling http-body v1.1.0
+   Compiling ff v0.13.1
+   Compiling rust-embed-utils v8.13.0
+   Compiling ref-cast v1.0.27
+   Compiling rustls v0.23.46
+   Compiling rustc-hash v2.1.3
+   Compiling base16ct v0.2.0
+   Compiling group v0.13.0
+   Compiling type-map v0.5.1
+   Compiling serde_derive_internals v0.30.0
+   Compiling rand_core v0.9.5
+   Compiling semver v1.0.28
+   Compiling try-lock v0.2.5
+   Compiling tower-service v0.3.3
+   Compiling rustc_version v0.4.1
+   Compiling want v0.3.2
+   Compiling uuid v1.29.0
+   Compiling scopeguard v1.2.0
+   Compiling httpdate v1.0.3
+   Compiling atomic-waker v1.1.2
+   Compiling dyn-clone v1.0.20
+   Compiling self_cell v1.3.0
+   Compiling lock_api v0.4.14
+   Compiling ppv-lite86 v0.2.21
+   Compiling curve25519-dalek v4.1.3
+   Compiling serde_derive v1.0.229
+   Compiling displaydoc v0.2.7
+   Compiling thiserror-impl v2.0.21
+   Compiling futures-macro v0.3.34
+   Compiling tokio-macros v2.7.2
+   Compiling ref-cast-impl v1.0.27
+   Compiling rand_chacha v0.9.0
+   Compiling schemars_derive v1.2.3
+   Compiling tinystr v0.8.5
+   Compiling tokio v1.54.1
+   Compiling unic-langid-impl v0.9.6
+   Compiling futures-util v0.3.34
+   Compiling rand v0.9.5
+   Compiling unic-langid v0.9.6
+   Compiling zeroize_derive v1.5.0
+   Compiling thiserror-impl v1.0.69
+   Compiling rust-embed-impl v8.13.0
+   Compiling zeroize v1.9.1
+   Compiling fluent-syntax v0.12.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling der v0.7.10
+   Compiling rustls-pemfile v2.2.0
+   Compiling intl_pluralrules v7.0.2
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling inout v0.1.4
+   Compiling universal-hash v0.5.1
+   Compiling digest v0.10.7
+   Compiling cipher v0.4.4
+   Compiling crypto-bigint v0.5.5
+   Compiling polyval v0.6.2
+   Compiling hmac v0.12.1
+   Compiling sha2 v0.10.9
+   Compiling sec1 v0.7.3
+   Compiling aead v0.5.2
+   Compiling hkdf v0.12.4
+   Compiling ctr v0.9.2
+   Compiling chacha20 v0.9.1
+   Compiling aes v0.8.4
+   Compiling sha1 v0.10.7
+   Compiling ghash v0.5.1
+   Compiling poly1305 v0.8.0
+   Compiling intl-memoizer v0.5.3
+   Compiling fluent-langneg v0.13.1
+   Compiling toml v0.5.11
+   Compiling basic-toml v0.1.10
+   Compiling elliptic-curve v0.13.8
+   Compiling futures-executor v0.3.34
+   Compiling schemars v1.2.3
+   Compiling primeorder v0.13.6
+   Compiling http-body-util v0.1.5
+   Compiling tracing-core v0.1.36
+   Compiling i18n-config v0.4.8
+   Compiling fluent-bundle v0.16.0
+   Compiling utf-8 v0.7.6
+   Compiling data-encoding v2.11.1
+   Compiling find-crate v0.6.3
+   Compiling pkg-config v0.3.34
+   Compiling vcpkg v0.2.15
+   Compiling tracing v0.1.44
+   Compiling tungstenite v0.28.0
+   Compiling fluent v0.17.0
+   Compiling p256 v0.13.2
+   Compiling parking_lot v0.12.5
+   Compiling i18n-embed-impl v0.8.4
+   Compiling libsqlite3-sys v0.36.0
+   Compiling futures v0.3.34
+   Compiling chacha20poly1305 v0.10.1
+   Compiling aes-gcm v0.10.3
+   Compiling rust-embed v8.13.0
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling rand_chacha v0.3.1
+   Compiling arc-swap v1.9.3
+   Compiling hyper v1.12.0
+   Compiling proc-macro-error-attr3 v3.1.1
+   Compiling percent-encoding v2.3.2
+   Compiling foldhash v0.2.0
+   Compiling keccak v0.1.6
+   Compiling tower-layer v0.3.3
+   Compiling sync_wrapper v1.0.2
+   Compiling hashbrown v0.16.1
+   Compiling sha3 v0.10.9
+   Compiling proc-macro-error3 v3.1.1
+   Compiling rustls-webpki v0.103.16
+   Compiling form_urlencoded v1.2.2
+   Compiling hyper-util v0.1.21
+   Compiling rand v0.8.8
+   Compiling i18n-embed v0.16.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling hpke v0.12.0
+   Compiling cookie-factory v0.3.3
+   Compiling secrecy v0.10.3
+   Compiling pbkdf2 v0.12.2
+   Compiling salsa20 v0.10.2
+   Compiling kem v0.3.0-pre.0
+   Compiling pin-project-internal v1.1.13
+   Compiling hybrid-array v0.2.3
+   Compiling nom v8.0.0
+   Compiling strsim v0.11.1
+   Compiling ryu v1.0.23
+   Compiling io_tee v0.1.1
+   Compiling bech32 v0.11.1
+   Compiling base64ct v1.8.3
+   Compiling base64 v0.22.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling pin-project v1.1.13
+   Compiling axum-core v0.5.6
+   Compiling password-hash v0.5.0
+   Compiling i18n-embed-fl v0.10.1
+   Compiling ml-kem v0.2.3
+   Compiling scrypt v0.11.0
+   Compiling x25519-dalek v2.0.1
+   Compiling hashlink v0.11.1
+   Compiling tower v0.5.3
+   Compiling blake2 v0.10.6
+   Compiling serde_path_to_error v0.1.20
+   Compiling fallible-iterator v0.3.0
+   Compiling matchit v0.8.4
+   Compiling lazy_static v1.5.1
+   Compiling bitflags v2.13.2
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling argon2 v0.5.3
+   Compiling botstral-link v0.1.0 (/home/botstral/m02-acceptance/source/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling age-core v0.12.0
+   Compiling axum v0.8.9
+   Compiling age v0.12.1
+   Compiling botstral-agent v0.1.0 (/home/botstral/m02-acceptance/source/agent)
+   Compiling rusqlite v0.38.0
+   Compiling botstral-manager v0.1.0 (/home/botstral/m02-acceptance/source/manager)
+    Finished `release` profile [optimized] target(s) in 35.32s
+botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT --worker-tls-cert PATH --worker-tls-key PATH --worker-client-ca PATH]
+botstral-agent identity --client-cert PATH
+botstral-agent enroll --state-dir PATH --manager wss://HOST:PORT --manager-ca PATH --client-cert PATH --client-key PATH --invitation-file PATH
+botstral-agent run|check --state-dir PATH
+Verified default production binaries and both nonproduction release refusals.

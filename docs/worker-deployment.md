@@ -78,4 +78,49 @@ Revoke the old worker through `DELETE /v1/workers/{id}`. Provision the replaceme
 
 To rotate a CA or manager certificate, stop the affected services, provision the replacement trust and certificate files, and restart them. Update the manager hostname when the server certificate's DNS name changes. There is no automatic CA rotation, certificate renewal, or insecure trust fallback.
 
-Two-VM acceptance remains pending. Run the enrollment, session, takeover, reconnection, and shutdown checks on the actual hosts before claiming that deployment works across them.
+Two-VM transport and synthetic session acceptance passed on October 26, 2026. [The acceptance record](m02-two-vm-acceptance.md) describes the hosts, observed behavior, and coverage boundaries. The fixtures do not configure a permanent owner installation.
+
+## Repeat the two-VM acceptance
+
+Use existing Linux VMs with distinct machine identities, working key-based SSH aliases, and strict host-key checking. Install Rust 1.93.0 and a C compiler on the build host. Install `python3-websocket` on the Computer VM and `python3-websockets` on the manager. Enable the test user's systemd user manager to survive SSH disconnects.
+
+Build both application variants from the commit under acceptance.
+
+```sh
+cargo build --workspace --release --locked --target-dir target/production
+cargo build --workspace --locked \
+	--features botstral-agent/nonproduction-test-worker,botstral-manager/nonproduction-test-worker \
+	--target-dir target/m02-debug
+make verify
+```
+
+Install the release manager on the manager VM at `/home/botstral/m02-acceptance/bin/production/botstral-manager`. Install the release daemon on the Computer VM at `/home/botstral/m02-acceptance/bin/production/botstral-agent`. Install the debug manager and test daemon under the corresponding `bin/test/` directories. Use private parent directories and executable binary files. These paths are the runner's fixture convention, not a release packaging contract.
+
+Generate short-lived fixture certificates in an empty local directory. Keep its `private/` directory on the operator computer. The certificate generator includes deliberately expired and untrusted client fixtures.
+
+```sh
+bash agent/tests/m02_certificates.sh .audit/m02-certificates 192.168.1.40
+python3 agent/tests/m02_two_vm.py \
+	--manager-ssh botstral-manager \
+	--worker-ssh botstral-computer \
+	--manager-address 192.168.1.40 \
+	--cert-dir .audit/m02-certificates/certificates \
+	--output-dir .audit/m02-results
+bash agent/tests/m02_daemon_probe.sh \
+	.audit/m02-certificates/certificates .audit/m02-daemon-results \
+	botstral-manager botstral-computer 192.168.1.40 192.168.1.235
+```
+
+Use addresses belonging to the two selected hosts. The main runner binds port 43122. The daemon probe binds port 43123. Keep those ports available for the test. Every invocation uses new private remote roots and unique systemd unit names. The tools stop their own fixture processes and preserve result files. The certificate generator and daemon probe refuse nonempty output directories.
+
+The runner sends synthetic owner credentials, bearer tokens, and invitations over SSH standard input. It writes invitation input and certificate files with private permissions. Credential contents do not enter command arguments or environment variables. Log copies are redacted. Secret scans cover manager and worker state and service logs, excluding intentional certificate and invitation input files.
+
+Verify the saved evidence and its negative controls from the matching runner checkout. Regenerate the aggregate record with the same command without `--check-controls`.
+
+```sh
+python3 -m unittest discover -s agent/tests -p 'test_m02_*.py'
+python3 agent/tests/m02_record.py \
+	--evidence-dir agent/tests/evidence \
+	--application-commit e4d10c023ccd511c444faebff6b0b8fdf7fc5a06 \
+	--check-controls
+```

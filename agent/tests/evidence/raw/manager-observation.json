@@ -1,0 +1,15 @@
+{
+  "hostname": "botstral-manager",
+  "kernel": "6.8.0-147-generic",
+  "operating_system": "Ubuntu 24.04.5 LTS",
+  "cpus": 4,
+  "memory_kib": 8131764,
+  "root_disk_bytes": 137438953472,
+  "fixture_units": [],
+  "listening_tcp": [
+    "127.0.0.54:53",
+    "0.0.0.0:22",
+    "127.0.0.53%lo:53",
+    "[::]:22"
+  ]
+}
