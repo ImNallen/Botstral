@@ -91,6 +91,13 @@ pub fn entry(test_worker: bool) -> ExitCode {
 fn run_cli(test_worker: bool) -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);
     let command = args.next().ok_or("missing command")?;
+    if command == "process-helper" {
+        let path = args.next().ok_or("missing helper directory")?;
+        if args.next().is_some() {
+            return Err("extra helper argument".into());
+        }
+        return crate::process::helper(Path::new(&path)).map_err(Into::into);
+    }
     if command == "--help" {
         println!(
             "botstral-agent identity --client-cert PATH\nbotstral-agent enroll --state-dir PATH --manager wss://HOST:PORT --manager-ca PATH --client-cert PATH --client-key PATH --invitation-file PATH\nbotstral-agent run|check --state-dir PATH"

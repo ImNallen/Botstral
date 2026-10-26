@@ -282,7 +282,7 @@ pub enum WorkSpec {
     Unavailable,
     TestInput { steps: u32 },
     TestEffect { value: u32, observable: bool },
-    Process { spec: ProcessSpec },
+    Process { spec: Box<ProcessSpec> },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

@@ -685,6 +685,9 @@
         {
           "type": "object",
           "properties": {
+            "reason": {
+              "$ref": "#/$defs/ProcessCompletionReason"
+            },
             "scope": {
               "$ref": "#/$defs/ProcessScope"
             },
@@ -699,6 +702,7 @@
           "additionalProperties": false,
           "required": [
             "type",
+            "reason",
             "success",
             "scope"
           ]
@@ -1341,6 +1345,13 @@
         "gid"
       ]
     },
+    "ProcessCompletionReason": {
+      "type": "string",
+      "enum": [
+        "result",
+        "limit"
+      ]
+    },
     "ProcessEffect": {
       "type": "string",
       "enum": [
@@ -1520,6 +1531,9 @@
         "execution": {
           "$ref": "#/$defs/ExecutionId"
         },
+        "host": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        },
         "invocation": {
           "type": "string"
         },
@@ -1534,6 +1548,7 @@
       "required": [
         "journal",
         "execution",
+        "host",
         "boot",
         "invocation",
         "unit",

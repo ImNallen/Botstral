@@ -89,6 +89,7 @@ impl ProcessSpec {
 pub struct ProcessScope {
     pub journal: JournalId,
     pub execution: ExecutionId,
+    pub host: CertificateFingerprint,
     pub boot: String,
     pub invocation: String,
     pub unit: String,
@@ -96,7 +97,7 @@ pub struct ProcessScope {
 }
 impl ProcessScope {
     pub fn validate(&self) -> Result<(), ErrorCode> {
-        if self.boot.len() != 36
+        if self.boot.parse::<RequestId>().is_err()
             || self.invocation.len() != 32
             || !self.invocation.bytes().all(|b| b.is_ascii_hexdigit())
             || self.unit != format!("botstral-{}-{}.service", self.journal, self.execution)
@@ -147,6 +148,13 @@ pub enum ProcessExit {
     SpawnFailed,
     Expired,
 }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ProcessCompletionReason {
+    Result,
+    Limit,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ProcessResult {
@@ -253,7 +261,9 @@ mod tests {
             session: ComputerSessionId::new(),
             operation: OperationId::new(),
             execution: ExecutionId::new(),
-            work: WorkSpec::Process { spec: original },
+            work: WorkSpec::Process {
+                spec: Box::new(original),
+            },
         };
         let encoded = serde_json::to_value(&body.work).unwrap();
         for field in [
@@ -297,7 +307,9 @@ mod tests {
             session: ComputerSessionId::new(),
             operation: OperationId::new(),
             execution: ExecutionId::new(),
-            work: WorkSpec::Process { spec: spec.clone() },
+            work: WorkSpec::Process {
+                spec: Box::new(spec.clone()),
+            },
         };
         let stream = CapturedOutput {
             hex: "ff".repeat(MAX_PROCESS_OUTPUT),

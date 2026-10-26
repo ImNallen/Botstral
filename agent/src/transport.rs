@@ -1,4 +1,4 @@
-use crate::{Config, session::Runtime};
+use crate::{Config, worker::Worker};
 use botstral_link::{tls, *};
 use futures_util::{SinkExt, StreamExt};
 use http_body_util::{BodyExt, Full, Limited};
@@ -125,21 +125,37 @@ pub async fn run(
 ) -> io::Result<()> {
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     let mut interrupt = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
-    let mut journal = crate::journal::Journal::open(directory, test_worker)?;
-    let operation = async {
-        let mut retry = Duration::from_millis(200);
-        loop {
-            let result = connection(&config, test_worker, once, &mut journal).await;
-            journal.disconnected()?;
-            if once {
-                return result;
-            }
-            eprintln!("worker disconnected; retrying");
-            tokio::time::sleep(retry).await;
-            retry = (retry * 2).min(DEADLINE);
+    let mut worker = Worker::open(directory, test_worker).await?;
+    let mut retry = Duration::from_millis(200);
+    loop {
+        let result = tokio::select! {
+            _ = terminate.recv() => break,
+            _ = interrupt.recv() => break,
+            result = connection(&config, once, &mut worker) => result,
+        };
+        worker.disconnected()?;
+        if once {
+            worker.shutdown().await?;
+            return result;
         }
-    };
-    tokio::select! { _ = terminate.recv() => Ok(()), _ = interrupt.recv() => Ok(()), result = operation => result }
+        eprintln!("worker disconnected; retrying");
+        let delay = tokio::time::sleep(retry);
+        tokio::pin!(delay);
+        let mut ticks = tokio::time::interval(Duration::from_millis(20));
+        let stop = loop {
+            tokio::select! {
+                _ = terminate.recv() => break true,
+                _ = interrupt.recv() => break true,
+                _ = &mut delay => break false,
+                _ = ticks.tick() => { worker.tick(false).await?; }
+            }
+        };
+        if stop {
+            break;
+        }
+        retry = (retry * 2).min(DEADLINE);
+    }
+    worker.shutdown().await
 }
 
 async fn send<S: AsyncRead + AsyncWrite + Unpin>(
@@ -169,17 +185,12 @@ async fn receive<S: AsyncRead + AsyncWrite + Unpin>(
     }
 }
 
-async fn connection(
-    config: &Config,
-    test_worker: bool,
-    once: bool,
-    journal: &mut crate::journal::Journal,
-) -> io::Result<()> {
+async fn connection(config: &Config, once: bool, worker: &mut Worker) -> io::Result<()> {
     let mut socket = connect_socket(config).await?;
     send(
         &mut socket,
         RequestId::new(),
-        WorkerMessage::Hello(Hello::current(test_worker)),
+        WorkerMessage::Hello(worker.hello()),
     )
     .await?;
     let welcome = tokio::time::timeout(DEADLINE, receive(&mut socket))
@@ -193,25 +204,14 @@ async fn connection(
     else {
         return Err(io::Error::other("negotiation refused"));
     };
-    let mut runtime =
-        Runtime::new(generation, sessions, worker_id, test_worker).map_err(io::Error::other)?;
+    let recovery = worker.attach(generation, sessions, worker_id)?;
     send(
         &mut socket,
         welcome.request_id,
         WorkerMessage::SnapshotApplied { generation },
     )
     .await?;
-    journal.attach();
-    send(
-        &mut socket,
-        RequestId::new(),
-        WorkerMessage::RecoveryHello {
-            generation,
-            incarnation: journal.incarnation,
-            high_water: journal.high_water()?,
-        },
-    )
-    .await?;
+    send(&mut socket, RequestId::new(), recovery).await?;
     println!("worker ready");
     if once {
         return Ok(());
@@ -226,14 +226,13 @@ async fn connection(
             message = receive(&mut socket) => {
                 let message = message?;
                 idle.as_mut().reset(tokio::time::Instant::now() + Duration::from_secs(30));
-                let reports = match journal.handle(&runtime.sessions, &message.message)? { Some(reports) => reports, None => runtime.handle(message).map_err(io::Error::other)? };
+                let reports = worker.handle(message)?;
                 for report in reports {
                     send(&mut socket, report.request_id, report.message).await?;
                 }
             }
             _ = ticks.tick() => {
-                for report in journal.tick(&runtime.sessions)? { send(&mut socket, report.request_id, report.message).await?; }
-                for report in runtime.tick() { send(&mut socket, report.request_id, report.message).await?; }
+                for report in worker.tick(true).await? { send(&mut socket, report.request_id, report.message).await?; }
             }
             _ = &mut idle => return Err(io::Error::other("manager idle")),
             _ = heartbeat.tick() => { send(&mut socket, RequestId::new(), WorkerMessage::Heartbeat { generation }).await?; }

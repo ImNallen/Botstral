@@ -190,6 +190,7 @@ pub enum ExecutionEvent {
         evidence: ProcessEvidence,
     },
     ProcessFinished {
+        reason: ProcessCompletionReason,
         success: bool,
         scope: ProcessScope,
     },

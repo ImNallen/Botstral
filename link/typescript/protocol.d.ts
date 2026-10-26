@@ -177,6 +177,7 @@ export type ExecutionEvent =
       type: 'process_result';
     }
   | {
+      reason: ProcessCompletionReason;
       scope: ProcessScope;
       success: boolean;
       type: 'process_finished';
@@ -230,6 +231,7 @@ export type ProcessExit =
   | {
       type: 'expired';
     };
+export type ProcessCompletionReason = 'result' | 'limit';
 export type StopEvidence =
   | ('no_process_group' | 'not_launched')
   | {
@@ -516,6 +518,7 @@ export interface ProcessScope {
   boot: string;
   cgroup: string;
   execution: ExecutionId;
+  host: CertificateFingerprint;
   invocation: string;
   journal: JournalId;
   unit: string;

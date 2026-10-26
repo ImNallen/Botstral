@@ -35,9 +35,13 @@ fn count_bound(db: &Connection, table: &str, bound: usize) -> Result<(), Operati
     Ok(())
 }
 fn save(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
+    let body = json(task)?;
+    if body.len() > 24 * 1024 {
+        return Err(OperationError::InvalidInput);
+    }
     db.execute(
         "UPDATE tasks SET view = ?1 WHERE id = ?2",
-        params![json(task)?, task.id.to_string()],
+        params![body, task.id.to_string()],
     )?;
     Ok(())
 }
@@ -274,12 +278,27 @@ impl State {
         self.authorize(&token)?;
         let mut task = self.load_task(id)?;
         task.approval.revoked = true;
+        let stop = task.approval.consumed
+            && matches!(task.command.work, WorkSpec::Process { .. })
+            && !task.state.terminal();
+        if stop {
+            task.state = TaskState::Cancelling;
+        }
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if stop {
+            tx.execute(
+                "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
+                params![id.to_string(), CommandId::new().to_string()],
+            )?;
+        }
         save(&tx, &task)?;
         event(&tx, "approval_revoked", id)?;
         tx.commit()?;
+        if matches!(task.command.work, WorkSpec::Process { .. }) {
+            self.pump_tasks(task.command.worker)?;
+        }
         Ok(task)
     }
     pub(in crate::manager) fn set_permission(
@@ -317,15 +336,31 @@ impl State {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute("INSERT INTO permissions VALUES(?1, ?2, ?3) ON CONFLICT(bot) DO UPDATE SET revision=excluded.revision, allow=excluded.allow", params![bot.to_string(), policy.revision as i64, allow])?;
+        let mut workers = std::collections::HashSet::new();
         for view in views {
             let mut task: TaskView = parse(view)?;
-            if !task.approval.consumed && !task.state.terminal() {
-                task.approval.revoked = true;
-                save(&tx, &task)?;
+            if task.state.terminal() {
+                continue;
             }
+            if matches!(task.command.work, WorkSpec::Process { .. }) {
+                workers.insert(task.command.worker);
+            }
+            if !task.approval.consumed {
+                task.approval.revoked = true;
+            } else if !allow && matches!(task.command.work, WorkSpec::Process { .. }) {
+                task.state = TaskState::Cancelling;
+                tx.execute(
+                    "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
+                    params![task.id.to_string(), CommandId::new().to_string()],
+                )?;
+            }
+            save(&tx, &task)?;
         }
         event(&tx, "permission_changed", bot)?;
         tx.commit()?;
+        for worker in workers {
+            self.pump_tasks(worker)?;
+        }
         Ok(policy)
     }
     pub(in crate::manager) fn conversation(

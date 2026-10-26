@@ -1,5 +1,7 @@
+mod process;
 use crate::session::Sessions;
 use botstral_link::*;
+use process::{ProcessExecution, ProcessOperation};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -14,6 +16,8 @@ struct Execution {
     phase: Phase,
     applied: u32,
     outcome: Option<ExecutionEvent>,
+    #[serde(default)]
+    process: Option<ProcessExecution>,
 }
 
 struct PendingClaim {
@@ -30,6 +34,9 @@ pub(crate) struct Journal {
     deliveries: std::collections::HashMap<ExecutionId, Delivery>,
     sent_through: u64,
     claims: std::collections::HashMap<ExecutionId, PendingClaim>,
+    backend: Option<crate::process::Backend>,
+    process_slot: Option<ExecutionId>,
+    process_operation: Option<ProcessOperation>,
     #[cfg(feature = "nonproduction-test-worker")]
     provider: crate::effect_provider::Provider,
 }
@@ -57,8 +64,29 @@ fn report(db: &Connection, e: &Execution, event: ExecutionEvent) -> io::Result<(
     let head: i64 = db
         .query_row("SELECT head FROM metadata", [], |r| r.get(0))
         .map_err(err)?;
-    if pending >= 16384 || head >= 16384 {
+    let reserved: i64 = db
+        .query_row(
+            "SELECT coalesce(sum(remaining),0) FROM reservations",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(err)?;
+    let own: i64 = db
+        .query_row(
+            "SELECT coalesce((SELECT remaining FROM reservations WHERE execution=?1),0)",
+            [e.body.execution.to_string()],
+            |r| r.get(0),
+        )
+        .map_err(err)?;
+    if pending >= 16384 || head >= 16384 || (own == 0 && head + reserved >= 16384) {
         return Err(err("report capacity reached"));
+    }
+    if own > 0 {
+        db.execute(
+            "UPDATE reservations SET remaining=remaining-1 WHERE execution=?1",
+            [e.body.execution.to_string()],
+        )
+        .map_err(err)?;
     }
     db.execute("UPDATE metadata SET head=head+1", [])
         .map_err(err)?;
@@ -71,6 +99,7 @@ fn report(db: &Connection, e: &Execution, event: ExecutionEvent) -> io::Result<(
             | ExecutionEvent::Failed { .. }
             | ExecutionEvent::Uncertain { .. }
             | ExecutionEvent::Stopped { .. }
+            | ExecutionEvent::ProcessFinished { .. }
     );
     let report = DurableReport {
         sequence: sequence as u64,
@@ -78,6 +107,7 @@ fn report(db: &Connection, e: &Execution, event: ExecutionEvent) -> io::Result<(
         execution: e.body.execution,
         event,
     };
+    report.validate().map_err(err)?;
     db.execute(
         "INSERT INTO reports VALUES(?1,?2)",
         params![sequence, encode(&report)?],
@@ -127,8 +157,13 @@ impl Journal {
         let integrity: String = db
             .query_row("PRAGMA integrity_check", [], |r| r.get(0))
             .map_err(err)?;
-        if version != 1 || integrity != "ok" {
+        if !(1..=2).contains(&version) || integrity != "ok" {
             return Err(err("invalid worker journal"));
+        }
+        if version == 1 {
+            let tx = db.transaction().map_err(err)?;
+            tx.execute_batch("CREATE TABLE reservations(execution TEXT PRIMARY KEY, remaining INTEGER NOT NULL CHECK(remaining>=0)) STRICT; PRAGMA user_version=2;").map_err(err)?;
+            tx.commit().map_err(err)?;
         }
         let incarnation: String = db
             .query_row("SELECT incarnation FROM metadata", [], |r| r.get(0))
@@ -142,6 +177,9 @@ impl Journal {
             deliveries: Default::default(),
             sent_through: 0,
             claims: Default::default(),
+            backend: None,
+            process_slot: None,
+            process_operation: None,
             #[cfg(feature = "nonproduction-test-worker")]
             provider: crate::effect_provider::Provider::open(directory)?,
         };
@@ -176,6 +214,9 @@ impl Journal {
         Ok(())
     }
     fn reconcile_execution(&mut self, e: &mut Execution) -> io::Result<()> {
+        if e.process.is_some() {
+            return Ok(());
+        }
         if matches!(e.phase, Phase::ClaimPending | Phase::Admitted) {
             #[cfg(feature = "nonproduction-test-worker")]
             let observed = if self.test_worker {
@@ -330,6 +371,7 @@ impl Journal {
                         phase: Phase::Prepared,
                         applied: 0,
                         outcome: None,
+                        process: None,
                     };
                     let tx = self.db.transaction().map_err(err)?;
                     tx.execute(
@@ -351,7 +393,9 @@ impl Journal {
                     e
                 };
                 if delivery.cancel {
-                    if e.phase != Phase::Stopped {
+                    if matches!(e.body.work, WorkSpec::Process { .. }) {
+                        self.cancel_process(&mut e)?;
+                    } else if e.phase != Phase::Stopped {
                         e.phase = Phase::Stopped;
                         let outcome = ExecutionEvent::Stopped {
                             applied: e.applied,
@@ -415,6 +459,18 @@ impl Journal {
                         .map_err(err)?;
                     let mut e: Execution = decode(body)?;
                     if e.phase == Phase::ClaimPending {
+                        if self.process_slot == Some(*execution) {
+                            self.process_slot = None;
+                            let directory = crate::process::directory(&self.directory, *execution);
+                            std::fs::remove_file(directory.join("reserved"))?;
+                            std::fs::remove_dir(directory)?;
+                        }
+                        self.db
+                            .execute(
+                                "DELETE FROM reservations WHERE execution=?1",
+                                [execution.to_string()],
+                            )
+                            .map_err(err)?;
                         e.phase = Phase::Prepared;
                         let tx = self.db.transaction().map_err(err)?;
                         save(&tx, &e)?;
@@ -460,6 +516,10 @@ impl Journal {
                 report(&tx, &e, ExecutionEvent::Admitted)?;
                 tx.commit().map_err(err)?;
                 self.fault("permit_admitted");
+                if matches!(e.body.work, WorkSpec::Process { .. }) {
+                    self.admit_process(&mut e, binding, *fence)?;
+                    return Ok(Some(vec![]));
+                }
                 self.execute(&mut e, sessions, *fence, binding.expires_at)?;
                 vec![]
             }
@@ -505,12 +565,17 @@ impl Journal {
             }
             if e.phase == Phase::Prepared
                 && !paused
-                && let Some(delivery) = self.deliveries.get(&e.body.execution)
+                && let Some(delivery) = self.deliveries.get(&e.body.execution).cloned()
                 && let Some(binding) = &delivery.authority
                 && sessions.check(delivery.fence).is_ok()
                 && delivery.fence.owner == InputOwner::Bot
                 && binding.expires_at > now()
             {
+                if let WorkSpec::Process { spec } = &e.body.work
+                    && !self.reserve_process(&e, spec)?
+                {
+                    continue;
+                }
                 e.phase = Phase::ClaimPending;
                 self.claims.insert(
                     e.body.execution,
@@ -646,5 +711,113 @@ mod corruption_tests {
         std::fs::hard_link(&target, &path).unwrap();
         assert!(Journal::open(root.path(), false).is_err());
         assert_eq!(std::fs::read(&target).unwrap(), original);
+    }
+}
+
+#[cfg(test)]
+mod process_storage_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn execution() -> Execution {
+        Execution {
+            body: CommandBody {
+                id: CommandId::new(),
+                owner: OwnerId::new(),
+                task: TaskId::new(),
+                bot: BotId::new(),
+                worker: WorkerId::new(),
+                session: ComputerSessionId::new(),
+                operation: OperationId::new(),
+                execution: ExecutionId::new(),
+                work: WorkSpec::Unavailable,
+            },
+            phase: Phase::Resolved,
+            applied: 0,
+            outcome: Some(ExecutionEvent::Failed {
+                code: ErrorCode::UnsupportedExecution,
+            }),
+            process: None,
+        }
+    }
+    #[test]
+    fn populated_v1_journal_migrates_without_replacing_records() {
+        let root = tempfile::tempdir().unwrap();
+        let journal = Journal::open(root.path(), false).unwrap();
+        let incarnation = journal.incarnation;
+        let e = execution();
+        let mut value = serde_json::to_value(&e).unwrap();
+        value.as_object_mut().unwrap().remove("process");
+        let original = value.to_string();
+        journal
+            .db
+            .execute(
+                "INSERT INTO executions VALUES(?1,?2,?3,?4)",
+                params![
+                    e.body.id.to_string(),
+                    e.body.execution.to_string(),
+                    e.body.task.to_string(),
+                    original
+                ],
+            )
+            .unwrap();
+        journal
+            .db
+            .execute_batch("DROP TABLE reservations; PRAGMA user_version=1;")
+            .unwrap();
+        drop(journal);
+        for entry in std::fs::read_dir(root.path()).unwrap() {
+            std::fs::set_permissions(
+                entry.unwrap().path(),
+                std::fs::Permissions::from_mode(0o600),
+            )
+            .unwrap();
+        }
+        let reopened = Journal::open(root.path(), false).unwrap();
+        assert_eq!(reopened.incarnation, incarnation);
+        assert_eq!(
+            reopened
+                .db
+                .query_row::<String, _, _>("SELECT record FROM executions", [], |r| r.get(0))
+                .unwrap(),
+            original
+        );
+        assert_eq!(
+            reopened
+                .db
+                .pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
+                .unwrap(),
+            2
+        );
+        assert!(reopened.executions().unwrap()[0].process.is_none());
+    }
+    #[test]
+    fn reserved_terminal_report_survives_unrelated_report_exhaustion() {
+        let root = tempfile::tempdir().unwrap();
+        let journal = Journal::open(root.path(), false).unwrap();
+        let e = execution();
+        journal
+            .db
+            .execute("UPDATE metadata SET head=16383", [])
+            .unwrap();
+        journal
+            .db
+            .execute(
+                "INSERT INTO reservations VALUES(?1,1)",
+                [e.body.execution.to_string()],
+            )
+            .unwrap();
+        assert!(report(&journal.db, &execution(), ExecutionEvent::Accepted).is_err());
+        report(
+            &journal.db,
+            &e,
+            ExecutionEvent::Stopped {
+                applied: 0,
+                evidence: StopEvidence::NotLaunched,
+            },
+        )
+        .unwrap();
+        assert_eq!(journal.high_water().unwrap(), 16384);
+        assert!(report(&journal.db, &e, ExecutionEvent::Accepted).is_err());
     }
 }
