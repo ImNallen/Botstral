@@ -106,7 +106,12 @@ export type WorkSpec =
       observable: boolean;
       type: 'test_effect';
       value: number;
+    }
+  | {
+      spec: ProcessSpec;
+      type: 'process';
     };
+export type ProcessProfile = 'linux_systemd_v1';
 export type WorkerId = string;
 export type InputOwner = 'bot' | 'owner';
 export type Revision = number;
@@ -168,6 +173,15 @@ export type RequestId = string;
 export type ConversationId = string;
 export type ExecutionEvent =
   | {
+      evidence: ProcessEvidence;
+      type: 'process_result';
+    }
+  | {
+      scope: ProcessScope;
+      success: boolean;
+      type: 'process_finished';
+    }
+  | {
       type: 'accepted';
     }
   | {
@@ -197,7 +211,32 @@ export type ExecutionEvent =
       evidence: StopEvidence;
       type: 'stopped';
     };
-export type StopEvidence = 'no_process_group';
+export type ProcessEffect = 'not_released' | 'possible' | 'observed';
+export type ProcessExit =
+  | {
+      type: 'unobserved';
+    }
+  | {
+      code: number;
+      type: 'exited';
+    }
+  | {
+      signal: number;
+      type: 'signalled';
+    }
+  | {
+      type: 'spawn_failed';
+    }
+  | {
+      type: 'expired';
+    };
+export type StopEvidence =
+  | ('no_process_group' | 'not_launched')
+  | {
+      systemd_scope_empty: {
+        scope: ProcessScope;
+      };
+    };
 export type TaskState =
   | 'queued'
   | 'running'
@@ -286,7 +325,7 @@ export type WorkerMessage =
       type: 'heartbeat';
     };
 export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved' | 'uncertain' | 'stopped';
-export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input';
+export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1';
 export type ReleaseChannel = 'stable' | 'experimental';
 export type TaskEvent =
   | {
@@ -377,6 +416,28 @@ export interface CommandBody {
   work: WorkSpec;
   worker: WorkerId;
 }
+export interface ProcessSpec {
+  account: ProcessAccount;
+  args: string[];
+  cwd: string;
+  deadline: number;
+  environment: {
+    [k: string]: string;
+  };
+  executable: string;
+  limits: ProcessLimits;
+  profile: ProcessProfile;
+}
+export interface ProcessAccount {
+  gid: number;
+  uid: number;
+}
+export interface ProcessLimits {
+  memory_bytes: number;
+  output_bytes: number;
+  processes: number;
+  runtime_seconds: number;
+}
 export interface InputFence {
   generation: Generation;
   owner: InputOwner;
@@ -425,6 +486,7 @@ export interface TaskView {
   effect_evidence: ExecutionEvent[];
   id: TaskId;
   outcome?: ExecutionEvent | null;
+  process?: ProcessEvidence | null;
   progress: number;
   request: SubmitTask;
   state: TaskState;
@@ -435,6 +497,28 @@ export interface ApprovalView {
   id: ApprovalId;
   permission_revision: number;
   revoked: boolean;
+}
+export interface ProcessEvidence {
+  effect: ProcessEffect;
+  result?: ProcessResult | null;
+}
+export interface ProcessResult {
+  exit: ProcessExit;
+  stderr: CapturedOutput;
+  stdout: CapturedOutput;
+}
+export interface CapturedOutput {
+  complete: boolean;
+  hex: string;
+  truncated: boolean;
+}
+export interface ProcessScope {
+  boot: string;
+  cgroup: string;
+  execution: ExecutionId;
+  invocation: string;
+  journal: JournalId;
+  unit: string;
 }
 export interface SubmitTask {
   conversation_id?: ConversationId | null;

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-pub const VERSION: u16 = 2;
+pub const VERSION: u16 = 3;
 pub const MAX_MESSAGE: usize = 64 * 1024;
 pub const MAX_SESSIONS: usize = 64;
 pub const MAX_PENDING: usize = 128;
@@ -67,6 +67,8 @@ macro_rules! counters {
 counters!(Generation, Revision);
 mod durable;
 pub use durable::*;
+mod process;
+pub use process::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(try_from = "String", into = "String")]
@@ -159,6 +161,7 @@ pub enum Capability {
     LogicalSessions,
     InputFencing,
     TestInput,
+    ProcessSystemdV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -279,6 +282,7 @@ pub enum WorkSpec {
     Unavailable,
     TestInput { steps: u32 },
     TestEffect { value: u32, observable: bool },
+    Process { spec: ProcessSpec },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

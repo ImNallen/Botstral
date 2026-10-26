@@ -89,7 +89,14 @@ impl TaskState {
                     Self::Running
                 }
             }
-            ExecutionEvent::Progress { .. } => self,
+            ExecutionEvent::Progress { .. } | ExecutionEvent::ProcessResult { .. } => self,
+            ExecutionEvent::ProcessFinished { success, .. } => {
+                if *success {
+                    Self::Completed
+                } else {
+                    Self::Failed
+                }
+            }
             ExecutionEvent::Completed { .. } => Self::Completed,
             ExecutionEvent::Failed { .. } => Self::Failed,
             ExecutionEvent::Uncertain { .. } => Self::AwaitingAttention,
@@ -169,14 +176,23 @@ pub struct Delivery {
     pub authority: Option<ExecutionBinding>,
     pub cancel: bool,
 }
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum StopEvidence {
     NoProcessGroup,
+    NotLaunched,
+    SystemdScopeEmpty { scope: ProcessScope },
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ExecutionEvent {
+    ProcessResult {
+        evidence: ProcessEvidence,
+    },
+    ProcessFinished {
+        success: bool,
+        scope: ProcessScope,
+    },
     Accepted,
     ApprovalRequired,
     Admitted,
@@ -224,6 +240,8 @@ pub struct TaskView {
     pub progress: u32,
     pub outcome: Option<ExecutionEvent>,
     pub effect_evidence: Vec<ExecutionEvent>,
+    #[serde(default)]
+    pub process: Option<ProcessEvidence>,
     pub approval: ApprovalView,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

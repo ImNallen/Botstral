@@ -178,7 +178,28 @@
       "enum": [
         "logical_sessions",
         "input_fencing",
-        "test_input"
+        "test_input",
+        "process_systemd_v1"
+      ]
+    },
+    "CapturedOutput": {
+      "type": "object",
+      "properties": {
+        "complete": {
+          "type": "boolean"
+        },
+        "hex": {
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "hex",
+        "truncated",
+        "complete"
       ]
     },
     "CertificateFingerprint": {
@@ -644,6 +665,44 @@
     },
     "ExecutionEvent": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "evidence": {
+              "$ref": "#/$defs/ProcessEvidence"
+            },
+            "type": {
+              "type": "string",
+              "const": "process_result"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "evidence"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProcessScope"
+            },
+            "success": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "const": "process_finished"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "success",
+            "scope"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -1262,6 +1321,272 @@
         "allow"
       ]
     },
+    "ProcessAccount": {
+      "type": "object",
+      "properties": {
+        "gid": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "uid": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "uid",
+        "gid"
+      ]
+    },
+    "ProcessEffect": {
+      "type": "string",
+      "enum": [
+        "not_released",
+        "possible",
+        "observed"
+      ]
+    },
+    "ProcessEvidence": {
+      "type": "object",
+      "properties": {
+        "effect": {
+          "$ref": "#/$defs/ProcessEffect"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProcessResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "effect"
+      ]
+    },
+    "ProcessExit": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "unobserved"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "type": {
+              "type": "string",
+              "const": "exited"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "code"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "signal": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "type": {
+              "type": "string",
+              "const": "signalled"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "signal"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "spawn_failed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "expired"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "ProcessLimits": {
+      "type": "object",
+      "properties": {
+        "memory_bytes": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "output_bytes": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "processes": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "runtime_seconds": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "runtime_seconds",
+        "output_bytes",
+        "processes",
+        "memory_bytes"
+      ]
+    },
+    "ProcessProfile": {
+      "type": "string",
+      "enum": [
+        "linux_systemd_v1"
+      ]
+    },
+    "ProcessResult": {
+      "type": "object",
+      "properties": {
+        "exit": {
+          "$ref": "#/$defs/ProcessExit"
+        },
+        "stderr": {
+          "$ref": "#/$defs/CapturedOutput"
+        },
+        "stdout": {
+          "$ref": "#/$defs/CapturedOutput"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "exit",
+        "stdout",
+        "stderr"
+      ]
+    },
+    "ProcessScope": {
+      "type": "object",
+      "properties": {
+        "boot": {
+          "type": "string"
+        },
+        "cgroup": {
+          "type": "string"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "invocation": {
+          "type": "string"
+        },
+        "journal": {
+          "$ref": "#/$defs/JournalId"
+        },
+        "unit": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "journal",
+        "execution",
+        "boot",
+        "invocation",
+        "unit",
+        "cgroup"
+      ]
+    },
+    "ProcessSpec": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cwd": {
+          "type": "string"
+        },
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "executable": {
+          "type": "string"
+        },
+        "limits": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProcessProfile"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "account",
+        "executable",
+        "args",
+        "environment",
+        "cwd",
+        "deadline",
+        "limits"
+      ]
+    },
     "ReleaseChannel": {
       "type": "string",
       "enum": [
@@ -1334,9 +1659,34 @@
       ]
     },
     "StopEvidence": {
-      "type": "string",
-      "enum": [
-        "no_process_group"
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "no_process_group",
+            "not_launched"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "systemd_scope_empty": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "$ref": "#/$defs/ProcessScope"
+                }
+              },
+              "required": [
+                "scope"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "systemd_scope_empty"
+          ]
+        }
       ]
     },
     "SubmitTask": {
@@ -1655,6 +2005,17 @@
             }
           ]
         },
+        "process": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProcessEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "progress": {
           "type": "integer",
           "format": "uint32",
@@ -1733,6 +2094,23 @@
             "type",
             "value",
             "observable"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "$ref": "#/$defs/ProcessSpec"
+            },
+            "type": {
+              "type": "string",
+              "const": "process"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "spec"
           ]
         }
       ]

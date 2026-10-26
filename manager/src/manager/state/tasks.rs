@@ -124,17 +124,25 @@ impl State {
                 return Err(OperationError::InvalidInput);
             }
         }
-        match input.work {
-            WorkSpec::TestInput { steps } if !(1..=10000).contains(&steps) => {
+        match &input.work {
+            WorkSpec::TestInput { steps } if !(1..=10000).contains(steps) => {
                 return Err(OperationError::InvalidInput);
             }
-            WorkSpec::TestEffect { value, .. } if value > 10000 => {
+            WorkSpec::TestEffect { value, .. } if *value > 10000 => {
                 return Err(OperationError::InvalidInput);
+            }
+            WorkSpec::Process { spec } => {
+                spec.validate()?;
+                if spec.deadline != input.settings.deadline {
+                    return Err(OperationError::InvalidInput);
+                }
             }
             _ => {}
         }
-        if !matches!(input.work, WorkSpec::Unavailable)
-            && !cfg!(feature = "nonproduction-test-worker")
+        if matches!(
+            input.work,
+            WorkSpec::TestInput { .. } | WorkSpec::TestEffect { .. }
+        ) && !cfg!(feature = "nonproduction-test-worker")
         {
             return Err(ErrorCode::UnsupportedExecution.into());
         }
@@ -158,6 +166,7 @@ impl State {
             progress: 0,
             outcome: None,
             effect_evidence: Vec::new(),
+            process: None,
             approval: ApprovalView {
                 id: ApprovalId::new(),
                 binding: None,
