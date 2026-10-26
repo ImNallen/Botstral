@@ -1,0 +1,39 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.87s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 16 tests
+test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
+test recovery::every_approval_binding_field_and_single_use_identity_are_checked ... ok
+test recovery::permits::invalid_permit_preserves_another_sessions_pending_claim ... ok
+test recovery::permits::renewed_approval_survives_denial_of_older_pending_claim ... ok
+Schema creation succeeded; cache rewrite failed with database disk image is malformed.
+test recovery::journal_replacement_after_unacknowledged_acceptance_never_restarts_work ... ok
+
+thread 'recovery::manager_claim_and_outbox_crashes_preserve_original_intent' (599589653) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::conversation_append_order_survives_restart_and_retries ... ok
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (599589659) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+test recovery::durable_task_survives_manager_restart ... ok
+test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
+test recovery::delayed_claim_rejects_revocation_policy_and_expiry ... ok
+test recovery::offline_cancellation_preserves_effects_until_stopped_confirmation ... ok
+test recovery::markdown_sources_conversations_and_event_snapshots_recover ... ok
+test recovery::recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent ... ok
+test recovery::manager_claim_and_outbox_crashes_preserve_original_intent ... ok
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (599589659) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (599589659) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+test recovery::published_markdown_recovers_each_file_index_event_crash_window ... ok
+test recovery::independent_effect_ledger_recovers_every_worker_crash_boundary ... ok
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded has been running for over 60 seconds
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 70.56s
+

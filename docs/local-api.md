@@ -156,7 +156,7 @@ M03 adds these owner-authenticated methods. All mutations use strict JSON and th
 | `DELETE /v1/tasks/{id}/approval` | `{}`. | Revoked approval. Admission already consumed cannot be undone. |
 | `PUT /v1/bots/{id}/permission` | `{"expected_revision":1,"allow":true}`. | Advanced permission revision and invalidated pending approvals. |
 | `POST /v1/conversations` | `Conversation` with `id` and `bot`. | Idempotent conversation. |
-| `POST /v1/messages` | `ConversationMessage` with `id`, `conversation` and `text`. | Idempotent immutable message. |
+| `POST /v1/messages` | `ConversationMessage` with `id`, `conversation` and `text`. | Idempotent immutable message. Snapshots preserve append order, including after restart. A retry keeps the original position. |
 | `GET /v1/events/{cursor}/{limit}` | None. Limit is 1 through 64. | Retained events, or a snapshot with a replacement cursor. Zero requests a snapshot. Future cursors return `400`. |
 | `PUT /v1/documents` | `WriteDocument`. | Owner instructions or memory with validated source references and revision. |
 | `PUT /v1/generated-memory` | `WriteDocument` whose kind is `memory`. | Generated data. An instruction kind returns `400`. No Markdown text changes typed permission or approval policy. |

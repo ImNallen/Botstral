@@ -1,0 +1,9 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-f4baf7e5/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.12s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 1 test
+test sessions::confirmed_takeover_two_sessions_cancellation_and_results ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 4.78s
+

@@ -26,6 +26,12 @@ The debug synthetic provider has its own durable SQLite ledger. Its invocation c
 
 Independent correctness and comment review belongs to the parent. This implementation run does not claim an independent verdict.
 
+Parent review accepted JSON task and approval aggregates because the actor commits consumption, state and events together. It also accepted immutable cancellation delivery for the synchronous synthetic adapter. These choices preserve the selected transaction and identity rules.
+
+Parent review found that rejecting one permit reconciled unrelated pending claims. Reconciliation now targets that execution. A pending claim records its authority separately from the latest delivery, so denial of an older claim preserves a renewed grant.
+
+Index rebuilding discards the validated derived database and its sidecars before creating a fresh index from Markdown. It does not depend on successfully reading damaged cache pages. Malformed source files still fail validation and remain untouched.
+
 Recovery includes a complete journal inventory after report replay. Inventory pages are bounded by the same entry and byte limits, and fresh execution waits for all pages. A consumed execution missing from that inventory requires attention. Terminal outcome reports remain in a separate journal table after transport payload pruning so repeated delivery can return the original report identity.
 
 The lifetime report sequence is capped at 16384 per worker journal. Storage exhaustion fails closed and retains semantic tombstones. This milestone provides no journal compaction or task deletion API. Both machines retain evidence rather than freeing duplicate protection for new work.
@@ -33,6 +39,8 @@ The lifetime report sequence is capped at 16384 per worker journal. Storage exha
 Task views preserve prior effect and uncertainty evidence when cancellation later records stopped confirmation. A stopped confirmation does not assert that earlier uncertain effects did not occur.
 
 The manager stores each typed task and approval aggregate as JSON in its task row. It indexes task, bot and worker relationally and stores immutable command rows, cancellation intent, receipts and events separately. This is a smaller storage shape than the proposed separate operation and approval tables. Actor methods retain the same transaction boundary. Independent parent review must assess this implementation choice.
+
+Messages have a durable SQLite append sequence. Snapshots use that sequence rather than UUID order. Identical append retries return the existing message without changing its position.
 
 Cancellation delivery carries the immutable original execution identity plus sticky cancellation intent, instead of a second executable command body. The cancellation identifier is stored transactionally in `cancellations`. A stopped journal tombstone prevents later delivery from restarting that execution.
 

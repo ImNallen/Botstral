@@ -1,0 +1,8 @@
+{
+  "restart_preserved_order": true,
+  "retry_preserved_position": true,
+  "snapshot_order": [
+    "first",
+    "second"
+  ]
+}

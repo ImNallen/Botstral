@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 1 test
+Schema creation succeeded; cache rewrite failed with database disk image is malformed.
+test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 5.85s
+

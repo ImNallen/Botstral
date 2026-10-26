@@ -1,0 +1,24 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.89s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 2 tests
+
+thread 'recovery::permits::invalid_permit_preserves_another_sessions_pending_claim' (599543227) panicked at agent/tests/m03_recovery/permits.rs:112:21:
+valid execution became uncertain
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::permits::invalid_permit_preserves_another_sessions_pending_claim ... FAILED
+
+thread 'recovery::permits::renewed_approval_survives_denial_of_older_pending_claim' (599543228) panicked at agent/tests/m03_recovery/permits.rs:71:24:
+bounded worker response: Elapsed(())
+test recovery::permits::renewed_approval_survives_denial_of_older_pending_claim ... FAILED
+
+failures:
+
+failures:
+    recovery::permits::invalid_permit_preserves_another_sessions_pending_claim
+    recovery::permits::renewed_approval_survives_denial_of_older_pending_claim
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 14 filtered out; finished in 12.22s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`
