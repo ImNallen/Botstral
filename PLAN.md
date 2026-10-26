@@ -2,11 +2,11 @@
 
 Botstral is in early planning. Product implementation has not started.
 
-The first build milestone is M01. All implementation checkboxes remain open.
+The first build milestone is M01. All implementation checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope. This plan turns those decisions into milestones and acceptance checks.
 
 ## Product target
 
-Match Grok Bot's documented personal features for one owner, with self-hosted application infrastructure and Mistral models. M01 through M06 establish the foundation. They do not complete the feature-parity target.
+Build a self-hosted Grok Bot that uses Mistral-developed models instead of US models. Match its documented personal features for one owner. M01 through M06 establish the foundation. They do not complete the feature-parity target.
 
 The manager, task state, memories, skills, files, and shared computer run on infrastructure the owner controls. Hosted model inference and explicitly connected external services remain outside that infrastructure.
 
@@ -15,20 +15,37 @@ The parity baseline is the personal Grok Bot documentation reviewed on October 2
 ## Agreed design
 
 - Each installation serves one owner and their paired devices.
-- One Go manager coordinates bots, conversations, tasks, permissions, and connections.
-- One persistent Linux virtual machine provides the bots' shared computer.
-- Many bots can work concurrently, each with its own screen, conversation, instructions, and memory.
+- One Rust manager coordinates bots, conversations, tasks, permissions, and connections using tokio, axum, and SQLite through rusqlite.
+- The manager and Computer VM run in two separate virtual machines from the first deployment. There is no combined installation mode.
+- The Rust `botstral-agent` daemon runs on the persistent Linux Computer VM. Both services belong to one Rust workspace and remain independently deployable.
+- A versioned `botstral-link` protocol uses JSON over secure WebSockets, with shared schemas and Rust and TypeScript bindings.
+- Many bots can work concurrently within configured resource and spending limits. Each has its own conversation, instructions, and memory. Independent screens and manual takeover follow initial headless browser execution.
 - Bots share files, installed tools, browser logins, and command-line credentials.
 - Bots have access across the guest filesystem and command line under the configured guest account.
 - Coding workspaces organize work and reduce conflicts. They do not restrict filesystem access.
 - Guest administrator permissions belong to virtual machine setup. Bot access does not extend to the manager host or Proxmox host.
-- Desktop and mobile apps use Tauri 2 with a shared React, TypeScript, and Vite frontend.
-- A small Rust layer handles native device features. The manager remains an independent server.
+- Build the desktop app first using Tauri with React and TypeScript. Add React Native apps for iOS and Android after the desktop workflow is stable.
+- Keep the TypeScript protocol library reusable by the later mobile apps. Mobile implementation and native checks do not block the desktop release.
+- Markdown files are the source of truth for bot memory and owner instructions. A rebuildable local SQLite index provides text search, with semantic search added later.
+- The manager owns an encrypted credential store, approval authority, schedules, and durable task state. Guest code cannot administer the manager or hypervisor.
 - The manager provides secure device pairing, remote access, reconnection, and revocation.
 - Mistral provides hosted reasoning. Vibe runs coding jobs inside the shared virtual machine.
 - Mistral-developed models are the default for reasoning, coding, helper tasks, and supported speech or vision features. Do not silently substitute another model developer or provider.
 - Model Context Protocol connections belong to the owner, with tool permissions configured per bot.
 - Tasks continue when a desktop or mobile app closes.
+
+### Delivery stages
+
+Complete a stage only when its acceptance evidence exists. Dependencies that name a scoped check require that check, not later work in the same milestone. A milestone that spans stages remains open until all its checks pass.
+
+| Stage | Planned work |
+| --- | --- |
+| First acceptance milestone | Core checks from M01 through M06, W01, the C01 and C02 desktop workflow, and one P03 routine support one owner, one bot, and one worker. Verify browser and file work, one connector, approvals, cancellation, reconnection, uncertain outcomes, and backup restoration. |
+| v1 | Complete the initial multi-bot roster, Vibe coding, protected credentials in P06, core P05 file workflows, and C03 desktop checks. Run initial routines through P03. |
+| v1.x | Complete W02 computer sessions and manual takeover, P01 advanced management and semantic retrieval, P02 skills and demonstrations, and expanded connectors, files, routines, usage controls, and recovery. |
+| v2 | Deliver P04 bot coordination and P07 in-app voice. |
+| Later | Add the C04 mobile companions after the desktop workflow is stable, telephone calling, other contact methods, optional personal-computer access, and traffic routing. |
+| Public release | Complete R01 distribution and R02 safe updates for the released capabilities. Publish the license, supported behavior, installation, and recovery instructions. |
 
 The first deployment targets Linux guests on Proxmox. The manager and worker must also run on other compatible Linux hosts.
 
@@ -39,98 +56,118 @@ Initial allocations are 8 gigabytes of memory for the manager and 32 gigabytes f
 Using a European model provider and choosing a processing region are separate decisions. Configure the manager and Vibe explicitly, including utility models and automatic approval classifiers.
 
 - [ ] Discover and verify each selected Mistral model against the configured endpoint.
+- [ ] Store a configuration table per task role with model identifier, developer, endpoint, capabilities, privacy terms, and usage limits. Use the candidates in [the design](DESIGN.md#3-model-routing), subject to verification.
+- [ ] Require explicit owner consent before sending private data to a preview model whose terms permit training on inputs or outputs. Select a verified alternative when consent is absent.
 - [ ] Offer European regional inference and record the selected endpoint for each managed request.
-- [ ] Test reasoning, tools, vision, embeddings, transcription, and speech separately before enabling them.
-- [ ] Show a blocked capability when the selected model or region cannot support it. Require an explicit owner choice before changing region or provider.
+- [ ] Test reasoning, tools, vision, OCR, embeddings, moderation, transcription, and speech separately before enabling them.
+- [ ] Show a blocked capability when the selected model or region cannot support it. Require an explicit owner choice or configured policy before changing the model, provider, region, or privacy policy.
 - [ ] Verify Vibe's actual model and endpoint, rather than assuming its account or catalog selects Mistral-developed models.
+- [ ] Verify subscription allowance, key scope, and pay-as-you-go settings for the selected service. Do not present subscription and API access as incompatible modes.
+- [ ] Maintain dated price estimates and record actual usage. Enforce configured budgets across primary models, utility models, and coding jobs.
 
 Mistral documents its European endpoint as covering European Union and European Free Trade Association countries. Regional inference does not make every account or operational record regional. If the owner requires strictly European Union-only processing, verify that separately before claiming support. External services have their own data locations. See [regional inference](https://docs.mistral.ai/inference/regional-inference).
 
 Regional endpoints do not support hosted Agents, Batch, or Files APIs. Keep the corresponding orchestration and storage in Botstral and verify each selected regional capability.
 
+Run scheduled inference through the selected regional endpoint. Do not switch to global Batch silently. Optional local inference requires separate license, hardware, and quality checks and is outside v1.
+
 ## Manager milestones
 
-Build M01 through M06 in order. The client and computer tracks can progress alongside them where their dependencies allow.
+Build M01 through M04 in order. M05 can proceed after M03 alongside M04. M06 requires both M04 and M05. W01 supplies the real worker for M04. Client work can start after M01 and follow its stated dependencies.
 
 ### M01. Start the manager and retain owner data
 
-- [ ] Create the Go service and SQLite migrations.
+- [ ] Create the Rust workspace, manager service, and SQLite migrations using tokio, axum, and rusqlite.
 - [ ] Add local owner setup, sign-in, sign-out, and session revocation.
 - [ ] Keep first-owner setup on a dedicated loopback listener that is never exposed through remote access.
 - [ ] Store one owner profile. Do not add public registration, organizations, or multiple owner accounts.
-- [ ] Create the shared React frontend with a sign-in page, bot list, bot creation form, and connection status.
-- [ ] Serve the browser build from the manager.
+- [ ] Add interfaces for owner authentication, bot records, and connection status that C01 and C02 can use.
+- [ ] Keep provider-key setup in protected secret entry outside ordinary conversations and logs. Apps must not retain provider keys or retrieve stored vault values.
+- [ ] Select an established encryption implementation for the credential store. Add locked and unlocked states, owner-provisioned unlock credentials, and a key recovery policy before storing provider keys.
 - [ ] Add development, build, and verification commands.
 
-Complete when the owner can create a bot, restart the manager, and see the same bot after signing in. Unauthenticated requests must not expose bot data.
+Complete when a local authenticated client can create a bot, restart the manager, and retrieve the same bot after signing in. Unauthenticated requests must not expose bot data. C01 and C02 provide the native client experience.
 
 ### M02. Connect the shared computer and track bot sessions
 
 Depends on M01.
 
-- [ ] Register one persistent computer for the installation.
+- [ ] Register the separate Computer VM and add the Rust `botstral-agent` daemon to the workspace.
 - [ ] Enroll the worker through an expiring, single-use invitation bound to its identity.
-- [ ] Define versioned worker commands, capabilities, acknowledgments, and events.
-- [ ] Provide a separately authenticated private worker connection that cannot serve owner setup.
-- [ ] Track an independent screen session and input owner for each bot.
+- [ ] Define `botstral-link` schemas, Rust bindings, protocol versions, correlated requests, capabilities, acknowledgments, and events.
+- [ ] Establish an outbound authenticated WSS connection from the daemon to the manager. Reserve SSH for bootstrap and recovery.
+- [ ] Restrict worker credentials to worker methods. Reject attempts to approve actions, enroll owner devices, retrieve unrelated credentials, or change security policy.
+- [ ] Negotiate protocol versions and capabilities before admitting work. Test visibly rejected incompatible combinations.
+- [ ] Define commands for starting work, status, cancellation, approved operations, and results. Include stable command and task identifiers.
+- [ ] Define events for acceptance, progress, redacted logs, approval requests, screenshots, artifacts, completion, failure, and confirmed cancellation.
+- [ ] Track logical computer sessions and input ownership for each bot. W02 proves independent full desktops later.
 - [ ] Reject stale input after control changes hands.
-- [ ] Allow the owner to take control of one screen while other bot sessions continue.
+- [ ] Model manual takeover so the selected bot stops providing input while other sessions continue. Verify the contract with the test worker.
 - [ ] Add a clearly labelled test worker for protocol and failure testing. Exclude it from production builds.
 
-Complete when two test sessions remain distinct and taking control of one leaves the other running. This milestone does not prove real desktop independence.
+Complete when the daemon connects across the two VMs, worker-only authorization is enforced, and two test sessions retain distinct ownership. Verify rejection of incompatible protocol versions and stale input. This milestone does not prove real desktop independence.
 
 ### M03. Make tasks durable and recoverable
 
 Depends on M02.
 
 - [ ] Persist conversations, task settings, progress, approvals, and outcomes.
-- [ ] Establish durable owner preferences and separate bot memory records for P01.
-- [ ] Define task states for queued work, active work, approval, cancellation, completion, failure, and attention.
+- [ ] Store owner instructions and per-bot memory as Markdown with source references. Serialize writes through the manager and keep the local search index rebuildable.
+- [ ] Keep model-generated memory separate from owner-controlled instructions, permissions, and approval policy.
+- [ ] Define queued, running, awaiting-approval, cancelling, completed, failed, cancelled, and awaiting-attention task states with explicit transitions.
 - [ ] Commit task changes, outgoing commands, and events together.
-- [ ] Use stable command identifiers and worker journals to recognize repeated delivery.
+- [ ] Journal command acceptance and outcomes on the worker before acknowledging them. Repeated delivery reconnects to existing execution or returns its recorded outcome.
 - [ ] Reconcile existing work after a manager restart or worker reconnect.
-- [ ] Require attention when an external action's outcome is uncertain. Do not blindly repeat it.
-- [ ] Preserve cancellation requests until the worker confirms that execution stopped.
-- [ ] Bind approvals to the exact task, arguments, permission revision, and expiry.
-- [ ] Restore progress and missed events when a client reconnects.
+- [ ] Reconcile external effects through provider operation identifiers or reliable observation. Require attention when an outcome remains uncertain. Do not blindly repeat it.
+- [ ] Preserve cancellation requests until the worker confirms that execution and its process group stopped. Record effects that happened before cancellation.
+- [ ] Bind approvals to the owner, bot, task, operation, normalized arguments, permission revision, expiry, and single-use execution identifier.
+- [ ] Revalidate authority immediately before execution. Changed arguments, expiry, revocation, or policy changes invalidate affected authority.
+- [ ] Persist authoritative events and bound replay retention. Provide a snapshot and new cursor when a reconnecting client has missed retained history.
 
-Complete when the manager can restart during work and recover the original task without duplicate execution or lost history.
+Complete when a manager restart or duplicate command delivery recovers the original task without starting replacement work. Disconnect the worker after an external effect and before its result is recorded. Verify reconciliation or an attention state. Also verify confirmed cancellation, invalidated approvals, and snapshot recovery beyond event retention.
 
 ### M04. Connect Mistral and execute work across the virtual machine
 
-Depends on M03.
+Depends on M03 and W01 for live execution.
 
 - [ ] Add the manager's Mistral reasoning and tool loop.
 - [ ] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
-- [ ] Record model usage, deadlines, budgets, tool requests, and results.
+- [ ] Record model usage, deadlines, budgets, tool requests, and results. Enforce turn, token, time, spending, and concurrency limits before admitting each operation.
+- [ ] Add Playwright browser execution through the supported runtime selected in W01. Treat screenshots and page content as untrusted inputs.
 - [ ] Add real worker tools for file operations, shell commands, and processes across the guest computer.
-- [ ] Run Vibe coding jobs on the worker with cancellation and separate working directories.
-- [ ] Verify the selected Vibe interface before promising command-level approval controls.
+- [ ] Run Vibe coding jobs with explicit task ownership, resumable sessions, cancellation, separate working directories, and captured output.
+- [ ] Verify the selected Vibe interface before promising command-level approval controls. Keep unsupported approval operations blocked instead of enabling blanket auto-approval.
+- [ ] Prefer manager-mediated Vibe inference where compatible. Identify any provider credentials supplied to guest processes and document their exposure.
+- [ ] Enforce manager permissions before browser, file, shell, connector, and coding operations. Model moderation cannot grant authority.
+- [ ] Record where unrestricted guest execution prevents enforcing a semantic action rule, including complete send or purchase prevention.
 - [ ] Copy completed deliverables to manager storage for retrieval from clients.
 - [ ] Keep provider credentials out of prompts, ordinary logs, and client applications.
 - [ ] Use recorded model responses for repeatable checks and a privately configured, capped credential for live checks.
 
-Complete when a bot creates a file outside its coding workspace and another bot reads it. Also verify a real code change, its relevant tests, and cancellation of a running job.
+Complete when a bot performs a real browser task, creates a file outside its coding workspace, and retrieves its durable artifact. Verify a real Vibe code change, its relevant tests, cancellation, and budget exhaustion. Verify a second bot can read the shared file before v1 multi-bot acceptance.
 
 ### M05. Build secure remote access into the manager
 
-Depends on M04.
+Depends on M03. Desktop acceptance is completed in C02. Mobile and cellular checks follow in C04.
 
-- [ ] Prototype direct encrypted access and an outbound tunnel using established networking components.
-- [ ] Support a reachable relay that can also be self-hosted.
+- [ ] Expose a single TLS listener for the WSS control protocol, with separate method authority for owner devices and workers.
+- [ ] Verify direct LAN access and select a configured mesh or reachable outbound relay for remote access without a forwarded home-router port.
 - [ ] Keep the encrypted client connection terminated at the manager.
-- [ ] Add expiring device invitations, confirmation, pairing, and separately revocable credentials.
-- [ ] Handle browser sessions and packaged Tauri client credentials explicitly.
-- [ ] Route authenticated screen streams, input, and task events through the manager.
+- [ ] Add expiring single-use invitations bound to the manager identity and device role. Require trusted confirmation and attempt limits for short codes.
+- [ ] Pin manager identity at pairing and define certificate rotation and recovery without silently dropping the pin.
+- [ ] Issue separately revocable credentials for owner devices and workers. Handle desktop credential storage through C02 and later mobile storage through C04.
+- [ ] Route authenticated task events and supported computer input through the manager. W02 adds full desktop streams.
 - [ ] Close existing connections when a device is revoked.
 - [ ] Bound stream queues so a slow viewer does not block other clients.
+- [ ] Add heartbeats, dead-peer detection, exponential-backoff reconnect, event resumption, and snapshot recovery through M03.
+- [ ] Deliver notification events to the desktop app for native display. Notifications cannot grant approval authority or replace the durable task queue. C04 adds mobile push later.
 - [ ] Keep first-owner setup absent from public, relay, and worker routes, including requests with misleading forwarded addresses.
 
-Complete when a paired phone connects over cellular networking, reconnects to its session, and loses access after revocation. Confirm that remote clients cannot create the first owner.
+Complete when an authenticated protocol client connects through the configured remote route, resumes after disconnection, and loses its current and future connections after revocation. Confirm that remote and worker clients cannot create the first owner. C02 verifies the desktop app on that route.
 
 ### M06. Add plugins and package the manager
 
-Depends on M05.
+Depends on M04 and M05.
 
 - [ ] Install Model Context Protocol connections once for the owner.
 - [ ] Add connection discovery, authentication, reconnection, credential rotation, and revocation.
@@ -141,13 +178,29 @@ Depends on M05.
 - [ ] Run local plugin processes inside the shared virtual machine.
 - [ ] Record tool discovery, permission decisions, calls, and results.
 - [ ] Expose permitted plugin tools to Vibe through the manager's gateway.
-- [ ] Add installation, update, diagnostics, backup, and restore procedures.
-- [ ] Package the manager and worker as independently deployable Linux services.
+- [ ] Define the handling of in-flight connector calls during revocation.
+- [ ] Add installation, diagnostics, and consistent backup and restore procedures for SQLite state, Markdown memory, the encrypted credential store, and durable artifacts.
+- [ ] Define which Computer VM files, browser sessions, and installed tools each backup preserves. Restore them according to that policy.
+- [ ] Package the manager and worker as separate Linux services and OCI images for Docker or Podman. Installation must preserve the two-VM boundary.
 - [ ] Verify installation on Proxmox-hosted Linux and another compatible Linux environment.
 
-Complete when two bots reuse one connected account with different tool permissions and a backup restores the owner's bots, histories, and deliverables. Verify that revoking the connection blocks further calls from both bots and Vibe.
+Complete when one bot uses a real connector and a backup restores its history, memory, credentials, and deliverables. Verify that connection revocation blocks further calls from the bot and Vibe. Before v1 multi-bot acceptance, verify two bots reuse one connected account with different tool permissions and revocation blocks both.
 
 Tool permissions govern calls through the gateway. Bots with shared computer access also share its credentials. Per-bot tool settings are not a security boundary between bots.
+
+### First acceptance milestone
+
+Run these checks on one owner, one bot, one worker, and the desktop app after the required foundation work is available. Later multi-bot and mobile checks remain open.
+
+- [ ] Start separate manager and Computer VMs, pair the worker, and verify that its credentials cannot approve actions, enroll owner devices, or access unrelated credentials.
+- [ ] Complete a browser and file task from the client, approve its exact proposed action, retrieve the result, and verify cancellation of a running job.
+- [ ] Use one real connector and run one durable P03 routine while clients are closed. Repeat its trigger and verify reconciliation rather than a repeated external effect.
+- [ ] Restart the manager during execution and reconnect to the original task without starting replacement work.
+- [ ] Disconnect the worker after an external effect and before completion is recorded. Reconcile the outcome or show that attention is required before retrying.
+- [ ] Disconnect the client beyond event replay retention and restore current state through a snapshot.
+- [ ] Deny, alter, expire, consume, and revoke approval authority. Verify that stale requests cannot execute.
+- [ ] Restore a backup and inspect history, memory, credentials, artifacts, and the documented Computer VM state.
+- [ ] Inspect model and helper requests for the configured Mistral-developed model and endpoint. Verify that privacy and unsupported-capability blockers remain visible.
 
 ## Feature-parity milestones
 
@@ -158,7 +211,9 @@ These are product outcomes. Split implementation into smaller changes as needed.
 Depends on M03 and M04.
 
 - [ ] Store durable preferences, decisions, task summaries, and source references separately for each bot.
+- [ ] Build local FTS5 search from the Markdown source and verify that deleting and rebuilding the index preserves retrievable memory.
 - [ ] Retrieve relevant memory in later conversations without sending every historical message to the model.
+- [ ] Add semantic retrieval with Mistral Embed in v1.x after selecting and verifying a local vector index. Verify its endpoint independently of the main model.
 - [ ] Let the owner inspect, correct, and delete saved memory.
 - [ ] Add bot names, avatars, descriptions, pinning, organization, hiding, and duplication.
 - [ ] Copy profile settings and avatars when duplicating a bot. Exclude conversation history, learned memory, attachments, and credential values.
@@ -169,7 +224,7 @@ Complete when a bot applies a corrected preference in a new conversation after a
 
 ### P02. Save skills and teach workflows
 
-Depends on M04 and P01. Demonstration capture also requires real computer sessions.
+Depends on M04 and P01. Deliver in v1.x. Demonstration capture also requires W02 and protected capture from P06.
 
 - [ ] Create an owner-wide skill library with per-bot enablement and versions.
 - [ ] Preserve enabled skills when duplicating a bot without duplicating the owner-wide library.
@@ -185,10 +240,13 @@ Complete when two bots reuse a reviewed skill and a demonstrated workflow succee
 
 Depends on M03 and M04. External event sources also need M05 and the relevant M06 connections.
 
+One durable scheduled routine is required for first acceptance. Additional routine management and event sources follow in v1 and v1.x. Routine duplication uses P01's bot-duplication behavior.
+
 - [ ] Add durable routines with an owning bot, schedule, time zone, next run, and history.
 - [ ] Copy routine definitions when duplicating a bot, keeping copies paused until the owner activates them. Remove routines when their owning bot is deleted.
 - [ ] Support creation, editing, testing, pause, resume, and deletion through the app and conversation.
 - [ ] Handle daylight-saving changes, missed runs, restarts, duplicate triggers, and overlapping work explicitly.
+- [ ] Run inference through the configured regional model endpoint. Keep schedules and run history in the manager instead of using unsupported regional Batch or hosted agent APIs.
 - [ ] Add authenticated webhooks and supported event subscriptions with narrow matching rules.
 - [ ] Let bots request future wakeups and follow-ups within owner-defined budgets and permissions.
 - [ ] Deliver results, failures, and requests for decisions without requiring the owner to keep a conversation open.
@@ -197,7 +255,7 @@ Complete when a routine runs while clients are closed, survives a manager restar
 
 ### P04. Let bots coordinate and hand off work
 
-Depends on M03, M04, and P01.
+Depends on M03, M04, and P01. Deliver in v2. Delegated full desktop work also requires W02.
 
 - [ ] Add conversations containing the owner and multiple bots.
 - [ ] Support bot mentions, replies, reactions, and explicit context sharing.
@@ -213,6 +271,7 @@ Complete when one bot delegates a task to another, both work independently, and 
 Depends on M03 and M04. External information sources use M06.
 
 - [ ] Add attachments, uploads, downloads, previews, and generated documents.
+- [ ] Add document ingestion through the verified Mistral OCR capability where required. Keep the selected endpoint and unsupported states visible.
 - [ ] Provide a searchable library of conversations, bot work, files, skills, and routines.
 - [ ] Link results to their source task and retain version and provenance information.
 - [ ] Support editable reports and interactive artifacts in isolated views without native client privileges.
@@ -222,20 +281,28 @@ Complete when the owner finds an earlier result, inspects its source task, edits
 
 ### P06. Complete approval and secret-entry workflows
 
-Depends on M03, M05, and M06. Website sign-in and private browser capture also require real shared computer sessions.
+Depends on M03, M04, and C02. Connector-specific flows also require M06. Build protected Playwright fills for v1 on W01. Manual takeover extends those flows through W02 in v1.x.
 
 - [ ] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
-- [ ] Support private website sign-in, manual takeover, saved credentials, rotation, and revocation.
-- [ ] Add an owner-wide vault for logins, payment cards, and contact information, with explicit hints and permissions for their use.
-- [ ] Support protected field filling without placing stored values in model inputs. Test supported sites and approval rules before enabling unattended use.
+- [ ] Support private website sign-in, saved credentials, rotation, and revocation. Add manual takeover through W02 in v1.x.
+- [ ] Extend the encrypted store from M01 with individual owner-created login items, metadata, and per-item usage policy. Do not import an entire password vault automatically.
+- [ ] Make items available to the owner's bots under the item's policy. Explain that shared guest access does not isolate bots from one another.
+- [ ] Add approval for every fill and automatic fill on explicitly allowed origins. Require approval when page classification is uncertain. A login approval cannot authorize a purchase or send.
+- [ ] Keep TOTP seeds on the manager and send only the current approved code. Require approval for every TOTP fill in v1.
+- [ ] Bind fill requests to the task, browser session, page, frame origin, and target fields. Revalidate the destination immediately before filling and reject changed destinations.
+- [ ] Exclude secret values from prompts, screenshots, recordings, transcripts, logs, memory, and artifacts. Pause capture during protected entry and verify supported sites before unattended use.
+- [ ] Verify locked-store behavior after reboot. Automatic unlock requires an explicitly provisioned key and a documented protection, backup, and recovery policy.
+- [ ] Prevent clients from retrieving stored secret values. Expose only metadata and protected entry or approval controls.
+- [ ] Block future fills when an item is removed. Treat existing website sessions, copied credentials, cookies, and remote grants as separate revocation or rotation work.
 - [ ] Add allow-once, deny, and remembered approval rules with explicit precedence.
 - [ ] Apply current rules consistently across bots, routines, plugins, and paired devices.
 - [ ] Preserve exact action arguments and meaningful context in approval requests.
+- [ ] Test denied, modified, expired, previously consumed, and revoked approval requests. None may authorize stale execution.
 - [ ] Verify redaction and private input using synthetic credentials before enabling the flow.
 
-Complete when the owner can authorize an exact action on another device and complete a private sign-in without exposing the entered secret through normal model-visible capture or logs.
+Complete when the owner authorizes an exact action on another device and completes a supported private sign-in without exposing the entered secret through normal model-visible capture or logs. Verify origin-change rejection, locked-store recovery, per-fill TOTP approval, and future-fill revocation. Full desktop takeover additionally requires W02.
 
-Public documentation differs on credential automation. The x.ai guide describes human sign-in and secret requests. Cursor's Vault also stores reusable logins, cards, and contact information. Track those broader functions separately and verify supported sites and approval behavior before claiming automatic sign-in or checkout parity. See [Cursor Vault](https://cursor.com/help/grok-bot/secrets).
+The initial vault supports credentials required for agent work. Track broader payment-card and contact-information parity separately, with site-specific permissions and checks before claiming checkout support. See [Cursor Vault](https://cursor.com/help/grok-bot/secrets).
 
 These controls do not establish secrecy from arbitrary code with full guest privileges. Keep remote connection credentials off the guest where possible and document credentials deliberately supplied to local processes.
 
@@ -243,18 +310,25 @@ These controls do not establish secrecy from arbitrary code with full guest priv
 
 Depends on M04, M05, and C02.
 
+Deliver desktop in-app voice in v2. Mobile voice requires C04. Telephone calling and additional contact methods follow later.
+
 - [ ] Add editable dictation and voice messages with transcripts using supported Mistral speech models.
 - [ ] Add spoken interaction with interruption, tool execution, cancellation, and continued work after the call ends.
+- [ ] Verify the proposed Voxtral Mini Transcribe Realtime 3, Mistral reasoning, and Voxtral Mini TTS 3 pipeline. Use the same durable task and approval system as text requests.
+- [ ] Choose the LiveKit deployment, WebRTC media path, signaling, relays, and authentication. Document connections beyond the WSS control protocol and where audio is processed.
 - [ ] Verify the selected speech models and region, supported languages, streaming behavior, and client audio permissions.
+- [ ] Add transcript retention controls with inspection and deletion. Do not save every call automatically to durable memory.
+- [ ] Require an authenticated in-app approval card for sensitive actions unless a current owner rule already authorizes them.
 - [ ] Add owner-configured messaging entry points where the external service provides supported access.
 - [ ] Keep bot identity, relevant memory, permissions, and task history consistent across contact methods.
 - [ ] Keep drafts editable and require the applicable authorization before sending externally.
+- [ ] Verify telephone-provider geography, access rights, number availability, and all charges before adding calling. Keep telephone costs separate from model and media-hosting estimates.
 
-Complete when the owner starts work by voice, changes direction by text, and receives the result after leaving the call. Test each contact method independently.
+Complete in-app voice when the owner starts work by voice, interrupts or changes direction by text, and receives an authorized continuing task's result after leaving the call. Verify retention controls and sensitive-action approvals. Test each later contact method independently.
 
 ### P08. Recover the computer and connect an optional personal device
 
-Depends on M02, M05, and the real worker. Client integration uses C02 and C03.
+Depends on M02, M05, M06, and W01. Client integration uses C02 and C03. M06 supplies first-acceptance backup restoration. Expand recovery in v1.x and add personal-device access later.
 
 - [ ] Distinguish application updates, worker software updates, computer rebuilds, recovery, and snapshot resets.
 - [ ] Define and display which files, browser sessions, installed packages, and recent changes each operation preserves.
@@ -270,69 +344,139 @@ Complete when a supported recovery restores the documented state and a reset req
 
 ### P09. Complete daily management and distribution
 
-Depends on the relevant foundation, client, and parity milestones.
+Depends on M04, M05, and C02. Integrate later capabilities as their milestones become available. Baseline usage enforcement is required in M04. Complete the richer daily controls in v1.x. R01 and R02 own release and update acceptance.
 
 - [ ] Show activity, attention states, routine history, connection health, and failed operations.
 - [ ] Add per-bot, per-task, and per-routine usage records and configured spending limits for managed execution.
 - [ ] Track Vibe and helper inference paths alongside primary reasoning requests.
 - [ ] Add notification preferences, quiet periods, themes, accessibility, and device-specific settings.
-- [ ] Choose supported interface languages and verify translations and regional formats on desktop and mobile.
-- [ ] Deliver version checks, supported updates, diagnostics, and signed client distribution.
+- [ ] Choose supported interface languages and verify translations and regional formats on desktop. Extend the checks to mobile in C04.
+- [ ] Expose version checks, update approvals, release-channel choice, and diagnostics through R01 and R02.
 - [ ] Verify that updates and restores preserve owner configuration, bot memory, routines, and credentials according to the documented policy.
 
 Complete when the owner can understand ongoing work, control unattended usage, recover a failed connection, and update the installation without losing its documented persistent state.
 
-## Desktop and mobile client track
+## Client track
 
-### C01. Start the shared Tauri client
+### C01. Start the desktop app
 
-Depends on M01.
+Depends on M01 for app shells and M02 for protocol bindings.
 
-- [ ] Wrap the shared frontend in Tauri 2.
-- [ ] Keep frontend source in `web/` and the native host in `web/src-tauri/`.
-- [ ] Launch the same basic interface on a desktop, an Android emulator, and an iOS simulator.
-- [ ] Adapt navigation and layout for desktop and mobile screens.
+- [ ] Create the Tauri desktop app with React and TypeScript, including native tray and notification integration.
+- [ ] Add the TypeScript `botstral-link` bindings for the M02 protocol before C02 integration.
+- [ ] Provide desktop sign-in, bot list, bot creation, and connection status as their manager capabilities become available.
+- [ ] Keep desktop-native features separate from the protocol library and reusable application logic.
+- [ ] Launch the desktop app and verify its initial navigation and layout.
 
-Complete when each target renders the shared interface. This establishes packaging, not authenticated mobile access.
+Complete when the desktop app renders its initial interface. C02 verifies authenticated access and the complete first-acceptance workflow.
 
-### C02. Connect and pair native clients
+### C02. Connect and pair the desktop app
 
-Depends on C01 and M05.
+Depends on C01, M04, and M05.
 
-- [ ] Connect through the manager's versioned interface and authenticated event channels.
-- [ ] Validate manager identity and packaged-client origins.
+- [ ] Connect the desktop app through `botstral-link` using the manager's versioned WSS interface and authenticated event channels.
+- [ ] Validate manager identity, certificate pinning, device roles, and packaged-client origins.
 - [ ] Add protected device credential storage and pairing links.
 - [ ] Verify sign-out, revocation, suspension, resumption, and reconnection.
-- [ ] Bundle the frontend with the app and keep native capabilities separate from remote content.
+- [ ] Restore a current snapshot when the app reconnects beyond event replay retention.
+- [ ] Bundle the desktop interface and keep remote content separate from native capabilities.
+- [ ] Complete chat, task progress, an exact-action approval, cancellation, and result retrieval in the desktop app for first acceptance.
+- [ ] Verify the paired desktop app over the configured remote route, including reconnect and immediate loss of access after revocation.
 
-Complete when a paired native client can reconnect and a revoked client cannot regain access.
+Complete when the desktop app completes the first-acceptance workflow, pairs and reconnects over the configured route, and loses current and future access after revocation.
 
-### C03. Verify the daily client experience
+### C03. Verify the daily desktop experience
 
-Depends on C02 and the real computer sessions.
+Depends on C02, M04, P05 core file workflows, and P06's v1 protected-fill checks. Full desktop streams and manual takeover also require W02 in v1.x.
 
-- [ ] Verify conversations, approvals, files, and switching between bot screens.
+- [ ] Verify desktop conversations, approvals, files, and switching between bots.
 - [ ] Add client support for the parity milestones as each manager capability becomes available.
-- [ ] Verify screen streams, touch controls, keyboard input, and manual takeover.
-- [ ] Verify file import, export, and notifications on each target.
-- [ ] Test the selected native integrations on real devices.
-- [ ] Prepare signed releases after platform behavior is verified.
+- [ ] Verify headless browser results and task progress in v1. Verify full screen streams, pointer and keyboard input, and manual takeover with W02 in v1.x.
+- [ ] Verify desktop file import, export, tray behavior, and native notifications.
+- [ ] Test native integrations on the supported desktop platforms.
+- [ ] Verify native packaging and signing integration for R01 after platform behavior is verified.
+
+Complete the v1 checks when the desktop app supports the released bot, approval, file, and notification flows. Complete the screen and takeover checks only after W02 works on real computer sessions.
+
+### C04. Add mobile companions after desktop is stable
+
+Depends on C03's desktop release checks and M05. Mobile does not block first acceptance or the desktop release.
+
+- [ ] Create React Native apps for iOS and Android using the existing TypeScript protocol library and selected application logic.
+- [ ] Adapt chat, activity, approvals, files, and bot navigation to mobile layouts.
+- [ ] Add protected device credential storage, pairing links, certificate validation, and revocation on both platforms.
+- [ ] Verify suspension, backgrounding, resumption, reconnection, and snapshot recovery beyond event retention.
+- [ ] Select mobile notification delivery, such as ntfy with the required platform integration. Document the APNs-connected upstream needed for instant iOS push.
+- [ ] Keep push payloads minimal. Fetch authoritative task and approval state from the manager after a notification.
+- [ ] Verify a paired phone over cellular networking, including reconnect and immediate loss of access after revocation.
+- [ ] Test the released workflows on an iOS simulator, Android emulator, and real phones. Include file import, export, native notifications, and regional formats.
+- [ ] Extend screen streaming and touch input after W02, and voice after P07, when those capabilities are available.
+- [ ] Verify mobile signing, distribution, and update compatibility through R01 and R02 before releasing the companions.
+
+Complete when both mobile platforms support the released workflows, reconnect reliably, receive notifications under documented conditions, and lose access on revocation. Verify native behavior on real phones.
 
 ## Shared computer track
 
-The manager can develop against the test worker while this track proves actual computer behavior.
+The manager can develop against the test worker while this track proves actual computer behavior. W01 enables initial browser execution. W02 establishes the later shared-desktop experience.
 
-- [ ] Implement the real Linux worker service and persistent guest storage.
+### W01. Run browser and file work on the separate Computer VM
+
+Depends on M02. Integrate the durable worker journal through M03 before M04 live acceptance.
+
+- [ ] Implement the Rust Linux daemon on the separate Computer VM with persistent guest storage and its outbound WSS connection.
+- [ ] Select and package a supported Playwright runtime and its Rust integration or subprocess interface. Drive Chromium through that runtime.
+- [ ] Run browser, file, and shell operations using the configured guest account. Keep manager and hypervisor administration inaccessible.
+- [ ] Enforce global and per-bot browser and coding concurrency. Measure representative workloads before setting active limits.
+- [ ] Apply timeouts and stop cancelled process groups. Reconcile hangs and uncertain effects before restarting work.
+- [ ] Stage artifacts with transfer size limits and integrity checks, then copy durable deliverables to manager storage.
+- [ ] Preserve documented files and supported browser state across ordinary worker restarts.
+
+Complete when the real daemon executes browser and file commands across the two VMs, returns verified artifacts, and confirms process-group cancellation. Headless contexts do not establish independent desktop screens.
+
+### W02. Provide independent screens and manual takeover
+
+Depends on W01 and M04. Protected desktop capture uses P06. Deliver in v1.x.
+
 - [ ] Prototype two independent full desktop sessions with correctly routed capture and input.
 - [ ] Establish one shared browser identity without conflicting browser profile processes.
 - [ ] Verify that both bots reuse a supported browser login.
 - [ ] Verify simultaneous typing and navigation without input crossing between sessions.
 - [ ] Verify that manual takeover pauses only the selected bot's input.
 - [ ] Preserve files and supported browser sessions across worker restarts.
-- [ ] Enforce task deadlines and stop cancelled process groups.
-- [ ] Measure concurrent browser and build workloads before setting active-bot limits.
+- [ ] Enforce the M02 ownership protocol on real input and capture. Reject stale input after takeover or ownership changes.
+- [ ] Verify resource limits under concurrent browser and build workloads without starving manager connections or another session.
 
 Complete when two real bots can work on separate screens, share files and a browser login, and survive disconnects and restarts.
+
+## Release and update track
+
+### R01. Publish stable and nightly releases
+
+Depends on M06. Client distribution also requires C03 checks for the released features.
+
+- [ ] Publish nightly GitHub prereleases from green merges to the main branch with version `X.Y.Z-nightly.<date>.<build>` and OCI images tagged `nightly`.
+- [ ] Promote a tested nightly commit manually to stable. Generate release notes against the preceding release in the same channel.
+- [ ] Publish SHA256 checksums and authenticated release metadata. Verify publisher authenticity before installation.
+- [ ] Support `BOTSTRAL_CHANNEL`, separate app update feeds, and channel-pinned container tags. Record installed versions and image digests.
+- [ ] Enforce compatible protocol ranges and release channels. Reject a nightly daemon when paired with a stable manager.
+- [ ] Select MIT or Apache 2.0, publish the independent-project disclaimer, and verify applicable naming and distribution rights.
+- [ ] Verify Vibe integration permissions separately from its documented headless support before public distribution.
+- [ ] Publish supported capabilities, installation instructions, limitations, and the tested backup and recovery procedures.
+
+Complete when an owner can install a verified release on two compatible Linux VMs, pair a supported app, identify the installed channel and versions, and verify artifact authenticity. Verify that incompatible channel or protocol combinations fail before execution.
+
+### R02. Apply updates without losing owner state
+
+Depends on R01, M03, and C02. Add the update approval controls here. P09 expands their daily management interface.
+
+- [ ] Present an owner approval card for a manager update from its selected channel.
+- [ ] Stop admitting new work and drain active execution before applying an update. Do not terminate active tasks silently.
+- [ ] Back up persistent state and check schema migrations and manager, daemon, and client compatibility before installation.
+- [ ] Apply service updates through an external supervisor or container tooling. Make the daemon follow the manager's channel and compatible protocol range.
+- [ ] Define and test failed-update recovery, including incompatible database migrations. Binary rollback alone cannot reverse state changes.
+- [ ] Verify that updates and recovery preserve owner configuration, bot memory, routines, credentials, artifacts, and the documented Computer VM state.
+
+Complete when an approved update drains work, preserves documented state, and resumes normal execution. Simulate a failed update and restore through the documented recovery path. Verify that an unapproved update and an unauthenticated artifact cannot be installed.
 
 ## Parity tracking
 
@@ -342,7 +486,7 @@ Every listed capability starts as planned. Mark it verified only after its state
 | --- | --- | --- |
 | Bot identities, organization, duplication, deletion, and templates | M01 and P01 | Planned |
 | Persistent conversations and editable bot memory | M03 and P01 | Planned |
-| Shared computer, files, logins, and independent screens | M02, M04, and the shared computer track | Planned |
+| Shared computer, files, logins, and independent screens | M02, M04, W01, and W02 | Planned |
 | Skills, reuse, and teaching by demonstration | P02 | Planned |
 | Schedules, event triggers, and proactive follow-ups | P03 | Planned |
 | Group conversations, delegation, and bot handoffs | P04 | Planned |
@@ -352,7 +496,8 @@ Every listed capability starts as planned. Mark it verified only after its state
 | Dictation, voice messages, and spoken interaction | P07 | Planned |
 | Plugins, shared account connections, and tool controls | M06 | Planned |
 | Recovery, rebuilds, snapshots, personal-computer access, and traffic routing | P08 | Planned |
-| Desktop and mobile access, notifications, and updates | C01 through C03 and P09 | Planned |
+| Desktop access, notifications, and updates | C01 through C03, P09, R01, and R02 | Planned |
+| Later mobile access and notifications | C04 | Planned |
 | Usage visibility, spending controls, and unattended work | M04, P03, and P09 | Planned |
 | Service-specific entry points and privileged data access | P07 and external integration checks | Conditional |
 
@@ -366,13 +511,18 @@ Organization administration, team identities, multi-user hosting, and commercial
 - [ ] Inspect real files, code changes, process termination, and restored data.
 - [ ] Record the acceptance machine, software versions, workload, errors, and performance measurements.
 - [ ] Record the manager and worker addresses before deployment checks.
-- [ ] Record the relay, phone, and network used for cellular checks.
+- [ ] Record the route and network used for desktop remote-access checks. Record the relay, phone, and cellular network when C04 starts.
 - [ ] Choose and validate protected credential storage, notifications, and screen streaming on each client platform.
+- [ ] Resolve the Playwright runtime, encrypted store and key recovery, remote-access route, and certificate lifecycle before their implementation milestones.
+- [ ] Resolve speech endpoints, retention, licensing, and LiveKit deployment before P07. Resolve signing and migration recovery before R01 and R02.
 - [ ] Confirm the guest account's administrator privileges during computer setup.
 - [ ] Establish measured memory, latency, and concurrency budgets.
 - [ ] Keep a current mapping from documented personal Grok Bot features to implemented behavior, evidence, and unresolved limitations.
 - [ ] Verify every managed model path against the chosen Mistral model and processing configuration.
 - [ ] Verify remote plugin credentials remain in the manager and explicitly identify credentials needed inside the shared guest.
+- [ ] Verify synthetic credential redaction across model inputs, screenshots, recordings, transcripts, logs, memory, and artifacts before enabling P06 fills.
+- [ ] Verify one-owner enrollment and worker-role rejection across local, relay, and native client paths.
+- [ ] Verify ordinary Computer VM restarts preserve the stated files and browser sessions. Show a separate explicit policy for resets and rebuilds.
 
 Test workers do not prove desktop isolation or shared browser authentication. Missing toolchains, devices, or credentials leave the corresponding checks open.
 
@@ -380,6 +530,7 @@ Automated virtual machine provisioning and advanced lifecycle adapters can follo
 
 ## Reference behavior
 
+- [Botstral design](DESIGN.md).
 - [Grok Bot overview](https://docs.x.ai/grok-bot/overview).
 - [Bots and templates](https://docs.x.ai/grok-bot/bots).
 - [Shared computer and apps](https://docs.x.ai/grok-bot/computer-and-apps).
