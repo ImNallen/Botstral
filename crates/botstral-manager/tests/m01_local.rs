@@ -4,6 +4,7 @@ use std::{
     fs::{self, File, OpenOptions},
     io::{Read, Write},
     net::{SocketAddr, TcpStream},
+    os::fd::AsRawFd,
     os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt, symlink},
     path::Path,
     process::{Child, Command, Stdio},
@@ -129,6 +130,46 @@ fn connect(address: SocketAddr) -> TcpStream {
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();
+    stream
+}
+
+fn stalled_bot_list(process: &Process, state: &Path, token: &str) -> TcpStream {
+    let db = Connection::open(state.join("manager.sqlite3")).unwrap();
+    db.execute(
+        "WITH RECURSIVE sequence(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM sequence WHERE n < 50000)
+         INSERT INTO bots(id, name, created_at)
+         SELECT printf('00000000-0000-0000-0000-%012x', n), ?1, 0 FROM sequence",
+        ["x".repeat(100)],
+    )
+    .unwrap();
+    drop(db);
+    let mut stream = connect(process.listen);
+    let receive_buffer: libc::c_int = 1024;
+    assert_eq!(
+        unsafe {
+            libc::setsockopt(
+                stream.as_raw_fd(),
+                libc::SOL_SOCKET,
+                libc::SO_RCVBUF,
+                (&receive_buffer as *const libc::c_int).cast(),
+                std::mem::size_of_val(&receive_buffer) as libc::socklen_t,
+            )
+        },
+        0
+    );
+    stream
+        .write_all(&request_bytes(
+            process.listen,
+            "GET",
+            "/v1/bots",
+            Some(token),
+            b"{}",
+            "",
+        ))
+        .unwrap();
+    let mut status = [0; 12];
+    stream.read_exact(&mut status).unwrap();
+    assert_eq!(&status, b"HTTP/1.1 200");
     stream
 }
 fn request_bytes(
@@ -958,7 +999,10 @@ fn m01_real_binary_over_tcp() {
         ),
         204,
     );
+    let stalled = stalled_bot_list(&process, &state, token);
     process.stop(false);
+    drop(stalled);
+    println!("Graceful shutdown completes with an unread bot-list response.");
     let db = Connection::open(state.join("manager.sqlite3")).unwrap();
     let mut ciphertext: Vec<u8> = db
         .query_row("SELECT identity_ciphertext FROM vault", [], |row| {

@@ -10,6 +10,8 @@ Every request requires exactly one `Host` header matching its literal listener a
 
 Mutations require exactly `Content-Type: application/json` and a JSON object. Unknown fields, duplicate known fields, malformed JSON, and invalid types are rejected without echoing values. Empty mutations use `{}`. JSON bodies are limited to 16,384 bytes. Headers are limited to 8,192 combined name and value bytes, 64 fields, and a 16,384-byte parser buffer. Header and JSON body reads each have a five-second deadline. Connections close after each response. Each listener admits at most 64 concurrent connections.
 
+Shutdown stops accepting connections and gives existing connections five seconds to finish. It then cancels remaining connections, including clients that stop reading responses. Admitted state operations finish before the installation lock is released.
+
 Protected routes require exactly one `Authorization: Bearer TOKEN` header. Tokens are 43-character base64url strings issued by sign-in. Setup uses the same syntax with the capability read from `bootstrap.token`. Credentials never belong in URLs.
 
 Owner and bot names contain 1 to 100 Unicode characters without control characters. Passwords and vault passphrases contain 16 to 1,024 UTF-8 bytes. Provider values contain 1 to 8,192 UTF-8 bytes and are opaque strings. Identifiers are UUIDs. Timestamps are integer Unix seconds.

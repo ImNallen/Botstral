@@ -161,7 +161,14 @@ async fn serve_listener(
         }
     }
     drop(listener);
-    while tasks.join_next().await.is_some() {}
+    if tokio::time::timeout(Duration::from_secs(5), async {
+        while tasks.join_next().await.is_some() {}
+    })
+    .await
+    .is_err()
+    {
+        tasks.shutdown().await;
+    }
     Ok(())
 }
 

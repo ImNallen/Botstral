@@ -2,7 +2,7 @@
 
 Botstral has an implemented local manager foundation. Worker execution, model integration, and native clients remain planned.
 
-M01 has local acceptance evidence. Independent review and Linux CI execution are pending integration. Later milestone checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
+M01 has local acceptance evidence and independent review. Later milestone checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
 ## Product target
 

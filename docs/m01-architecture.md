@@ -58,7 +58,7 @@ For example, the adapter constructs `NewBot` from the caller UUID and JSON name,
 
 Crate-private `Manager::start(directory)` starts the state thread and waits for migrations and initialization. It returns the manager, optional restricted `LocalSetup`, and thread handle. Only the setup router receives `LocalSetup`. Startup removes sessions and begins locked. A watch notification closes setup after owner and encrypted identity commit together. Already accepted requests still face the configured-state check.
 
-`serve(local, listen, setup_listen)` owns listeners and runtime. Graceful shutdown stops admission, drains connections and operations, joins the state thread, removes the address file, and releases the installation lock. The binary protects the process before creating runtime threads or state. Setup is never merged into the regular router.
+`serve(local, listen, setup_listen)` owns listeners and runtime. Graceful shutdown stops admission and drains connections for at most five seconds before cancelling remaining connections. Admitted state operations finish before the state thread joins and the installation lock is released. Shutdown removes the address file. The binary protects the process before creating runtime threads or state. Setup is never merged into the regular router.
 
 ## Encryption and durability
 
@@ -82,5 +82,6 @@ The implementation follows the finalized Astra base with its mandated reductions
 - Exact expiry checks use a private test-only clock. Production has no clock override. Queue bounds use handle behavior with a deliberately blocked owner in a focused test. Credential budgets and socket deadlines run over TCP.
 - Application errors are fixed JSON codes. Malformed traffic rejected by the HTTP parser can close without an application response. JSON content type is deliberately exact.
 - Core dumps are disabled. Deployment swap configuration is a documented limit, not an M01 gate.
+- Independent review found that an unread bot-list response could block shutdown indefinitely. TCP acceptance reproduces the failure and verifies bounded connection draining while admitted state operations finish.
 
-Independent review and remote Linux CI execution belong to parent integration. Worker execution, inference, WSS, pairing, native clients, backup automation, secret export, destructive reset, and passphrase rotation remain outside M01.
+Linux CI executes the same verification command. Worker execution, inference, WSS, pairing, native clients, backup automation, secret export, destructive reset, and passphrase rotation remain outside M01.
