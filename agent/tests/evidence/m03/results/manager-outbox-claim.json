@@ -1,0 +1,70 @@
+{
+  "effects": [
+    0,
+    0
+  ],
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "85a324f8-87ca-401b-b564-f651966f8f9e",
+        "arguments": "7d91827edf2fff31d4f4bb87e1cccde3f337ca7dd38ee76bdb22832ec652373c",
+        "bot": "3181c1ab-c809-46d7-b928-37e5ddb2921a",
+        "execution": "e67b9fa2-601f-49fe-8f6b-70947229a476",
+        "expires_at": 1793039730,
+        "operation": "c659290d-0b25-495b-b7e3-e3519c6e186f",
+        "owner": "6ca1dae5-1a30-4523-90fa-5d5da5326f16",
+        "permission_revision": 1,
+        "task": "4a4a0e03-8fb0-4d18-a0ec-43d386bf7fcb"
+      },
+      "consumed": true,
+      "id": "85a324f8-87ca-401b-b564-f651966f8f9e",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "3181c1ab-c809-46d7-b928-37e5ddb2921a",
+      "execution": "e67b9fa2-601f-49fe-8f6b-70947229a476",
+      "id": "1ca261c0-35db-40eb-b6b6-cfd3fcb9ac58",
+      "operation": "c659290d-0b25-495b-b7e3-e3519c6e186f",
+      "owner": "6ca1dae5-1a30-4523-90fa-5d5da5326f16",
+      "session": "b213f093-15a2-48ed-92a2-49366d5dfc3b",
+      "task": "4a4a0e03-8fb0-4d18-a0ec-43d386bf7fcb",
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 2
+      },
+      "worker": "abab555c-3e31-4271-b2ea-1bc1540ff392"
+    },
+    "effect_evidence": [
+      {
+        "reason": "effect_or_permit_unknown",
+        "type": "uncertain"
+      }
+    ],
+    "id": "4a4a0e03-8fb0-4d18-a0ec-43d386bf7fcb",
+    "outcome": {
+      "reason": "effect_or_permit_unknown",
+      "type": "uncertain"
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "4a4a0e03-8fb0-4d18-a0ec-43d386bf7fcb",
+      "session_id": "b213f093-15a2-48ed-92a2-49366d5dfc3b",
+      "settings": {
+        "deadline": 4000000000,
+        "max_cost_micros": 1000,
+        "max_tokens": 1000,
+        "max_turns": 10,
+        "model": "unavailable"
+      },
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 2
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}

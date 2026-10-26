@@ -12,11 +12,11 @@ Cancellation creates durable intent and keeps the task cancelling until a worker
 
 Markdown files use flat typed filenames. Their first line records kind, bot, revision and source references. Files are authoritative. Writes synchronize a temporary file, rename it and synchronize the directory. Before search or replay, source revisions reconcile into idempotent publication events and the separate derived SQLite index rebuilds. An index never recreates a source file. A retry compares expected revision and exact content.
 
-Task admission is limited to 128 retained tasks. Conversations, messages, documents and explicit permissions each have a 256-record limit. Messages and Markdown bodies have a 4096-byte limit. Source references have count and length bounds. Snapshots therefore have a finite aggregate bound. Events retain 128 entries with an independent durable head. Future cursors fail. An expired cursor returns a consistent snapshot and replacement cursor from the single actor operation.
+Task admission is limited to 128 retained tasks. Conversations, messages, documents and explicit permissions each have a 256-record limit. Messages and Markdown bodies have a 4096-byte limit. Source references have count and length bounds. The aggregate limits keep serialized snapshots below 32 mebibytes, including JSON escaping. Worker uncertainty reasons are bounded to 256 bytes and each task retains at most four effect evidence entries. Events retain 128 entries with an independent durable head. Future cursors fail. An expired cursor returns a consistent snapshot and replacement cursor from the single actor operation.
 
 ## Selected design and deviations
 
-The selected Astra design and six independent judge gates are the implementation contract. The manager retains relational aggregates and a transactional command outbox. The worker journals execution evidence separately from manager authority. Full event sourcing and a shared cross-machine database were rejected by the parent design review.
+The selected Astra design and six independent judge gates are the implementation contract. The [selected contract](m03-design-contract.md) and [independent design verdict](m03-design-verdict.md) record the six gates. The manager retains relational aggregates and a transactional command outbox. The worker journals execution evidence separately from manager authority. Full event sourcing and a shared cross-machine database were rejected by the parent design review.
 
 The owner DTO command body has public serialized fields for protocol construction, while stored command bodies are immutable and every duplicate compares the whole body. This differs from a private-field Rust sketch without weakening stored identity.
 
@@ -31,3 +31,11 @@ Recovery includes a complete journal inventory after report replay. Inventory pa
 The lifetime report sequence is capped at 16384 per worker journal. Storage exhaustion fails closed and retains semantic tombstones. This milestone provides no journal compaction or task deletion API. Both machines retain evidence rather than freeing duplicate protection for new work.
 
 Task views preserve prior effect and uncertainty evidence when cancellation later records stopped confirmation. A stopped confirmation does not assert that earlier uncertain effects did not occur.
+
+The manager stores each typed task and approval aggregate as JSON in its task row. It indexes task, bot and worker relationally and stores immutable command rows, cancellation intent, receipts and events separately. This is a smaller storage shape than the proposed separate operation and approval tables. Actor methods retain the same transaction boundary. Independent parent review must assess this implementation choice.
+
+Cancellation delivery carries the immutable original execution identity plus sticky cancellation intent, instead of a second executable command body. The cancellation identifier is stored transactionally in `cancellations`. A stopped journal tombstone prevents later delivery from restarting that execution.
+
+A claim that receives no permit within five seconds becomes uncertain. A late permit cannot invoke the adapter after that transition. Queued manager deliveries recheck current control before socket publication. External source references must be bounded HTTPS URIs with a nonempty authority and no embedded credentials.
+
+Model the Domain selects one task reducer and explicit journal phases. Type System Discipline separates argument digests, execution identifiers and current delivery fences. Prove It Works selects actual manager and worker processes plus a separate effect ledger for recovery proof.

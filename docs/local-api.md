@@ -142,3 +142,29 @@ call(address, "POST", "/v1/vault/lock", {}, token)
 call(address, "DELETE", "/v1/session", {}, token)
 del token
 ```
+
+## Durable task and memory methods
+
+M03 adds these owner-authenticated methods. All mutations use strict JSON and the existing loopback protections. Types come from `link/src/durable.rs` and the generated bindings.
+
+| Method | Request | Result |
+| --- | --- | --- |
+| `POST /v1/tasks` | `SubmitTask` with client task ID, session, optional conversation, immutable settings and typed work. | `TaskView`. Identical retries return the original task. Changed intent returns `409`. |
+| `GET /v1/tasks/{id}` | None. | Persisted task, command identity, approval, progress, outcome and prior effect evidence. |
+| `POST /v1/tasks/{id}/cancel` | `{}`. | Durable cancelling intent. Terminal tasks remain terminal. |
+| `PUT /v1/tasks/{id}/approval` | `{"expires_at": UNIX_SECONDS}`. | Approval derived from the recorded operation. Expiry must be future, within one hour and before the task deadline. |
+| `DELETE /v1/tasks/{id}/approval` | `{}`. | Revoked approval. Admission already consumed cannot be undone. |
+| `PUT /v1/bots/{id}/permission` | `{"expected_revision":1,"allow":true}`. | Advanced permission revision and invalidated pending approvals. |
+| `POST /v1/conversations` | `Conversation` with `id` and `bot`. | Idempotent conversation. |
+| `POST /v1/messages` | `ConversationMessage` with `id`, `conversation` and `text`. | Idempotent immutable message. |
+| `GET /v1/events/{cursor}/{limit}` | None. Limit is 1 through 64. | Retained events, or a snapshot with a replacement cursor. Zero requests a snapshot. Future cursors return `400`. |
+| `PUT /v1/documents` | `WriteDocument`. | Owner instructions or memory with validated source references and revision. |
+| `PUT /v1/generated-memory` | `WriteDocument` whose kind is `memory`. | Generated data. An instruction kind returns `400`. No Markdown text changes typed permission or approval policy. |
+| `POST /v1/documents/rebuild` | `{}`. | Documents rebuilt from authoritative Markdown sources. |
+| `POST /v1/documents/search/{bot}` | `{"query":"text"}`. | Bot-scoped exact text matches with source references. Sources reconcile before search. |
+
+Task states are queued, running, awaiting approval, cancelling, completed, failed, cancelled and awaiting attention. Attention has no generic retry or acknowledgment-to-resume API. Unknown effects cannot become safe through an owner acknowledgment alone.
+
+M03 admits 128 retained tasks and 256 records each for conversations, messages, documents and explicit permissions. Message text and Markdown bodies are limited to 4096 UTF-8 bytes. Documents require one through eight valid task, message or HTTPS source references. Task and message references must belong to that bot. Document paths cannot be supplied by callers.
+
+`POST /v1/worker-commands` now rejects legacy task commands with `unsupported_execution` after checking current fences. Use `/v1/tasks`. Connection-local owner input receipts remain test-only transport diagnostics. Durable task outcomes use `/v1/tasks/{id}`.

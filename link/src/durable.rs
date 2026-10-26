@@ -111,6 +111,14 @@ pub struct CommandBody {
     pub work: WorkSpec,
 }
 impl CommandBody {
+    pub fn matches_authority(&self, binding: &ExecutionBinding) -> bool {
+        self.owner == binding.owner
+            && self.bot == binding.bot
+            && self.task == binding.task
+            && self.operation == binding.operation
+            && self.execution == binding.execution
+            && self.argument_digest() == binding.arguments
+    }
     pub fn argument_digest(&self) -> ArgumentDigest {
         ArgumentDigest(format!(
             "{:x}",
@@ -397,4 +405,43 @@ pub enum JournalPhase {
 pub struct JournalEntry {
     pub body: CommandBody,
     pub phase: JournalPhase,
+}
+
+#[cfg(test)]
+mod binding_tests {
+    use super::*;
+    #[test]
+    fn authority_binds_the_actual_adapter_arguments() {
+        let mut body = CommandBody {
+            id: CommandId::new(),
+            owner: OwnerId::new(),
+            task: TaskId::new(),
+            bot: BotId::new(),
+            worker: WorkerId::new(),
+            session: ComputerSessionId::new(),
+            operation: OperationId::new(),
+            execution: ExecutionId::new(),
+            work: WorkSpec::TestEffect {
+                value: 1,
+                observable: true,
+            },
+        };
+        let binding = ExecutionBinding {
+            owner: body.owner,
+            bot: body.bot,
+            task: body.task,
+            operation: body.operation,
+            arguments: body.argument_digest(),
+            permission_revision: 1,
+            approval: ApprovalId::new(),
+            execution: body.execution,
+            expires_at: 4000000000,
+        };
+        assert!(body.matches_authority(&binding));
+        body.work = WorkSpec::TestEffect {
+            value: 2,
+            observable: true,
+        };
+        assert!(!body.matches_authority(&binding));
+    }
 }

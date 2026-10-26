@@ -843,6 +843,22 @@ async fn journal_replacement_after_unacknowledged_acceptance_never_restarts_work
     let attention = f.task_state(&task, "awaiting_attention").await;
     assert_eq!(f.effects(), (0, 0));
     assert_eq!(attention["outcome"]["reason"], "journal_replaced");
+    let cancelled = f
+        .owner(
+            "POST",
+            &format!("/v1/tasks/{}/cancel", task["id"].as_str().unwrap()),
+            json!({}),
+        )
+        .await;
+    assert_eq!(cancelled.0, 200);
+    let stopped = f.task_state(&task, "cancelled").await;
+    assert!(
+        stopped["effect_evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["type"] == "uncertain" && e["reason"] == "journal_replaced")
+    );
     evidence(
         "journal-replacement",
         json!({"task":attention,"manager_received_acceptance":false,"effects":f.effects()}),
@@ -947,7 +963,6 @@ async fn recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent() {
         read(&mut socket).await,
         ManagerMessage::RecoveryReady { .. }
     ));
-    // Original report identities are replayed in a bounded page after the receipt was lost.
     let report: DurableReport = serde_json::from_str(
         &manager
             .query_row::<String, _, _>(

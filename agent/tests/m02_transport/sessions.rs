@@ -53,7 +53,6 @@ async fn confirmed_takeover_two_sessions_cancellation_and_results() {
         .1["error"],
         "stale_revision"
     );
-    // Cancellation is admitted before a fresh claim after input control changes.
     f.owner(
         "POST",
         &format!("/v1/tasks/{}/cancel", task_a["id"].as_str().unwrap()),

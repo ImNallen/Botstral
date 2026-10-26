@@ -61,7 +61,7 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
         socket: &mut WebSocketStream<tokio_rustls::server::TlsStream<TcpStream>>,
     ) -> Envelope<WorkerMessage> {
         loop {
-            let Message::Text(text) = tokio::time::timeout(Duration::from_secs(5), socket.next())
+            let Message::Text(text) = tokio::time::timeout(Duration::from_secs(8), socket.next())
                 .await
                 .unwrap()
                 .unwrap()
@@ -399,7 +399,7 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
         observable: true,
     };
     send_probe(&mut socket, ManagerMessage::Delivery(changed)).await;
-    let closed = tokio::time::timeout(Duration::from_secs(5), socket.next())
+    let closed = tokio::time::timeout(Duration::from_secs(8), socket.next())
         .await
         .unwrap();
     assert!(

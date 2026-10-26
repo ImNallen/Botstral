@@ -1,0 +1,71 @@
+{
+  "effects": [
+    0,
+    0
+  ],
+  "manager_received_acceptance": false,
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "2a30c091-88a5-40ac-a660-94e4349166ef",
+        "arguments": "9d1733d2892686f9a50465f5dd174ab3909daa0e2d32ede74e716aead471f117",
+        "bot": "f82adf94-67fc-4888-a6f4-24ce90b49529",
+        "execution": "13d68a4a-81d3-49d8-a2a3-645c7693f734",
+        "expires_at": 1793039727,
+        "operation": "ac91147f-032a-4ddb-8961-8e122a0bea0c",
+        "owner": "cf491f0c-199a-4d21-ae3e-9c2170c0ebbf",
+        "permission_revision": 1,
+        "task": "fff0f2a5-2ef6-4179-b7e7-05f4224df7dd"
+      },
+      "consumed": false,
+      "id": "2a30c091-88a5-40ac-a660-94e4349166ef",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "f82adf94-67fc-4888-a6f4-24ce90b49529",
+      "execution": "13d68a4a-81d3-49d8-a2a3-645c7693f734",
+      "id": "18eb6513-269e-4fdc-ba8c-b84fc6256986",
+      "operation": "ac91147f-032a-4ddb-8961-8e122a0bea0c",
+      "owner": "cf491f0c-199a-4d21-ae3e-9c2170c0ebbf",
+      "session": "aea2305f-2f02-472c-9bb3-32344f9e5fd9",
+      "task": "fff0f2a5-2ef6-4179-b7e7-05f4224df7dd",
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 3
+      },
+      "worker": "03fe30fb-16e2-40ef-b35b-affcfbc0fd08"
+    },
+    "effect_evidence": [
+      {
+        "reason": "journal_replaced",
+        "type": "uncertain"
+      }
+    ],
+    "id": "fff0f2a5-2ef6-4179-b7e7-05f4224df7dd",
+    "outcome": {
+      "reason": "journal_replaced",
+      "type": "uncertain"
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "fff0f2a5-2ef6-4179-b7e7-05f4224df7dd",
+      "session_id": "aea2305f-2f02-472c-9bb3-32344f9e5fd9",
+      "settings": {
+        "deadline": 4000000000,
+        "max_cost_micros": 1000,
+        "max_tokens": 1000,
+        "max_turns": 10,
+        "model": "unavailable"
+      },
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 3
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}

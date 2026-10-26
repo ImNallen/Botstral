@@ -431,6 +431,7 @@ impl Journal {
                     || *incarnation != self.incarnation
                     || *fence != delivery.fence
                     || delivery.authority.as_ref() != Some(binding)
+                    || !e.body.matches_authority(binding)
                     || sessions.check(*fence).is_err()
                     || binding.expires_at <= now()
                 {

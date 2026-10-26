@@ -1,5 +1,20 @@
 use super::*;
 
+fn remember_uncertainty(task: &mut TaskView, reason: &str) -> Result<(), OperationError> {
+    let evidence = ExecutionEvent::Uncertain {
+        reason: reason.into(),
+    };
+    task.state = task.state.reduce(&evidence);
+    if !task.effect_evidence.contains(&evidence) {
+        if task.effect_evidence.len() >= 4 {
+            return Err(OperationError::Internal);
+        }
+        task.effect_evidence.push(evidence.clone());
+    }
+    task.outcome = Some(evidence);
+    Ok(())
+}
+
 impl State {
     pub(in crate::manager) fn pump_tasks(
         &mut self,
@@ -117,12 +132,7 @@ impl State {
                         |r| r.get(0),
                     )?;
                     if delivered && !task.state.terminal() {
-                        task.state = task.state.reduce(&ExecutionEvent::Uncertain {
-                            reason: "journal_replaced".into(),
-                        });
-                        task.outcome = Some(ExecutionEvent::Uncertain {
-                            reason: "journal_replaced".into(),
-                        });
+                        remember_uncertainty(&mut task, "journal_replaced")?;
                         save(&tx, &task)?;
                         event(&tx, "journal_replaced", task.id)?;
                     }
@@ -201,12 +211,7 @@ impl State {
                 && matches!(entry.phase, JournalPhase::Prepared)
                 && !task.state.terminal()
             {
-                task.state = task.state.reduce(&ExecutionEvent::Uncertain {
-                    reason: "consumed_permit_missing".into(),
-                });
-                task.outcome = Some(ExecutionEvent::Uncertain {
-                    reason: "consumed_permit_missing".into(),
-                });
+                remember_uncertainty(&mut task, "consumed_permit_missing")?;
                 uncertain.push(task);
             }
             self.worker_connections
@@ -256,12 +261,7 @@ impl State {
                     .inventory
                     .contains(&task.command.id)
             {
-                task.state = task.state.reduce(&ExecutionEvent::Uncertain {
-                    reason: "execution_missing_from_journal".into(),
-                });
-                task.outcome = Some(ExecutionEvent::Uncertain {
-                    reason: "execution_missing_from_journal".into(),
-                });
+                remember_uncertainty(&mut task, "execution_missing_from_journal")?;
                 uncertain.push(task);
             }
         }

@@ -1,0 +1,76 @@
+{
+  "after": [
+    0,
+    0
+  ],
+  "before": [
+    0,
+    0
+  ],
+  "observable": true,
+  "point": "permit_admitted",
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "55aa04a9-d1f6-4a6a-88de-811506473fae",
+        "arguments": "f002a6e726f72bdf5f58693c468c068c0c7527a98dbabf13f076b39d212f74c9",
+        "bot": "bcd4367c-f80a-4f45-990f-22f99b0040cc",
+        "execution": "f8af28c1-199f-4a5e-9c2d-c21456598ef7",
+        "expires_at": 1793039750,
+        "operation": "c358f3d6-cecd-4671-96da-9debc1ad010a",
+        "owner": "7d332311-3c93-4297-abc5-c0995c7a2675",
+        "permission_revision": 1,
+        "task": "9a25b1f2-8439-4730-828d-1f449dd7f5e7"
+      },
+      "consumed": true,
+      "id": "55aa04a9-d1f6-4a6a-88de-811506473fae",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "bcd4367c-f80a-4f45-990f-22f99b0040cc",
+      "execution": "f8af28c1-199f-4a5e-9c2d-c21456598ef7",
+      "id": "e5d48581-1d4c-4dff-b551-4799372d1ae7",
+      "operation": "c358f3d6-cecd-4671-96da-9debc1ad010a",
+      "owner": "7d332311-3c93-4297-abc5-c0995c7a2675",
+      "session": "9fd40ae9-de16-448e-8aeb-e480460c4348",
+      "task": "9a25b1f2-8439-4730-828d-1f449dd7f5e7",
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 7
+      },
+      "worker": "4cc99b06-ae28-4889-9b3f-4fd6837fe465"
+    },
+    "effect_evidence": [
+      {
+        "reason": "effect_or_permit_unknown",
+        "type": "uncertain"
+      }
+    ],
+    "id": "9a25b1f2-8439-4730-828d-1f449dd7f5e7",
+    "outcome": {
+      "reason": "effect_or_permit_unknown",
+      "type": "uncertain"
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "9a25b1f2-8439-4730-828d-1f449dd7f5e7",
+      "session_id": "9fd40ae9-de16-448e-8aeb-e480460c4348",
+      "settings": {
+        "deadline": 4000000000,
+        "max_cost_micros": 1000,
+        "max_tokens": 1000,
+        "max_turns": 10,
+        "model": "unavailable"
+      },
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 7
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}
