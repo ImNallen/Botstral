@@ -373,6 +373,12 @@ impl State {
                         return Err(ErrorCode::InvalidMessage.into());
                     }
                 }
+                ExecutionEvent::Stopped {
+                    evidence: StopEvidence::NotLaunched,
+                    ..
+                } if missing_process_scope(&task) => {
+                    return Err(ErrorCode::Conflict.into());
+                }
                 ExecutionEvent::Completed { .. }
                 | ExecutionEvent::Stopped {
                     evidence: StopEvidence::NoProcessGroup,
@@ -492,7 +498,16 @@ impl State {
             params![task.command.id.to_string(), current],
             |r| r.get(0),
         )?;
+        let missing_scope = self
+            .connection
+            .prepare("SELECT view FROM tasks WHERE worker=?1")?
+            .query_map([lease.worker.to_string()], |r| r.get::<_, String>(0))?
+            .map(|row| parse::<TaskView>(row?).map(|task| missing_process_scope(&task)))
+            .collect::<Result<Vec<_>, OperationError>>()?
+            .into_iter()
+            .any(|missing| missing);
         let valid = allowed
+            && !missing_scope
             && capable(
                 &self
                     .worker_connections
@@ -559,4 +574,15 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
         }
         WorkSpec::Process { .. } => capabilities.contains(&Capability::ProcessSystemdV1),
     }
+}
+
+fn missing_process_scope(task: &TaskView) -> bool {
+    !task.state.terminal()
+        && task.approval.consumed
+        && matches!(task.command.work, WorkSpec::Process { .. })
+        && task.effect_evidence.iter().any(|event| {
+            matches!(event,
+            ExecutionEvent::Uncertain { reason } if matches!(reason.as_str(),
+                "journal_replaced" | "execution_missing_from_journal" | "consumed_permit_missing"))
+        })
 }

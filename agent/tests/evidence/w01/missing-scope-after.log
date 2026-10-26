@@ -1,0 +1,11 @@
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+   Compiling botstral-manager v0.1.0 (/home/botstral/w01-570e76c4/source/manager)
+    Finished `release` profile [optimized] target(s) in 7.85s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 1 test
+test process_acceptance::w01_journal_replacement ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 5.16s
+

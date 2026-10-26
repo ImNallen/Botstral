@@ -1,0 +1,21 @@
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 1 test
+
+thread 'process_acceptance::w01_journal_replacement' (81818) panicked at agent/tests/w01_process/mod.rs:681:5:
+assertion `left == right` failed: unknown old scope blocks fresh process claims
+  left: "effect"
+ right: ""
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test process_acceptance::w01_journal_replacement ... FAILED
+
+failures:
+
+failures:
+    process_acceptance::w01_journal_replacement
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 4.75s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`

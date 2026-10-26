@@ -626,3 +626,79 @@ async fn w01_unsupported_host() {
     daemon.stop().await;
     f.manager.stop().await;
 }
+
+#[tokio::test]
+#[ignore = "Verifies that a replacement journal cannot prove an old process scope empty."]
+async fn w01_journal_replacement() {
+    let mut f = Fixture::new().await;
+    let _cleanup = UnitCleanup(f.root.path().join("production-agent"));
+    let replacement = f.root.path().join("replacement-agent");
+    let _replacement_cleanup = UnitCleanup(replacement.clone());
+    let session = f.durable_session().await;
+    let mut original_daemon = production_agent(&f, "old-journal", true);
+    f.wait_phase("ready", 1).await;
+    let (original, pids) = descendants(&f, &session, "old-scope").await;
+    original_daemon.0.kill().unwrap();
+    original_daemon.0.wait().unwrap();
+    fs::create_dir(&replacement).unwrap();
+    fs::set_permissions(&replacement, fs::Permissions::from_mode(0o700)).unwrap();
+    for file in ["config.json", "process.json"] {
+        private(
+            &replacement.join(file),
+            &fs::read(f.root.path().join("production-agent").join(file)).unwrap(),
+        );
+    }
+    let binary = std::env::var_os("BOTSTRAL_PROCESS_AGENT_BIN")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| agent_binary().into());
+    let mut daemon = launch(
+        &binary,
+        &["run", "--state-dir", replacement.to_str().unwrap()],
+        f.root.path(),
+        "replacement",
+    );
+    let unknown = task(&f, &original, "awaiting_attention").await;
+    assert!(
+        unknown["effect_evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|event| event["reason"] == "journal_replaced")
+    );
+    assert!(pids.iter().all(|p| live(*p)));
+    let next = submit(
+        &f,
+        request(
+            &session,
+            "/usr/bin/python3",
+            &["-c", "open('forbidden-replacement','w').write('effect')"],
+            f.root.path(),
+        ),
+    )
+    .await;
+    approve(&f, &next).await;
+    tokio::time::sleep(Duration::from_millis(400)).await;
+    assert_eq!(
+        fs::read_to_string(f.root.path().join("forbidden-replacement")).unwrap_or_default(),
+        "",
+        "unknown old scope blocks fresh process claims"
+    );
+    f.owner(
+        "POST",
+        &format!("/v1/tasks/{}/cancel", original["id"].as_str().unwrap()),
+        json!({}),
+    )
+    .await;
+    tokio::time::sleep(Duration::from_millis(600)).await;
+    let pending = task(&f, &original, "cancelling").await;
+    assert!(
+        pids.iter().all(|p| live(*p)),
+        "replacement journal cannot claim live descendants stopped"
+    );
+    evidence(
+        "journal-replacement",
+        &json!({"task":pending,"old_pids":pids,"still_live":true,"replacement_effect":false}),
+    );
+    daemon.stop().await;
+    f.manager.stop().await;
+}

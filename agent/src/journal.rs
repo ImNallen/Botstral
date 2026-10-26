@@ -130,6 +130,17 @@ impl Journal {
         }
         let path = directory.join("agent.sqlite3");
         let exists = path.exists();
+        if !exists {
+            match std::fs::read_dir(directory.join("processes")) {
+                Ok(mut retained) => {
+                    if retained.next().transpose()?.is_some() {
+                        return Err(err("missing journal for retained process evidence"));
+                    }
+                }
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error),
+            }
+        }
         let mut db = Connection::open_with_flags(
             path,
             OpenFlags::SQLITE_OPEN_READ_WRITE
