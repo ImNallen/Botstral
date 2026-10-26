@@ -1,3 +1,6 @@
+#[cfg(feature = "tls")]
+pub mod tls;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

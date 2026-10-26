@@ -19,6 +19,7 @@ pub enum OperationError {
     RateLimited,
     Busy,
     Internal,
+    Protocol(botstral_link::ErrorCode),
 }
 
 macro_rules! secret_input {

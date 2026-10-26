@@ -24,6 +24,14 @@ The selected transport uses a distinct mutual TLS listener. The daemon initiates
 
 The implementation owner works alone in the T3-created worktree. The parent owns independent correctness and comment review. The decision trail is [m02-decisions.tsv](m02-decisions.tsv).
 
+## Transport verification
+
+`agent/tests/m02_transport.rs` starts the actual manager and daemon with a temporary CA. It checks invitation mismatch, expiry, replay, wrong server trust and hostname, untrusted and expired clients, unenrolled identities, owner-route separation, incompatible negotiation, forbidden methods, reconnect, and shutdown. Manager unit tests prove atomic invitation consumption, generation fencing, late disconnect handling, and queue saturation.
+
+The worker listener holds each connection permit through TLS, HTTP upgrade, and WebSocket processing. Ordinary responses close the HTTP connection. Five-second deadlines bound TLS, HTTP, negotiation, writes, and shutdown. There are 16 connection permits and 32 outgoing messages per connection. Incoming messages are limited to 64 KiB. Both peers time out an idle connection after 30 seconds.
+
+`link::tls` shares certificate loading and private-file validation between the two binaries. This small transport helper avoids duplicating secret-file checks. It uses the normal rustls certificate verifiers and the ring provider.
+
 ## Acceptance gaps
 
 Actual two-VM deployment requires infrastructure and remains unverified. Local WSS cannot close that acceptance condition. M03 owns durable task journals and recovery. W02 owns real independent desktops. Production work execution remains unavailable in M02.

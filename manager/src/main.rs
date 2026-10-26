@@ -1,4 +1,4 @@
-use botstral_manager::{LocalState, protect_process, serve};
+use botstral_manager::{LocalState, WorkerTls, protect_process, serve_with_worker};
 use std::{net::SocketAddr, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
@@ -14,6 +14,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let mut directory = PathBuf::from(".state");
     let mut listen: SocketAddr = "127.0.0.1:43120".parse()?;
     let mut setup_listen: SocketAddr = "127.0.0.1:43121".parse()?;
+    let mut worker_listen = None;
+    let mut worker_cert = None;
+    let mut worker_key = None;
+    let mut worker_ca = None;
     let mut arguments = std::env::args_os().skip(1);
     while let Some(argument) = arguments.next() {
         if argument == "--help" {
@@ -29,6 +33,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             listen = value.to_str().ok_or("invalid address")?.parse()?;
         } else if argument == "--setup-listen" {
             setup_listen = value.to_str().ok_or("invalid address")?.parse()?;
+        } else if argument == "--worker-listen" {
+            worker_listen = Some(value.to_str().ok_or("invalid address")?.parse()?);
+        } else if argument == "--worker-tls-cert" {
+            worker_cert = Some(PathBuf::from(value));
+        } else if argument == "--worker-tls-key" {
+            worker_key = Some(PathBuf::from(value));
+        } else if argument == "--worker-client-ca" {
+            worker_ca = Some(PathBuf::from(value));
         } else {
             return Err("unknown option".into());
         }
@@ -36,10 +48,20 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if !listen.ip().is_loopback() || !setup_listen.ip().is_loopback() {
         return Err("unsafe bind address".into());
     }
+    let worker_tls = match (worker_listen, worker_cert, worker_key, worker_ca) {
+        (None, None, None, None) => None,
+        (Some(listen), Some(certificate), Some(key), Some(client_ca)) => Some(WorkerTls {
+            listen,
+            certificate,
+            key,
+            client_ca,
+        }),
+        _ => return Err("worker TLS requires listener, certificate, key, and client CA".into()),
+    };
     let state = LocalState::open(&directory)?;
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?
-        .block_on(serve(state, listen, setup_listen))?;
+        .block_on(serve_with_worker(state, listen, setup_listen, worker_tls))?;
     Ok(())
 }

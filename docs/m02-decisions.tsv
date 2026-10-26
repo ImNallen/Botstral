@@ -1,3 +1,4 @@
 ts	phase	decision	why	evidence	result
 2026-10-26T10:25:22+00:00	start	Implement the selected mutual TLS design in three verified units.	The parent completed architecture comparison and owns independent review.	docs/m02-architecture.md	Implementation underway.
 2026-10-26T10:26:20+00:00	unit1	Keep protocol and additive owner state together.	The state methods share the generated identifier types.	manager/src/manager/state.rs; link/src/lib.rs	Ten unit tests and M01 actual-binary acceptance pass; formatting and clippy pass.
+2026-10-26T10:38:08+00:00	unit2	Preserve HTTP upgrade headers on the worker listener.	Hyper replaces Connection Upgrade when keep-alive is disabled globally; ordinary worker responses now explicitly close.	manager/src/worker_http.rs; agent/tests/m02_transport.rs	Actual daemon enrollment and WSS tests pass.

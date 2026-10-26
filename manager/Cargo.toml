@@ -5,8 +5,19 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
+[features]
+default = []
+nonproduction-test-worker = []
+
 [dependencies]
-botstral-link = { path = "../link" }
+rustls.workspace = true
+tokio-rustls.workspace = true
+rustls-pemfile.workspace = true
+tokio-tungstenite.workspace = true
+futures-util.workspace = true
+http-body-util = "0.1"
+
+botstral-link = { path = "../link", features = ["tls"] }
 age = "=0.12.1"
 argon2 = "0.5.3"
 axum = "0.8.8"

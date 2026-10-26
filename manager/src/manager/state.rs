@@ -48,6 +48,8 @@ pub(super) struct State {
     sign_in_attempts: Attempts,
     unlock_attempts: Attempts,
     setup_attempts: Attempts,
+    worker_connections:
+        std::collections::HashMap<botstral_link::WorkerId, workers::WorkerConnection>,
     #[cfg(test)]
     test_time: Option<i64>,
 }
@@ -129,6 +131,7 @@ impl State {
             sign_in_attempts: Attempts::new(),
             unlock_attempts: Attempts::new(),
             setup_attempts: Attempts::new(),
+            worker_connections: Default::default(),
             #[cfg(test)]
             test_time: None,
         })

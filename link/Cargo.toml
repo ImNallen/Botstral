@@ -5,7 +5,16 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
+[features]
+default = []
+tls = ["dep:rustls", "dep:rustls-pemfile", "dep:libc", "dep:zeroize"]
+
 [dependencies]
+rustls = { workspace = true, optional = true }
+rustls-pemfile = { workspace = true, optional = true }
+libc = { version = "0.2", optional = true }
+zeroize = { version = "1.8", optional = true }
+
 schemars = { version = "1", features = ["uuid1"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
