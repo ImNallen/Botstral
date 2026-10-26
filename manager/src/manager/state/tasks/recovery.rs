@@ -474,6 +474,11 @@ impl State {
             && binding.expires_at > self.now()
             && task.request.settings.deadline > self.now();
         if !valid {
+            self.worker_connections
+                .get_mut(&lease.worker)
+                .unwrap()
+                .deliveries
+                .remove(&task.command.id);
             return self.deliver(
                 lease.worker,
                 Envelope::new(ManagerMessage::ClaimDenied {

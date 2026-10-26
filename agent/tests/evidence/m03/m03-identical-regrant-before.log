@@ -1,0 +1,19 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.88s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 1 test
+
+thread 'recovery::regrants::identical_regrant_is_delivered_after_denial_before_delayed_report' (600095704) panicked at agent/tests/m03_recovery/regrants.rs:118:14:
+identical regrant must be redelivered without reconnecting: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::regrants::identical_regrant_is_delivered_after_denial_before_delayed_report ... FAILED
+
+failures:
+
+failures:
+    recovery::regrants::identical_regrant_is_delivered_after_denial_before_delayed_report
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 19 filtered out; finished in 5.89s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`

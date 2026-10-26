@@ -30,6 +30,8 @@ Parent review accepted JSON task and approval aggregates because the actor commi
 
 Parent review found that rejecting one permit reconciled unrelated pending claims. Reconciliation now targets that execution. A pending claim records its authority separately from the latest delivery, so denial of an older claim preserves a renewed grant.
 
+Regranting authority can recreate an identical binding, including its expiry. Claim denial therefore invalidates the manager's remembered delivery. A subsequent grant can publish the same immutable work again, while journal identity and single-use consumption still prevent replacement execution.
+
 Index rebuilding discards the validated derived database and its sidecars before creating a fresh index from Markdown. It does not depend on successfully reading damaged cache pages. Malformed source files still fail validation and remain untouched.
 
 Recovery includes a complete journal inventory after report replay. Inventory pages are bounded by the same entry and byte limits, and fresh execution waits for all pages. A consumed execution missing from that inventory requires attention. Terminal outcome reports remain in a separate journal table after transport payload pruning so repeated delivery can return the original report identity.

@@ -1,0 +1,5 @@
+{
+  "claim_permitted_without_reconnect": true,
+  "delayed_report_acknowledged": true,
+  "identical_binding_redelivered": true
+}

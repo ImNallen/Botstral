@@ -2,6 +2,8 @@ use super::*;
 
 #[cfg(feature = "nonproduction-test-worker")]
 mod permits;
+#[cfg(feature = "nonproduction-test-worker")]
+mod regrants;
 mod snapshots;
 
 #[tokio::test]
