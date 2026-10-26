@@ -1,0 +1,65 @@
+   Compiling typenum v1.20.1
+   Compiling zeroize v1.9.1
+   Compiling serde_core v1.0.229
+   Compiling generic-array v0.14.7
+   Compiling getrandom v0.2.17
+   Compiling serde_json v1.0.154
+   Compiling once_cell v1.21.4
+   Compiling memchr v2.8.3
+   Compiling subtle v2.6.1
+   Compiling bitflags v2.13.2
+   Compiling futures-sink v0.3.34
+   Compiling hyper v1.12.0
+   Compiling powerfmt v0.2.1
+   Compiling deranged v0.5.9
+   Compiling time-core v0.1.9
+   Compiling rustix v1.1.5
+   Compiling futures-util v0.3.34
+   Compiling rustls-pki-types v1.15.1
+   Compiling ring v0.17.14
+   Compiling num-conv v0.2.2
+   Compiling rusqlite v0.38.0
+   Compiling base64 v0.22.1
+   Compiling fastrand v2.5.0
+   Compiling rustls-pemfile v2.2.0
+   Compiling pem v3.0.6
+   Compiling hyper-util v0.1.21
+   Compiling time v0.3.55
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling rustls-webpki v0.103.16
+   Compiling sha1 v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling tungstenite v0.28.0
+   Compiling yasna v0.5.2
+   Compiling rustls v0.23.46
+   Compiling tempfile v3.27.0
+   Compiling rcgen v0.13.2
+   Compiling tokio-tungstenite v0.28.0
+   Compiling serde v1.0.229
+   Compiling uuid v1.29.0
+   Compiling schemars v1.2.3
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/link)
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.40s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-b9ef55d44a96ffe8)
+
+running 1 test
+
+thread 'process_acceptance::w01_production_contract' (608329149) panicked at agent/tests/w01_process/mod.rs:28:5:
+assertion `left == right` failed: W01 production process submission is accepted: {"error":"invalid_json"}
+  left: 400
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test process_acceptance::w01_production_contract ... FAILED
+
+failures:
+
+failures:
+    process_acceptance::w01_production_contract
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 4.37s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`
