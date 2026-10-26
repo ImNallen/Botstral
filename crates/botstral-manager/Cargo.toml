@@ -1,0 +1,26 @@
+[package]
+name = "botstral-manager"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+age = "=0.12.1"
+argon2 = "0.5.3"
+axum = "0.8.8"
+base64 = "0.22.1"
+libc = "0.2"
+rand = "0.8.5"
+rusqlite = { version = "0.38.0", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10.9"
+subtle = "2.6.1"
+tokio = { version = "1.49", features = ["macros", "rt-multi-thread", "net", "sync", "signal", "time"] }
+uuid = { version = "1.20", features = ["v4"] }
+zeroize = "1.8"
+
+[dev-dependencies]
+tempfile = "3.24"
+
