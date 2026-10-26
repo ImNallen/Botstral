@@ -291,6 +291,12 @@ impl Journal {
         }
         Ok(())
     }
+    pub fn needs_process_confirmation(&self, session: ComputerSessionId) -> io::Result<bool> {
+        Ok(self.executions()?.iter().any(|execution| {
+            execution.body.session == session
+                && matches!(execution.body.work, WorkSpec::Process { .. })
+        }))
+    }
     pub fn can_confirm_session(&self, session: ComputerSessionId) -> io::Result<bool> {
         Ok(self.ready
             && self

@@ -47,10 +47,12 @@ impl Worker {
         }
         self.pending.clear();
         for fence in fences {
-            self.pending.insert(
-                fence.session_id,
-                Envelope::new(WorkerMessage::ControlApplied { fence }),
-            );
+            if self.journal.needs_process_confirmation(fence.session_id)? {
+                self.pending.insert(
+                    fence.session_id,
+                    Envelope::new(WorkerMessage::ControlApplied { fence }),
+                );
+            }
         }
         self.journal.attach();
         Ok(WorkerMessage::RecoveryHello {
