@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-pub const VERSION: u16 = 1;
+pub const VERSION: u16 = 2;
 pub const MAX_MESSAGE: usize = 64 * 1024;
 pub const MAX_SESSIONS: usize = 64;
 pub const MAX_PENDING: usize = 128;
@@ -65,6 +65,8 @@ macro_rules! counters {
     )+};
 }
 counters!(Generation, Revision);
+mod durable;
+pub use durable::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(try_from = "String", into = "String")]
@@ -276,6 +278,7 @@ impl<T> Envelope<T> {
 pub enum WorkSpec {
     Unavailable,
     TestInput { steps: u32 },
+    TestEffect { value: u32, observable: bool },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -386,6 +389,22 @@ pub enum TaskEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum WorkerMessage {
+    RecoveryHello {
+        generation: Generation,
+        incarnation: JournalId,
+        high_water: u64,
+    },
+    Reports {
+        generation: Generation,
+        incarnation: JournalId,
+        high_water: u64,
+        reports: Vec<DurableReport>,
+    },
+    Claim {
+        incarnation: JournalId,
+        fence: InputFence,
+        binding: ExecutionBinding,
+    },
     Hello(Hello),
     SnapshotApplied {
         generation: Generation,
@@ -418,6 +437,25 @@ pub enum WorkerMessage {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ManagerMessage {
+    Recover {
+        after: u64,
+        high_water: u64,
+    },
+    ReportAck {
+        through: u64,
+    },
+    RecoveryReady {
+        generation: Generation,
+    },
+    Delivery(Delivery),
+    Permit {
+        incarnation: JournalId,
+        fence: InputFence,
+        binding: ExecutionBinding,
+    },
+    ClaimDenied {
+        execution: ExecutionId,
+    },
     Welcome {
         worker_id: WorkerId,
         generation: Generation,
@@ -461,6 +499,9 @@ pub fn schema() -> String {
     struct Protocol {
         worker: Envelope<WorkerMessage>,
         manager: Envelope<ManagerMessage>,
+        owner: OwnerSnapshot,
+        replay: EventReplay,
+        document: WriteDocument,
     }
     serde_json::to_string_pretty(&schemars::schema_for!(Protocol)).unwrap() + "\n"
 }
