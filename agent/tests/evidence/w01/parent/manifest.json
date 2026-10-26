@@ -1,0 +1,31 @@
+{
+  "source_commit": "bd1576000c4a122abc795a6c42e8cb3ae496c93b",
+  "baseline_commit": "228641fa8525ebafa292ed8afae6311aac206e20",
+  "review": "gpt-6-astra source review VERIFIED",
+  "two_vm_run": "1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+  "files": {
+    "cleanup-after.log": "fe008aab760eb03ccac7578e2b84665b1b50b0d7f855b17a0c7a8d039435b658",
+    "cleanup-before.log": "3fc4ec7e8b079d13fa2d1aabdb7f9f1848808b816e8a329a6e31eed2105f985c",
+    "cleanup-final.json": "9bff270572fa7665980fe0a7c4e1af56ccc6c85713d39a28db63253b9cb38d19",
+    "commands.json": "ca1375b620359b858f8f207e7bc224409e880544b35a3b5ac085e04fc352fbb6",
+    "compatibility-actual.log": "e648742a2466fb89f4dc1e1dbca6763453c76b42dbf5a6ec7a939dca7599c256",
+    "compatibility-before.log": "de3aa0bf1e029326ae0b00fcc77e716ffef177b42c4a069bb0290e2adcad5681",
+    "compatibility-permits.log": "ebc908f2b55fa72f8e6614e987b096b147cbe5ef478f288f711ae445a13bc8f4",
+    "review-after.log": "77d74e614609ea2d8ea205594c001ac10357b8458a950514600f862968fa8bd0",
+    "review-before.log": "095f964c0ea48a453cf5e309ae2dc9ddf64e05424a69e57f3802a1f922598758",
+    "source-files.json": "4406060de189940100406b4e2d2b4cfd93fa7e4355d04a6351759fc60de6749f",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon-restarted.service.redacted.log": "109f8ac1fe0adcc038f39c625e8e1b82655060d0a07bc9f71371077c141dc62b",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon-restarted.service.shutdown.json": "b0fe5c11e51e08f675c0b73b4d6b6765b523b7c3ed99f1726bad19866b1d0d85",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon.service.redacted.log": "635f4aba97c23cdc3487fb14772336f1efeba423a840e25d5ce178c15646a41f",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-enroll.service.redacted.log": "0d8e358b9e55dcd589cc2ac6032332eb7e57031a2e156fc793f8a5d0d5a3df29",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-enroll.service.shutdown.json": "a244916022c84fe7fe3b9de32913f83a0b0f4e84017475f23e4524c1b66d78af",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager-restarted.service.redacted.log": "9492b3469cad15e349e802788da1f5a328eef450a08bf281eb02ddd86e550f54",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager-restarted.service.shutdown.json": "672d235ee2ff9bb7a749f7f17cd2325ea1b0740f45e50ad7c10292d76d4ba7f4",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager.service.redacted.log": "9492b3469cad15e349e802788da1f5a328eef450a08bf281eb02ddd86e550f54",
+    "two-vm/m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager.service.shutdown.json": "21f68f5ee55edf5769894e6d1d2f24cc5e83dcd2505de6681ea0a54c60d0815f",
+    "two-vm/results.json": "48d48e02224f2bbc875c5421cd42dede63308521f56c748f4f07708ec6cc2bbe",
+    "verify-linux.log": "981048da7edae06dd08b7b747eef067511744393eecda8d53df78bb12a3bbc06",
+    "verify-macos.log": "e81e447f5715639ad921b3a1d45cd9b873e82472be5bd26d148a5352034efefd",
+    "verify-process.log": "a6d189ee1a041efebbf1e73581ff4f9b5e679650821973f96ac8eeef352b7f34"
+  }
+}

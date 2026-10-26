@@ -1,0 +1,24 @@
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.61s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 2 tests
+test process_acceptance::w01_review_interrupted_probe ...
+thread 'process_acceptance::w01_review_interrupted_probe' (108933) panicked at agent/tests/w01_process/mod.rs:28:9:
+task did not reach completed: {"approval":{"binding":{"approval":"89cd44d8-03fc-4b6d-a940-1fd3e68a85af","arguments":"0129cef99a89c21246fe1343404dd3fbd75e744504d90a524de8e4696cd11e2f","bot":"fb1bd4a6-470f-427f-8c11-753b1f7fe4ea","execution":"bbef6775-78e2-427b-8327-4e19512d502d","expires_at":1793055944,"operation":"459783d8-fd9f-4523-a5fc-73930ed7a6e6","owner":"7e4dee94-1eb2-416e-88ed-ac2d56b401e5","permission_revision":1,"task":"86d5bbf2-691a-4560-9c1a-473bd943695e"},"consumed":false,"id":"89cd44d8-03fc-4b6d-a940-1fd3e68a85af","permission_revision":1,"revoked":false},"command":{"bot":"fb1bd4a6-470f-427f-8c11-753b1f7fe4ea","execution":"bbef6775-78e2-427b-8327-4e19512d502d","id":"2a735666-3623-4340-861f-6b0bc3f4efd5","operation":"459783d8-fd9f-4523-a5fc-73930ed7a6e6","owner":"7e4dee94-1eb2-416e-88ed-ac2d56b401e5","session":"a65dabb3-6b21-45a2-a9ee-faa382438ab7","task":"86d5bbf2-691a-4560-9c1a-473bd943695e","work":{"spec":{"account":{"gid":1000,"uid":1000},"args":[],"cwd":"/tmp/.tmpR2eIxp","deadline":1793055974,"environment":{"LC_ALL":"C","LITERAL":"$HOME %n"},"executable":"/usr/bin/true","limits":{"memory_bytes":268435456,"output_bytes":1024,"processes":32,"runtime_seconds":30},"profile":"linux_systemd_v1"},"type":"process"},"worker":"8ce4453f-98e2-4e1c-a3d4-f89dff733646"},"effect_evidence":[],"id":"86d5bbf2-691a-4560-9c1a-473bd943695e","outcome":null,"process":null,"progress":0,"request":{"conversation_id":null,"id":"86d5bbf2-691a-4560-9c1a-473bd943695e","session_id":"a65dabb3-6b21-45a2-a9ee-faa382438ab7","settings":{"deadline":1793055974,"max_cost_micros":0,"max_tokens":1,"max_turns":1,"model":"unavailable"},"work":{"spec":{"account":{"gid":1000,"uid":1000},"args":[],"cwd":"/tmp/.tmpR2eIxp","deadline":1793055974,"environment":{"LC_ALL":"C","LITERAL":"$HOME %n"},"executable":"/usr/bin/true","limits":{"memory_bytes":268435456,"output_bytes":1024,"processes":32,"runtime_seconds":30},"profile":"linux_systemd_v1"},"type":"process"}},"state":"queued"}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test process_acceptance::w01_review_reconnect_confirmation ...
+thread 'process_acceptance::w01_review_reconnect_confirmation' (108979) panicked at agent/tests/w01_process/mod.rs:258:9:
+reconnect confirmed control while the previous process was live
+FAILED
+
+failures:
+
+failures:
+    process_acceptance::w01_review_interrupted_probe
+    process_acceptance::w01_review_reconnect_confirmation
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 9 filtered out; finished in 20.78s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`

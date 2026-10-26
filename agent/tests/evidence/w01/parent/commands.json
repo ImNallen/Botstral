@@ -1,0 +1,52 @@
+[
+  {
+    "surface": "macOS",
+    "command": "make verify",
+    "exit_code": 0,
+    "log": "verify-macos.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "command": "PATH=/home/botstral/.cargo/bin:$PATH make verify",
+    "cwd": "/home/botstral/w01-570e76c4/source",
+    "exit_code": 0,
+    "log": "verify-linux.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "command": "PATH=/home/botstral/.cargo/bin:$PATH ./scripts/verify-w01.sh /home/botstral/w01-570e76c4/parent-current-evidence",
+    "cwd": "/home/botstral/w01-570e76c4/source",
+    "exit_code": 0,
+    "production_tests_passed": 5,
+    "debug_crash_test_passed": 1,
+    "log": "verify-process.log"
+  },
+  {
+    "surface": "two separate Linux VMs",
+    "command": "python3 agent/tests/w01_two_vm.py --base /home/botstral/w01-570e76c4 --cert-dir /Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/.audit/w01-tls/certificates --output-dir .audit/w01-parent-current-two-vm",
+    "exit_code": 0,
+    "checks_passed": 21,
+    "result": "two-vm/results.json"
+  },
+  {
+    "surface": "macOS",
+    "command": "python3 -m unittest discover -s agent/tests -p 'test_w01_*.py'",
+    "exit_code": 0,
+    "tests_passed": 2,
+    "log": "cleanup-after.log"
+  },
+  {
+    "surface": "macOS",
+    "command": "cargo test -p botstral-agent --features nonproduction-test-worker --locked --test m02_transport actual_ -- --nocapture",
+    "exit_code": 0,
+    "tests_passed": 3,
+    "log": "compatibility-actual.log"
+  },
+  {
+    "surface": "macOS",
+    "command": "cargo test -p botstral-agent --features nonproduction-test-worker --locked --test m02_transport recovery::permits:: -- --nocapture",
+    "exit_code": 0,
+    "tests_passed": 3,
+    "log": "compatibility-permits.log"
+  }
+]

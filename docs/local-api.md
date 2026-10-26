@@ -150,7 +150,7 @@ M03 adds these owner-authenticated methods. All mutations use strict JSON and th
 | Method | Request | Result |
 | --- | --- | --- |
 | `POST /v1/tasks` | `SubmitTask` with client task ID, session, optional conversation, immutable settings and typed work. | `TaskView`. Identical retries return the original task. Changed intent returns `409`. |
-| `GET /v1/tasks/{id}` | None. | Persisted task, command identity, approval, progress, outcome and prior effect evidence. |
+| `GET /v1/tasks/{id}` | None. | Persisted task, command identity, approval, progress, outcome, prior effect evidence, and optional bounded process result. |
 | `POST /v1/tasks/{id}/cancel` | `{}`. | Durable cancelling intent. Terminal tasks remain terminal. |
 | `PUT /v1/tasks/{id}/approval` | `{"expires_at": UNIX_SECONDS}`. | Approval derived from the recorded operation. Expiry must be future, within one hour and before the task deadline. |
 | `DELETE /v1/tasks/{id}/approval` | `{}`. | Revoked approval. Admission already consumed cannot be undone. |
@@ -164,6 +164,8 @@ M03 adds these owner-authenticated methods. All mutations use strict JSON and th
 | `POST /v1/documents/search/{bot}` | `{"query":"text"}`. | Bot-scoped exact text matches with source references. Sources reconcile before search. |
 
 Task states are queued, running, awaiting approval, cancelling, completed, failed, cancelled and awaiting attention. Attention has no generic retry or acknowledgment-to-resume API. Unknown effects cannot become safe through an owner acknowledgment alone.
+
+The first W01 process unit adds `work.type` equal to `process`, with the immutable request in `work.spec`. [The process guide](w01-process-acceptance.md) describes its opt-in configuration and execution limits. Its `TaskView.process` retains exit information, bounded byte output, and effect knowledge independently of later cancellation. Revoking consumed process approval or denying its permission requests stopping; it cannot undo earlier effects.
 
 M03 admits 128 retained tasks and 256 records each for conversations, messages, documents and explicit permissions. Message text and Markdown bodies are limited to 4096 UTF-8 bytes. Documents require one through eight valid task, message or HTTPS source references. Task and message references must belong to that bot. Document paths cannot be supplied by callers.
 

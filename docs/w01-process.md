@@ -8,6 +8,8 @@ The first W01 process unit runs one owner-approved guest command through the dur
 
 `agent/src/worker.rs` owns the journal, session runtime, and pending control confirmations for the daemon's lifetime. Reconnect replaces the session snapshot inside that owner. It does not create an executor. The journal remains the only durable execution writer. Bounded systemd requests run asynchronously and return observations to the owner. The socket loop can receive cancellation and send heartbeats while the guest runs.
 
+Installing a reconnect snapshot does not confirm control of a session with admitted unfinished process work. The worker sends its control confirmation after recovery and verified stopping. A missing journal cannot supply that proof, so its affected session remains pending.
+
 The worker reserves its single execution slot, eight report records, and 32 KiB of helper storage before claiming authority. Completion retains one report slot for a cancellation racing its terminal report. A denied claim releases the slot. An interrupted claim is uncertain. The 128 retained-task limit bounds execution directories and launch tombstones.
 
 ## Launch and stopping
@@ -19,6 +21,8 @@ Before release, the owner rechecks connection recovery, the current input fence,
 The helper drains both streams with fixed buffers. It retains hexadecimal byte prefixes and marks truncation and incomplete capture. It persists a result before the owner can observe completion. A helper remains supervised until the owner stops the service. Ordinary exit also requires scope cleanup before terminal completion.
 
 The service uses `Restart=no`, `KillMode=control-group`, `SendSIGKILL=yes`, a two-second stop grace, bounded startup and runtime, and null service output. The fixed backend requires systemd 255, Linux, and cgroup v2. Startup probes a real transient service and verifies `memory.max`, `memory.swap.max`, and `pids.max`. The [systemd 255 command documentation](https://www.freedesktop.org/software/systemd/man/255/systemd-run.html) defines the explicit expansion setting used for helper startup.
+
+Capability probes never release guest work. After interrupted probing, startup cleans its private partial files and stops any recorded probe service before checking capability again. This recovery path does not apply to real command launch intents, which retain conservative uncertainty.
 
 A private `EmptyScopeProof` is constructed only after matching the recorded service invocation and cgroup, completing its stop request, and reading an empty or causally removed cgroup. Missing units, missing handles, and numeric process identifiers do not provide proof. Cancellation and affected `ControlApplied` confirmations wait for that proof. An unproved stop retains the slot and requires attention.
 

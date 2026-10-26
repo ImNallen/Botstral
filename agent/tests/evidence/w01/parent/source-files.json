@@ -1,0 +1,30 @@
+{
+  "source_commit": "bd1576000c4a122abc795a6c42e8cb3ae496c93b",
+  "sha256": {
+    "agent/Cargo.toml": "4c72caac7b21ee63cbf7bdada0a69d8a6c0d2dcf51f6a2c53dece64f7e247356",
+    "agent/src/config.rs": "36e6b7cbbb0ebd64fab9f392c0b247bb22a7e44054413935140aed909fee3489",
+    "agent/src/journal.rs": "5b52b70af862081f32f6eb1dac212e8aa2b3a3ab1ff10454cf7e30fd3b2acb60",
+    "agent/src/journal/process.rs": "2e4ce380d578a3ad3b6acfd435b15438d58dd338acce6063a71af74856931f18",
+    "agent/src/lib.rs": "ad849f4249c83b0ee78b841b8ff3177ccab60fb83596942adabbb51b89f7b784",
+    "agent/src/process/helper.rs": "5dcc1bd9b112f06b25f8ae55c60668ea37ac3f338ad51cbfd0320d50b51740a8",
+    "agent/src/process/mod.rs": "14b8cf9c5fc85af01d8926bc091501e86f62641cb950a6b68f579b473315a883",
+    "agent/src/process/systemd.rs": "357142d039a46112a6a278eb88202cf802670fb4add268c63045a56c4c0bfd38",
+    "agent/src/transport.rs": "9581737e6ceedceac7c6156b7706c0d0b683688f8ccdd1fb770d32374e9d47eb",
+    "agent/src/worker.rs": "51d746e3fe773252b70e4cf8a13eb1d4b9dcb73ea87ed07bb45103b7c45560a4",
+    "agent/tests/m02_transport.rs": "5fc5f209612441757522255553c409ae900320e7f96b6d1a3794bd6654852941",
+    "agent/tests/test_w01_remote.py": "9cbc92fd298e1c44338772a4a323215fdcc2cfe0091679c6cf39f417199d60b3",
+    "agent/tests/w01_process/mod.rs": "f8947607aed1997b2d8e4e7ab2f4ab79b1debb4fd10acb2a7a3554862e449c53",
+    "agent/tests/w01_remote.py": "b2aa8abd8ef0b7d165eb9bbdc52ad0c85d532b6e7b98ebc4250bbb2448fb1d4f",
+    "agent/tests/w01_two_vm.py": "456f989ae6d3c946719a079d4108da642cf0d593046a547aedf6ca8cfcb39c55",
+    "link/schema/protocol.json": "ab36243339ff73a65fe81e7515cecacf44af68550a3eca40a8d1d04d71389463",
+    "link/src/durable.rs": "0d13fa39921deed003ff09b485cf554227f93f707426ea3ce7b07bd01dd0dd20",
+    "link/src/lib.rs": "7fdf5da7f8325cf6c93c330a5b69f1ad6d89dbbf1641cadf23bd3eed430d61a2",
+    "link/src/process.rs": "668cfb876c0bc8cecf6cfde87a661521e5f60629c735edff6fa2cfd4e1ccb62c",
+    "link/typescript/protocol.d.ts": "44d518142b6b857536d2cf031203755997d495d7023efd97aea93590e1a9d754",
+    "manager/src/manager/state/tasks.rs": "2e2122132164c7866ad6929846e610dfaf671d13f1d0af4c1f645427f8eb6dea",
+    "manager/src/manager/state/tasks/recovery.rs": "877e2831c2883e9413a5fc834f3583e0cbb93221dd790446fabab31bdd7bf679",
+    "manager/src/manager/state/workers.rs": "1ffaeb3b9ec66ef737fb07e234ae53f08481fb1fa6c3971fb0e82ab957866c17",
+    "scripts/verify-w01.sh": "6465c391e3ce1958389852119b59c0953c6e846c0617af93e2033aa63f2f68a5"
+  },
+  "linux_source_matches": true
+}

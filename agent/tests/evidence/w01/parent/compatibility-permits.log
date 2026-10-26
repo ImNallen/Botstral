@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-515a7026b4fd9cf7)
+
+running 3 tests
+test recovery::permits::renewed_approval_survives_denial_of_older_pending_claim ... ok
+test recovery::permits::invalid_permit_preserves_another_sessions_pending_claim ... ok
+test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 4.38s

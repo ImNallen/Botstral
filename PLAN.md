@@ -1,6 +1,6 @@
 # Botstral plan
 
-Botstral has a local manager, the M02 worker protocol, and a desktop implementation for local owner sessions and bots. Production worker execution, model integration, owner-device pairing, and remote access remain planned.
+Botstral has a local manager, the M02 worker protocol, a first approved production process runner, and a desktop implementation for local owner sessions and bots. Browser execution, model integration, owner-device pairing, and remote access remain planned.
 
 M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM transport and synthetic session acceptance passed. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
@@ -431,7 +431,9 @@ The manager can develop against the test worker while this track proves actual c
 
 Depends on M02. Integrate the durable worker journal through M03 before M04 live acceptance.
 
-- [ ] Implement the Rust Linux daemon on the separate Computer VM with persistent guest storage and its outbound WSS connection.
+The first process unit runs one explicitly approved guest command with bounded capture, descendant cancellation, and conservative crash recovery. [The verification record](docs/w01-verification.md) includes production acceptance across both VMs. Execution is opt-in and requires systemd 255. Full W01 remains open for browser tools, artifact transfer, and the remaining checks below.
+
+- [x] Implement the Rust Linux daemon on the separate Computer VM with persistent guest storage and its outbound WSS connection.
 - [ ] Select and package a supported Playwright runtime and its Rust integration or subprocess interface. Drive Chromium through that runtime.
 - [ ] Run browser, file, and shell operations using the configured guest account. Keep manager and hypervisor administration inaccessible.
 - [ ] Enforce global and per-bot browser and coding concurrency. Measure representative workloads before setting active limits.

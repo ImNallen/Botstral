@@ -63,7 +63,9 @@ Use the authenticated owner API in [the worker protocol reference](worker-protoc
 
 Changing a session's owner returns `pending`. Poll until the same revision becomes `confirmed` before treating takeover as complete. A disconnected or unresponsive worker cannot confirm that it stopped input. Other sessions retain their own revisions and continue independently.
 
-Production rejects execution in M02. For local protocol testing only, build the separate debug worker:
+Production rejects the legacy M02 command route. Use [the approved process guide](w01-process-acceptance.md) to enable the first W01 guest-command runner on supported Linux hosts. Execution stays disabled without its private configuration.
+
+For local protocol testing only, build the separate debug worker:
 
 ```sh
 cargo build --workspace --features botstral-agent/nonproduction-test-worker,botstral-manager/nonproduction-test-worker --locked

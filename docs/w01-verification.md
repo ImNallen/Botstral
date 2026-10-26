@@ -1,6 +1,6 @@
 # W01 process verification record
 
-The first production process unit is implemented for parent review. Full W01 remains open. No pull request exists. The implementation branch is `t3/w01-process-runner`.
+This record describes the initial implementation handed to parent review on `t3/w01-process-runner`. Full W01 remains open. [The parent review record](w01-review.md) records subsequent corrections and fresh acceptance.
 
 The baseline is `228641fa8525ebafa292ed8afae6311aac206e20`. The implementation preserves the parent-owned design and acceptance files. The only sequencing adjustment combines the supervisor and lifecycle integration into one verified code commit. Its rationale is recorded in [Approved production processes](w01-process.md).
 
