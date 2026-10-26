@@ -3,6 +3,7 @@ Rejected changed runner hash.
 Rejected remaining fixture unit.
 Rejected remaining fixture listener.
 Rejected failed probe shutdown.
+Rejected failed main fixture shutdown.
 Rejected missing probe check.
 Rejected wrong virtual CPU allocation.
 Rejected changed application binary hash.

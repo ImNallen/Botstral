@@ -118,7 +118,7 @@ The runner sends synthetic owner credentials, bearer tokens, and invitations ove
 Verify the saved evidence and its negative controls from the matching runner checkout. Regenerate the aggregate record with the same command without `--check-controls`.
 
 ```sh
-python3 -m unittest discover -s agent/tests -p 'test_m02_runner.py'
+python3 -m unittest discover -s agent/tests -p 'test_m02_*.py'
 python3 agent/tests/m02_record.py \
 	--evidence-dir agent/tests/evidence \
 	--application-commit e4d10c023ccd511c444faebff6b0b8fdf7fc5a06 \

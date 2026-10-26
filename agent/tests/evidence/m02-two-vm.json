@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-10-26T16:47:31.167023+00:00",
+  "recorded_at_utc": "2026-10-26T17:12:14.096733+00:00",
   "application_commit": "e4d10c023ccd511c444faebff6b0b8fdf7fc5a06",
   "runner_sha256": {
     "m02_two_vm.py": "9f509894a599ef62fccbd58b59352f973303c330c8f393c33bc240d28f9cd014",
@@ -547,6 +547,200 @@
         }
       }
     ]
+  },
+  "main_fixture_shutdown": {
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-manager.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-manager.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2828785060",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "16924",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2828785060",
+          "ExecMainExitTimestampMonotonic": "2845443552",
+          "ExecMainPID": "16924",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-enroll.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-enroll.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2830304055",
+          "ExecMainExitTimestampMonotonic": "2830311742",
+          "ExecMainPID": "38292",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2837224053",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "39813",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2837224053",
+          "ExecMainExitTimestampMonotonic": "2837595554",
+          "ExecMainPID": "39813",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent-reconnect.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent-reconnect.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2837995056",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "39933",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2837995056",
+          "ExecMainExitTimestampMonotonic": "2841311587",
+          "ExecMainPID": "39933",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-manager.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-manager.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2848328062",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "18904",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2848328062",
+          "ExecMainExitTimestampMonotonic": "2862924578",
+          "ExecMainPID": "18904",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2850608049",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "40704",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2850608049",
+          "ExecMainExitTimestampMonotonic": "2857158267",
+          "ExecMainPID": "40704",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    },
+    "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent-reconnect.service": {
+      "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent-reconnect.service",
+      "clean": true,
+      "states": [
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2857532065",
+          "ExecMainExitTimestampMonotonic": "0",
+          "ExecMainPID": "40824",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        {
+          "Result": "success",
+          "ExecMainStartTimestampMonotonic": "2857532065",
+          "ExecMainExitTimestampMonotonic": "2858796474",
+          "ExecMainPID": "40824",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "SubState": "exited"
+        }
+      ],
+      "cleanup_errors": []
+    }
   },
   "daemon_probe": {
     "status": "passed",

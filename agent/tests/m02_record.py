@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import uuid
 
 from m02_two_vm import REQUIRED_CHECKS
 
@@ -20,6 +21,29 @@ def assemble(directory, application_commit):
     assert run["summary"]["status"] == "passed" and run["summary"]["failed"] == 0, run["summary"]
     passed = {check["name"] for check in run["checks"] if check["status"] == "passed"}
     assert not REQUIRED_CHECKS - passed, sorted(REQUIRED_CHECKS - passed)
+    run_id = run["summary"]["run_id"]
+    assert str(uuid.UUID(run_id)) == run_id, run_id
+    fixture_shutdown = {}
+    for phase, processes in (
+        ("production", ("manager", "enroll", "agent", "agent-reconnect")),
+        ("test", ("manager", "test-agent", "test-agent-reconnect")),
+    ):
+        for process in processes:
+            unit = f"m02-{run_id}-{phase}-{process}.service"
+            evidence = load(raw, unit + ".shutdown.json")
+            assert evidence["unit"] == unit, evidence
+            assert evidence["clean"] is True and evidence["cleanup_errors"] == [], evidence
+            assert "error" not in evidence and evidence["states"], evidence
+            initial, terminal = evidence["states"][0], evidence["states"][-1]
+            expected = {"LoadState": "loaded", "ActiveState": "active", "SubState": "exited",
+                        "Result": "success", "ExecMainCode": "1", "ExecMainStatus": "0"}
+            assert all(terminal.get(key) == value for key, value in expected.items()), evidence
+            assert int(terminal["ExecMainPID"]) > 0, evidence
+            assert 0 < int(terminal["ExecMainStartTimestampMonotonic"]) < int(terminal["ExecMainExitTimestampMonotonic"]), evidence
+            if process != "enroll":
+                assert initial["ActiveState"] == "active" and initial["SubState"] == "running", evidence
+                assert initial["ExecMainPID"] == terminal["ExecMainPID"], evidence
+            fixture_shutdown[unit] = evidence
     manifests = {}
     for name, expected in (
         ("two-vm-runner-manifest.json", {"m02_two_vm.py", "m02_remote.py"}),
@@ -82,6 +106,7 @@ def assemble(directory, application_commit):
         "proxmox_configurations": configurations,
         "two_vm": {"summary": {key: value for key, value in run["summary"].items()
                                if key not in {"output_dir", "retained_roots"}}, "checks": run["checks"]},
+        "main_fixture_shutdown": fixture_shutdown,
         "daemon_probe": probe,
         "daemon_probe_shutdown": shutdown,
         "linux_verification": {"command": "make verify", "rust": "1.93.0", "result": "passed",
@@ -93,6 +118,7 @@ def assemble(directory, application_commit):
 
 def check_controls(directory, application_commit):
     assemble(directory, application_commit)
+    run_id = load(directory / "raw", "two-vm-results.json")["summary"]["run_id"]
 
     def change_binary(value):
         identity = next(check["details"] for check in value["checks"]
@@ -106,6 +132,7 @@ def check_controls(directory, application_commit):
         "remaining fixture unit": ("manager-observation.json", lambda value: value.update({"fixture_units": [{"unit": "m02-bad.service"}]})),
         "remaining fixture listener": ("worker-observation.json", lambda value: value["listening_tcp"].append("192.168.1.235:43122")),
         "failed probe shutdown": ("probe-agent-shutdown.json", lambda value: value.update({"ExecMainStatus": "9"})),
+        "failed main fixture shutdown": (f"m02-{run_id}-production-manager.service.shutdown.json", lambda value: value["states"][-1].update({"ExecMainStatus": "9"})),
         "missing probe check": ("daemon-probe-result.json", lambda value: value["checks"].pop(0)),
         "wrong virtual CPU allocation": ("proxmox-configurations.json", lambda value: value["manager"].update({"cores": 999})),
         "changed application binary hash": ("two-vm-results.json", change_binary),
