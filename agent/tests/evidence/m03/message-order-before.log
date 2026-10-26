@@ -1,0 +1,21 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.02s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
+
+running 1 test
+
+thread 'recovery::conversation_append_order_survives_restart_and_retries' (599147951) panicked at agent/tests/m03_recovery/mod.rs:31:9:
+assertion `left == right` failed
+  left: Array [Object {"conversation": String("d370ad7c-184b-4b5a-b159-40c3dbb6631b"), "id": String("00000000-0000-4000-8000-000000000001"), "text": String("second")}, Object {"conversation": String("d370ad7c-184b-4b5a-b159-40c3dbb6631b"), "id": String("ffffffff-ffff-4fff-bfff-ffffffffffff"), "text": String("first")}]
+ right: Array [Object {"conversation": String("d370ad7c-184b-4b5a-b159-40c3dbb6631b"), "id": String("ffffffff-ffff-4fff-bfff-ffffffffffff"), "text": String("first")}, Object {"conversation": String("d370ad7c-184b-4b5a-b159-40c3dbb6631b"), "id": String("00000000-0000-4000-8000-000000000001"), "text": String("second")}]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::conversation_append_order_survives_restart_and_retries ... FAILED
+
+failures:
+
+failures:
+    recovery::conversation_append_order_survives_restart_and_retries
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 4.03s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`

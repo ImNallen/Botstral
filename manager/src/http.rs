@@ -1,3 +1,4 @@
+mod tasks;
 mod workers;
 
 use crate::{LocalState, manager::*};
@@ -231,6 +232,7 @@ async fn browser_boundary(State(host): State<String>, request: Request, next: Ne
 fn regular_router(manager: Manager) -> Router {
     Router::new()
         .merge(workers::router())
+        .merge(tasks::router())
         .route(
             "/health",
             get(|| async { Json(serde_json::json!({"status":"ok"})) }),

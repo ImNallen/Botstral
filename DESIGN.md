@@ -2,7 +2,7 @@
 
 Version v0.3. October 2026.
 
-Status. Product design. M01 has a locally verified manager foundation. M02 has verified worker transport and logical session ownership across two separate virtual machines. [Two-VM acceptance](docs/m02-two-vm-acceptance.md) passed with isolated production and synthetic test fixtures. Durable tasks and real desktop execution remain later milestones.
+Status. Product design. M01 has a locally verified manager foundation. M02 has verified worker transport and logical session ownership across two separate virtual machines. [Two-VM acceptance](docs/m02-two-vm-acceptance.md) passed with isolated production and synthetic test fixtures. M03 has locally verified durable tasks, approval claims, Markdown source recovery and worker reconciliation. [M03 acceptance](docs/m03-acceptance.md) records the synthetic effect and cancellation scope. Real desktop execution remains a later milestone.
 
 Author. Adam Nilsson. Personal, non-commercial project.
 

@@ -1,0 +1,16 @@
+CREATE TABLE owner_identity (id INTEGER PRIMARY KEY CHECK(id = 1), principal TEXT NOT NULL UNIQUE) STRICT;
+CREATE TABLE conversations (id TEXT PRIMARY KEY, bot TEXT NOT NULL REFERENCES bots(id), body TEXT NOT NULL) STRICT;
+CREATE TABLE messages (sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL UNIQUE, conversation TEXT NOT NULL REFERENCES conversations(id), body TEXT NOT NULL) STRICT;
+CREATE TABLE permissions (bot TEXT PRIMARY KEY REFERENCES bots(id), revision INTEGER NOT NULL CHECK(revision > 0), allow INTEGER NOT NULL CHECK(allow IN (0,1))) STRICT;
+CREATE TABLE tasks (id TEXT PRIMARY KEY, bot TEXT NOT NULL REFERENCES bots(id), worker TEXT NOT NULL REFERENCES workers(id), request TEXT NOT NULL, view TEXT NOT NULL) STRICT;
+CREATE INDEX tasks_worker ON tasks(worker);
+CREATE TABLE commands (id TEXT PRIMARY KEY, task TEXT NOT NULL UNIQUE REFERENCES tasks(id), body TEXT NOT NULL, incarnation TEXT, delivered INTEGER NOT NULL DEFAULT 0 CHECK(delivered IN (0,1))) STRICT;
+CREATE TRIGGER immutable_command BEFORE UPDATE OF body ON commands BEGIN SELECT RAISE(ABORT, 'immutable command'); END;
+CREATE TABLE cancellations (task TEXT PRIMARY KEY REFERENCES tasks(id), command TEXT NOT NULL UNIQUE) STRICT;
+CREATE TABLE worker_journals (worker TEXT PRIMARY KEY REFERENCES workers(id), incarnation TEXT NOT NULL, received INTEGER NOT NULL DEFAULT 0) STRICT;
+CREATE TABLE report_receipts (worker TEXT NOT NULL REFERENCES workers(id), incarnation TEXT NOT NULL, sequence INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY(worker, incarnation, sequence)) STRICT;
+CREATE TABLE event_head (id INTEGER PRIMARY KEY CHECK(id = 1), sequence INTEGER NOT NULL) STRICT;
+INSERT INTO event_head VALUES(1, 0);
+CREATE TABLE events (sequence INTEGER PRIMARY KEY, kind TEXT NOT NULL, entity TEXT NOT NULL) STRICT;
+CREATE TABLE document_publications (name TEXT PRIMARY KEY, revision INTEGER NOT NULL, digest TEXT NOT NULL) STRICT;
+PRAGMA user_version = 3;

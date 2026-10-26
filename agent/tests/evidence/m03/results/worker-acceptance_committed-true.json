@@ -1,0 +1,76 @@
+{
+  "after": [
+    1,
+    1
+  ],
+  "before": [
+    0,
+    0
+  ],
+  "observable": true,
+  "point": "acceptance_committed",
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "8dc33de4-b965-4a63-ae42-216a82805a84",
+        "arguments": "f002a6e726f72bdf5f58693c468c068c0c7527a98dbabf13f076b39d212f74c9",
+        "bot": "19affa97-ccbb-48f0-98d7-aaa4e6dacbd3",
+        "execution": "9410dbb1-4a1b-465c-92e3-173ae8d9fd26",
+        "expires_at": 1793039727,
+        "operation": "7ae054a3-f09b-46f4-8b3e-e29f13d2ae4f",
+        "owner": "f8c87749-dde5-4672-b9df-aa80b251dcce",
+        "permission_revision": 1,
+        "task": "bb4bdac6-1d02-4179-9f7d-5f7e254647b1"
+      },
+      "consumed": true,
+      "id": "8dc33de4-b965-4a63-ae42-216a82805a84",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "19affa97-ccbb-48f0-98d7-aaa4e6dacbd3",
+      "execution": "9410dbb1-4a1b-465c-92e3-173ae8d9fd26",
+      "id": "3e795fdd-0095-4337-82f6-19a96ea0bb1c",
+      "operation": "7ae054a3-f09b-46f4-8b3e-e29f13d2ae4f",
+      "owner": "f8c87749-dde5-4672-b9df-aa80b251dcce",
+      "session": "f09357fd-2ade-4232-9146-537ceaaa52a7",
+      "task": "bb4bdac6-1d02-4179-9f7d-5f7e254647b1",
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 7
+      },
+      "worker": "cb29a906-9c9e-4a9d-9e4e-96921798df42"
+    },
+    "effect_evidence": [
+      {
+        "applied": 7,
+        "type": "completed"
+      }
+    ],
+    "id": "bb4bdac6-1d02-4179-9f7d-5f7e254647b1",
+    "outcome": {
+      "applied": 7,
+      "type": "completed"
+    },
+    "progress": 7,
+    "request": {
+      "conversation_id": null,
+      "id": "bb4bdac6-1d02-4179-9f7d-5f7e254647b1",
+      "session_id": "f09357fd-2ade-4232-9146-537ceaaa52a7",
+      "settings": {
+        "deadline": 4000000000,
+        "max_cost_micros": 1000,
+        "max_tokens": 1000,
+        "max_turns": 10,
+        "model": "unavailable"
+      },
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 7
+      }
+    },
+    "state": "completed"
+  }
+}

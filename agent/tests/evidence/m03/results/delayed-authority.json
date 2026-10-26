@@ -1,0 +1,12 @@
+{
+  "effects": [
+    0,
+    0
+  ],
+  "invalidations": [
+    "revocation",
+    "permission",
+    "expiry",
+    "changed_arguments"
+  ]
+}

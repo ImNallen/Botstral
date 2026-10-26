@@ -1,0 +1,24 @@
+{
+  "continuation_sequences": [
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159
+  ],
+  "index_rebuilt": true,
+  "messages_after_restart": 156,
+  "messages_before_continuation": 141,
+  "snapshot_cursor": 144,
+  "source_preserved": true
+}

@@ -1,0 +1,71 @@
+{
+  "effects": [
+    1,
+    1
+  ],
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "f03d5bef-a03b-4862-b230-8c24d0bd8189",
+        "arguments": "d5a5f3f81336d15365cf0ff5de167c07c4509aa200f82ea2a26fdb035e465442",
+        "bot": "9823e829-b9fa-4bd7-afec-92622fd7dce1",
+        "execution": "c4373843-4b90-4749-b9d6-dd708c59fd0c",
+        "expires_at": 1793039727,
+        "operation": "9da54e34-3b39-48f5-b436-1d433fb042ac",
+        "owner": "8ea00d0c-15ce-4d05-8dc7-ef8268feb679",
+        "permission_revision": 1,
+        "task": "4ccde596-0497-492a-9e08-3e0da0379178"
+      },
+      "consumed": true,
+      "id": "f03d5bef-a03b-4862-b230-8c24d0bd8189",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "9823e829-b9fa-4bd7-afec-92622fd7dce1",
+      "execution": "c4373843-4b90-4749-b9d6-dd708c59fd0c",
+      "id": "758967f8-f55e-4387-9497-42d1e1af940e",
+      "operation": "9da54e34-3b39-48f5-b436-1d433fb042ac",
+      "owner": "8ea00d0c-15ce-4d05-8dc7-ef8268feb679",
+      "session": "583d69e5-e1a4-459f-bfcd-e025f540b25f",
+      "task": "4ccde596-0497-492a-9e08-3e0da0379178",
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 9
+      },
+      "worker": "f9486254-d771-4fd2-b665-be5e553dd66e"
+    },
+    "effect_evidence": [
+      {
+        "applied": 9,
+        "type": "completed"
+      }
+    ],
+    "id": "4ccde596-0497-492a-9e08-3e0da0379178",
+    "outcome": {
+      "applied": 9,
+      "evidence": "no_process_group",
+      "type": "stopped"
+    },
+    "progress": 9,
+    "request": {
+      "conversation_id": null,
+      "id": "4ccde596-0497-492a-9e08-3e0da0379178",
+      "session_id": "583d69e5-e1a4-459f-bfcd-e025f540b25f",
+      "settings": {
+        "deadline": 4000000000,
+        "max_cost_micros": 1000,
+        "max_tokens": 1000,
+        "max_turns": 10,
+        "model": "unavailable"
+      },
+      "work": {
+        "observable": true,
+        "type": "test_effect",
+        "value": 9
+      }
+    },
+    "state": "cancelled"
+  }
+}

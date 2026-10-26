@@ -53,6 +53,13 @@ impl Sessions {
         self.sessions.insert(session.id, session);
         Ok(fence)
     }
+    pub(crate) fn matches(&self, body: &CommandBody) -> bool {
+        body.worker == self.worker
+            && self
+                .sessions
+                .get(&body.session)
+                .is_some_and(|s| s.bot_id == body.bot)
+    }
     pub(crate) fn check(&self, fence: InputFence) -> Result<(), ErrorCode> {
         if fence.generation != self.generation {
             return Err(ErrorCode::StaleGeneration);
@@ -72,7 +79,7 @@ impl Sessions {
 }
 
 pub(crate) struct Runtime {
-    sessions: Sessions,
+    pub(crate) sessions: Sessions,
     seen: HashMap<CommandId, (ManagerMessage, Vec<Envelope<WorkerMessage>>)>,
     #[cfg(feature = "nonproduction-test-worker")]
     executor: Option<crate::test_worker::Executor>,
@@ -93,16 +100,6 @@ impl Runtime {
             #[cfg(feature = "nonproduction-test-worker")]
             executor: test_worker.then(crate::test_worker::Executor::new),
         })
-    }
-    pub(crate) fn has_executor(&self) -> bool {
-        #[cfg(feature = "nonproduction-test-worker")]
-        {
-            self.executor.is_some()
-        }
-        #[cfg(not(feature = "nonproduction-test-worker"))]
-        {
-            false
-        }
     }
     pub(crate) fn handle(
         &mut self,
@@ -131,17 +128,7 @@ impl Runtime {
         }
         match &message {
             ManagerMessage::Pong => return Ok(vec![]),
-            ManagerMessage::Receipt {
-                command_id,
-                outcome,
-            } => {
-                #[cfg(feature = "nonproduction-test-worker")]
-                if let Some(executor) = &mut self.executor {
-                    return Ok(executor.receipt(&self.sessions, request_id, *command_id, outcome));
-                }
-                let _ = (command_id, outcome);
-                return Ok(vec![]);
-            }
+            ManagerMessage::Receipt { .. } => return Ok(vec![]),
             _ => {}
         }
         let (id, fence) = match &message {
@@ -164,6 +151,9 @@ impl Runtime {
         };
         if let Err(code) = self.sessions.check(fence) {
             return Ok(reject(code));
+        }
+        if matches!(message, ManagerMessage::Command(_)) {
+            return Ok(reject(ErrorCode::UnsupportedExecution));
         }
         if let Some((prior, reports)) = self.seen.get(&id) {
             return Ok(if prior == &message {
@@ -234,110 +224,5 @@ mod tests {
             sessions.control(generation, changed),
             Err(ErrorCode::Unauthorized)
         );
-    }
-
-    #[cfg(feature = "nonproduction-test-worker")]
-    #[test]
-    fn queued_input_is_discarded_before_control_confirmation() {
-        let worker = WorkerId::new();
-        let a = session(worker);
-        let b = session(worker);
-        let generation = Generation::INITIAL;
-        let mut runtime =
-            Runtime::new(generation, vec![a.clone(), b.clone()], worker, true).unwrap();
-        let command = |session: &ComputerSession| Command {
-            id: CommandId::new(),
-            task_id: TaskId::new(),
-            fence: session.fence(generation),
-            action: CommandAction::Start {
-                work: WorkSpec::TestInput { steps: 10 },
-            },
-        };
-        let start_a = command(&a);
-        let start_b = command(&b);
-        runtime
-            .handle(Envelope::new(ManagerMessage::Command(start_a.clone())))
-            .unwrap();
-        runtime
-            .handle(Envelope::new(ManagerMessage::Command(start_b.clone())))
-            .unwrap();
-        let queued = runtime.tick();
-        assert_eq!(queued.len(), 2);
-        let mut owned = a.clone();
-        owned.owner = InputOwner::Owner;
-        owned.revision = owned.revision.advance().unwrap();
-        let reports = runtime
-            .handle(Envelope::new(ManagerMessage::Control {
-                generation,
-                session: owned.clone(),
-            }))
-            .unwrap();
-        assert!(matches!(
-            reports.last().unwrap().message,
-            WorkerMessage::ControlApplied { .. }
-        ));
-        for request in queued {
-            let WorkerMessage::BotInput { command_id, .. } = request.message else {
-                panic!("input intent")
-            };
-            let reports = runtime
-                .handle(Envelope {
-                    version: VERSION,
-                    request_id: request.request_id,
-                    message: ManagerMessage::Receipt {
-                        command_id,
-                        outcome: Acknowledgment::Accepted,
-                    },
-                })
-                .unwrap();
-            if command_id == start_a.id {
-                assert!(reports.is_empty());
-            } else {
-                assert!(matches!(
-                    reports[0].message,
-                    WorkerMessage::Event {
-                        event: TaskEvent::Progress { applied: 1, .. },
-                        ..
-                    }
-                ));
-            }
-        }
-        let owner_id = CommandId::new();
-        runtime
-            .handle(Envelope::new(ManagerMessage::Input {
-                command_id: owner_id,
-                fence: owned.fence(generation),
-                value: 1,
-            }))
-            .unwrap();
-        let mut reclaimed = owned.clone();
-        reclaimed.owner = InputOwner::Bot;
-        reclaimed.revision = reclaimed.revision.advance().unwrap();
-        let reports = runtime
-            .handle(Envelope::new(ManagerMessage::Control {
-                generation,
-                session: reclaimed,
-            }))
-            .unwrap();
-        assert!(reports.iter().any(|r| matches!(r.message, WorkerMessage::Acknowledgment { command_id, outcome: Acknowledgment::Rejected { code: ErrorCode::StaleRevision }, .. } if command_id == owner_id)));
-        assert!(!runtime.tick().iter().any(|r| matches!(r.message, WorkerMessage::Acknowledgment { command_id, outcome: Acknowledgment::Applied, .. } if command_id == owner_id)));
-        let status = Command {
-            id: CommandId::new(),
-            task_id: start_a.task_id,
-            fence: owned.fence(generation),
-            action: CommandAction::Status,
-        };
-        let reports = runtime
-            .handle(Envelope::new(ManagerMessage::Command(status)))
-            .unwrap();
-        assert!(matches!(
-            reports[0].message,
-            WorkerMessage::Acknowledgment {
-                outcome: Acknowledgment::Rejected {
-                    code: ErrorCode::StaleRevision
-                },
-                ..
-            }
-        ));
     }
 }

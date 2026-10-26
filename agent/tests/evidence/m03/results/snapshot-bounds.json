@@ -1,0 +1,9 @@
+{
+  "conversations": 256,
+  "documents": 256,
+  "messages": 256,
+  "overflow_rejected": true,
+  "permissions": 256,
+  "retained_tasks": 128,
+  "serialized_bytes": 5548146
+}

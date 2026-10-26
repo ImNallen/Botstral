@@ -47,7 +47,10 @@ impl StateDir {
             .open(&lock_path)?;
         tls::private_bytes(&lock_path)?;
         lock.try_lock()?;
-        Ok(Self { path, _lock: lock })
+        Ok(Self {
+            path: path.canonicalize()?,
+            _lock: lock,
+        })
     }
     fn save(&self, config: &Config) -> io::Result<()> {
         let path = self.path.join("config.json.tmp");
@@ -145,6 +148,7 @@ fn run_cli(test_worker: bool) -> Result<(), Box<dyn std::error::Error>> {
             serde_json::from_slice(&tls::private_bytes(&state.path.join("config.json"))?)?;
         runtime.block_on(crate::transport::run(
             config,
+            &state.path,
             test_worker,
             command == "check",
         ))?;

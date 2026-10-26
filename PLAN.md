@@ -115,20 +115,22 @@ Local implementation and verification cover the daemon, mutual TLS enrollment, p
 
 Depends on M02.
 
-- [ ] Persist conversations, task settings, progress, approvals, and outcomes.
-- [ ] Store owner instructions and per-bot memory as Markdown with source references. Serialize writes through the manager and keep the local search index rebuildable.
-- [ ] Keep model-generated memory separate from owner-controlled instructions, permissions, and approval policy.
-- [ ] Define queued, running, awaiting-approval, cancelling, completed, failed, cancelled, and awaiting-attention task states with explicit transitions.
-- [ ] Commit task changes, outgoing commands, and events together.
-- [ ] Journal command acceptance and outcomes on the worker before acknowledging them. Repeated delivery reconnects to existing execution or returns its recorded outcome.
-- [ ] Reconcile existing work after a manager restart or worker reconnect.
-- [ ] Reconcile external effects through provider operation identifiers or reliable observation. Require attention when an outcome remains uncertain. Do not blindly repeat it.
-- [ ] Preserve cancellation requests until the worker confirms that execution and its process group stopped. Record effects that happened before cancellation.
-- [ ] Bind approvals to the owner, bot, task, operation, normalized arguments, permission revision, expiry, and single-use execution identifier.
-- [ ] Revalidate authority immediately before execution. Changed arguments, expiry, revocation, or policy changes invalidate affected authority.
-- [ ] Persist authoritative events and bound replay retention. Provide a snapshot and new cursor when a reconnecting client has missed retained history.
+- [x] Persist conversations, task settings, progress, approvals, and outcomes.
+- [x] Store owner instructions and per-bot memory as Markdown with source references. Serialize writes through the manager and keep the local search index rebuildable.
+- [x] Keep model-generated memory separate from owner-controlled instructions, permissions, and approval policy.
+- [x] Define queued, running, awaiting-approval, cancelling, completed, failed, cancelled, and awaiting-attention task states with explicit transitions.
+- [x] Commit task changes, outgoing commands, and events together.
+- [x] Journal command acceptance and outcomes on the worker before acknowledging them. Repeated delivery reconnects to existing execution or returns its recorded outcome.
+- [x] Reconcile existing work after a manager restart or worker reconnect.
+- [x] Reconcile external effects through provider operation identifiers or reliable observation. Require attention when an outcome remains uncertain. Do not blindly repeat it.
+- [x] Preserve cancellation requests until the worker confirms that execution and its process group stopped. Record effects that happened before cancellation.
+- [x] Bind approvals to the owner, bot, task, operation, normalized arguments, permission revision, expiry, and single-use execution identifier.
+- [x] Revalidate authority immediately before execution. Changed arguments, expiry, revocation, or policy changes invalidate affected authority.
+- [x] Persist authoritative events and bound replay retention. Provide a snapshot and new cursor when a reconnecting client has missed retained history.
 
-Complete when a manager restart or duplicate command delivery recovers the original task without starting replacement work. Disconnect the worker after an external effect and before its result is recorded. Verify reconciliation or an attention state. Also verify confirmed cancellation, invalidated approvals, and snapshot recovery beyond event retention.
+Completion requires that a manager restart or duplicate command delivery recovers the original task without starting replacement work. Disconnect the worker after an external effect and before its result is recorded. Verify reconciliation or an attention state. Also verify confirmed cancellation, invalidated approvals, and snapshot recovery beyond event retention.
+
+Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) maps every requirement to commands and saved evidence. Cancellation uses the synthetic adapter's explicit `NoProcessGroup` evidence. It does not establish real process-group termination. The separate synthetic provider ledger proves effect reconciliation and uncertainty without replacement calls. Production provider execution and real process-group supervision remain open under M04 and W01. [Independent implementation review](docs/m03-review.md) verified the corrected scoped implementation.
 
 ### M04. Connect Mistral and execute work across the virtual machine
 

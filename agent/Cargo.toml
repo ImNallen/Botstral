@@ -10,6 +10,7 @@ default = []
 nonproduction-test-worker = []
 
 [dependencies]
+rusqlite = { version = "0.38.0", features = ["bundled"] }
 hyper = { version = "1", features = ["client", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio"] }
 http-body-util = "0.1"
@@ -29,7 +30,6 @@ zeroize = "1.8"
 [dev-dependencies]
 rcgen = "0.13.2"
 time = "0.3"
-rusqlite = { version = "0.38.0", features = ["bundled"] }
 tempfile = "3.24"
 
 [[bin]]

@@ -59,3 +59,15 @@ The dedicated worker listener exposes enrollment and WSS only. Worker schemas ca
 Connection generations and per-session ownership revisions fence obsolete messages. Takeover remains pending until the worker confirms the new revision after stopping its old input producer. Disconnection does not prove that a remote effect stopped. Production refuses execution in M02. The separate test worker exists only in a debug feature build. Release compilation rejects that feature.
 
 See [deployment and certificate recovery](worker-deployment.md), [protocol limits](worker-protocol.md), and [the verification and acceptance gaps](m02-architecture.md).
+
+## Durable execution authority
+
+M03 stores a stable owner principal separately from transient login sessions. Startup still revokes login sessions and relocks the vault. Tasks and approvals survive that restart. Owner authentication is required for submission, approval grant and revocation, permission changes, source writes and search.
+
+Approval grants bind the recorded owner, bot, task, operation, typed normalized argument digest, permission revision, expiry and one-use execution identifier. Changing a policy advances its revision and invalidates pending approvals. Retrieved Markdown has no method to alter typed policy. Generated memory cannot target instruction files.
+
+Execution claims linearize admission at the manager. Revocation committed before a claim prevents admission. Revocation committed afterward cannot undo an effect already admitted. The remote claim transaction and physical effect onset are not atomic. Lost permits, missing execution evidence and unknown external outcomes require attention. A consumed identifier cannot authorize replacement work.
+
+The worker keeps a private locked SQLite journal. Missing journals create a new incarnation, which the manager detects before execution delivery. Corrupt journals fail startup rather than being silently replaced. Report receipts and command tombstones prevent transport retries from becoming new effects. Debug crash controls and the independent synthetic ledger are compiled only with `nonproduction-test-worker` and debug assertions. Production remains unable to execute browser, shell, provider or model work.
+
+Markdown is authoritative for instructions and memory. The manager synchronizes temporary content, renames it and synchronizes the directory. Source reconciliation repairs derived search data and publication events before serving search or replay. It never restores missing source files from an index. Invalid source metadata or references fail closed.

@@ -3,8 +3,17 @@
   "title": "Protocol",
   "type": "object",
   "properties": {
+    "document": {
+      "$ref": "#/$defs/WriteDocument"
+    },
     "manager": {
       "$ref": "#/$defs/Envelope2"
+    },
+    "owner": {
+      "$ref": "#/$defs/OwnerSnapshot"
+    },
+    "replay": {
+      "$ref": "#/$defs/EventReplay"
     },
     "worker": {
       "$ref": "#/$defs/Envelope"
@@ -12,7 +21,10 @@
   },
   "required": [
     "worker",
-    "manager"
+    "manager",
+    "owner",
+    "replay",
+    "document"
   ],
   "$defs": {
     "Acknowledgment": {
@@ -66,6 +78,45 @@
       "type": "string",
       "format": "uuid"
     },
+    "ApprovalView": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExecutionBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "consumed": {
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/ApprovalId"
+        },
+        "permission_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "revoked": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "permission_revision",
+        "revoked",
+        "consumed"
+      ]
+    },
+    "ArgumentDigest": {
+      "type": "string"
+    },
     "ArtifactId": {
       "type": "string",
       "format": "uuid"
@@ -94,6 +145,28 @@
         "sha256",
         "length",
         "media_type"
+      ]
+    },
+    "AuthoritativeEvent": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "kind",
+        "entity"
       ]
     },
     "BotId": {
@@ -202,6 +275,50 @@
         }
       ]
     },
+    "CommandBody": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "id": {
+          "$ref": "#/$defs/CommandId"
+        },
+        "operation": {
+          "$ref": "#/$defs/OperationId"
+        },
+        "owner": {
+          "$ref": "#/$defs/OwnerId"
+        },
+        "session": {
+          "$ref": "#/$defs/ComputerSessionId"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "work": {
+          "$ref": "#/$defs/WorkSpec"
+        },
+        "worker": {
+          "$ref": "#/$defs/WorkerId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "owner",
+        "task",
+        "bot",
+        "worker",
+        "session",
+        "operation",
+        "execution",
+        "work"
+      ]
+    },
     "CommandId": {
       "type": "string",
       "format": "uuid"
@@ -248,6 +365,112 @@
         "pending",
         "confirmed",
         "disconnected"
+      ]
+    },
+    "Conversation": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "id": {
+          "$ref": "#/$defs/ConversationId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "bot"
+      ]
+    },
+    "ConversationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ConversationMessage": {
+      "type": "object",
+      "properties": {
+        "conversation": {
+          "$ref": "#/$defs/ConversationId"
+        },
+        "id": {
+          "$ref": "#/$defs/MessageId"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "conversation",
+        "text"
+      ]
+    },
+    "Document": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "kind": {
+          "$ref": "#/$defs/DocumentKind"
+        },
+        "markdown": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "kind",
+        "revision",
+        "sources",
+        "markdown"
+      ]
+    },
+    "DocumentKind": {
+      "type": "string",
+      "enum": [
+        "instructions",
+        "memory"
+      ]
+    },
+    "DurableReport": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "$ref": "#/$defs/CommandId"
+        },
+        "event": {
+          "$ref": "#/$defs/ExecutionEvent"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "command",
+        "execution",
+        "event"
       ]
     },
     "Envelope": {
@@ -319,6 +542,248 @@
         "conflict"
       ]
     },
+    "EventReplay": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AuthoritativeEvent"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "events"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "entries",
+            "cursor"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "state": {
+              "$ref": "#/$defs/OwnerSnapshot"
+            },
+            "type": {
+              "type": "string",
+              "const": "snapshot"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "state",
+            "cursor"
+          ]
+        }
+      ]
+    },
+    "ExecutionBinding": {
+      "type": "object",
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/ApprovalId"
+        },
+        "arguments": {
+          "$ref": "#/$defs/ArgumentDigest"
+        },
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "expires_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "operation": {
+          "$ref": "#/$defs/OperationId"
+        },
+        "owner": {
+          "$ref": "#/$defs/OwnerId"
+        },
+        "permission_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "bot",
+        "task",
+        "operation",
+        "arguments",
+        "permission_revision",
+        "approval",
+        "execution",
+        "expires_at"
+      ]
+    },
+    "ExecutionEvent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "accepted"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "approval_required"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "admitted"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "applied": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "progress"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "applied"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "applied": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "completed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "applied"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            "type": {
+              "type": "string",
+              "const": "failed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "code"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "uncertain"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "applied": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "evidence": {
+              "$ref": "#/$defs/StopEvidence"
+            },
+            "type": {
+              "type": "string",
+              "const": "stopped"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "applied",
+            "evidence"
+          ]
+        }
+      ]
+    },
+    "ExecutionId": {
+      "type": "string",
+      "format": "uuid"
+    },
     "Generation": {
       "type": "integer",
       "format": "uint64",
@@ -355,6 +820,37 @@
         "owner"
       ]
     },
+    "JournalEntry": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/$defs/CommandBody"
+        },
+        "phase": {
+          "$ref": "#/$defs/JournalPhase"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "body",
+        "phase"
+      ]
+    },
+    "JournalId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "JournalPhase": {
+      "type": "string",
+      "enum": [
+        "prepared",
+        "claim_pending",
+        "admitted",
+        "resolved",
+        "uncertain",
+        "stopped"
+      ]
+    },
     "LogCode": {
       "type": "string",
       "enum": [
@@ -365,6 +861,164 @@
     },
     "ManagerMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "offset": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "inventory_request"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "offset"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "after": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "high_water": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "recover"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "after",
+            "high_water"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "through": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "report_ack"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "through"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "generation": {
+              "$ref": "#/$defs/Generation"
+            },
+            "type": {
+              "type": "string",
+              "const": "recovery_ready"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "generation"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "authority": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ExecutionBinding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "body": {
+              "$ref": "#/$defs/CommandBody"
+            },
+            "cancel": {
+              "type": "boolean"
+            },
+            "fence": {
+              "$ref": "#/$defs/InputFence"
+            },
+            "type": {
+              "type": "string",
+              "const": "delivery"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "body",
+            "fence",
+            "cancel"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "$ref": "#/$defs/ExecutionBinding"
+            },
+            "fence": {
+              "$ref": "#/$defs/InputFence"
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "type": {
+              "type": "string",
+              "const": "permit"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "incarnation",
+            "fence",
+            "binding"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "execution": {
+              "$ref": "#/$defs/ExecutionId"
+            },
+            "type": {
+              "type": "string",
+              "const": "claim_denied"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "execution"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -531,9 +1185,82 @@
         "octet_stream"
       ]
     },
+    "MessageId": {
+      "type": "string",
+      "format": "uuid"
+    },
     "OperationId": {
       "type": "string",
       "format": "uuid"
+    },
+    "OwnerId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "OwnerSnapshot": {
+      "type": "object",
+      "properties": {
+        "conversations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Conversation"
+          }
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Document"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConversationMessage"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Permission"
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TaskView"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tasks",
+        "conversations",
+        "messages",
+        "documents",
+        "permissions"
+      ]
+    },
+    "Permission": {
+      "type": "object",
+      "properties": {
+        "allow": {
+          "type": "boolean"
+        },
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "revision",
+        "allow"
+      ]
     },
     "ReleaseChannel": {
       "type": "string",
@@ -550,6 +1277,101 @@
       "type": "integer",
       "format": "uint64",
       "minimum": 0
+    },
+    "SourceReference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "type": {
+              "type": "string",
+              "const": "task"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/MessageId"
+            },
+            "type": {
+              "type": "string",
+              "const": "message"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reference": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "external"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reference"
+          ]
+        }
+      ]
+    },
+    "StopEvidence": {
+      "type": "string",
+      "enum": [
+        "no_process_group"
+      ]
+    },
+    "SubmitTask": {
+      "type": "object",
+      "properties": {
+        "conversation_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConversationId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "session_id": {
+          "$ref": "#/$defs/ComputerSessionId"
+        },
+        "settings": {
+          "$ref": "#/$defs/TaskSettings"
+        },
+        "work": {
+          "$ref": "#/$defs/WorkSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "session_id",
+        "settings",
+        "work"
+      ]
     },
     "TaskEvent": {
       "oneOf": [
@@ -747,6 +1569,54 @@
       "type": "string",
       "format": "uuid"
     },
+    "TaskSettings": {
+      "type": "object",
+      "properties": {
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_cost_micros": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_tokens": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_turns": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "model": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "max_turns",
+        "max_tokens",
+        "deadline",
+        "max_cost_micros"
+      ]
+    },
+    "TaskState": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "awaiting_approval",
+        "cancelling",
+        "completed",
+        "failed",
+        "cancelled",
+        "awaiting_attention"
+      ]
+    },
     "TaskStatus": {
       "type": "string",
       "enum": [
@@ -755,6 +1625,57 @@
         "completed",
         "cancelled",
         "failed"
+      ]
+    },
+    "TaskView": {
+      "type": "object",
+      "properties": {
+        "approval": {
+          "$ref": "#/$defs/ApprovalView"
+        },
+        "command": {
+          "$ref": "#/$defs/CommandBody"
+        },
+        "effect_evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExecutionEvent"
+          }
+        },
+        "id": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ExecutionEvent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "progress": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "request": {
+          "$ref": "#/$defs/SubmitTask"
+        },
+        "state": {
+          "$ref": "#/$defs/TaskState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "request",
+        "command",
+        "state",
+        "progress",
+        "effect_evidence",
+        "approval"
       ]
     },
     "WorkSpec": {
@@ -790,6 +1711,29 @@
             "type",
             "steps"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "observable": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "const": "test_effect"
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value",
+            "observable"
+          ]
         }
       ]
     },
@@ -799,6 +1743,134 @@
     },
     "WorkerMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/JournalEntry"
+              }
+            },
+            "generation": {
+              "$ref": "#/$defs/Generation"
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "offset": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "total": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "inventory"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "generation",
+            "incarnation",
+            "offset",
+            "total",
+            "entries"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "generation": {
+              "$ref": "#/$defs/Generation"
+            },
+            "high_water": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "type": {
+              "type": "string",
+              "const": "recovery_hello"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "generation",
+            "incarnation",
+            "high_water"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "generation": {
+              "$ref": "#/$defs/Generation"
+            },
+            "high_water": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "reports": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DurableReport"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "reports"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "generation",
+            "incarnation",
+            "high_water",
+            "reports"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "binding": {
+              "$ref": "#/$defs/ExecutionBinding"
+            },
+            "fence": {
+              "$ref": "#/$defs/InputFence"
+            },
+            "incarnation": {
+              "$ref": "#/$defs/JournalId"
+            },
+            "type": {
+              "type": "string",
+              "const": "claim"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "incarnation",
+            "fence",
+            "binding"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -976,6 +2048,39 @@
             "generation"
           ]
         }
+      ]
+    },
+    "WriteDocument": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "kind": {
+          "$ref": "#/$defs/DocumentKind"
+        },
+        "markdown": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "kind",
+        "expected_revision",
+        "sources",
+        "markdown"
       ]
     }
   }
