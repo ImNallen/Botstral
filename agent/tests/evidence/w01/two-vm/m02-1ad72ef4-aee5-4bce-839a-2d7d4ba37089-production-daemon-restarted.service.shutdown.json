@@ -1,0 +1,29 @@
+{
+  "unit": "m02-1ad72ef4-aee5-4bce-839a-2d7d4ba37089-production-daemon-restarted.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "25014853064",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "97401",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "25014853064",
+      "ExecMainExitTimestampMonotonic": "25018142500",
+      "ExecMainPID": "97401",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

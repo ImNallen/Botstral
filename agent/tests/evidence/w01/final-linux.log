@@ -1,0 +1,37 @@
+    Checking botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.68s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.86s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-ddb425c5f31ec53f)
+
+running 5 tests
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
+test journal::tests::journal_opens_and_preserves_incarnation ... ok
+test journal::process_storage_tests::reserved_terminal_report_survives_unrelated_report_exhaustion ... ok
+test journal::process_storage_tests::populated_v1_journal_migrates_without_replacing_records ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `release` profile [optimized] target(s) in 3.53s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.06s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 3 tests
+test process_acceptance::w01_crash_runtime_bound ... ok
+test process_acceptance::w01_journal_replacement ... ok
+test process_acceptance::w01_production_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 45.84s
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.71s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bb5dc9af5797efc5)
+
+running 1 test
+test process_acceptance::w01_crash_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 17.25s

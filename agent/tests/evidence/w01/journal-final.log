@@ -10,4 +10,3 @@ test journal::process_storage_tests::reserved_terminal_report_survives_unrelated
 test journal::process_storage_tests::populated_v1_journal_migrates_without_replacing_records ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-

@@ -1,0 +1,93 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "2a20bca4-6075-4bdd-bf5c-7f6a0f54a22b",
+      "arguments": "6a6be45b62f7ff083dc23dc5f3dc59c4f92f8b036739689525c8751aeacc49d6",
+      "bot": "59257a84-238c-4c1d-b5ae-3e871efa31c3",
+      "execution": "8159da2a-45ef-4aac-bdb0-71d376d39064",
+      "expires_at": 1793053572,
+      "operation": "33c04f0e-2402-473f-8e76-0a41d476aa14",
+      "owner": "dbc59d2e-872a-4e3a-93ff-1e6c4e30d049",
+      "permission_revision": 1,
+      "task": "e738c1b5-843f-4645-9887-78eeb3018be2"
+    },
+    "consumed": false,
+    "id": "2a20bca4-6075-4bdd-bf5c-7f6a0f54a22b",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "59257a84-238c-4c1d-b5ae-3e871efa31c3",
+    "execution": "8159da2a-45ef-4aac-bdb0-71d376d39064",
+    "id": "a030df47-20dd-496c-8663-2381a3e1e90b",
+    "operation": "33c04f0e-2402-473f-8e76-0a41d476aa14",
+    "owner": "dbc59d2e-872a-4e3a-93ff-1e6c4e30d049",
+    "session": "ca3e17c0-60d8-4ab1-92f5-b807d877840e",
+    "task": "e738c1b5-843f-4645-9887-78eeb3018be2",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 20,
+          "uid": 501
+        },
+        "args": [],
+        "cwd": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/.tmpDCpIWz",
+        "deadline": 1793053602,
+        "environment": {
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/true",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "56c1ba58-f250-48d2-9c7c-1ce8798b4a4c"
+  },
+  "effect_evidence": [],
+  "id": "e738c1b5-843f-4645-9887-78eeb3018be2",
+  "outcome": null,
+  "process": null,
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "e738c1b5-843f-4645-9887-78eeb3018be2",
+    "session_id": "ca3e17c0-60d8-4ab1-92f5-b807d877840e",
+    "settings": {
+      "deadline": 1793053602,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 20,
+          "uid": 501
+        },
+        "args": [],
+        "cwd": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/.tmpDCpIWz",
+        "deadline": 1793053602,
+        "environment": {
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/true",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "queued"
+}

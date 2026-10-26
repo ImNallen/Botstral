@@ -1,0 +1,131 @@
+{
+  "all_dead": true,
+  "pids": [
+    94807,
+    94808
+  ],
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "669491a5-4c85-4f64-b001-e026de29606b",
+        "arguments": "db77cfae38fc1f9569e1b411181d61ebfcae1397c85aa07b56644e5a4da2e31e",
+        "bot": "d7c3e842-d28e-4cbf-a6d9-25f6a9523a1f",
+        "execution": "cc0e3208-64ac-49b8-9e95-3590f022708d",
+        "expires_at": 1793054717,
+        "operation": "a3afd97a-8bec-4cde-9877-0754c09369f8",
+        "owner": "7ded9762-b8b2-483f-91bd-9e31a6326efc",
+        "permission_revision": 1,
+        "task": "236d8756-cd01-481e-b8a1-77b9f033b793"
+      },
+      "consumed": true,
+      "id": "669491a5-4c85-4f64-b001-e026de29606b",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "d7c3e842-d28e-4cbf-a6d9-25f6a9523a1f",
+      "execution": "cc0e3208-64ac-49b8-9e95-3590f022708d",
+      "id": "2c87b4e1-83a6-4941-a2ac-211f33b3c781",
+      "operation": "a3afd97a-8bec-4cde-9877-0754c09369f8",
+      "owner": "7ded9762-b8b2-483f-91bd-9e31a6326efc",
+      "session": "daa6db00-4ae4-454a-9ef9-6edc08fefeb9",
+      "task": "236d8756-cd01-481e-b8a1-77b9f033b793",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpZ7jmGK/bounded.py"
+          ],
+          "cwd": "/tmp/.tmpZ7jmGK",
+          "deadline": 1793054747,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 3
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "c5095269-37f1-4bf8-9b77-3e0c577d1550"
+    },
+    "effect_evidence": [
+      {
+        "reason": "scope_stop_unproved",
+        "type": "uncertain"
+      }
+    ],
+    "id": "236d8756-cd01-481e-b8a1-77b9f033b793",
+    "outcome": {
+      "reason": "scope_stop_unproved",
+      "type": "uncertain"
+    },
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "type": "unobserved"
+        },
+        "stderr": {
+          "complete": false,
+          "hex": "",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": false,
+          "hex": "",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "236d8756-cd01-481e-b8a1-77b9f033b793",
+      "session_id": "daa6db00-4ae4-454a-9ef9-6edc08fefeb9",
+      "settings": {
+        "deadline": 1793054747,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpZ7jmGK/bounded.py"
+          ],
+          "cwd": "/tmp/.tmpZ7jmGK",
+          "deadline": 1793054747,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 3
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}

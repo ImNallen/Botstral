@@ -1,0 +1,8 @@
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.71s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-bb5dc9af5797efc5)
+
+running 1 test
+test process_acceptance::w01_crash_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 17.25s

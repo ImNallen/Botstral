@@ -1,0 +1,150 @@
+{
+  "effect": {
+    "args": [
+      "$HOME",
+      "%n",
+      "a b"
+    ],
+    "cwd": "/tmp/.tmpeoua4S",
+    "env": {
+      "LC_ALL": "C",
+      "LITERAL": "$HOME %n"
+    }
+  },
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "964aa86c-4524-41e2-b0a2-e33782b8a2cb",
+        "arguments": "50949808cd3337e35dca7cbf8a65c0336696160be98b7907f12e3e69ef16d311",
+        "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+        "execution": "465bea09-95a0-418a-8ae4-04113c014e5e",
+        "expires_at": 1793054730,
+        "operation": "d0290130-425b-4cca-963d-3e40496bf1ce",
+        "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+        "permission_revision": 1,
+        "task": "35295717-a29c-4ecf-982f-c7fe3047f02f"
+      },
+      "consumed": true,
+      "id": "964aa86c-4524-41e2-b0a2-e33782b8a2cb",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+      "execution": "465bea09-95a0-418a-8ae4-04113c014e5e",
+      "id": "dac398f4-81e9-433c-a6ad-4c37148806ef",
+      "operation": "d0290130-425b-4cca-963d-3e40496bf1ce",
+      "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+      "session": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+      "task": "35295717-a29c-4ecf-982f-c7fe3047f02f",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpeoua4S/guest.py",
+            "$HOME",
+            "%n",
+            "a b"
+          ],
+          "cwd": "/tmp/.tmpeoua4S",
+          "deadline": 1793054760,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "d13f65d4-66e0-41a9-92b0-cdb9a2ab2e14"
+    },
+    "effect_evidence": [],
+    "id": "35295717-a29c-4ecf-982f-c7fe3047f02f",
+    "outcome": {
+      "reason": "result",
+      "scope": {
+        "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16-465bea09-95a0-418a-8ae4-04113c014e5e.service",
+        "execution": "465bea09-95a0-418a-8ae4-04113c014e5e",
+        "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+        "invocation": "980b25bf23454c5091bce5361b37148e",
+        "journal": "12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16",
+        "unit": "botstral-12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16-465bea09-95a0-418a-8ae4-04113c014e5e.service"
+      },
+      "success": true,
+      "type": "process_finished"
+    },
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "code": 0,
+          "type": "exited"
+        },
+        "stderr": {
+          "complete": true,
+          "hex": "61637475616c20737464657272",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": true,
+          "hex": "61637475616c207374646f757400ff",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "35295717-a29c-4ecf-982f-c7fe3047f02f",
+      "session_id": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+      "settings": {
+        "deadline": 1793054760,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpeoua4S/guest.py",
+            "$HOME",
+            "%n",
+            "a b"
+          ],
+          "cwd": "/tmp/.tmpeoua4S",
+          "deadline": 1793054760,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "completed"
+  }
+}

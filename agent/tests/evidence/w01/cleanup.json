@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-26T22:49:48.479104+00:00",
+  "before": "botstral-c3a3ae6a-d57e-4ef2-868b-7daf7d18571f-1f4da6e4-403f-43a6-baa7-94ec0299fecf.service loaded failed failed /home/botstral/w01-570e76c4/source/target/debug/botstral-agent process-helper /tmp/.tmpFBeVdL/production-agent/processes/1f4da6e4-403f-43a6-baa7-94ec0299fecf\nbotstral-c3a3ae6a-d57e-4ef2-868b-7daf7d18571f-35b8176e-6c6b-44b1-a4dd-3c239a080cf7.service loaded failed failed /home/botstral/w01-570e76c4/source/target/debug/botstral-agent process-helper /tmp/.tmpFBeVdL/production-agent/processes/35b8176e-6c6b-44b1-a4dd-3c239a080cf7\nbotstral-c3a3ae6a-d57e-4ef2-868b-7daf7d18571f-b3e03171-d756-434a-84b5-cf65f0017497.service loaded failed failed /home/botstral/w01-570e76c4/source/target/debug/botstral-agent process-helper /tmp/.tmpFBeVdL/production-agent/processes/b3e03171-d756-434a-84b5-cf65f0017497\nbotstral-c3a3ae6a-d57e-4ef2-868b-7daf7d18571f-df7e87cf-8feb-4693-a08d-9be5f0bc370b.service loaded failed failed /home/botstral/w01-570e76c4/source/target/debug/botstral-agent process-helper /tmp/.tmpFBeVdL/production-agent/processes/df7e87cf-8feb-4693-a08d-9be5f0bc370b\n",
+  "action": "systemctl --user stop and reset-failed for the four explicitly listed units only",
+  "ownership_evidence": "All four ExecStart descriptions use /home/botstral/w01-570e76c4/source/target/debug/botstral-agent.",
+  "computer_units_after": "",
+  "manager_units_after": "",
+  "earlier_crashed_daemon": "ControlGroup=\nLoadState=not-found\nActiveState=inactive\n"
+}

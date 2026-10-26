@@ -1,0 +1,132 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "78926f97-91c3-465f-9138-3b206136dc71",
+      "arguments": "ac21852fadc77787860f2d9e3d36fd073b591e4e23a9609ad82d14ab00bdc832",
+      "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+      "execution": "bfa2f297-10d8-4060-a644-1349851837d1",
+      "expires_at": 1793054744,
+      "operation": "77ae4424-6a36-4b55-96f2-e7d753f2e48f",
+      "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+      "permission_revision": 1,
+      "task": "98250a0b-d3aa-4883-96fa-101860961cc0"
+    },
+    "consumed": true,
+    "id": "78926f97-91c3-465f-9138-3b206136dc71",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+    "execution": "bfa2f297-10d8-4060-a644-1349851837d1",
+    "id": "17ceeb9f-f957-4854-9acc-9cfacd133b94",
+    "operation": "77ae4424-6a36-4b55-96f2-e7d753f2e48f",
+    "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+    "session": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+    "task": "98250a0b-d3aa-4883-96fa-101860961cc0",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "import os,time; p=os.fork(); os.setsid() if p==0 else open('orphan.pid','w').write(str(p)); time.sleep(60) if p==0 else None"
+        ],
+        "cwd": "/tmp/.tmpeoua4S",
+        "deadline": 1793054774,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 10
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "d13f65d4-66e0-41a9-92b0-cdb9a2ab2e14"
+  },
+  "effect_evidence": [],
+  "id": "98250a0b-d3aa-4883-96fa-101860961cc0",
+  "outcome": {
+    "reason": "result",
+    "scope": {
+      "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16-bfa2f297-10d8-4060-a644-1349851837d1.service",
+      "execution": "bfa2f297-10d8-4060-a644-1349851837d1",
+      "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+      "invocation": "087ad4ffecf24b79a3c91b67a3a3b758",
+      "journal": "12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16",
+      "unit": "botstral-12d6b0e3-dd02-4fe4-bb3f-6faf92f4ee16-bfa2f297-10d8-4060-a644-1349851837d1.service"
+    },
+    "success": true,
+    "type": "process_finished"
+  },
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "code": 0,
+        "type": "exited"
+      },
+      "stderr": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "98250a0b-d3aa-4883-96fa-101860961cc0",
+    "session_id": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+    "settings": {
+      "deadline": 1793054774,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "import os,time; p=os.fork(); os.setsid() if p==0 else open('orphan.pid','w').write(str(p)); time.sleep(60) if p==0 else None"
+        ],
+        "cwd": "/tmp/.tmpeoua4S",
+        "deadline": 1793054774,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 10
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "completed"
+}
