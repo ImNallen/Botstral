@@ -386,7 +386,7 @@ impl State {
         }
         let tx = self.connection.transaction()?;
         tx.execute(
-            "INSERT INTO messages VALUES(?1, ?2, ?3)",
+            "INSERT INTO messages(id, conversation, body) VALUES(?1, ?2, ?3)",
             params![
                 input.id.to_string(),
                 input.conversation.to_string(),
@@ -435,7 +435,7 @@ impl State {
             let mut messages = Vec::new();
             for row in self
                 .connection
-                .prepare("SELECT body FROM messages ORDER BY id")?
+                .prepare("SELECT body FROM messages ORDER BY sequence")?
                 .query_map([], |r| r.get::<_, String>(0))?
             {
                 messages.push(parse(row?)?);

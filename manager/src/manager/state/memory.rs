@@ -142,8 +142,22 @@ impl State {
         }
         tx.commit()?;
         let path = self.directory.join("memory-index.sqlite3");
-        if path.exists() {
-            botstral_link::tls::check_private_file(&path).map_err(|_| OperationError::Internal)?;
+        for name in [
+            "memory-index.sqlite3",
+            "memory-index.sqlite3-journal",
+            "memory-index.sqlite3-wal",
+            "memory-index.sqlite3-shm",
+        ] {
+            let cache = self.directory.join(name);
+            match fs::symlink_metadata(&cache) {
+                Ok(_) => {
+                    botstral_link::tls::check_private_file(&cache)
+                        .map_err(|_| OperationError::Internal)?;
+                    fs::remove_file(cache).map_err(|_| OperationError::Internal)?;
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(_) => return Err(OperationError::Internal),
+            }
         }
         let mut index = Connection::open_with_flags(
             &path,
@@ -151,15 +165,10 @@ impl State {
                 | OpenFlags::SQLITE_OPEN_CREATE
                 | OpenFlags::SQLITE_OPEN_NOFOLLOW,
         )?;
-        // The index has no authority. Replacing a damaged cache never changes source files.
-        if index.execute_batch("CREATE TABLE IF NOT EXISTS documents(name TEXT PRIMARY KEY, body TEXT NOT NULL) STRICT;").is_err() {
-            drop(index);
-            fs::remove_file(&path).map_err(|_| OperationError::Internal)?;
-            index = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_NOFOLLOW)?;
-            index.execute_batch("CREATE TABLE documents(name TEXT PRIMARY KEY, body TEXT NOT NULL) STRICT;")?;
-        }
+        index.execute_batch(
+            "CREATE TABLE documents(name TEXT PRIMARY KEY, body TEXT NOT NULL) STRICT;",
+        )?;
         let tx = index.transaction()?;
-        tx.execute("DELETE FROM documents", [])?;
         for document in &documents {
             tx.execute(
                 "INSERT INTO documents VALUES(?1,?2)",

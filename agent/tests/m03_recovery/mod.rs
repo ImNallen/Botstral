@@ -1,5 +1,57 @@
 use super::*;
 
+#[cfg(feature = "nonproduction-test-worker")]
+mod permits;
+mod snapshots;
+
+#[tokio::test]
+async fn conversation_append_order_survives_restart_and_retries() {
+    let mut f = Fixture::new().await;
+    let bot = BotId::new();
+    assert_eq!(
+        f.owner(
+            "PUT",
+            &format!("/v1/bots/{bot}"),
+            json!({"name":"Ordering"})
+        )
+        .await
+        .0,
+        200
+    );
+    let conversation = ConversationId::new();
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/conversations",
+            json!({"id":conversation,"bot":bot})
+        )
+        .await
+        .0,
+        200
+    );
+    let first = json!({"id":"ffffffff-ffff-4fff-bfff-ffffffffffff","conversation":conversation,"text":"first"});
+    let second = json!({"id":"00000000-0000-4000-8000-000000000001","conversation":conversation,"text":"second"});
+    for message in [&first, &second, &first] {
+        assert_eq!(
+            f.owner("POST", "/v1/messages", message.clone()).await,
+            (200, message.clone())
+        );
+    }
+    for restart in [false, true] {
+        if restart {
+            f.restart_manager(None).await;
+        }
+        let (status, snapshot) = f.owner("GET", "/v1/events/0/64", json!({})).await;
+        assert_eq!(status, 200);
+        assert_eq!(snapshot["state"]["messages"], json!([first, second]));
+    }
+    evidence(
+        "conversation-order",
+        json!({"snapshot_order":["first","second"],"retry_preserved_position":true,"restart_preserved_order":true}),
+    );
+    f.manager.stop().await;
+}
+
 #[tokio::test]
 async fn durable_task_survives_manager_restart() {
     let mut f = Fixture::new().await;
@@ -399,11 +451,53 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
             .1["entries"],
         json!([])
     );
+    let mut continuation = cursor;
+    let mut sequences = Vec::new();
+    for round in 0..3 {
+        for entry in 0..5 {
+            assert_eq!(f.owner("POST", "/v1/messages", json!({"id":MessageId::new(),"conversation":conversation,"text":format!("continued {round} {entry}")})).await.0, 200);
+        }
+        let response = f
+            .owner("GET", &format!("/v1/events/{continuation}/2"), json!({}))
+            .await;
+        assert_eq!(response.0, 200);
+        assert_eq!(response.1["type"], "events");
+        let entries = response.1["entries"].as_array().unwrap();
+        assert_eq!(entries.len(), 2);
+        sequences.extend(
+            entries
+                .iter()
+                .map(|event| event["sequence"].as_u64().unwrap()),
+        );
+        continuation = response.1["cursor"].as_u64().unwrap();
+    }
+    while continuation < cursor + 15 {
+        let page = f
+            .owner("GET", &format!("/v1/events/{continuation}/2"), json!({}))
+            .await
+            .1;
+        let entries = page["entries"].as_array().unwrap();
+        assert!(!entries.is_empty());
+        sequences.extend(
+            entries
+                .iter()
+                .map(|event| event["sequence"].as_u64().unwrap()),
+        );
+        continuation = page["cursor"].as_u64().unwrap();
+    }
+    assert_eq!(sequences, (cursor + 1..=cursor + 15).collect::<Vec<_>>());
+    let messages_before_restart =
+        f.owner("GET", "/v1/events/0/64", json!({})).await.1["state"]["messages"].clone();
+    assert_eq!(messages_before_restart.as_array().unwrap().len(), 156);
     let state = f.root.path().join("manager");
     let source = fs::read(state.join(format!("memory-{}.md", session.bot_id))).unwrap();
     f.manager.stop().await;
     fs::write(state.join("memory-index.sqlite3"), b"damaged derived index").unwrap();
     f.restart_manager(None).await;
+    assert_eq!(
+        f.owner("GET", "/v1/events/0/64", json!({})).await.1["state"]["messages"],
+        messages_before_restart
+    );
     let found = f
         .owner(
             "POST",
@@ -443,7 +537,73 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
     );
     evidence(
         "source-replay",
-        json!({"snapshot_cursor":cursor,"messages":141,"source_preserved":true,"index_rebuilt":true}),
+        json!({"snapshot_cursor":cursor,"messages_before_continuation":141,"messages_after_restart":156,"continuation_sequences":sequences,"source_preserved":true,"index_rebuilt":true}),
+    );
+    f.manager.stop().await;
+}
+
+#[tokio::test]
+async fn derived_index_data_corruption_recovers_without_touching_sources() {
+    let mut f = Fixture::new().await;
+    let session = f.durable_session().await;
+    let write = json!({"bot":session.bot_id,"kind":"memory","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"authoritative source bytes"});
+    assert_eq!(f.owner("PUT", "/v1/documents", write).await.0, 200);
+    let directory = f.root.path().join("manager");
+    let source_path = directory.join(format!("memory-{}.md", session.bot_id));
+    let source = fs::read(&source_path).unwrap();
+    f.manager.stop().await;
+    let index_path = directory.join("memory-index.sqlite3");
+    let index = rusqlite::Connection::open(&index_path).unwrap();
+    let root: u32 = index
+        .query_row(
+            "SELECT rootpage FROM sqlite_schema WHERE name='documents'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let page_size: u32 = index
+        .pragma_query_value(None, "page_size", |row| row.get(0))
+        .unwrap();
+    drop(index);
+    let mut bytes = fs::read(&index_path).unwrap();
+    bytes[((root - 1) * page_size) as usize] = 0xff;
+    fs::write(&index_path, bytes).unwrap();
+    let corrupt = rusqlite::Connection::open(&index_path).unwrap();
+    corrupt.execute_batch("CREATE TABLE IF NOT EXISTS documents(name TEXT PRIMARY KEY, body TEXT NOT NULL) STRICT;").unwrap();
+    let error = corrupt.execute("DELETE FROM documents", []).unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("database disk image is malformed")
+    );
+    println!("Schema creation succeeded; cache rewrite failed with {error}.");
+    drop(corrupt);
+    f.restart_manager(None).await;
+    let found = f
+        .owner(
+            "POST",
+            &format!("/v1/documents/search/{}", session.bot_id),
+            json!({"query":"authoritative source bytes"}),
+        )
+        .await;
+    assert_eq!(found.0, 200);
+    assert_eq!(found.1.as_array().unwrap().len(), 1);
+    assert_eq!(fs::read(&source_path).unwrap(), source);
+    let malformed = b"malformed source without document metadata";
+    fs::write(&source_path, malformed).unwrap();
+    assert_eq!(
+        f.owner("POST", "/v1/documents/rebuild", json!({})).await.0,
+        400
+    );
+    assert_eq!(fs::read(&source_path).unwrap(), malformed);
+    fs::write(&source_path, &source).unwrap();
+    assert_eq!(
+        f.owner("POST", "/v1/documents/rebuild", json!({})).await.0,
+        200
+    );
+    evidence(
+        "index-data-corruption",
+        json!({"schema_survived":true,"damaged_data_page_rebuilt":true,"source_preserved":true,"malformed_source_rejected":true}),
     );
     f.manager.stop().await;
 }
@@ -999,7 +1159,7 @@ async fn recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent() {
     );
     evidence(
         "report-pagination",
-        json!({"tasks":24,"reports":48,"page_entries":REPORT_PAGE,"receipt_replay_created_events":0,"effects":f.effects()}),
+        json!({"tasks":24,"reports":48,"configured_page_limit":REPORT_PAGE,"receipt_replay_created_events":0,"effects":f.effects()}),
     );
     socket.close(None).await.unwrap();
     f.manager.stop().await;

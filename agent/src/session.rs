@@ -128,18 +128,7 @@ impl Runtime {
         }
         match &message {
             ManagerMessage::Pong => return Ok(vec![]),
-            ManagerMessage::Receipt {
-                command_id,
-                outcome,
-            } => {
-                #[cfg(feature = "nonproduction-test-worker")]
-                if let Some(executor) = &mut self.executor {
-                    let _ = executor;
-                    return Ok(vec![]);
-                }
-                let _ = (command_id, outcome);
-                return Ok(vec![]);
-            }
+            ManagerMessage::Receipt { .. } => return Ok(vec![]),
             _ => {}
         }
         let (id, fence) = match &message {

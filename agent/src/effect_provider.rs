@@ -36,7 +36,6 @@ impl Provider {
             WorkSpec::TestInput { steps } => steps,
             _ => return Err(io::Error::other("unavailable provider")),
         };
-        // An invocation is counted even for a repeated operation, so tests detect blind retries.
         self.0.execute("INSERT INTO effects VALUES(?1,?2,?3,1) ON CONFLICT(operation) DO UPDATE SET invocations=invocations+1",params![body.operation.to_string(),serde_json::to_string(body)?,value]).map_err(io::Error::other)?;
         Ok(value)
     }

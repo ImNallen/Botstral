@@ -16,6 +16,11 @@ struct Execution {
     outcome: Option<ExecutionEvent>,
 }
 
+struct PendingClaim {
+    started: std::time::Instant,
+    authority: ExecutionBinding,
+}
+
 pub(crate) struct Journal {
     db: Connection,
     pub incarnation: JournalId,
@@ -24,7 +29,7 @@ pub(crate) struct Journal {
     ready: bool,
     deliveries: std::collections::HashMap<ExecutionId, Delivery>,
     sent_through: u64,
-    claims: std::collections::HashMap<ExecutionId, std::time::Instant>,
+    claims: std::collections::HashMap<ExecutionId, PendingClaim>,
     #[cfg(feature = "nonproduction-test-worker")]
     provider: crate::effect_provider::Provider,
 }
@@ -166,41 +171,45 @@ impl Journal {
     }
     fn reconcile(&mut self) -> io::Result<()> {
         for mut e in self.executions()? {
-            if matches!(e.phase, Phase::ClaimPending | Phase::Admitted) {
-                #[cfg(feature = "nonproduction-test-worker")]
-                let observed = if self.test_worker {
-                    self.provider.observe(&e.body)?
-                } else {
-                    None
-                };
-                #[cfg(not(feature = "nonproduction-test-worker"))]
-                let observed: Option<u32> = None;
-                let outcome = match observed {
-                    Some(applied) => {
-                        e.applied = applied;
-                        if matches!(e.body.work,WorkSpec::TestInput { steps } if steps>applied) {
-                            e.phase = Phase::Uncertain;
-                            ExecutionEvent::Uncertain {
-                                reason: "interrupted_input_requires_fresh_operation".into(),
-                            }
-                        } else {
-                            e.phase = Phase::Resolved;
-                            ExecutionEvent::Completed { applied }
-                        }
-                    }
-                    None => {
+            self.reconcile_execution(&mut e)?;
+        }
+        Ok(())
+    }
+    fn reconcile_execution(&mut self, e: &mut Execution) -> io::Result<()> {
+        if matches!(e.phase, Phase::ClaimPending | Phase::Admitted) {
+            #[cfg(feature = "nonproduction-test-worker")]
+            let observed = if self.test_worker {
+                self.provider.observe(&e.body)?
+            } else {
+                None
+            };
+            #[cfg(not(feature = "nonproduction-test-worker"))]
+            let observed: Option<u32> = None;
+            let outcome = match observed {
+                Some(applied) => {
+                    e.applied = applied;
+                    if matches!(e.body.work,WorkSpec::TestInput { steps } if steps>applied) {
                         e.phase = Phase::Uncertain;
                         ExecutionEvent::Uncertain {
-                            reason: "effect_or_permit_unknown".into(),
+                            reason: "interrupted_input_requires_fresh_operation".into(),
                         }
+                    } else {
+                        e.phase = Phase::Resolved;
+                        ExecutionEvent::Completed { applied }
                     }
-                };
-                e.outcome = Some(outcome.clone());
-                let tx = self.db.transaction().map_err(err)?;
-                save(&tx, &e)?;
-                report(&tx, &e, outcome)?;
-                tx.commit().map_err(err)?;
-            }
+                }
+                None => {
+                    e.phase = Phase::Uncertain;
+                    ExecutionEvent::Uncertain {
+                        reason: "effect_or_permit_unknown".into(),
+                    }
+                }
+            };
+            e.outcome = Some(outcome.clone());
+            let tx = self.db.transaction().map_err(err)?;
+            save(&tx, e)?;
+            report(&tx, e, outcome)?;
+            tx.commit().map_err(err)?;
         }
         Ok(())
     }
@@ -355,7 +364,7 @@ impl Journal {
                         tx.commit().map_err(err)?;
                     }
                     self.deliveries.remove(&e.body.execution);
-                } else if e.phase == Phase::Prepared {
+                } else if matches!(e.phase, Phase::Prepared | Phase::ClaimPending) {
                     self.deliveries.insert(e.body.execution, delivery.clone());
                 } else if let Some(body) = self
                     .db
@@ -389,8 +398,13 @@ impl Journal {
                 vec![]
             }
             ManagerMessage::ClaimDenied { execution } => {
-                self.claims.remove(execution);
-                if let Some(delivery) = self.deliveries.remove(execution) {
+                let Some(claim) = self.claims.remove(execution) else {
+                    return Ok(Some(vec![]));
+                };
+                if let Some(delivery) = self.deliveries.get(execution).cloned() {
+                    if delivery.authority.as_ref() == Some(&claim.authority) {
+                        self.deliveries.remove(execution);
+                    }
                     let body: String = self
                         .db
                         .query_row(
@@ -435,7 +449,8 @@ impl Journal {
                     || sessions.check(*fence).is_err()
                     || binding.expires_at <= now()
                 {
-                    self.reconcile()?;
+                    self.claims.remove(&binding.execution);
+                    self.reconcile_execution(&mut e)?;
                     return Ok(Some(vec![]));
                 }
                 self.claims.remove(&binding.execution);
@@ -461,10 +476,9 @@ impl Journal {
             && self.directory.join("pause-before-claim").exists();
         for mut e in self.executions()? {
             if e.phase == Phase::ClaimPending
-                && self
-                    .claims
-                    .get(&e.body.execution)
-                    .is_some_and(|started| started.elapsed() >= std::time::Duration::from_secs(5))
+                && self.claims.get(&e.body.execution).is_some_and(|claim| {
+                    claim.started.elapsed() >= std::time::Duration::from_secs(5)
+                })
             {
                 e.phase = Phase::Uncertain;
                 let outcome = ExecutionEvent::Uncertain {
@@ -498,8 +512,13 @@ impl Journal {
                 && binding.expires_at > now()
             {
                 e.phase = Phase::ClaimPending;
-                self.claims
-                    .insert(e.body.execution, std::time::Instant::now());
+                self.claims.insert(
+                    e.body.execution,
+                    PendingClaim {
+                        started: std::time::Instant::now(),
+                        authority: binding.clone(),
+                    },
+                );
                 save(&self.db, &e)?;
                 messages.push(Envelope::new(WorkerMessage::Claim {
                     incarnation: self.incarnation,
@@ -527,7 +546,7 @@ impl Journal {
         expires_at: i64,
     ) -> io::Result<()> {
         if sessions.check(fence).is_err() || fence.owner != InputOwner::Bot || expires_at <= now() {
-            return self.reconcile();
+            return self.reconcile_execution(e);
         }
         #[cfg(feature = "nonproduction-test-worker")]
         if self.test_worker {
