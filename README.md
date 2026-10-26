@@ -28,7 +28,7 @@ make build
 
 Stop the manager with Control-C. Its SQLite database and encrypted credentials remain in `.state`. The [M01 architecture](docs/m01-architecture.md) records ownership, interfaces, verification, and design reconciliation.
 
-See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records local verification and remaining gaps. Actual two-VM acceptance is pending. Production work execution, owner-device pairing, and remote access remain later work.
+See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records verification and remaining gaps. [Two-VM acceptance](docs/m02-two-vm-acceptance.md) passed with isolated production and synthetic test fixtures. Production work execution, owner-device pairing, and remote access remain later work.
 
 ## Run the desktop
 

@@ -2,7 +2,7 @@
 
 Botstral has a local manager, the M02 worker protocol, and a desktop implementation for local owner sessions and bots. Production worker execution, model integration, owner-device pairing, and remote access remain planned.
 
-M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM acceptance remains open. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
+M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM transport and synthetic session acceptance passed. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
 ## Product target
 
@@ -94,7 +94,7 @@ Local evidence comes from `make verify` on Rust 1.93.0. Seven focused tests and 
 
 Depends on M01.
 
-- [ ] Register the separate Computer VM and add the Rust `botstral-agent` daemon to the workspace.
+- [x] Register the separate Computer VM and add the Rust `botstral-agent` daemon to the workspace.
 - [x] Enroll the worker through an expiring, single-use invitation bound to its identity.
 - [x] Define `botstral-link` schemas, Rust bindings, protocol versions, correlated requests, capabilities, acknowledgments, and events.
 - [x] Establish an outbound authenticated WSS connection from the daemon to the manager. Reserve SSH for bootstrap and recovery.
@@ -109,7 +109,7 @@ Depends on M01.
 
 Complete when the daemon connects across the two VMs, worker-only authorization is enforced, and two test sessions retain distinct ownership. Verify rejection of incompatible protocol versions and stale input. This milestone does not prove real desktop independence.
 
-Local implementation and verification cover the daemon, mutual TLS enrollment, protocol, session ownership, confirmed takeover, cancellation, and production separation. The first checkbox remains open because the daemon has not run across actual separate VMs. `make verify` runs M01 TCP acceptance, real-binary M02 TLS/WSS acceptance, test-worker session checks, schema drift detection, and clean production builds. [The M02 architecture](docs/m02-architecture.md) records the design and remaining gaps.
+Local implementation and verification cover the daemon, mutual TLS enrollment, protocol, session ownership, confirmed takeover, cancellation, and production separation. The daemon now passed production transport and synthetic session checks across the actual manager and Computer VMs. [The two-VM acceptance record](docs/m02-two-vm-acceptance.md) preserves the results and coverage boundaries. `make verify` runs M01 TCP acceptance, real-binary M02 TLS/WSS acceptance, test-worker session checks, schema drift detection, and clean production builds. [The M02 architecture](docs/m02-architecture.md) records the design and remaining gaps.
 
 ### M03. Make tasks durable and recoverable
 

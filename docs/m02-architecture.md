@@ -34,7 +34,7 @@ The worker listener holds each connection permit through TLS, HTTP upgrade, and 
 
 ## Acceptance gaps
 
-Actual two-VM deployment requires infrastructure and remains unverified. Local WSS cannot close that acceptance condition. M03 owns durable task journals and recovery. W02 owns real independent desktops. Production work execution remains unavailable in M02.
+Production transport and synthetic session ownership passed across two separate Proxmox VMs on October 26, 2026. [The two-VM acceptance record](m02-two-vm-acceptance.md) contains the environment, results, and reproducible commands. The isolated fixtures leave permanent owner setup unconfigured. M03 owns durable task journals and recovery. W02 owns real independent desktops. Production work execution remains unavailable in M02.
 
 ## Ownership and failure behavior
 
