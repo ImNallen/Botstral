@@ -319,7 +319,7 @@ async fn socket_loop(
             _ = &mut idle => return Ok(()),
             message = outbound.recv() => {
                 let Some(message) = message else { return Ok(()) };
-                send(socket, message).await?;
+                if gateway.admit_delivery(lease, message.message.clone()).await.is_ok() { send(socket, message).await?; }
             }
             report = receive(socket) => {
                 let report = report.map_err(io::Error::other)?;

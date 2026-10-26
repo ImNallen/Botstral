@@ -1,7 +1,10 @@
+mod dispatch;
+
 use super::*;
 use botstral_link::{
-    CertificateFingerprint, ComputerSession, ComputerSessionId, ControlStatus, Envelope, ErrorCode,
-    Generation, Hello, InputOwner, MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkerId,
+    Acknowledgment, Capability, CertificateFingerprint, CommandAction, CommandId, ComputerSession,
+    ComputerSessionId, ControlStatus, Envelope, ErrorCode, Generation, Hello, InputFence,
+    InputOwner, MAX_PENDING, MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkSpec, WorkerId,
     WorkerMessage,
 };
 
@@ -116,11 +119,44 @@ impl State {
         if let Some(id) = existing {
             let session =
                 self.find_computer_session(id.parse().map_err(|_| OperationError::Internal)?)?;
-            return if session.worker_id == worker {
-                Ok(session)
-            } else {
-                Err(OperationError::Conflict)
-            };
+            if session.worker_id == worker {
+                return Ok(session);
+            }
+            let revoked: bool = self.connection.query_row(
+                "SELECT revoked FROM workers WHERE id = ?1",
+                [session.worker_id.to_string()],
+                |r| r.get(0),
+            )?;
+            if !revoked {
+                return Err(OperationError::Conflict);
+            }
+            let count: i64 = self.connection.query_row(
+                "SELECT count(*) FROM computer_sessions WHERE worker_id = ?1",
+                [worker.to_string()],
+                |r| r.get(0),
+            )?;
+            if count >= MAX_SESSIONS as i64 {
+                return Err(OperationError::Busy);
+            }
+            self.connection.execute(
+                "UPDATE computer_sessions SET worker_id = ?1, revision = ?2 WHERE id = ?3",
+                params![
+                    worker.to_string(),
+                    session.revision.advance()?.get() as i64,
+                    session.id.to_string()
+                ],
+            )?;
+            let session = self.find_computer_session(session.id)?;
+            if let Some(connection) = self.worker_connections.get(&worker) {
+                self.deliver(
+                    worker,
+                    Envelope::new(ManagerMessage::Control {
+                        generation: connection.generation,
+                        session: session.clone(),
+                    }),
+                )?;
+            }
+            return self.find_computer_session(session.id);
         }
         let count: i64 = self.connection.query_row(
             "SELECT count(*) FROM computer_sessions WHERE worker_id = ?1",
@@ -199,6 +235,8 @@ pub(super) struct WorkerConnection {
     phase: WorkerPhase,
     confirmed: std::collections::HashMap<ComputerSessionId, Revision>,
     snapshot: std::collections::HashMap<ComputerSessionId, Revision>,
+    commands: std::collections::HashMap<CommandId, PendingCommand>,
+    capabilities: Vec<Capability>,
     outbound: mpsc::Sender<Envelope<ManagerMessage>>,
     stop: watch::Sender<bool>,
 }
@@ -301,6 +339,8 @@ impl State {
                 phase: WorkerPhase::Synchronizing,
                 confirmed: Default::default(),
                 snapshot: Default::default(),
+                commands: Default::default(),
+                capabilities: hello.capabilities,
                 outbound,
                 stop,
             },
@@ -374,6 +414,9 @@ impl State {
                     return Err(ErrorCode::StaleGeneration.into());
                 }
                 let session = self.find_computer_session(fence.session_id)?;
+                if session.worker_id == lease.worker && fence.revision < session.revision {
+                    return Ok(());
+                }
                 if session.worker_id != lease.worker || session.fence(lease.generation) != fence {
                     return Err(ErrorCode::StaleRevision.into());
                 }
@@ -382,6 +425,113 @@ impl State {
                     .unwrap()
                     .confirmed
                     .insert(session.id, session.revision);
+            }
+            WorkerMessage::Acknowledgment {
+                generation,
+                command_id,
+                outcome,
+            } if connection.phase == WorkerPhase::Ready => {
+                if generation != lease.generation {
+                    return Err(ErrorCode::StaleGeneration.into());
+                }
+                let command = connection
+                    .commands
+                    .get(&command_id)
+                    .ok_or(ErrorCode::InvalidMessage)?;
+                let fence = dispatch_fence(&command.message).unwrap().1;
+                let outcome = match self.check_input_fence(lease.worker, fence) {
+                    Ok(()) => outcome,
+                    Err(error) => Acknowledgment::Rejected {
+                        code: crate::worker_http::protocol_error(error),
+                    },
+                };
+                self.worker_connections
+                    .get_mut(&lease.worker)
+                    .unwrap()
+                    .commands
+                    .get_mut(&command_id)
+                    .unwrap()
+                    .receipt
+                    .acknowledgment = outcome;
+            }
+            WorkerMessage::Event {
+                command_id,
+                task_id,
+                fence,
+                event,
+            } if connection.phase == WorkerPhase::Ready => {
+                let command = connection
+                    .commands
+                    .get(&command_id)
+                    .ok_or(ErrorCode::InvalidMessage)?;
+                let ManagerMessage::Command(issued) = &command.message else {
+                    return Err(ErrorCode::InvalidMessage.into());
+                };
+                if issued.task_id != task_id || issued.fence != fence {
+                    return Err(ErrorCode::InvalidMessage.into());
+                }
+                if self.check_input_fence(lease.worker, fence).is_ok() {
+                    self.worker_connections
+                        .get_mut(&lease.worker)
+                        .unwrap()
+                        .commands
+                        .get_mut(&command_id)
+                        .unwrap()
+                        .receipt
+                        .last_event = Some(event);
+                }
+            }
+            WorkerMessage::BotInput {
+                command_id,
+                task_id,
+                fence,
+                value: _,
+            } if connection.phase == WorkerPhase::Ready => {
+                let command = connection
+                    .commands
+                    .get(&command_id)
+                    .ok_or(ErrorCode::InvalidMessage)?;
+                let ManagerMessage::Command(issued) = &command.message else {
+                    return Err(ErrorCode::InvalidMessage.into());
+                };
+                if issued.task_id != task_id
+                    || issued.fence != fence
+                    || fence.owner != InputOwner::Bot
+                    || !matches!(issued.action, CommandAction::Start { .. })
+                {
+                    return Err(ErrorCode::InvalidMessage.into());
+                }
+                let outcome = match self.check_input_fence(lease.worker, fence) {
+                    Ok(()) => {
+                        let receipt = &mut self
+                            .worker_connections
+                            .get_mut(&lease.worker)
+                            .unwrap()
+                            .commands
+                            .get_mut(&command_id)
+                            .unwrap()
+                            .receipt;
+                        receipt.bot_inputs = receipt
+                            .bot_inputs
+                            .checked_add(1)
+                            .ok_or(ErrorCode::QueueFull)?;
+                        Acknowledgment::Accepted
+                    }
+                    Err(error) => Acknowledgment::Rejected {
+                        code: crate::worker_http::protocol_error(error),
+                    },
+                };
+                self.deliver(
+                    lease.worker,
+                    Envelope {
+                        version: botstral_link::VERSION,
+                        request_id: report.request_id,
+                        message: ManagerMessage::Receipt {
+                            command_id,
+                            outcome,
+                        },
+                    },
+                )?;
             }
             WorkerMessage::Heartbeat { generation }
                 if generation == lease.generation && connection.phase == WorkerPhase::Ready =>
@@ -411,155 +561,20 @@ impl State {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::worker_http::VerifiedIdentity;
+struct PendingCommand {
+    message: ManagerMessage,
+    receipt: DispatchReceipt,
+}
 
-    fn fixture() -> (tempfile::TempDir, State) {
-        let temp = tempfile::tempdir().unwrap();
-        let mut db = Connection::open_in_memory().unwrap();
-        migrate(&mut db).unwrap();
-        db.execute_batch("INSERT INTO owner VALUES(1, 'Worker test owner', 'unused'); INSERT INTO vault VALUES(1, 1, X'00');").unwrap();
-        let (configured, _) = watch::channel(false);
-        let mut state = State::from_connection(db, temp.path().into(), configured).unwrap();
-        state.test_time = Some(1000);
-        state
-            .connection
-            .execute(
-                "INSERT INTO sessions VALUES(?1, ?2, 1, 999, 2000)",
-                params![
-                    Uuid::new_v4().to_string(),
-                    crypto::token_hash(&"o".repeat(43)).as_slice()
-                ],
-            )
-            .unwrap();
-        (temp, state)
-    }
-    fn owner() -> SessionToken {
-        SessionToken::new("o".repeat(43)).unwrap()
-    }
-    fn peer() -> VerifiedIdentity {
-        VerifiedIdentity::for_test(b"certificate A")
-    }
-    fn enroll(state: &mut State) -> WorkerId {
-        let grant = state
-            .invite_worker(owner(), peer().fingerprint().clone(), 600)
-            .unwrap();
-        state.enroll_worker(peer(), grant.secret).unwrap()
-    }
-
-    #[test]
-    fn invitation_binding_expiry_atomicity_and_replay() {
-        let (_temp, mut state) = fixture();
-        let grant = state
-            .invite_worker(owner(), peer().fingerprint().clone(), 1)
-            .unwrap();
-        let secret = || SecretString::from(grant.secret.expose_secret());
-        assert_eq!(
-            state.enroll_worker(VerifiedIdentity::for_test(b"certificate B"), secret()),
-            Err(ErrorCode::IdentityMismatch.into())
-        );
-        state.test_time = Some(1001);
-        assert_eq!(
-            state.enroll_worker(peer(), secret()),
-            Err(ErrorCode::InvitationExpired.into())
-        );
-        state.test_time = Some(1000);
-        state.connection.execute_batch("CREATE TRIGGER reject_worker BEFORE INSERT ON workers BEGIN SELECT RAISE(ABORT, 'test'); END;").unwrap();
-        assert!(state.enroll_worker(peer(), secret()).is_err());
-        state
-            .connection
-            .execute_batch("DROP TRIGGER reject_worker")
-            .unwrap();
-        let id = state.enroll_worker(peer(), secret()).unwrap();
-        assert_eq!(
-            state.enroll_worker(peer(), secret()),
-            Err(ErrorCode::InvitationUsed.into())
-        );
-        assert_eq!(state.workers(owner()).unwrap()[0].id, id);
-    }
-
-    #[test]
-    fn snapshots_generations_late_disconnect_and_full_channels() {
-        let (_temp, mut state) = fixture();
-        let worker = enroll(&mut state);
-        let bot = BotId::new();
-        state
-            .create_bot(
-                owner(),
-                NewBot {
-                    id: bot,
-                    name: BotName::new("A".into()).unwrap(),
-                },
-            )
-            .unwrap();
-        let session = state.open_computer_session(owner(), bot, worker).unwrap();
-        let connect = |state: &mut State| {
-            let (out, receive) = mpsc::channel(1);
-            let (stop, stopped) = watch::channel(false);
-            let lease = state
-                .connect_worker(peer(), Hello::current(false), out, stop, RequestId::new())
-                .unwrap();
-            (lease, receive, stopped)
-        };
-        let (old, mut receive, mut stopped) = connect(&mut state);
-        receive.try_recv().unwrap();
-        assert_eq!(
-            state.find_computer_session(session.id).unwrap().status,
-            ControlStatus::Pending
-        );
-        state
-            .worker_report(
-                old,
-                Envelope::new(WorkerMessage::SnapshotApplied {
-                    generation: old.generation,
-                }),
-            )
-            .unwrap();
-        assert_eq!(
-            state.find_computer_session(session.id).unwrap().status,
-            ControlStatus::Confirmed
-        );
-        let (new, mut receive, _) = connect(&mut state);
-        assert!(*stopped.borrow_and_update());
-        assert!(new.generation > old.generation);
-        state.disconnect_worker(old);
-        assert!(state.check_lease(new).is_ok());
-        assert!(matches!(
-            state.worker_report(
-                old,
-                Envelope::new(WorkerMessage::Heartbeat {
-                    generation: old.generation
-                })
-            ),
-            Err(OperationError::Protocol(ErrorCode::StaleGeneration))
-        ));
-        receive.try_recv().unwrap();
-        state
-            .worker_report(
-                new,
-                Envelope::new(WorkerMessage::SnapshotApplied {
-                    generation: new.generation,
-                }),
-            )
-            .unwrap();
-        assert!(state.find_computer_session(session.id).unwrap().revision > session.revision);
-        state
-            .deliver(worker, Envelope::new(ManagerMessage::Pong))
-            .unwrap();
-        assert_eq!(
-            state.deliver(worker, Envelope::new(ManagerMessage::Pong)),
-            Err(ErrorCode::QueueFull.into())
-        );
-        assert_eq!(
-            state.find_computer_session(session.id).unwrap().status,
-            ControlStatus::Disconnected
-        );
-        state.test_time = Some(2000);
-        assert_eq!(
-            state.revoke_worker(owner(), worker),
-            Err(OperationError::Unauthorized)
-        );
+fn dispatch_fence(message: &ManagerMessage) -> Option<(CommandId, InputFence)> {
+    match message {
+        ManagerMessage::Command(command) => Some((command.id, command.fence)),
+        ManagerMessage::Input {
+            command_id, fence, ..
+        } => Some((*command_id, *fence)),
+        _ => None,
     }
 }
+
+#[cfg(test)]
+mod tests;

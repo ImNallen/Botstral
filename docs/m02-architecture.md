@@ -35,3 +35,39 @@ The worker listener holds each connection permit through TLS, HTTP upgrade, and 
 ## Acceptance gaps
 
 Actual two-VM deployment requires infrastructure and remains unverified. Local WSS cannot close that acceptance condition. M03 owns durable task journals and recovery. W02 owns real independent desktops. Production work execution remains unavailable in M02.
+
+## Ownership and failure behavior
+
+A connection has a synchronizing or ready phase. The manager retains the precise snapshot awaiting acknowledgment, so a concurrent session mutation cannot become confirmed accidentally. A superseded control acknowledgment is ignored. It cannot confirm a later revision or disconnect unrelated sessions. Old-generation disconnects do not remove the replacement connection.
+
+The existing state queue serializes owner authorization and SQLite mutations. Dispatch stores bounded connection-local correlations. Socket tasks reauthorize queued delivery through that same owner. Disconnect cleanup waits for queue admission so queue saturation cannot leave a dead worker marked ready.
+
+Takeover persists the desired owner and revision before sending control. Pending input is blocked. The worker applies control before confirming it. Its test executor stops the selected producer and discards queued old input. Each bot input also requires a manager receipt and a final daemon fence check. The other session continues under its own revision.
+
+A failed control delivery can leave the committed desired owner disconnected. The caller must read current state and await reconnect synchronization. This never reports confirmed takeover. A lost task outcome remains unknown. No work or input is automatically replayed. The test worker suspends old producers on takeover and requires new work after control returns.
+
+## Reconciliation and verification
+
+TypeScript generation is deferred to C01, as the selected contract permits. The compact work specification defines unavailable production work and explicit test input. It does not introduce unfinished browser or shell operation trees. Redacted logs use fixed codes. Artifact references carry metadata only.
+
+The default production daemon and the separately named `botstral-test-agent` share transport and session admission. The test executor is behind `nonproduction-test-worker`, absent from defaults, and rejected when release compilation disables debug assertions. The manager requires its corresponding debug feature before admitting test work. The M01 status marker remains for compatibility; M02 worker status comes from `/v1/workers`.
+
+Certificate renewal exposed a necessary owner action. Rebinding an existing bot session to a replacement worker requires revoking the old worker first. It preserves the session ID, advances its revision, and resynchronizes the replacement worker.
+
+`make verify` checks formatting, warnings, schema drift, the populated-v1 migration, all M01 acceptance, production daemon refusal, invitation races and lost-response recovery, certificate failures, protocol and credential separation, connection permits, session fencing, cancellation, and bounded shutdown. It also builds into a fresh production directory, checks that the test binary is absent, and verifies that a release build with the test feature fails. A TLS probe drives the actual test daemon to verify stale-frame rejection and a delayed input receipt after confirmed takeover.
+
+The implementation uses Model the Domain through typed session ownership, connection phases, and separate revision and generation fences. Prove It Works determines the use of actual binaries and reproducible acceptance tests. Independent correctness and comment review remain with the parent. No deployment, push, pull request, or merge occurred in this worktree.
+
+## Verified commands
+
+The final implementation passed these checks on the local macOS worktree. `make verify` runs the complete reproducible sequence in [scripts/verify.sh](../scripts/verify.sh).
+
+| Command | Outcome |
+| --- | --- |
+| `cargo fmt --all --check` | Passed. |
+| `cargo clippy --workspace --all-targets --locked -- -D warnings` | Passed. The same check with both nonproduction features also passed. |
+| `cargo test --workspace --locked -- --nocapture` | Fifteen unit tests and both actual-binary acceptance tests passed. |
+| `cargo test -p botstral-agent --features nonproduction-test-worker --locked --lib -- --nocapture` | Both daemon unit tests passed. |
+| `cargo test -p botstral-agent --features nonproduction-test-worker --locked --test m02_transport -- --nocapture --skip enrollment_tls_negotiation_and_lifecycle_use_actual_binaries` | Both test-worker acceptance tests passed. |
+| `cargo test --workspace --features botstral-agent/nonproduction-test-worker,botstral-manager/nonproduction-test-worker --locked --test m02_transport -- --nocapture` | All three transport acceptance tests passed. |
+| `make verify` | Passed, including a fresh default release build, absence of the test binary, and separate expected release-feature compilation failures for manager and agent. |

@@ -127,17 +127,105 @@ impl WorkerGateway {
             .await
     }
     pub(crate) async fn disconnected(&self, lease: ConnectionLease) -> Result<(), OperationError> {
+        let (reply, receive) = oneshot::channel();
         self.queue
-            .call(false, move |s| {
-                s.disconnect_worker(lease);
-                Ok(())
-            })
+            .sender
+            .send(Box::new(move |state| {
+                state.disconnect_worker(lease);
+                let _ = reply.send(());
+            }))
             .await
+            .map_err(|_| OperationError::Internal)?;
+        receive.await.map_err(|_| OperationError::Internal)
     }
 }
 
 impl From<botstral_link::ErrorCode> for OperationError {
     fn from(code: botstral_link::ErrorCode) -> Self {
         Self::Protocol(code)
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OwnerInput {
+    pub id: botstral_link::CommandId,
+    pub fence: botstral_link::InputFence,
+    pub value: u32,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct DispatchReceipt {
+    pub command_id: botstral_link::CommandId,
+    pub generation: botstral_link::Generation,
+    pub acknowledgment: botstral_link::Acknowledgment,
+    pub last_event: Option<botstral_link::TaskEvent>,
+    pub bot_inputs: u32,
+}
+
+impl Manager {
+    pub async fn set_input_owner(
+        &self,
+        token: SessionToken,
+        id: ComputerSessionId,
+        expected: botstral_link::Revision,
+        owner: botstral_link::InputOwner,
+    ) -> Result<ComputerSession, OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.set_input_owner(token, id, expected, owner)
+            })
+            .await
+    }
+    pub async fn command(
+        &self,
+        token: SessionToken,
+        command: botstral_link::Command,
+    ) -> Result<DispatchReceipt, OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.dispatch(token, botstral_link::ManagerMessage::Command(command))
+            })
+            .await
+    }
+    pub async fn input(
+        &self,
+        token: SessionToken,
+        input: OwnerInput,
+    ) -> Result<DispatchReceipt, OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.dispatch(
+                    token,
+                    botstral_link::ManagerMessage::Input {
+                        command_id: input.id,
+                        fence: input.fence,
+                        value: input.value,
+                    },
+                )
+            })
+            .await
+    }
+    pub async fn receipt(
+        &self,
+        token: SessionToken,
+        worker: WorkerId,
+        id: botstral_link::CommandId,
+    ) -> Result<DispatchReceipt, OperationError> {
+        self.queue
+            .call(false, move |s| s.receipt(token, worker, id))
+            .await
+    }
+}
+
+impl WorkerGateway {
+    pub(crate) async fn admit_delivery(
+        &self,
+        lease: ConnectionLease,
+        message: botstral_link::ManagerMessage,
+    ) -> Result<(), OperationError> {
+        self.queue
+            .call(false, move |s| s.admit_delivery(lease, &message))
+            .await
     }
 }

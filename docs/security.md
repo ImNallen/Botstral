@@ -1,6 +1,6 @@
 # Security and recovery reference
 
-M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. M01 has no remote access, pairing, worker, model calls, or native apps.
+M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. M02 adds a separate mutual TLS worker listener. Owner-device pairing, remote access, model calls, and native apps remain unimplemented.
 
 ## Authentication
 
@@ -43,3 +43,13 @@ Secret input types cannot be cloned, debug-printed, or serialized. Their owned b
 The TCP test covers capability rotation, concurrent setup, setup isolation, authentication, idempotent bot creation, forced-restart persistence, session revocation and sign-out, locked startup, incorrect and correct unlock, key replacement, explicit lock, read refusal, browser boundaries, JSON and size limits, deadlines, credential budgets, private permissions, second-process exclusion, migration reuse, future migration refusal, unsafe state, and identity tampering. It reports actual process exits and kills and reaps child processes on failure.
 
 Focused tests cover the exact absolute expiry boundary without waiting 24 hours, bounded queue and credential admission, atomic migration and setup rollback, failed key replacement preserving the previous decryptable value, successful replacement, vault round-trip, and provider ciphertext tampering. Production has no test clock option or secret export function.
+
+## Worker authority
+
+M02 binds a worker to SHA-256 of its verified client certificate DER. Enrollment requires an expiring one-use invitation for that fingerprint. The manager stores the invitation hash and consumes it atomically with enrollment. Worker connections have no owner authority or bearer secret. Certificate renewal requires revocation and explicit enrollment of the new certificate.
+
+The dedicated worker listener exposes enrollment and WSS only. Worker schemas cannot grant approvals, enroll owner devices, retrieve credentials, or change security policy. The daemon validates the manager CA and hostname with rustls. No insecure verifier or trust bypass exists.
+
+Connection generations and per-session ownership revisions fence obsolete messages. Takeover remains pending until the worker confirms the new revision after stopping its old input producer. Disconnection does not prove that a remote effect stopped. Production refuses execution in M02. The separate test worker exists only in a debug feature build. Release compilation rejects that feature.
+
+See [deployment and certificate recovery](worker-deployment.md), [protocol limits](worker-protocol.md), and [the verification and acceptance gaps](m02-architecture.md).

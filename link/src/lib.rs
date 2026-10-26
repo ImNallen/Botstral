@@ -119,6 +119,31 @@ pub enum ErrorCode {
     Disconnected,
     Conflict,
 }
+impl ErrorCode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Unauthorized => "unauthorized",
+            Self::InvalidInvitation => "invalid_invitation",
+            Self::IdentityMismatch => "identity_mismatch",
+            Self::InvitationExpired => "invitation_expired",
+            Self::InvitationUsed => "invitation_used",
+            Self::IncompatibleVersion => "incompatible_version",
+            Self::MissingCapability => "missing_capability",
+            Self::IncompatibleChannel => "incompatible_channel",
+            Self::WrongPhase => "wrong_phase",
+            Self::InvalidMessage => "invalid_message",
+            Self::StaleGeneration => "stale_generation",
+            Self::StaleRevision => "stale_revision",
+            Self::WrongInputOwner => "wrong_input_owner",
+            Self::UnsupportedExecution => "unsupported_execution",
+            Self::UnknownTask => "unknown_task",
+            Self::QueueFull => "queue_full",
+            Self::Disconnected => "disconnected",
+            Self::Conflict => "conflict",
+        }
+    }
+}
+
 impl std::fmt::Display for ErrorCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{self:?}")
@@ -291,6 +316,7 @@ pub enum Acknowledgment {
 #[serde(rename_all = "snake_case")]
 pub enum TaskStatus {
     Running,
+    Suspended,
     Completed,
     Cancelled,
     Failed,

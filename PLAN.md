@@ -95,19 +95,21 @@ Local evidence comes from `make verify` on Rust 1.93.0. Seven focused tests and 
 Depends on M01.
 
 - [ ] Register the separate Computer VM and add the Rust `botstral-agent` daemon to the workspace.
-- [ ] Enroll the worker through an expiring, single-use invitation bound to its identity.
-- [ ] Define `botstral-link` schemas, Rust bindings, protocol versions, correlated requests, capabilities, acknowledgments, and events.
-- [ ] Establish an outbound authenticated WSS connection from the daemon to the manager. Reserve SSH for bootstrap and recovery.
-- [ ] Restrict worker credentials to worker methods. Reject attempts to approve actions, enroll owner devices, retrieve unrelated credentials, or change security policy.
-- [ ] Negotiate protocol versions and capabilities before admitting work. Test visibly rejected incompatible combinations.
-- [ ] Define commands for starting work, status, cancellation, approved operations, and results. Include stable command and task identifiers.
-- [ ] Define events for acceptance, progress, redacted logs, approval requests, screenshots, artifacts, completion, failure, and confirmed cancellation.
-- [ ] Track logical computer sessions and input ownership for each bot. W02 proves independent full desktops later.
-- [ ] Reject stale input after control changes hands.
-- [ ] Model manual takeover so the selected bot stops providing input while other sessions continue. Verify the contract with the test worker.
-- [ ] Add a clearly labelled test worker for protocol and failure testing. Exclude it from production builds.
+- [x] Enroll the worker through an expiring, single-use invitation bound to its identity.
+- [x] Define `botstral-link` schemas, Rust bindings, protocol versions, correlated requests, capabilities, acknowledgments, and events.
+- [x] Establish an outbound authenticated WSS connection from the daemon to the manager. Reserve SSH for bootstrap and recovery.
+- [x] Restrict worker credentials to worker methods. Reject attempts to approve actions, enroll owner devices, retrieve unrelated credentials, or change security policy.
+- [x] Negotiate protocol versions and capabilities before admitting work. Test visibly rejected incompatible combinations.
+- [x] Define commands for starting work, status, cancellation, approved operations, and results. Include stable command and task identifiers.
+- [x] Define events for acceptance, progress, redacted logs, approval requests, screenshots, artifacts, completion, failure, and confirmed cancellation.
+- [x] Track logical computer sessions and input ownership for each bot. W02 proves independent full desktops later.
+- [x] Reject stale input after control changes hands.
+- [x] Model manual takeover so the selected bot stops providing input while other sessions continue. Verify the contract with the test worker.
+- [x] Add a clearly labelled test worker for protocol and failure testing. Exclude it from production builds.
 
 Complete when the daemon connects across the two VMs, worker-only authorization is enforced, and two test sessions retain distinct ownership. Verify rejection of incompatible protocol versions and stale input. This milestone does not prove real desktop independence.
+
+Local implementation and verification cover the daemon, mutual TLS enrollment, protocol, session ownership, confirmed takeover, cancellation, and production separation. The first checkbox remains open because the daemon has not run across actual separate VMs. `make verify` runs M01 TCP acceptance, real-binary M02 TLS/WSS acceptance, test-worker session checks, schema drift detection, and clean production builds. [The M02 architecture](docs/m02-architecture.md) records the design and remaining gaps.
 
 ### M03. Make tasks durable and recoverable
 

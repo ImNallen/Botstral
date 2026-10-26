@@ -212,6 +212,8 @@ impl Fixture {
             ("worker", false, false),
             ("other", false, false),
             ("expired", false, true),
+            ("race", false, false),
+            ("recovery", false, false),
         ] {
             let mut params = CertificateParams::new(vec!["localhost".into()]).unwrap();
             params.extended_key_usages = vec![if server {
@@ -323,11 +325,16 @@ impl Fixture {
         invitation
     }
     async fn wait_phase(&self, phase: &str, minimum_generation: u64) -> Value {
+        let fingerprint = CertificateFingerprint::from_der(
+            tls::certificates(&self.worker.client_cert).unwrap()[0].as_ref(),
+        );
         tokio::time::timeout(Duration::from_secs(10), async {
             loop {
                 let workers = self.owner("GET", "/v1/workers", json!({})).await.1;
                 if let Some(worker) = workers.as_array().unwrap().iter().find(|w| {
-                    w["phase"] == phase && w["generation"].as_u64().unwrap() >= minimum_generation
+                    w["fingerprint"] == fingerprint.as_str()
+                        && w["phase"] == phase
+                        && w["generation"].as_u64().unwrap() >= minimum_generation
                 }) {
                     break worker.clone();
                 }
@@ -413,6 +420,33 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     bad = f.worker.clone();
     bad.manager = bad.manager.replace("localhost", "127.0.0.1");
     assert!(transport::connect_socket(&bad).await.is_err());
+    for (name, config) in [
+        ("wrong-host", bad.clone()),
+        (
+            "wrong-ca",
+            Config {
+                manager_ca: f.root.path().join("wrong.pem"),
+                ..f.worker.clone()
+            },
+        ),
+    ] {
+        let state = f.root.path().join(name);
+        fs::create_dir(&state).unwrap();
+        fs::set_permissions(&state, fs::Permissions::from_mode(0o700)).unwrap();
+        private(
+            &state.join("config.json"),
+            &serde_json::to_vec(&config).unwrap(),
+        );
+        let result = Command::new(agent_binary())
+            .args(["check", "--state-dir", state.to_str().unwrap()])
+            .output()
+            .unwrap();
+        assert!(!result.status.success(), "actual daemon rejects {name}");
+        assert_eq!(
+            String::from_utf8_lossy(&result.stderr),
+            "worker operation failed\n"
+        );
+    }
     for path in [
         "/v1/owner",
         "/v1/sessions",
@@ -457,6 +491,42 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         .0,
         401
     );
+    let mut capped = Vec::new();
+    for _ in 0..16 {
+        capped.push(transport::connect_socket(&f.worker).await.unwrap());
+    }
+    assert!(
+        transport::connect_socket(&f.worker).await.is_err(),
+        "upgraded sockets retain all 16 permits"
+    );
+    drop(capped);
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    let mut silent = transport::connect_socket(&f.worker).await.unwrap();
+    assert_eq!(
+        read(&mut silent).await,
+        ManagerMessage::Error {
+            code: ErrorCode::WrongPhase
+        }
+    );
+    for message in [
+        Message::Binary(vec![1, 2, 3].into()),
+        Message::Text("{".into()),
+        Message::Text("x".repeat(MAX_MESSAGE + 1).into()),
+    ] {
+        let mut socket = transport::connect_socket(&f.worker).await.unwrap();
+        let _ = socket.send(message).await;
+        let response = tokio::time::timeout(Duration::from_secs(6), socket.next())
+            .await
+            .unwrap();
+        if let Some(Ok(Message::Text(text))) = response {
+            assert_eq!(
+                decode::<ManagerMessage>(text.as_bytes()).unwrap().message,
+                ManagerMessage::Error {
+                    code: ErrorCode::InvalidMessage
+                }
+            );
+        }
+    }
     let mut unenrolled = transport::connect_socket(&f.other).await.unwrap();
     wire(&mut unenrolled, WorkerMessage::Hello(Hello::current(false))).await;
     assert_eq!(
@@ -495,6 +565,11 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
             ErrorCode::IncompatibleChannel,
         ),
     ] {
+        if cfg!(feature = "nonproduction-test-worker")
+            && hello.required.contains(&Capability::TestInput)
+        {
+            continue;
+        }
         let mut socket = transport::connect_socket(&f.worker).await.unwrap();
         wire(&mut socket, WorkerMessage::Hello(hello)).await;
         assert_eq!(
@@ -538,6 +613,78 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
             }
         );
     }
+    let fingerprint = CertificateFingerprint::from_der(
+        tls::certificates(&f.worker.client_cert).unwrap()[0].as_ref(),
+    );
+    let workers = f.owner("GET", "/v1/workers", json!({})).await.1;
+    assert_eq!(
+        workers
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|w| w["fingerprint"] == fingerprint.as_str())
+            .unwrap()["generation"],
+        0
+    );
+    let race = Config {
+        client_cert: f.root.path().join("race.pem"),
+        client_key: f.root.path().join("race.key"),
+        ..f.worker.clone()
+    };
+    let invitation = f.invitation(&race, 600).await;
+    let body = json!({"invitation": invitation["invitation"]});
+    let (one, two) = tokio::join!(
+        worker_http(&race, "POST", "/worker/v1/enroll", body.clone()),
+        worker_http(&race, "POST", "/worker/v1/enroll", body)
+    );
+    assert!(
+        (one.0 == 201 && two.1["error"] == "invitation_used")
+            || (two.0 == 201 && one.1["error"] == "invitation_used")
+    );
+    let recovery = Config {
+        client_cert: f.root.path().join("recovery.pem"),
+        client_key: f.root.path().join("recovery.key"),
+        ..f.worker.clone()
+    };
+    let invitation = f.invitation(&recovery, 600).await;
+    let body = serde_json::to_vec(&json!({"invitation":invitation["invitation"]})).unwrap();
+    let mut lost = transport::connect_tls(&recovery).await.unwrap();
+    use tokio::io::AsyncWriteExt;
+    lost.write_all(format!("POST /worker/v1/enroll HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len()).as_bytes()).await.unwrap();
+    lost.write_all(&body).await.unwrap();
+    lost.flush().await.unwrap();
+    let fingerprint = CertificateFingerprint::from_der(
+        tls::certificates(&recovery.client_cert).unwrap()[0].as_ref(),
+    );
+    tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            if f.owner("GET", "/v1/workers", json!({}))
+                .await
+                .1
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|w| w["fingerprint"] == fingerprint.as_str())
+            {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+    })
+    .await
+    .unwrap();
+    drop(lost);
+    let mut recovered = transport::connect_socket(&recovery).await.unwrap();
+    wire(&mut recovered, WorkerMessage::Hello(Hello::current(false))).await;
+    let ManagerMessage::Welcome { generation, .. } = read(&mut recovered).await else {
+        panic!("certificate recovers lost enrollment response");
+    };
+    wire(
+        &mut recovered,
+        WorkerMessage::SnapshotApplied { generation },
+    )
+    .await;
+    drop(recovered);
     let mut daemon = launch(
         agent_binary(),
         &["run", "--state-dir", agent_state.to_str().unwrap()],
@@ -557,6 +704,85 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         .wait_phase("ready", first["generation"].as_u64().unwrap() + 1)
         .await;
     assert_eq!(next["id"], first["id"]);
+    let worker: WorkerId = serde_json::from_value(next["id"].clone()).unwrap();
+    let generation = Generation::try_from(next["generation"].as_u64().unwrap()).unwrap();
+    let session = f.create_session(worker, "Production refusal").await;
+    let session = f.confirmed(session.id).await;
+    let unsupported = f
+        .command(
+            &session,
+            generation,
+            TaskId::new(),
+            CommandAction::Start {
+                work: WorkSpec::Unavailable,
+            },
+        )
+        .await;
+    f.receipt(worker, unsupported.id, |v| {
+        v["acknowledgment"] == json!({"type":"rejected","code":"unsupported_execution"})
+    })
+    .await;
+    let approved = f
+        .command(
+            &session,
+            generation,
+            TaskId::new(),
+            CommandAction::ExecuteApproved {
+                approval_id: ApprovalId::new(),
+                operation_id: OperationId::new(),
+                argument_digest: CertificateFingerprint::from_der(b"synthetic arguments"),
+                expires_at: 9999999999,
+            },
+        )
+        .await;
+    f.receipt(worker, approved.id, |v| {
+        v["acknowledgment"] == json!({"type":"rejected","code":"unsupported_execution"})
+    })
+    .await;
+    let taken = f.takeover(&session, InputOwner::Owner).await;
+    let input = CommandId::new();
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-input",
+            json!({"id":input,"fence":taken.fence(generation),"value":1})
+        )
+        .await
+        .0,
+        200
+    );
+    f.receipt(worker, input, |v| {
+        v["acknowledgment"] == json!({"type":"rejected","code":"unsupported_execution"})
+    })
+    .await;
+    assert_eq!(
+        f.owner("DELETE", &format!("/v1/workers/{worker}"), json!({}))
+            .await
+            .0,
+        204
+    );
+    f.wait_phase("disconnected", generation.get()).await;
+    tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            if fs::read_to_string(f.root.path().join("agent-reconnect.log"))
+                .unwrap()
+                .contains("worker disconnected; retrying")
+            {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+    })
+    .await
+    .expect("revocation closes the live daemon socket");
+    let mut revoked = transport::connect_socket(&f.worker).await.unwrap();
+    wire(&mut revoked, WorkerMessage::Hello(Hello::current(false))).await;
+    assert_eq!(
+        read(&mut revoked).await,
+        ManagerMessage::Error {
+            code: ErrorCode::Unauthorized
+        }
+    );
     f.manager.stop().await;
     daemon.stop().await;
     for name in ["manager", "manager.log", "agent.log", "agent-reconnect.log"] {
@@ -593,4 +819,518 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
             & 0o777,
         0o600
     );
+}
+
+impl Fixture {
+    async fn create_session(&self, worker: WorkerId, name: &str) -> ComputerSession {
+        let bot = BotId::new();
+        assert_eq!(
+            self.owner("PUT", &format!("/v1/bots/{bot}"), json!({"name":name}))
+                .await
+                .0,
+            200
+        );
+        let (status, session) = self
+            .owner(
+                "POST",
+                "/v1/computer-sessions",
+                json!({"bot_id":bot,"worker_id":worker}),
+            )
+            .await;
+        assert_eq!(status, 200);
+        serde_json::from_value(session).unwrap()
+    }
+    async fn confirmed(&self, id: ComputerSessionId) -> ComputerSession {
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                let session: ComputerSession = serde_json::from_value(
+                    self.owner("GET", &format!("/v1/computer-sessions/{id}"), json!({}))
+                        .await
+                        .1,
+                )
+                .unwrap();
+                if session.status == ControlStatus::Confirmed {
+                    break session;
+                }
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
+        })
+        .await
+        .expect("confirmed ownership")
+    }
+    async fn command(
+        &self,
+        session: &ComputerSession,
+        generation: Generation,
+        task_id: TaskId,
+        action: CommandAction,
+    ) -> botstral_link::Command {
+        let command = botstral_link::Command {
+            id: CommandId::new(),
+            task_id,
+            fence: session.fence(generation),
+            action,
+        };
+        let (status, receipt) = self
+            .owner(
+                "POST",
+                "/v1/worker-commands",
+                serde_json::to_value(&command).unwrap(),
+            )
+            .await;
+        assert_eq!(status, 200, "dispatch {receipt}");
+        command
+    }
+    async fn receipt(
+        &self,
+        worker: WorkerId,
+        id: CommandId,
+        predicate: impl Fn(&Value) -> bool,
+    ) -> Value {
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                let (status, receipt) = self
+                    .owner(
+                        "GET",
+                        &format!("/v1/workers/{worker}/receipts/{id}"),
+                        json!({}),
+                    )
+                    .await;
+                assert_eq!(status, 200);
+                if predicate(&receipt) {
+                    break receipt;
+                }
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
+        })
+        .await
+        .expect("receipt deadline")
+    }
+    async fn takeover(&self, session: &ComputerSession, owner: InputOwner) -> ComputerSession {
+        let (status, pending) = self
+            .owner(
+                "PUT",
+                &format!("/v1/computer-sessions/{}/owner", session.id),
+                json!({"owner":owner,"expected_revision":session.revision}),
+            )
+            .await;
+        assert_eq!(status, 200);
+        assert_eq!(pending["status"], "pending");
+        let confirmed = self.confirmed(session.id).await;
+        assert!(confirmed.revision > session.revision);
+        assert_eq!(confirmed.owner, owner);
+        confirmed
+    }
+}
+
+#[cfg(feature = "nonproduction-test-worker")]
+#[tokio::test]
+async fn confirmed_takeover_two_sessions_cancellation_and_results() {
+    let mut f = Fixture::new().await;
+    let grant = f.invitation(&f.worker, 600).await;
+    let enrolled = worker_http(
+        &f.worker,
+        "POST",
+        "/worker/v1/enroll",
+        json!({"invitation":grant["invitation"]}),
+    )
+    .await;
+    assert_eq!(enrolled.0, 201);
+    let worker: WorkerId = serde_json::from_value(enrolled.1["worker_id"].clone()).unwrap();
+    let a = f.create_session(worker, "A").await;
+    let b = f.create_session(worker, "B").await;
+    let state = f.root.path().join("test-agent");
+    fs::create_dir(&state).unwrap();
+    fs::set_permissions(&state, fs::Permissions::from_mode(0o700)).unwrap();
+    private(
+        &state.join("config.json"),
+        &serde_json::to_vec(&f.worker).unwrap(),
+    );
+    let mut daemon = launch(
+        Path::new(env!("CARGO_BIN_EXE_botstral-test-agent")),
+        &["run", "--state-dir", state.to_str().unwrap()],
+        f.root.path(),
+        "test-agent",
+    );
+    let ready = f.wait_phase("ready", 1).await;
+    let generation = Generation::try_from(ready["generation"].as_u64().unwrap()).unwrap();
+    let a = f.confirmed(a.id).await;
+    let b = f.confirmed(b.id).await;
+    let start_a = f
+        .command(
+            &a,
+            generation,
+            TaskId::new(),
+            CommandAction::Start {
+                work: WorkSpec::TestInput { steps: 1000 },
+            },
+        )
+        .await;
+    let start_b = f
+        .command(
+            &b,
+            generation,
+            TaskId::new(),
+            CommandAction::Start {
+                work: WorkSpec::TestInput { steps: 1000 },
+            },
+        )
+        .await;
+    f.receipt(worker, start_a.id, |v| {
+        v["last_event"]["applied"].as_u64().unwrap_or(0) >= 3
+    })
+    .await;
+    f.receipt(worker, start_b.id, |v| {
+        v["last_event"]["applied"].as_u64().unwrap_or(0) >= 3
+    })
+    .await;
+    let owner_a = f.takeover(&a, InputOwner::Owner).await;
+    let b_after = f.confirmed(b.id).await;
+    assert_eq!(b_after, b);
+    let a_status = f
+        .command(&owner_a, generation, start_a.task_id, CommandAction::Status)
+        .await;
+    let stopped_a = f
+        .receipt(worker, a_status.id, |v| {
+            v["last_event"]["status"] == "suspended"
+        })
+        .await;
+    let before_b = f.receipt(worker, start_b.id, |_| true).await["bot_inputs"]
+        .as_u64()
+        .unwrap();
+    f.receipt(worker, start_b.id, |v| {
+        v["bot_inputs"].as_u64().unwrap() > before_b + 2
+    })
+    .await;
+    let a_status = f
+        .command(&owner_a, generation, start_a.task_id, CommandAction::Status)
+        .await;
+    let still_stopped = f
+        .receipt(worker, a_status.id, |v| {
+            v["last_event"]["status"] == "suspended"
+        })
+        .await;
+    assert_eq!(
+        stopped_a["last_event"]["applied"],
+        still_stopped["last_event"]["applied"]
+    );
+    let mut stale = a.fence(generation);
+    stale.owner = InputOwner::Owner;
+    let refusal = f
+        .owner(
+            "POST",
+            "/v1/worker-input",
+            json!({"id":CommandId::new(),"fence":stale,"value":1}),
+        )
+        .await;
+    assert_eq!(refusal, (409, json!({"error":"stale_revision"})));
+    let owner_input = CommandId::new();
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-input",
+            json!({"id":owner_input,"fence":owner_a.fence(generation),"value":1})
+        )
+        .await
+        .0,
+        200
+    );
+    f.receipt(worker, owner_input, |v| {
+        v["acknowledgment"]["type"] == "applied"
+    })
+    .await;
+    let bot_a = f.takeover(&owner_a, InputOwner::Bot).await;
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-input",
+            json!({"id":CommandId::new(),"fence":owner_a.fence(generation),"value":1})
+        )
+        .await
+        .1["error"],
+        "stale_revision"
+    );
+    let cancel = f
+        .command(&b, generation, start_b.task_id, CommandAction::Cancel)
+        .await;
+    let cancelled = f
+        .receipt(worker, cancel.id, |v| {
+            v["last_event"]["type"] == "cancelled"
+        })
+        .await;
+    assert!(cancelled["last_event"]["applied"].as_u64().unwrap() < 1000);
+    let result = f
+        .command(&b, generation, start_b.task_id, CommandAction::Result)
+        .await;
+    let result = f
+        .receipt(worker, result.id, |v| {
+            v["last_event"]["status"] == "cancelled"
+        })
+        .await;
+    assert_eq!(
+        result["last_event"]["applied"],
+        cancelled["last_event"]["applied"]
+    );
+    let small = f
+        .command(
+            &bot_a,
+            generation,
+            TaskId::new(),
+            CommandAction::Start {
+                work: WorkSpec::TestInput { steps: 3 },
+            },
+        )
+        .await;
+    f.receipt(worker, small.id, |v| {
+        v["last_event"] == json!({"type":"completed","applied":3})
+    })
+    .await;
+    let result = f
+        .command(&bot_a, generation, small.task_id, CommandAction::Result)
+        .await;
+    f.receipt(worker, result.id, |v| {
+        v["last_event"] == json!({"type":"completed","applied":3})
+    })
+    .await;
+    let same = f
+        .owner(
+            "POST",
+            "/v1/worker-commands",
+            serde_json::to_value(&small).unwrap(),
+        )
+        .await;
+    assert_eq!(same.0, 200);
+    let mut changed = small.clone();
+    changed.action = CommandAction::Cancel;
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-commands",
+            serde_json::to_value(changed).unwrap()
+        )
+        .await
+        .1["error"],
+        "conflict"
+    );
+    daemon.stop().await;
+    f.wait_phase("disconnected", generation.get()).await;
+    let mut daemon = launch(
+        Path::new(env!("CARGO_BIN_EXE_botstral-test-agent")),
+        &["run", "--state-dir", state.to_str().unwrap()],
+        f.root.path(),
+        "test-agent-reconnect",
+    );
+    let ready = f.wait_phase("ready", generation.get() + 1).await;
+    let new_generation = Generation::try_from(ready["generation"].as_u64().unwrap()).unwrap();
+    let new_a = f.confirmed(a.id).await;
+    assert!(new_a.revision > bot_a.revision);
+    assert_eq!(
+        f.owner(
+            "POST",
+            "/v1/worker-commands",
+            serde_json::to_value(small.clone()).unwrap()
+        )
+        .await
+        .1["error"],
+        "stale_generation"
+    );
+    let missing = f
+        .command(&new_a, new_generation, small.task_id, CommandAction::Result)
+        .await;
+    f.receipt(worker, missing.id, |v| {
+        v["acknowledgment"] == json!({"type":"rejected","code":"unknown_task"})
+    })
+    .await;
+    f.manager.stop().await;
+    daemon.stop().await;
+}
+
+#[cfg(feature = "nonproduction-test-worker")]
+#[tokio::test]
+async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
+    use std::sync::Arc;
+    let mut f = Fixture::new().await;
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let verifier = rustls::server::WebPkiClientVerifier::builder_with_provider(
+        Arc::new(tls::roots(&f.worker.manager_ca).unwrap()),
+        provider.clone(),
+    )
+    .build()
+    .unwrap();
+    let config = rustls::ServerConfig::builder_with_provider(provider)
+        .with_safe_default_protocol_versions()
+        .unwrap()
+        .with_client_cert_verifier(verifier)
+        .with_single_cert(
+            tls::certificates(&f.root.path().join("server.pem")).unwrap(),
+            tls::private_key(&f.root.path().join("server.key")).unwrap(),
+        )
+        .unwrap();
+    let acceptor = tokio_rustls::TlsAcceptor::from(Arc::new(config));
+    let state = f.root.path().join("probe-agent");
+    fs::create_dir(&state).unwrap();
+    fs::set_permissions(&state, fs::Permissions::from_mode(0o700)).unwrap();
+    let mut client = f.worker.clone();
+    client.manager = format!("wss://localhost:{}", listener.local_addr().unwrap().port());
+    private(
+        &state.join("config.json"),
+        &serde_json::to_vec(&client).unwrap(),
+    );
+    let mut daemon = launch(
+        Path::new(env!("CARGO_BIN_EXE_botstral-test-agent")),
+        &["run", "--state-dir", state.to_str().unwrap()],
+        f.root.path(),
+        "probe-agent",
+    );
+    let stream = tokio::time::timeout(Duration::from_secs(5), listener.accept())
+        .await
+        .unwrap()
+        .unwrap()
+        .0;
+    let stream = acceptor.accept(stream).await.unwrap();
+    let mut socket = tokio_tungstenite::accept_async(stream).await.unwrap();
+    async fn send_probe(
+        socket: &mut WebSocketStream<tokio_rustls::server::TlsStream<TcpStream>>,
+        message: ManagerMessage,
+    ) {
+        socket
+            .send(Message::Text(
+                serde_json::to_string(&Envelope::new(message))
+                    .unwrap()
+                    .into(),
+            ))
+            .await
+            .unwrap();
+    }
+    async fn report(
+        socket: &mut WebSocketStream<tokio_rustls::server::TlsStream<TcpStream>>,
+    ) -> Envelope<WorkerMessage> {
+        loop {
+            let Message::Text(text) = tokio::time::timeout(Duration::from_secs(5), socket.next())
+                .await
+                .unwrap()
+                .unwrap()
+                .unwrap()
+            else {
+                panic!("text report")
+            };
+            let envelope = decode::<WorkerMessage>(text.as_bytes()).unwrap();
+            if !matches!(envelope.message, WorkerMessage::Heartbeat { .. }) {
+                return envelope;
+            }
+        }
+    }
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::Hello(_)
+    ));
+    let generation = Generation::INITIAL.advance().unwrap();
+    let worker = WorkerId::new();
+    let a = ComputerSession {
+        id: ComputerSessionId::new(),
+        bot_id: BotId::new(),
+        worker_id: worker,
+        owner: InputOwner::Bot,
+        revision: Revision::INITIAL,
+        status: ControlStatus::Pending,
+    };
+    send_probe(
+        &mut socket,
+        ManagerMessage::Welcome {
+            worker_id: worker,
+            generation,
+            sessions: vec![a.clone()],
+        },
+    )
+    .await;
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::SnapshotApplied { .. }
+    ));
+    let start = botstral_link::Command {
+        id: CommandId::new(),
+        task_id: TaskId::new(),
+        fence: a.fence(generation),
+        action: CommandAction::Start {
+            work: WorkSpec::TestInput { steps: 10 },
+        },
+    };
+    send_probe(&mut socket, ManagerMessage::Command(start.clone())).await;
+    let queued = loop {
+        let report = report(&mut socket).await;
+        if matches!(report.message, WorkerMessage::BotInput { .. }) {
+            break report;
+        }
+    };
+    let mut owned = a.clone();
+    owned.owner = InputOwner::Owner;
+    owned.revision = owned.revision.advance().unwrap();
+    send_probe(
+        &mut socket,
+        ManagerMessage::Control {
+            generation,
+            session: owned.clone(),
+        },
+    )
+    .await;
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::ControlApplied { .. }
+    ));
+    socket
+        .send(Message::Text(
+            serde_json::to_string(&Envelope {
+                version: VERSION,
+                request_id: queued.request_id,
+                message: ManagerMessage::Receipt {
+                    command_id: start.id,
+                    outcome: Acknowledgment::Accepted,
+                },
+            })
+            .unwrap()
+            .into(),
+        ))
+        .await
+        .unwrap();
+    let status = botstral_link::Command {
+        id: CommandId::new(),
+        task_id: start.task_id,
+        fence: owned.fence(generation),
+        action: CommandAction::Status,
+    };
+    send_probe(&mut socket, ManagerMessage::Command(status)).await;
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::Acknowledgment { .. }
+    ));
+    assert!(matches!(
+        report(&mut socket).await.message,
+        WorkerMessage::Event {
+            event: TaskEvent::Status {
+                status: TaskStatus::Suspended,
+                applied: 0
+            },
+            ..
+        }
+    ));
+    for (fence, code) in [
+        (a.fence(generation), ErrorCode::StaleRevision),
+        (owned.fence(Generation::INITIAL), ErrorCode::StaleGeneration),
+    ] {
+        send_probe(
+            &mut socket,
+            ManagerMessage::Input {
+                command_id: CommandId::new(),
+                fence,
+                value: 1,
+            },
+        )
+        .await;
+        assert!(
+            matches!(report(&mut socket).await.message, WorkerMessage::Acknowledgment { outcome: Acknowledgment::Rejected { code: received }, .. } if received == code)
+        );
+    }
+    daemon.stop().await;
+    f.manager.stop().await;
 }

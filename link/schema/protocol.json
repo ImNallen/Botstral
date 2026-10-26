@@ -751,6 +751,7 @@
       "type": "string",
       "enum": [
         "running",
+        "suspended",
         "completed",
         "cancelled",
         "failed"

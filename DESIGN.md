@@ -2,7 +2,7 @@
 
 Version v0.3. October 2026.
 
-Status. Product design. M01 has an implemented and locally verified manager foundation. Later milestones remain planned.
+Status. Product design. M01 has a locally verified manager foundation. M02 has locally verified worker transport and logical session ownership. Two-VM acceptance remains open. Durable tasks and real desktop execution remain later milestones.
 
 Author. Adam Nilsson. Personal, non-commercial project.
 
@@ -219,7 +219,7 @@ Prefer Manager-mediated inference for Vibe where compatible. Document any provid
 
 ## 5a. Connectivity
 
-- The Manager exposes one TLS listener for the WSS control protocol. Desktop and worker connections use framed JSON requests and events with correlation identifiers and protocol versions. Later mobile clients reuse that protocol.
+- M02 exposes a dedicated mutual TLS worker listener alongside the M01 loopback owner and setup listeners. Worker messages use framed JSON with correlation identifiers and protocol versions. Desktop and mobile transport remains later work. See [the worker protocol](docs/worker-protocol.md).
 - `botstral-link` defines shared protocol schemas and Rust and TypeScript bindings. Use established networking components for TLS and WebSockets. Model APIs, notifications, updates, and future voice media have their own connections.
 - Device enrollment uses an expiring, single-use invitation bound to the Manager identity and device role. A QR code can carry that information. A short-code flow also requires trusted Manager confirmation and attempt limits.
 - Pairing establishes the Manager's certificate identity. Define certificate rotation and recovery without silently discarding the pin.

@@ -273,7 +273,7 @@ impl IntoResponse for ApiError {
 impl From<OperationError> for ApiError {
     fn from(error: OperationError) -> Self {
         match error {
-            OperationError::Protocol(_) => Self(StatusCode::CONFLICT, "worker_error"),
+            OperationError::Protocol(code) => Self(StatusCode::CONFLICT, code.as_str()),
             OperationError::InvalidInput => Self(StatusCode::BAD_REQUEST, "invalid_input"),
             OperationError::Unauthorized => Self(StatusCode::UNAUTHORIZED, "unauthorized"),
             OperationError::NotFound => Self(StatusCode::NOT_FOUND, "not_found"),

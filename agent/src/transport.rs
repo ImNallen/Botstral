@@ -1,4 +1,4 @@
-use crate::{Config, session::Sessions};
+use crate::{Config, session::Runtime};
 use botstral_link::{tls, *};
 use futures_util::{SinkExt, StreamExt};
 use http_body_util::{BodyExt, Full, Limited};
@@ -181,7 +181,8 @@ async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Resul
     else {
         return Err(io::Error::other("negotiation refused"));
     };
-    let mut sessions = Sessions::new(generation, sessions, worker_id).map_err(io::Error::other)?;
+    let mut runtime =
+        Runtime::new(generation, sessions, worker_id, test_worker).map_err(io::Error::other)?;
     send(
         &mut socket,
         welcome.request_id,
@@ -192,6 +193,7 @@ async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Resul
     if once {
         return Ok(());
     }
+    let mut ticks = tokio::time::interval(Duration::from_millis(20));
     let mut heartbeat = tokio::time::interval(Duration::from_secs(10));
     let idle = tokio::time::sleep(Duration::from_secs(30));
     tokio::pin!(idle);
@@ -201,23 +203,12 @@ async fn connection(config: &Config, test_worker: bool, once: bool) -> io::Resul
             message = receive(&mut socket) => {
                 let message = message?;
                 idle.as_mut().reset(tokio::time::Instant::now() + Duration::from_secs(30));
-                let report = match message.message {
-                    ManagerMessage::Control { generation, session } => {
-                        let fence = sessions.control(generation, session).map_err(io::Error::other)?;
-                        WorkerMessage::ControlApplied { fence }
-                    }
-                    ManagerMessage::Command(command) => {
-                        let code = sessions.check(command.fence).err().unwrap_or(ErrorCode::UnsupportedExecution);
-                        WorkerMessage::Acknowledgment { generation, command_id: command.id, outcome: Acknowledgment::Rejected { code } }
-                    }
-                    ManagerMessage::Input { command_id, fence, .. } => {
-                        let code = sessions.check(fence).err().unwrap_or(ErrorCode::UnsupportedExecution);
-                        WorkerMessage::Acknowledgment { generation, command_id, outcome: Acknowledgment::Rejected { code } }
-                    }
-                    ManagerMessage::Pong | ManagerMessage::Receipt { .. } => continue,
-                    _ => return Err(io::Error::other("unexpected manager message")),
-                };
-                send(&mut socket, message.request_id, report).await?;
+                for report in runtime.handle(message).map_err(io::Error::other)? {
+                    send(&mut socket, report.request_id, report.message).await?;
+                }
+            }
+            _ = ticks.tick(), if runtime.has_executor() => {
+                for report in runtime.tick() { send(&mut socket, report.request_id, report.message).await?; }
             }
             _ = &mut idle => return Err(io::Error::other("manager idle")),
             _ = heartbeat.tick() => { send(&mut socket, RequestId::new(), WorkerMessage::Heartbeat { generation }).await?; }
