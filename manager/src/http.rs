@@ -1,3 +1,5 @@
+mod workers;
+
 use crate::{LocalState, manager::*};
 use age::secrecy::SecretString;
 use axum::{
@@ -26,6 +28,15 @@ pub async fn serve(
     listen: SocketAddr,
     setup_listen: SocketAddr,
 ) -> io::Result<()> {
+    serve_with_worker(local, listen, setup_listen, None).await
+}
+
+pub async fn serve_with_worker(
+    local: LocalState,
+    listen: SocketAddr,
+    setup_listen: SocketAddr,
+    worker_tls: Option<crate::WorkerTls>,
+) -> io::Result<()> {
     if !listen.ip().is_loopback() || !setup_listen.ip().is_loopback() {
         return Err(io::Error::other("unsafe bind"));
     }
@@ -40,7 +51,7 @@ pub async fn serve(
         setup,
         thread,
     } = runtime;
-    let result = listeners(&local, manager, setup, listen, setup_listen).await;
+    let result = listeners(&local, manager, setup, listen, setup_listen, worker_tls).await;
     let joined = tokio::task::spawn_blocking(move || {
         thread.join().map_err(|_| io::Error::other("state stopped"))
     })
@@ -54,6 +65,7 @@ pub async fn serve(
 struct Listeners {
     listen: SocketAddr,
     setup: Option<SocketAddr>,
+    worker: Option<SocketAddr>,
 }
 
 async fn listeners(
@@ -62,6 +74,7 @@ async fn listeners(
     setup: Option<LocalSetup>,
     listen: SocketAddr,
     setup_listen: SocketAddr,
+    worker_tls: Option<crate::WorkerTls>,
 ) -> io::Result<()> {
     let mut terminate = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     let mut interrupt = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
@@ -71,7 +84,15 @@ async fn listeners(
     } else {
         None
     };
+    let worker_listener = match worker_tls {
+        Some(config) => Some(crate::worker_http::WorkerListener::bind(config).await?),
+        None => None,
+    };
     let mut addresses = Listeners {
+        worker: worker_listener
+            .as_ref()
+            .map(crate::worker_http::WorkerListener::local_addr)
+            .transpose()?,
         listen: regular_listener.local_addr()?,
         setup: setup_listener
             .as_ref()
@@ -81,6 +102,9 @@ async fn listeners(
     local.write("listeners.json", &serde_json::to_vec(&addresses)?)?;
     let (stop, stopped) = watch::channel(false);
     let mut tasks = JoinSet::new();
+    if let Some(listener) = worker_listener {
+        tasks.spawn(listener.serve(manager.clone(), stopped.clone()));
+    }
     tasks.spawn(serve_listener(
         regular_listener,
         regular_router(manager),
@@ -206,6 +230,7 @@ async fn browser_boundary(State(host): State<String>, request: Request, next: Ne
 
 fn regular_router(manager: Manager) -> Router {
     Router::new()
+        .merge(workers::router())
         .route(
             "/health",
             get(|| async { Json(serde_json::json!({"status":"ok"})) }),
@@ -248,6 +273,7 @@ impl IntoResponse for ApiError {
 impl From<OperationError> for ApiError {
     fn from(error: OperationError) -> Self {
         match error {
+            OperationError::Protocol(code) => Self(StatusCode::CONFLICT, code.as_str()),
             OperationError::InvalidInput => Self(StatusCode::BAD_REQUEST, "invalid_input"),
             OperationError::Unauthorized => Self(StatusCode::UNAUTHORIZED, "unauthorized"),
             OperationError::NotFound => Self(StatusCode::NOT_FOUND, "not_found"),

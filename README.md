@@ -1,10 +1,10 @@
 # Botstral
 
-Botstral is a self-hosted bot manager built around Mistral-developed models. Its first milestone runs locally and retains one owner's bots and encrypted provider credentials. Model execution and native apps follow later.
+Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Model execution and native apps follow later.
 
 ## Repository layout
 
-`manager/` contains the implemented manager. Planned components are `agent/` for bot execution, `link/` for shared schemas and Rust and TypeScript bindings, and `desktop/` and `mobile/` for native apps. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
+`manager/` contains the manager, `agent/` contains the worker daemon, and `link/` contains shared schemas and Rust bindings. TypeScript bindings, `desktop/`, and `mobile/` follow later. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
 
 ## Run the manager
 
@@ -15,7 +15,7 @@ make verify
 make dev
 ```
 
-Verification uses synthetic credentials and real TCP connections. Development starts the regular listener at `127.0.0.1:43120` and temporary setup at `127.0.0.1:43121`.
+Verification uses synthetic credentials, actual binaries over TCP and mutual TLS WebSockets, and separate production and test-worker builds. Development starts the regular listener at `127.0.0.1:43120` and temporary setup at `127.0.0.1:43121`.
 
 Use the [local API reference and protected input example](docs/local-api.md) to create the owner, sign in, and create a bot. The bootstrap capability is in `.state/bootstrap.token` until setup completes. Keep credentials out of command arguments and environment variables.
 
@@ -28,4 +28,4 @@ make build
 
 Stop the manager with Control-C. Its SQLite database and encrypted credentials remain in `.state`. The [M01 architecture](docs/m01-architecture.md) records ownership, interfaces, verification, and design reconciliation.
 
-See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. One manager and a separate Computer VM remain the product target. M01 has no worker, inference, pairing, remote access, or native client.
+See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records local verification and remaining gaps. Actual two-VM acceptance is pending. Production work execution, owner-device pairing, remote access, and native clients remain later work.

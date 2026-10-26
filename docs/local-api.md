@@ -2,7 +2,7 @@
 
 M01 accepts HTTP/1.1 on literal loopback addresses. Defaults are `127.0.0.1:43120` for ordinary operations and `127.0.0.1:43121` for first-owner setup. `--listen` and `--setup-listen` accept literal IPv4 or IPv6 loopback socket addresses, including port zero for automatic allocation. Hostnames and non-loopback addresses are rejected.
 
-`--state-dir` defaults to `.state`. The parent directory must already exist. Private `listeners.json` records bound addresses as `{"listen":"127.0.0.1:43120","setup":"127.0.0.1:43121"}`. `setup` becomes `null` after its listener closes. The file is removed on graceful shutdown.
+`--state-dir` defaults to `.state`. The parent directory must already exist. Private `listeners.json` records bound addresses as `{"listen":"127.0.0.1:43120","setup":"127.0.0.1:43121"}`. `setup` becomes `null` after its listener closes. M02 adds `worker`, which is `null` unless the separate TLS listener is configured. The file is removed on graceful shutdown.
 
 ## Request rules
 
@@ -78,7 +78,7 @@ Provider metadata contains exactly `provider` and `updated_at`. There is no valu
 }
 ```
 
-`provider` is `null` before entry. `vault` is `locked` or `unlocked`. Metadata makes no claim that a provider connection works.
+`provider` is `null` before entry. `vault` is `locked` or `unlocked`. Metadata makes no claim that a provider connection works. The worker marker is retained for M01 compatibility. Use [the M02 worker methods](worker-protocol.md#owner-methods) for current worker state and session operations.
 
 ## Errors and admission
 

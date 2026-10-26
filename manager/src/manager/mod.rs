@@ -1,5 +1,7 @@
 mod crypto;
 mod state;
+mod workers;
+pub use workers::*;
 
 use age::secrecy::{ExposeSecret, SecretString};
 use std::{path::PathBuf, sync::Arc, thread};
@@ -17,6 +19,7 @@ pub enum OperationError {
     RateLimited,
     Busy,
     Internal,
+    Protocol(botstral_link::ErrorCode),
 }
 
 macro_rules! secret_input {
@@ -63,8 +66,7 @@ macro_rules! name_input {
 name_input!(OwnerName);
 name_input!(BotName);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct BotId(pub Uuid);
+pub use botstral_link::BotId;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SessionId(pub Uuid);
 
@@ -365,11 +367,37 @@ mod tests {
                 .await,
             Err(OperationError::Busy)
         );
-        release_tx.send(()).unwrap();
-        blocker.await.unwrap().unwrap();
+        let (waited, outcome) = {
+            let gateway = manager.worker_gateway();
+            let delivery = gateway.admit_delivery(
+                ConnectionLease {
+                    worker: botstral_link::WorkerId::new(),
+                    generation: botstral_link::Generation::INITIAL,
+                },
+                botstral_link::ManagerMessage::Pong,
+            );
+            tokio::pin!(delivery);
+            let early =
+                tokio::time::timeout(std::time::Duration::from_millis(20), &mut delivery).await;
+            let waited = early.is_err();
+            release_tx.send(()).unwrap();
+            blocker.await.unwrap().unwrap();
+            let outcome = match early {
+                Ok(outcome) => outcome,
+                Err(_) => delivery.await,
+            };
+            (waited, outcome)
+        };
         while let Some(result) = pending.join_next().await {
             assert_eq!(result.unwrap(), Err(OperationError::Unauthorized));
         }
+        assert!(waited, "delivery bypassed queue admission with {outcome:?}");
+        assert_eq!(
+            outcome,
+            Err(OperationError::Protocol(
+                botstral_link::ErrorCode::Disconnected
+            ))
+        );
         assert_eq!(
             manager
                 .owner(SessionToken::new("x".repeat(43)).unwrap())
