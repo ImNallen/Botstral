@@ -149,8 +149,9 @@ impl Queue {
         let (reply, receive) = oneshot::channel();
         self.sender
             .try_send(Box::new(move |state| {
-                let _permit = permit;
-                let _ = reply.send(operation(state));
+                let result = operation(state);
+                drop(permit);
+                let _ = reply.send(result);
             }))
             .map_err(|_| OperationError::Busy)?;
         receive.await.map_err(|_| OperationError::Internal)?
@@ -317,6 +318,68 @@ impl LocalSetup {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn credential_admission_is_released_before_completion_wakes_the_caller() {
+        use std::{
+            future::Future,
+            sync::atomic::{AtomicUsize, Ordering},
+            task::{Context, Wake, Waker},
+        };
+        struct AdmissionWake {
+            credential: Arc<Semaphore>,
+            observed: AtomicUsize,
+        }
+        impl Wake for AdmissionWake {
+            fn wake(self: Arc<Self>) {
+                self.observed
+                    .store(self.credential.available_permits(), Ordering::SeqCst);
+            }
+        }
+        let temp = tempfile::tempdir().unwrap();
+        let local = crate::LocalState::open(&temp.path().join("state")).unwrap();
+        let Runtime {
+            manager,
+            setup,
+            thread,
+        } = Manager::start(local.directory().to_owned()).unwrap();
+        let observer = Arc::new(AdmissionWake {
+            credential: manager.queue.credential.clone(),
+            observed: AtomicUsize::new(usize::MAX),
+        });
+        let waker = Waker::from(observer.clone());
+        let (entered_tx, entered_rx) = oneshot::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let mut call = Box::pin(manager.queue.call(true, move |_| {
+            entered_tx.send(()).unwrap();
+            release_rx.recv().unwrap();
+            Ok(())
+        }));
+        assert!(
+            call.as_mut()
+                .poll(&mut Context::from_waker(&waker))
+                .is_pending()
+        );
+        entered_rx.await.unwrap();
+        release_tx.send(()).unwrap();
+        tokio::time::timeout(std::time::Duration::from_secs(2), async {
+            while observer.observed.load(Ordering::SeqCst) == usize::MAX {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            observer.observed.load(Ordering::SeqCst),
+            1,
+            "completed credential work still holds admission when its caller wakes"
+        );
+        call.await.unwrap();
+        drop(observer);
+        drop(manager);
+        drop(setup);
+        thread.join().unwrap();
+    }
 
     #[tokio::test]
     async fn queue_saturation_and_credential_admission_are_bounded() {
