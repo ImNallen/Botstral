@@ -24,6 +24,28 @@ BASE = "/home/botstral/m02-acceptance"
 PASSWORD = "synthetic M02 owner password"
 VAULT = "synthetic M02 vault passphrase"
 TIMEOUT = 10
+REQUIRED_CHECKS = {
+    "production." + name for name in (
+        "private_fixture_and_manager", "separate_hosts_and_binary_hashes",
+        "enrollment_identity_mismatch", "invitation_expiry", "actual_cli_enrollment_and_replay",
+        "tls_certificate_boundaries", "tls.wrong_ca", "tls.wrong_hostname", "tls.wrong_client",
+        "tls.expired_client", "owner_routes_absent_from_worker_tls", "invitations_are_not_owner_auth",
+        "forbidden_variants_explicitly_invalid", "negotiation_rejections_leave_generation_zero",
+        "daemon_ready_stop_reconnect", "production_execution_refused_by_receipts",
+        "revocation_closes_active_and_rejects_future",
+    )
+} | {
+    "test." + name for name in (
+        "private_fixture_and_manager", "separate_hosts_and_binary_hashes",
+        "test_worker_enrollment_and_two_sessions", "both_sessions_apply_input",
+        "confirmed_takeover_pauses_only_A", "stale_input_rejected_and_current_input_applied",
+        "cancellation_and_result_counts", "small_task_completes_exactly_three",
+        "command_idempotency_and_conflict", "reconnect_advances_generation_and_revisions",
+    )
+} | {
+    phase + "." + name for phase in ("production", "test")
+    for name in ("permissions.manager", "permissions.worker", "state_redaction.manager", "state_redaction.worker")
+}
 
 
 class CheckFailure(Exception):
@@ -391,9 +413,8 @@ def production(f, certificates):
         require(f.worker_http("GET", "/v1/owner")["status"] == 404, "valid mTLS baseline failed")
         probes = [("wrong_ca", {**f.tls_options(), "ca": f.worker.root + "/certs/wrong-ca.pem"}),
                   ("wrong_hostname", {**f.tls_options(), "hostname": "wrong.example"}),
-                  ("wrong_client", f.tls_options("wrong-client"))]
-        if "expired.pem" in certificates:
-            probes.append(("expired_client", f.tls_options("expired")))
+                  ("wrong_client", f.tls_options("wrong-client")),
+                  ("expired_client", f.tls_options("expired"))]
         for name, options in probes:
             with f.check("tls." + name) as details:
                 evidence = f.worker.call("tls_rejection", **options)
@@ -407,8 +428,6 @@ def production(f, certificates):
                     require(evidence["reason"] in ("TLSV1_ALERT_UNKNOWN_CA", "SSLV3_ALERT_BAD_CERTIFICATE",
                             "SSLV3_ALERT_CERTIFICATE_EXPIRED", "TLSV1_ALERT_CERTIFICATE_EXPIRED",
                             "SSLV3_ALERT_CERTIFICATE_UNKNOWN"), "expected client certificate alert")
-        if "expired.pem" not in certificates:
-            record("production.tls.expired_client", "not_run", "Parent supplied no expired certificate pair.")
     with f.check("owner_routes_absent_from_worker_tls"):
         paths = ["/v1/owner", "/v1/sessions", "/v1/bots", "/v1/status", "/v1/vault/unlock",
                  "/v1/vault/lock", "/v1/provider-keys/mistral", "/v1/worker-invitations",
@@ -536,7 +555,11 @@ def test_sessions(f, certificates):
         f.receipt(result, lambda value: value.get("last_event") == completed)
         details.update(terminal_event=completed, result_event=completed)
     with f.check("command_idempotency_and_conflict"):
-        f.owner("POST", "/v1/worker-commands", small)
+        original = f.receipt(small, lambda value: value.get("last_event") == completed)
+        repeated = f.owner("POST", "/v1/worker-commands", small)
+        require(repeated == original, "identical retry did not return the original receipt")
+        result = f.command(bot_a, {"type": "result"}, small["task_id"])
+        f.receipt(result, lambda value: value.get("last_event") == completed)
         response = f.owner("POST", "/v1/worker-commands", {**small, "action": {"type": "cancel"}}, status=409)
         require(response == {"error": "conflict"}, "changed duplicate command did not conflict")
     with f.check("reconnect_advances_generation_and_revisions") as details:
@@ -571,6 +594,10 @@ def main():
     run_id = identifier()
     output = args.output_dir / run_id
     output.mkdir(mode=0o700, parents=True)
+    sources = ("m02_two_vm.py", "m02_remote.py")
+    private_json(output / "runner-manifest.json", {
+        name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in sources
+    })
     roots = []
     try:
         require(args.manager_ssh != args.worker_ssh, "manager and worker SSH aliases must differ")
@@ -578,11 +605,7 @@ def main():
                 "SSH aliases cannot be options")
         socket_address = str(ipaddress.IPv4Address(args.manager_address)) + ":43122"
         names = ["ca.pem", "manager.pem", "manager.key", "worker.pem", "worker.key", "other.pem",
-                 "other.key", "wrong-ca.pem", "wrong-client.pem", "wrong-client.key"]
-        expired = [(args.cert_dir / name).is_file() for name in ("expired.pem", "expired.key")]
-        require(expired[0] == expired[1], "expired certificate and key must be supplied together")
-        if all(expired):
-            names += ["expired.pem", "expired.key"]
+                 "other.key", "wrong-ca.pem", "wrong-client.pem", "wrong-client.key", "expired.pem", "expired.key"]
         certificates = {name: (args.cert_dir / name).read_text() for name in names}
         for phase, exercise in (("production", production), ("test", test_sessions)):
             root = BASE + "/runs/" + run_id + "/" + phase
@@ -593,9 +616,8 @@ def main():
             try:
                 setup(fixture, certificates)
                 exercise(fixture, certificates)
-            except Exception:
-                record(phase + ".remaining_contract", "not_run",
-                       "Checks after the failed prerequisite were not run.")
+            except Exception as error:
+                record(phase + ".remaining_contract", "failed", type(error).__name__)
             finally:
                 fixture.finish()
         for name in ("socket_permit_limit", "silent_and_malformed_frames", "concurrent_invitation_redemption",
@@ -603,6 +625,9 @@ def main():
             record("remaining." + name, "not_run", "Outside this two-VM iteration; requires separate coverage.")
     except (Exception, KeyboardInterrupt) as error:
         record("runner", "failed", str(error) if isinstance(error, CheckFailure) else type(error).__name__)
+    passed_names = {result["name"] for result in RESULTS if result["status"] == "passed"}
+    missing = sorted(REQUIRED_CHECKS - passed_names)
+    record("required_contract", "failed" if missing else "passed", {"missing": missing})
     summary = {"run_id": run_id, "status": "failed" if any(result["status"] == "failed" for result in RESULTS)
                else "passed", "passed": sum(result["status"] == "passed" for result in RESULTS),
                "failed": sum(result["status"] == "failed" for result in RESULTS),

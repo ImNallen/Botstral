@@ -1,23 +1,160 @@
 {
-  "recorded_at_utc": "2026-10-26T16:23:32.731167+00:00",
+  "recorded_at_utc": "2026-10-26T16:47:31.167023+00:00",
   "application_commit": "e4d10c023ccd511c444faebff6b0b8fdf7fc5a06",
+  "runner_sha256": {
+    "m02_two_vm.py": "9f509894a599ef62fccbd58b59352f973303c330c8f393c33bc240d28f9cd014",
+    "m02_remote.py": "f3278d2f147081db3dc2ba31a9f6353e6bf5f9f1c5dc941bfa42212e8c609ab3",
+    "m02_daemon_probe.py": "57f67ae5491cf1425516337acf650175899a60fa0bb407be22561434647ebdb8",
+    "m02_daemon_probe.sh": "7e72dc3eee8b9597ba3f95e6df6448f884ee5e904c132327b0bbfa94770bf87d"
+  },
   "hosts": {
     "manager": {
-      "proxmox_vmid": 100,
-      "address": "192.168.1.40",
-      "os": "Ubuntu 24.04.5 LTS"
+      "hostname": "botstral-manager",
+      "kernel": "6.8.0-147-generic",
+      "operating_system": "Ubuntu 24.04.5 LTS",
+      "cpus": 4,
+      "memory_kib": 8131764,
+      "root_disk_bytes": 137438953472,
+      "fixture_units": [],
+      "listening_tcp": [
+        "127.0.0.54:53",
+        "0.0.0.0:22",
+        "127.0.0.53%lo:53",
+        "[::]:22"
+      ]
     },
     "worker": {
-      "proxmox_vmid": 101,
-      "address": "192.168.1.235",
-      "os": "Ubuntu 24.04.5 LTS"
+      "hostname": "botstral-computer",
+      "kernel": "6.8.0-147-generic",
+      "operating_system": "Ubuntu 24.04.5 LTS",
+      "cpus": 12,
+      "memory_kib": 32864688,
+      "root_disk_bytes": 549755813888,
+      "fixture_units": [],
+      "listening_tcp": [
+        "0.0.0.0:22",
+        "127.0.0.54:53",
+        "127.0.0.53%lo:53",
+        "[::]:22"
+      ]
+    }
+  },
+  "proxmox_resources": [
+    {
+      "cpu": 0.00247547252483674,
+      "disk": 0,
+      "diskread": 406198882,
+      "diskwrite": 256417792,
+      "id": "qemu/100",
+      "maxcpu": 4,
+      "maxdisk": 137438953472,
+      "maxmem": 8589934592,
+      "mem": 2271686656,
+      "memhost": 2271686656,
+      "name": "botstral-manager",
+      "netin": 105432721,
+      "netout": 3791476,
+      "node": "pve",
+      "status": "running",
+      "tags": "botstral",
+      "template": 0,
+      "type": "qemu",
+      "uptime": 3042,
+      "vmid": 100
+    },
+    {
+      "cpu": 0.000907673259106804,
+      "disk": 0,
+      "diskread": 452164706,
+      "diskwrite": 7087706112,
+      "id": "qemu/101",
+      "maxcpu": 12,
+      "maxdisk": 549755813888,
+      "maxmem": 34359738368,
+      "mem": 10421739520,
+      "memhost": 10421739520,
+      "name": "botstral-computer",
+      "netin": 267900765,
+      "netout": 103812787,
+      "node": "pve",
+      "status": "running",
+      "tags": "botstral",
+      "template": 0,
+      "type": "qemu",
+      "uptime": 3038,
+      "vmid": 101
+    },
+    {
+      "cgroup-mode": 2,
+      "cpu": 0.000805028330804719,
+      "disk": 13376360448,
+      "id": "node/pve",
+      "level": "",
+      "maxcpu": 32,
+      "maxdisk": 100861726720,
+      "maxmem": 98776387584,
+      "mem": 15740694528,
+      "node": "pve",
+      "status": "online",
+      "type": "node",
+      "uptime": 625810
+    },
+    {
+      "content": "images,rootdir",
+      "disk": 31947968269,
+      "id": "storage/pve/local-lvm",
+      "maxdisk": 1836090130432,
+      "node": "pve",
+      "plugintype": "lvmthin",
+      "shared": 0,
+      "status": "available",
+      "storage": "local-lvm",
+      "type": "storage"
+    },
+    {
+      "content": "iso,vztmpl,backup,import,snippets",
+      "disk": 13376360448,
+      "id": "storage/pve/local",
+      "maxdisk": 100861726720,
+      "node": "pve",
+      "plugintype": "dir",
+      "shared": 0,
+      "status": "available",
+      "storage": "local",
+      "type": "storage"
+    },
+    {
+      "id": "network/pve/zone/localnetwork",
+      "network": "localnetwork",
+      "network-type": "zone",
+      "node": "pve",
+      "status": "ok",
+      "type": "network"
+    }
+  ],
+  "proxmox_configurations": {
+    "manager": {
+      "vmid": 100,
+      "name": "botstral-manager",
+      "cores": 4,
+      "memory": "8192",
+      "scsi0": "local-lvm:vm-100-disk-0,discard=on,iothread=1,size=128G,ssd=1",
+      "net0": "virtio=BC:24:11:90:C1:03,bridge=vmbr0"
+    },
+    "worker": {
+      "vmid": 101,
+      "name": "botstral-computer",
+      "cores": 12,
+      "memory": "32768",
+      "scsi0": "local-lvm:vm-101-disk-0,discard=on,iothread=1,size=512G,ssd=1",
+      "net0": "virtio=BC:24:11:B9:E3:5C,bridge=vmbr0"
     }
   },
   "two_vm": {
     "summary": {
-      "run_id": "bcf2c2ac-a7fb-497d-a59d-84143be5065b",
+      "run_id": "196630e8-937e-43c9-894f-8f19fbf2edcf",
       "status": "passed",
-      "passed": 46,
+      "passed": 47,
       "failed": 0,
       "not_run": 5
     },
@@ -135,7 +272,7 @@
         "name": "production.daemon_ready_stop_reconnect",
         "status": "passed",
         "details": {
-          "worker_id": "a564c9ed-d51e-43e4-b8ff-fb2a359d618e",
+          "worker_id": "4683a326-d07d-4d32-afe7-58bc89d8f810",
           "first_generation": 1,
           "generation": 2
         }
@@ -151,12 +288,12 @@
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "production.shutdown.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-agent-reconnect.service",
+        "name": "production.shutdown.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent-reconnect.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "production.shutdown.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-manager.service",
+        "name": "production.shutdown.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-manager.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
@@ -191,22 +328,22 @@
         }
       },
       {
-        "name": "production.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-manager.service",
+        "name": "production.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-manager.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "production.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-enroll.service",
+        "name": "production.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-enroll.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "production.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-agent.service",
+        "name": "production.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "production.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-production-agent-reconnect.service",
+        "name": "production.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-production-agent-reconnect.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
@@ -252,7 +389,7 @@
         "name": "test.both_sessions_apply_input",
         "status": "passed",
         "details": {
-          "applied_a": 7,
+          "applied_a": 8,
           "applied_b": 8
         }
       },
@@ -260,14 +397,14 @@
         "name": "test.confirmed_takeover_pauses_only_A",
         "status": "passed",
         "details": {
-          "paused_a_before": 16,
-          "paused_a_after": 16,
+          "paused_a_before": 18,
+          "paused_a_after": 18,
           "applied_b_before": 34,
           "applied_b_after": 38,
           "session_b": {
-            "id": "25649d3c-f983-454e-af42-9563178b76d8",
-            "bot_id": "43b7808e-f770-4d9f-a3fe-f2fab570bcc1",
-            "worker_id": "b38011ea-a1f4-42f4-a28d-4d80ecb3c90a",
+            "id": "7c750aba-6281-47cc-ae1b-f7df00385510",
+            "bot_id": "fba6e8d3-0440-4e69-baa5-5d7a478e177f",
+            "worker_id": "04125f17-55d5-4f96-a599-0d50aa5dffe0",
             "owner": "bot",
             "revision": 2,
             "status": "confirmed"
@@ -283,8 +420,8 @@
         "name": "test.cancellation_and_result_counts",
         "status": "passed",
         "details": {
-          "cancelled_applied": 81,
-          "result_applied": 81
+          "cancelled_applied": 80,
+          "result_applied": 80
         }
       },
       {
@@ -323,12 +460,12 @@
         }
       },
       {
-        "name": "test.shutdown.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-test-test-agent-reconnect.service",
+        "name": "test.shutdown.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent-reconnect.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "test.shutdown.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-test-manager.service",
+        "name": "test.shutdown.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-manager.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
@@ -363,17 +500,17 @@
         }
       },
       {
-        "name": "test.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-test-manager.service",
+        "name": "test.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-manager.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "test.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-test-test-agent.service",
+        "name": "test.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
       {
-        "name": "test.logs.m02-bcf2c2ac-a7fb-497d-a59d-84143be5065b-test-test-agent-reconnect.service",
+        "name": "test.logs.m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent-reconnect.service",
         "status": "passed",
         "details": "Contract assertions satisfied."
       },
@@ -401,6 +538,13 @@
         "name": "remaining.local_stress_and_additional_fencing",
         "status": "not_run",
         "details": "Outside this two-VM iteration; requires separate coverage."
+      },
+      {
+        "name": "required_contract",
+        "status": "passed",
+        "details": {
+          "missing": []
+        }
       }
     ]
   },
@@ -411,6 +555,11 @@
         "name": "actual_worker_identity_across_vms",
         "status": "passed",
         "peer": "192.168.1.235"
+      },
+      {
+        "name": "current_receipt_applies_before_takeover",
+        "status": "passed",
+        "applied": 1
       },
       {
         "name": "delayed_receipt_after_confirmed_takeover",
@@ -466,11 +615,11 @@
   "cleanup": {
     "manager": {
       "fixture_listener_absent": true,
-      "active_fixture_units_absent": true
+      "fixture_units_absent": true
     },
     "worker": {
       "fixture_listener_absent": true,
-      "active_fixture_units_absent": true
+      "fixture_units_absent": true
     }
   }
 }

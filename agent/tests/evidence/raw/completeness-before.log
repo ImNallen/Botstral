@@ -1,0 +1,21 @@
+FF
+======================================================================
+FAIL: test_missing_required_checks_fail (test_m02_runner.RunnerCompleteness)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-c81ec9a1/agent/tests/test_m02_runner.py", line 34, in test_missing_required_checks_fail
+    self.assertNotEqual(self.exercise(None), 0)
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_unexpected_error_between_checks_fails (test_m02_runner.RunnerCompleteness)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-c81ec9a1/agent/tests/test_m02_runner.py", line 31, in test_unexpected_error_between_checks_fails
+    self.assertNotEqual(self.exercise(RuntimeError("synthetic failure")), 0)
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.008s
+
+FAILED (failures=2)

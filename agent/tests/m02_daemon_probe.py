@@ -72,6 +72,21 @@ async def run_probe(socket, settings, checks):
     })
     snapshot = (await receive(socket))["message"]
     assert snapshot == {"type": "snapshot_applied", "generation": generation}, snapshot
+    warmup_id = identifier()
+    await send(socket, {
+        "type": "command", "id": warmup_id, "task_id": identifier(),
+        "fence": fence(session, generation),
+        "action": {"type": "start", "work": {"type": "test_input", "steps": 1}},
+    })
+    pending = await matching(socket, lambda message:
+        message["type"] == "bot_input" and message["command_id"] == warmup_id)
+    await send(socket, {"type": "receipt", "command_id": warmup_id, "outcome": {"type": "accepted"}},
+               request_id=pending["request_id"])
+    completed = (await matching(socket, lambda message:
+        message["type"] == "event" and message["command_id"] == warmup_id
+        and message["event"]["type"] == "completed"))["message"]
+    assert completed["event"] == {"type": "completed", "applied": 1}, completed
+    checks.append({"name": "current_receipt_applies_before_takeover", "status": "passed", "applied": 1})
     task_id, start_id = identifier(), identifier()
     await send(socket, {
         "type": "command", "id": start_id, "task_id": task_id,

@@ -23,10 +23,20 @@ probe_unit="botstral-m02-probe-$run_id"
 agent_unit="botstral-m02-probe-agent-$run_id"
 ssh_options=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=8)
 mkdir -p "$output"
+test -z "$(ls -A "$output")"
+python3 - "$source_dir" "$output" <<'PY'
+import hashlib, json, pathlib, sys
+source, output = map(pathlib.Path, sys.argv[1:])
+names = ("m02_daemon_probe.py", "m02_daemon_probe.sh")
+manifest = {name: hashlib.sha256((source / name).read_bytes()).hexdigest() for name in names}
+(output / "runner-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+PY
 
 cleanup() {
     result=$?
     trap - EXIT
+    ssh "${ssh_options[@]}" "$worker" "systemctl --user reset-failed '$agent_unit'" >> "$output/cleanup.log" 2>&1 || result=1
+    ssh "${ssh_options[@]}" "$manager" "systemctl --user reset-failed '$probe_unit'" >> "$output/cleanup.log" 2>&1 || result=1
     ssh "${ssh_options[@]}" "$worker" "systemctl --user stop '$agent_unit'" >> "$output/cleanup.log" 2>&1 || result=1
     ssh "${ssh_options[@]}" "$manager" "systemctl --user stop '$probe_unit'" >> "$output/cleanup.log" 2>&1 || result=1
     exit "$result"
@@ -107,6 +117,6 @@ python3 - "$output/result.json" <<'PY'
 import json, pathlib, sys
 result = json.loads(pathlib.Path(sys.argv[1]).read_text())
 assert result["status"] == "passed", result
-assert len(result["checks"]) == 6, result
-print("Verified all six daemon fence checks across the two VMs.")
+assert len(result["checks"]) == 7, result
+print("Verified all seven daemon fence checks across the two VMs.")
 PY

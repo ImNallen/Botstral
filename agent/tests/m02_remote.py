@@ -53,6 +53,8 @@ def wait_exit(unit, terminate):
         state = unit_state(unit, timeout=min(3, deadline - time.monotonic()))
         evidence["states"].append(state)
         if terminate:
+            if state["ActiveState"] != "active" or state["SubState"] != "running" or int(state["ExecMainPID"]) <= 0:
+                raise RuntimeError("recorded daemon was not running before SIGTERM")
             run(["systemctl", "--user", "kill", "--signal=SIGTERM",
                  "--kill-whom=main", unit], timeout=min(3, deadline - time.monotonic()))
         while True:

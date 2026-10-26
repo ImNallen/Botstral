@@ -111,6 +111,16 @@ bash agent/tests/m02_daemon_probe.sh \
 	botstral-manager botstral-computer 192.168.1.40 192.168.1.235
 ```
 
-Use addresses belonging to the two selected hosts. The main runner binds port 43122. The daemon probe binds port 43123. Keep those ports available for the test. Every invocation uses new private remote roots and unique systemd unit names. The tools stop their own fixture processes and preserve result files. A repeated certificate-generation command refuses a nonempty output directory.
+Use addresses belonging to the two selected hosts. The main runner binds port 43122. The daemon probe binds port 43123. Keep those ports available for the test. Every invocation uses new private remote roots and unique systemd unit names. The tools stop their own fixture processes and preserve result files. The certificate generator and daemon probe refuse nonempty output directories.
 
 The runner sends synthetic owner credentials, bearer tokens, and invitations over SSH standard input. It writes invitation input and certificate files with private permissions. Credential contents do not enter command arguments or environment variables. Log copies are redacted. Secret scans cover manager and worker state and service logs, excluding intentional certificate and invitation input files.
+
+Verify the saved evidence and its negative controls from the matching runner checkout. Regenerate the aggregate record with the same command without `--check-controls`.
+
+```sh
+python3 -m unittest discover -s agent/tests -p 'test_m02_runner.py'
+python3 agent/tests/m02_record.py \
+	--evidence-dir agent/tests/evidence \
+	--application-commit e4d10c023ccd511c444faebff6b0b8fdf7fc5a06 \
+	--check-controls
+```

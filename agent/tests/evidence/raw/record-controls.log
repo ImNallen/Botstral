@@ -1,0 +1,10 @@
+Rejected missing required check.
+Rejected changed runner hash.
+Rejected remaining fixture unit.
+Rejected remaining fixture listener.
+Rejected failed probe shutdown.
+Rejected missing probe check.
+Rejected wrong virtual CPU allocation.
+Rejected changed application binary hash.
+Rejected unfinished Linux verification.
+Verified source hashes, required checks, binary hashes, shutdown, and host cleanup.

@@ -1,0 +1,15 @@
+{
+  "hostname": "botstral-computer",
+  "kernel": "6.8.0-147-generic",
+  "operating_system": "Ubuntu 24.04.5 LTS",
+  "cpus": 12,
+  "memory_kib": 32864688,
+  "root_disk_bytes": 549755813888,
+  "fixture_units": [],
+  "listening_tcp": [
+    "0.0.0.0:22",
+    "127.0.0.54:53",
+    "127.0.0.53%lo:53",
+    "[::]:22"
+  ]
+}

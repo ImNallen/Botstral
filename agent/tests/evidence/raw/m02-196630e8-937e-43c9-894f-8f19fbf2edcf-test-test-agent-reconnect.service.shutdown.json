@@ -1,0 +1,29 @@
+{
+  "unit": "m02-196630e8-937e-43c9-894f-8f19fbf2edcf-test-test-agent-reconnect.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "2857532065",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "40824",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "2857532065",
+      "ExecMainExitTimestampMonotonic": "2858796474",
+      "ExecMainPID": "40824",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

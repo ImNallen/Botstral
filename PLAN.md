@@ -109,7 +109,7 @@ Depends on M01.
 
 Complete when the daemon connects across the two VMs, worker-only authorization is enforced, and two test sessions retain distinct ownership. Verify rejection of incompatible protocol versions and stale input. This milestone does not prove real desktop independence.
 
-Local implementation and verification cover the daemon, mutual TLS enrollment, protocol, session ownership, confirmed takeover, cancellation, and production separation. The daemon now passed production transport and synthetic session checks across the actual manager and Computer VMs. [The two-VM acceptance record](docs/m02-two-vm-acceptance.md) preserves the results and coverage boundaries. `make verify` runs M01 TCP acceptance, real-binary M02 TLS/WSS acceptance, test-worker session checks, schema drift detection, and clean production builds. [The M02 architecture](docs/m02-architecture.md) records the design and remaining gaps.
+Local implementation and verification cover the daemon, mutual TLS enrollment, protocol, session ownership, confirmed takeover, cancellation, and production separation. The daemon now passed production transport and synthetic session checks across the actual manager and Computer VMs. Registration and enrollment in this acceptance are fixture-scoped. [The two-VM acceptance record](docs/m02-two-vm-acceptance.md) preserves the results and coverage boundaries. `make verify` runs M01 TCP acceptance, real-binary M02 TLS/WSS acceptance, test-worker session checks, schema drift detection, and clean production builds. [The M02 architecture](docs/m02-architecture.md) records the design and remaining gaps.
 
 ### M03. Make tasks durable and recoverable
 

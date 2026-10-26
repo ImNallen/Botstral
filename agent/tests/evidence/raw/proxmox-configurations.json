@@ -1,0 +1,18 @@
+{
+  "manager": {
+    "vmid": 100,
+    "name": "botstral-manager",
+    "cores": 4,
+    "memory": "8192",
+    "scsi0": "local-lvm:vm-100-disk-0,discard=on,iothread=1,size=128G,ssd=1",
+    "net0": "virtio=BC:24:11:90:C1:03,bridge=vmbr0"
+  },
+  "worker": {
+    "vmid": 101,
+    "name": "botstral-computer",
+    "cores": 12,
+    "memory": "32768",
+    "scsi0": "local-lvm:vm-101-disk-0,discard=on,iothread=1,size=512G,ssd=1",
+    "net0": "virtio=BC:24:11:B9:E3:5C,bridge=vmbr0"
+  }
+}
