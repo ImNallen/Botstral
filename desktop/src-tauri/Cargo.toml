@@ -1,0 +1,43 @@
+[package]
+name = "botstral-desktop"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.93"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[lib]
+name = "botstral_desktop"
+
+[[bin]]
+name = "botstral-desktop"
+path = "src/main.rs"
+required-features = ["native-ui"]
+
+[features]
+default = ["native-ui"]
+native-ui = ["dep:tauri", "dep:tauri-plugin-notification", "dep:tauri-build"]
+
+[build-dependencies]
+tauri-build = { version = "=2.7.3", optional = true, features = [] }
+
+[dependencies]
+reqwest = { version = "=0.13.5", default-features = false, features = ["json", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros", "net", "io-util"] }
+uuid = { version = "1.20", features = ["serde", "v4"] }
+zeroize = { version = "1.8", features = ["serde"] }
+tauri = { version = "=2.12.4", optional = true, features = ["tray-icon", "image-png"] }
+tauri-plugin-notification = { version = "2", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+strip = true
+
+[profile.release.build-override]
+strip = false

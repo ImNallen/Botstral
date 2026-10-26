@@ -1,6 +1,6 @@
 # Worker protocol reference
 
-The source contract is [`link/src/lib.rs`](../link/src/lib.rs). [`link/schema/protocol.json`](../link/schema/protocol.json) is generated JSON Schema. Regenerate it with `cargo run -p botstral-link --bin export-schema --locked > link/schema/protocol.json`. Workspace tests reject drift. Rust consumers use `botstral-link`. TypeScript bindings remain C01 scope.
+The source contract is [`link/src/lib.rs`](../link/src/lib.rs). [`link/schema/protocol.json`](../link/schema/protocol.json) is generated JSON Schema. Regenerate it with `cargo run -p botstral-link --bin export-schema --locked > link/schema/protocol.json`. Workspace tests reject drift. Rust consumers use `botstral-link`. TypeScript consumers use the generated declarations in [`@botstral/link`](../link/package.json). Run `npm run bindings:generate` to regenerate them and `npm run bindings:check` to reject Rust schema or TypeScript drift. C01 does not execute the worker protocol.
 
 ## Identity and enrollment
 

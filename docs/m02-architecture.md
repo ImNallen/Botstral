@@ -10,7 +10,7 @@ The worker identity is SHA-256 of the verified client certificate DER. This narr
 
 ## Interfaces and ownership
 
-`link/` owns versioned Rust wire types and the generated JSON Schema. Request, command, task, bot, worker, and computer-session identifiers are distinct UUID types. Generations fence connections. Revisions fence input authority within one session. TypeScript bindings remain C01 work.
+`link/` owns versioned Rust wire types and the generated JSON Schema. Request, command, task, bot, worker, and computer-session identifiers are distinct UUID types. Generations fence connections. Revisions fence input authority within one session. C01 now provides [generated TypeScript bindings and drift checks](c01-architecture.md#shared-protocol-bindings).
 
 `manager/src/manager/state/` extends the existing SQLite owner. Migration 0002 adds workers, hashed invitations, and computer sessions without rebuilding M01 tables. Owner methods reauthorize within the queued operation. Socket tasks own transport only.
 
@@ -48,7 +48,7 @@ A failed control delivery can leave the committed desired owner disconnected. Th
 
 ## Reconciliation and verification
 
-TypeScript generation is deferred to C01, as the selected contract permits. The compact work specification defines unavailable production work and explicit test input. It does not introduce unfinished browser or shell operation trees. Redacted logs use fixed codes. Artifact references carry metadata only.
+The M02 design deferred TypeScript generation to C01. Those [bindings are now available](c01-architecture.md#shared-protocol-bindings). The compact work specification defines unavailable production work and explicit test input. It does not introduce unfinished browser or shell operation trees. Redacted logs use fixed codes. Artifact references carry metadata only.
 
 The default production daemon and the separately named `botstral-test-agent` share transport and session admission. The test executor is behind `nonproduction-test-worker`, absent from defaults, and rejected when release compilation disables debug assertions. The manager requires its corresponding debug feature before admitting test work. The M01 status marker remains for compatibility; M02 worker status comes from `/v1/workers`.
 

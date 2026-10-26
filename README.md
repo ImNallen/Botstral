@@ -1,10 +1,10 @@
 # Botstral
 
-Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Model execution and native apps follow later.
+Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. A Tauri desktop app manages the local owner session and bot roster. Model execution follows later.
 
 ## Repository layout
 
-`manager/` contains the manager, `agent/` contains the worker daemon, and `link/` contains shared schemas and Rust bindings. TypeScript bindings, `desktop/`, and `mobile/` follow later. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
+`manager/` contains the manager, `agent/` contains the worker daemon, and `link/` contains shared schemas and Rust and TypeScript bindings. `desktop/` contains the Tauri app. `mobile/` follows later. Each component owns its code, tests, configuration, and packaging. Shared workspaces, tooling, scripts, and documentation stay at the repository root.
 
 ## Run the manager
 
@@ -28,4 +28,15 @@ make build
 
 Stop the manager with Control-C. Its SQLite database and encrypted credentials remain in `.state`. The [M01 architecture](docs/m01-architecture.md) records ownership, interfaces, verification, and design reconciliation.
 
-See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records local verification and remaining gaps. Actual two-VM acceptance is pending. Production work execution, owner-device pairing, remote access, and native clients remain later work.
+See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records local verification and remaining gaps. Actual two-VM acceptance is pending. Production work execution, owner-device pairing, and remote access remain later work.
+
+## Run the desktop
+
+Install Node.js 24 or later and the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/). Start and initialize the local manager, then run:
+
+```sh
+npm ci
+make desktop
+```
+
+Sign in with the local owner password. The app lists and creates real bots and shows manager connection details. Messaging and task execution are unavailable. See the [desktop architecture and verification guide](docs/c01-architecture.md) for packaging, native UI fixtures, and acceptance gaps. Run `make verify-desktop` for desktop checks.

@@ -1,0 +1,24 @@
+{
+  "name": "botstral",
+  "private": true,
+  "workspaces": [
+    "link",
+    "desktop"
+  ],
+  "scripts": {
+    "bindings:generate": "node scripts/generate-link.mjs",
+    "bindings:check": "node scripts/generate-link.mjs --check",
+    "check": "npm run bindings:check && npm run check --workspaces",
+    "test": "npm run test --workspace @botstral/desktop",
+    "build": "npm run build --workspace @botstral/desktop",
+    "desktop": "npm run tauri --workspace @botstral/desktop --",
+    "desktop:verify": "./scripts/verify-desktop.sh",
+    "format:check": "prettier --check \"desktop/src/**/*.{ts,tsx,css}\" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json",
+    "format": "prettier --write \"desktop/src/**/*.{ts,tsx,css}\" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "16.0.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3"
+  }
+}

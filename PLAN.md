@@ -1,8 +1,8 @@
 # Botstral plan
 
-Botstral has an implemented local manager foundation. Worker execution, model integration, and native clients remain planned.
+Botstral has a local manager, the M02 worker protocol, and a desktop implementation for local owner sessions and bots. Production worker execution, model integration, owner-device pairing, and remote access remain planned.
 
-M01 has local acceptance evidence and independent review. Later milestone checkboxes remain open. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
+M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM acceptance remains open. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
 ## Product target
 
@@ -366,11 +366,13 @@ Complete when the owner can understand ongoing work, control unattended usage, r
 
 Depends on M01 for app shells and M02 for protocol bindings.
 
-- [ ] Create the Tauri desktop app with React and TypeScript, including native tray and notification integration.
-- [ ] Add the TypeScript `botstral-link` bindings for the M02 protocol before C02 integration.
-- [ ] Provide desktop sign-in, bot list, bot creation, and connection status as their manager capabilities become available.
-- [ ] Keep desktop-native features separate from the protocol library and reusable application logic.
-- [ ] Launch the desktop app and verify its initial navigation and layout.
+- [x] Create the Tauri desktop app with React and TypeScript, including native tray and notification integration.
+- [x] Add the TypeScript `botstral-link` bindings for the M02 protocol before C02 integration.
+- [x] Provide desktop sign-in, bot list, bot creation, and connection status as their manager capabilities become available.
+- [x] Keep desktop-native features separate from the protocol library and reusable application logic.
+- [x] Launch the desktop app and verify its initial navigation and layout.
+
+Implementation, automated checks, and native acceptance are recorded in [the desktop architecture](docs/c01-architecture.md). The [native walkthrough](docs/assets/c01-desktop.mp4) shows the supplied screenshot's layout with synthetic manager data. Sign-in, search, creation, details, themes, sign-out, relaunch, and offline state were verified. Tray restoration and operating-system notification delivery remain manual checks.
 
 Complete when the desktop app renders its initial interface. C02 verifies authenticated access and the complete first-acceptance workflow.
 
