@@ -130,7 +130,7 @@ Depends on M02.
 
 Completion requires that a manager restart or duplicate command delivery recovers the original task without starting replacement work. Disconnect the worker after an external effect and before its result is recorded. Verify reconciliation or an attention state. Also verify confirmed cancellation, invalidated approvals, and snapshot recovery beyond event retention.
 
-Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) maps every requirement to commands and saved evidence. Cancellation uses the synthetic adapter's explicit `NoProcessGroup` evidence. It does not establish real process-group termination. The separate synthetic provider ledger proves effect reconciliation and uncertainty without replacement calls. Production provider execution and real process-group supervision remain open under M04 and W01. Independent implementation review belongs to the parent.
+Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) maps every requirement to commands and saved evidence. Cancellation uses the synthetic adapter's explicit `NoProcessGroup` evidence. It does not establish real process-group termination. The separate synthetic provider ledger proves effect reconciliation and uncertainty without replacement calls. Production provider execution and real process-group supervision remain open under M04 and W01. [Independent implementation review](docs/m03-review.md) verified the corrected scoped implementation.
 
 ### M04. Connect Mistral and execute work across the virtual machine
 

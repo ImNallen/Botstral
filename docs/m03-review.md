@@ -24,8 +24,10 @@ The initial audit found no fabricated final verification result. Earlier interme
 
 ## Final gate
 
-The parent fixed the findings and passed sixteen focused recovery fixtures plus feature-enabled clippy. That corrected head passed full verification, including eighteen feature-enabled actual-binary fixtures and both release-feature refusals. [The complete log](../agent/tests/evidence/m03/parent-verify.log) records that run.
+The parent fixed the findings and passed sixteen focused recovery fixtures plus feature-enabled clippy. That corrected head passed full verification, including eighteen feature-enabled actual-binary fixtures and both release-feature refusals.
 
 A fresh `gpt-6-astra` review at `ee7e58a` accepted those corrections and their evidence, but found one remaining progress defect. Revocation followed by an identical regrant recreated the cached delivery, so denial of the older claim could suppress further transmission. The parent tested the failed premise that renewed authority must change delivery content. The actual-manager regression timed out waiting for redelivery before the fix and obtained a delivery and valid permit afterward. Claim denial now invalidates that transport cache entry.
 
-Full verification and a targeted independent recheck of this final cache correction remain pending. No merge is authorized.
+The [targeted independent recheck](t3-thread://v1/thread:delegated-task:command%3Amcp%3A51847601-a509-4b04-adda-f8cc3c0fd61e%3Adelegate-task%3Ad2cc818e-291e-4e7b-9c81-81e1eb8b44fb) used `gpt-6-astra` on `74a3c0d` and returned VERIFIED. It found no unresolved correctness defect. Cache invalidation affects only the rejected command on the authenticated connection. Binding checks and durable single-use consumption remain unchanged. The regression proves manager redelivery and permit issuance; completed worker execution remains covered by the earlier accepted fixtures.
+
+Final `make verify` passed with nineteen feature-enabled actual-binary fixtures, formatting, default and feature clippy, migration and workspace checks, production builds and both release-feature refusals. [The complete final log](../agent/tests/evidence/m03/parent-verify.log) records that run. No merge is authorized.

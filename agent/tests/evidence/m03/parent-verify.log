@@ -1,13 +1,12 @@
 ./scripts/verify.sh
-    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
     Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/manager)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.64s
-   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.49s
    Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/manager)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.22s
-   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.76s
    Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/manager)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.46s
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
      Running unittests src/lib.rs (target/debug/deps/botstral_agent-642608a35636e56d)
 
 running 3 tests
@@ -15,7 +14,7 @@ test session::tests::receiver_fences_generations_revisions_and_cross_worker_cont
 test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
 test journal::tests::journal_opens_and_preserves_incarnation ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
      Running unittests src/main.rs (target/debug/deps/botstral_agent-1df4cd4d6a0b4494)
 
@@ -27,15 +26,15 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 6 tests
 Schema creation succeeded; cache rewrite failed with database disk image is malformed.
-test recovery::conversation_append_order_survives_restart_and_retries ... ok
 test recovery::durable_task_survives_manager_restart ... ok
+test recovery::conversation_append_order_survives_restart_and_retries ... ok
 test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
 test recovery::markdown_sources_conversations_and_event_snapshots_recover ... ok
 test enrollment::enrollment_tls_negotiation_and_lifecycle_use_actual_binaries ... ok
 test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded has been running for over 60 seconds
 test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 70.27s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 67.78s
 
      Running unittests src/lib.rs (target/debug/deps/botstral_link-83f7aac3f2ac0975)
 
@@ -61,11 +60,11 @@ test manager::state::tests::credential_budget_resets_only_after_window ... ok
 test local_state::tests::rejects_unsafe_state_and_second_owner ... ok
 test manager::state::tests::migrations_are_atomic_and_refuse_future_versions ... ok
 test manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session ... ok
-test manager::state::workers::tests::invitation_binding_expiry_atomicity_and_replay ... ok
-test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
 test manager::state::tasks::tests::task_outbox_and_event_roll_back_together ... ok
-test manager::state::workers::tests::snapshots_generations_late_disconnect_and_full_channels ... ok
+test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
+test manager::state::workers::tests::invitation_binding_expiry_atomicity_and_replay ... ok
 test manager::state::tasks::tests::approval_mutations_require_owner_and_survive_login_changes ... ok
+test manager::state::workers::tests::snapshots_generations_late_disconnect_and_full_channels ... ok
 test manager::state::workers::tests::pending_takeover_blocks_input_and_fences_queued_delivery ... ok
 test manager::tests::queue_saturation_and_credential_admission_are_bounded ... ok
 test manager::crypto::tests::vault_round_trip_and_authenticated_tampering ... ok
@@ -73,7 +72,7 @@ test manager::state::tests::expiry_and_revocation_are_checked_at_operation_time 
 test manager::state::migration_tests::populated_v1_preserves_owner_bot_and_encrypted_credentials ... ok
 test manager::state::tests::setup_and_provider_replacement_roll_back_without_losing_values ... ok
 
-test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.23s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.14s
 
      Running unittests src/main.rs (target/debug/deps/botstral_manager-2b374066d40ad595)
 
@@ -103,7 +102,7 @@ Refused startup with exit status: 1.
 Private permissions, second-process exclusion, unsafe binds and state rejection, migration refusal, and complete secret scans pass.
 test m01_real_binary_over_tcp ... ok
 
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.66s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.57s
 
    Doc-tests botstral_agent
 
@@ -123,10 +122,11 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
-   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/manager)
+    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.55s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
      Running unittests src/lib.rs (target/debug/deps/botstral_agent-9741a65970f06b14)
 
 running 3 tests
@@ -134,52 +134,52 @@ test session::tests::receiver_fences_generations_revisions_and_cross_worker_cont
 test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
 test journal::tests::journal_opens_and_preserves_incarnation ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.59s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
      Running tests/m02_transport.rs (target/debug/deps/m02_transport-bde03e1ab221ac0c)
 
-running 18 tests
-test recovery::every_approval_binding_field_and_single_use_identity_are_checked ... ok
+running 19 tests
 Schema creation succeeded; cache rewrite failed with database disk image is malformed.
 test recovery::permits::renewed_approval_survives_denial_of_older_pending_claim ... ok
-test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
 test recovery::permits::invalid_permit_preserves_another_sessions_pending_claim ... ok
 test recovery::journal_replacement_after_unacknowledged_acceptance_never_restarts_work ... ok
+test recovery::every_approval_binding_field_and_single_use_identity_are_checked ... ok
+test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
+test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
+test recovery::offline_cancellation_preserves_effects_until_stopped_confirmation ... ok
 test recovery::delayed_claim_rejects_revocation_policy_and_expiry ... ok
-
-thread 'recovery::manager_claim_and_outbox_crashes_preserve_original_intent' (600008419) panicked at agent/tests/m02_transport.rs:118:63:
-called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 test recovery::durable_task_survives_manager_restart ... ok
 
-thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600008425) panicked at agent/tests/m02_transport.rs:118:63:
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600110883) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::conversation_append_order_survives_restart_and_retries ... ok
+
+thread 'recovery::manager_claim_and_outbox_crashes_preserve_original_intent' (600110877) panicked at agent/tests/m02_transport.rs:118:63:
 called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
 test recovery::markdown_sources_conversations_and_event_snapshots_recover ... ok
-test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
-test recovery::conversation_append_order_survives_restart_and_retries ... ok
-test recovery::offline_cancellation_preserves_effects_until_stopped_confirmation ... ok
+test recovery::recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent ... ok
+test recovery::regrants::identical_regrant_is_delivered_after_denial_before_delayed_report ... ok
 test sessions::confirmed_takeover_two_sessions_cancellation_and_results ... ok
 test fencing::actual_daemon_rejects_stale_frames_and_queued_receipts ... ok
 test recovery::manager_claim_and_outbox_crashes_preserve_original_intent ... ok
 
-thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600008425) panicked at agent/tests/m02_transport.rs:118:63:
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600110883) panicked at agent/tests/m02_transport.rs:118:63:
 called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
-test recovery::recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent ... ok
 
-thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600008425) panicked at agent/tests/m02_transport.rs:118:63:
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (600110883) panicked at agent/tests/m02_transport.rs:118:63:
 called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
 test recovery::published_markdown_recovers_each_file_index_event_crash_window ... ok
 test recovery::independent_effect_ledger_recovers_every_worker_crash_boundary ... ok
 test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded has been running for over 60 seconds
 test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded ... ok
 
-test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 74.40s
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 75.33s
 
    Compiling proc-macro2 v1.0.107
-   Compiling unicode-ident v1.0.27
    Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
    Compiling libc v0.2.191
    Compiling cfg-if v1.0.5
    Compiling typenum v1.20.1
@@ -192,101 +192,106 @@ test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; fin
    Compiling thiserror v2.0.21
    Compiling itoa v1.0.18
    Compiling futures-core v0.3.34
-   Compiling shlex v2.0.1
    Compiling find-msvc-tools v0.1.15
+   Compiling shlex v2.0.1
    Compiling bytes v1.12.1
    Compiling zerocopy v0.8.63
    Compiling futures-sink v0.3.34
    Compiling cc v1.10.0
-   Compiling smallvec v1.16.4
    Compiling generic-array v0.14.7
+   Compiling smallvec v1.16.4
    Compiling futures-channel v0.3.34
    Compiling slab v0.4.12
+   Compiling futures-io v0.3.34
    Compiling futures-task v0.3.34
    Compiling once_cell v1.21.4
-   Compiling futures-io v0.3.34
    Compiling http v1.5.0
-   Compiling hybrid-array v0.4.15
-   Compiling log v0.4.34
-   Compiling const-oid v0.10.2
    Compiling parking_lot_core v0.9.12
-   Compiling thiserror v1.0.69
+   Compiling hybrid-array v0.4.15
    Compiling unicase v2.10.0
-   Compiling getrandom v0.3.4
-   Compiling same-file v1.0.6
+   Compiling const-oid v0.10.2
+   Compiling log v0.4.34
+   Compiling thiserror v1.0.69
    Compiling mime_guess v2.0.5
    Compiling httparse v1.10.1
    Compiling zmij v1.0.23
+   Compiling getrandom v0.3.4
+   Compiling same-file v1.0.6
    Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling walkdir v2.5.0
+   Compiling const-oid v0.9.6
+   Compiling serde_json v1.0.154
+   Compiling ring v0.17.14
+   Compiling getrandom v0.4.3
+   Compiling untrusted v0.9.0
+   Compiling mime v0.3.17
+   Compiling rustversion v1.0.23
    Compiling syn v2.0.119
    Compiling syn v3.0.9
-   Compiling block-buffer v0.12.1
-   Compiling cpufeatures v0.3.1
    Compiling getrandom v0.2.17
    Compiling cpufeatures v0.2.17
    Compiling errno v0.3.14
-   Compiling mio v1.2.4
    Compiling socket2 v0.6.5
+   Compiling digest v0.11.3
    Compiling rand_core v0.6.4
    Compiling signal-hook-registry v1.4.8
-   Compiling walkdir v2.5.0
-   Compiling ring v0.17.14
-   Compiling digest v0.11.3
-   Compiling getrandom v0.4.3
-   Compiling untrusted v0.9.0
-   Compiling sha2 v0.11.1
+   Compiling mio v1.2.4
+   Compiling cpufeatures v0.3.1
    Compiling opaque-debug v0.3.1
-   Compiling serde_json v1.0.154
-   Compiling rustversion v1.0.23
-   Compiling const-oid v0.9.6
-   Compiling mime v0.3.17
+   Compiling sha2 v0.11.1
    Compiling ff v0.13.1
    Compiling http-body v1.1.0
-   Compiling rust-embed-utils v8.13.0
-   Compiling rustc-hash v2.1.3
-   Compiling base16ct v0.2.0
-   Compiling ref-cast v1.0.27
    Compiling rustls v0.23.46
+   Compiling rust-embed-utils v8.13.0
+   Compiling ref-cast v1.0.27
+   Compiling base16ct v0.2.0
+   Compiling rustc-hash v2.1.3
    Compiling type-map v0.5.1
    Compiling rand_core v0.9.5
    Compiling group v0.13.0
    Compiling try-lock v0.2.5
-   Compiling semver v1.0.28
-   Compiling pkg-config v0.3.34
    Compiling vcpkg v0.2.15
+   Compiling semver v1.0.28
    Compiling tower-service v0.3.3
+   Compiling pkg-config v0.3.34
    Compiling want v0.3.2
-   Compiling rustc_version v0.4.1
    Compiling uuid v1.29.0
-   Compiling serde_derive_internals v0.30.0
-   Compiling httpdate v1.0.3
-   Compiling foldhash v0.2.0
+   Compiling rustc_version v0.4.1
    Compiling scopeguard v1.2.0
-   Compiling atomic-waker v1.1.2
    Compiling dyn-clone v1.0.20
    Compiling self_cell v1.3.0
-   Compiling hashbrown v0.16.1
-   Compiling libsqlite3-sys v0.36.0
-   Compiling lock_api v0.4.14
+   Compiling foldhash v0.2.0
+   Compiling atomic-waker v1.1.2
+   Compiling httpdate v1.0.3
    Compiling curve25519-dalek v4.1.3
+   Compiling lock_api v0.4.14
+   Compiling hashbrown v0.16.1
    Compiling http-body-util v0.1.5
+   Compiling serde_derive_internals v0.30.0
+   Compiling libsqlite3-sys v0.36.0
    Compiling tracing-core v0.1.36
    Compiling utf-8 v0.7.6
    Compiling data-encoding v2.11.1
-   Compiling parking_lot v0.12.5
-   Compiling ppv-lite86 v0.2.21
-   Compiling hashlink v0.11.1
    Compiling tracing v0.1.44
+   Compiling hashlink v0.11.1
+   Compiling parking_lot v0.12.5
    Compiling arc-swap v1.9.3
    Compiling keccak v0.1.6
-   Compiling rand_chacha v0.9.0
-   Compiling rand_chacha v0.3.1
-   Compiling rand v0.9.5
+   Compiling ppv-lite86 v0.2.21
    Compiling proc-macro-error-attr3 v3.1.1
    Compiling bitflags v2.13.2
    Compiling percent-encoding v2.3.2
    Compiling tower-layer v0.3.3
+   Compiling sync_wrapper v1.0.2
+   Compiling rand_chacha v0.9.0
+   Compiling rand_chacha v0.3.1
    Compiling fallible-streaming-iterator v0.1.9
+   Compiling rand v0.9.5
+   Compiling fallible-iterator v0.3.0
+   Compiling rand v0.8.8
+   Compiling form_urlencoded v1.2.2
+   Compiling proc-macro-error3 v3.1.1
    Compiling serde_derive v1.0.229
    Compiling displaydoc v0.2.7
    Compiling thiserror-impl v2.0.21
@@ -294,28 +299,26 @@ test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; fin
    Compiling tokio-macros v2.7.2
    Compiling ref-cast-impl v1.0.27
    Compiling schemars_derive v1.2.3
-   Compiling sync_wrapper v1.0.2
-   Compiling fallible-iterator v0.3.0
-   Compiling proc-macro-error3 v3.1.1
    Compiling tinystr v0.8.5
-   Compiling tokio v1.54.1
-   Compiling zeroize_derive v1.5.0
    Compiling futures-util v0.3.34
+   Compiling zeroize_derive v1.5.0
+   Compiling tokio v1.54.1
    Compiling thiserror-impl v1.0.69
    Compiling rust-embed-impl v8.13.0
    Compiling pin-project-internal v1.1.13
    Compiling unic-langid-impl v0.9.6
    Compiling zeroize v1.9.1
    Compiling unic-langid v0.9.6
-   Compiling intl_pluralrules v7.0.2
-   Compiling intl-memoizer v0.5.3
    Compiling fluent-syntax v0.12.0
    Compiling fluent-langneg v0.13.1
+   Compiling intl-memoizer v0.5.3
+   Compiling intl_pluralrules v7.0.2
    Compiling rust-embed v8.13.0
    Compiling rustls-pki-types v1.15.1
    Compiling der v0.7.10
    Compiling fluent-bundle v0.16.0
    Compiling kem v0.3.0-pre.0
+   Compiling hybrid-array v0.2.3
    Compiling rustls-pemfile v2.2.0
    Compiling crypto-common v0.1.7
    Compiling block-buffer v0.10.4
@@ -323,78 +326,75 @@ test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; fin
    Compiling universal-hash v0.5.1
    Compiling digest v0.10.7
    Compiling cipher v0.4.4
-   Compiling crypto-bigint v0.5.5
    Compiling sec1 v0.7.3
+   Compiling crypto-bigint v0.5.5
    Compiling polyval v0.6.2
-   Compiling aead v0.5.2
-   Compiling poly1305 v0.8.0
    Compiling hmac v0.12.1
    Compiling sha2 v0.10.9
-   Compiling ghash v0.5.1
-   Compiling ctr v0.9.2
    Compiling hkdf v0.12.4
+   Compiling aead v0.5.2
    Compiling aes v0.8.4
+   Compiling ctr v0.9.2
    Compiling chacha20 v0.9.1
+   Compiling ghash v0.5.1
    Compiling sha1 v0.10.7
-   Compiling chacha20poly1305 v0.10.1
+   Compiling poly1305 v0.8.0
    Compiling aes-gcm v0.10.3
-   Compiling tungstenite v0.28.0
-   Compiling pbkdf2 v0.12.2
-   Compiling salsa20 v0.10.2
    Compiling basic-toml v0.1.10
    Compiling toml v0.5.11
-   Compiling elliptic-curve v0.13.8
-   Compiling primeorder v0.13.6
-   Compiling futures-executor v0.3.34
    Compiling schemars v1.2.3
+   Compiling futures-executor v0.3.34
+   Compiling elliptic-curve v0.13.8
    Compiling i18n-config v0.4.8
    Compiling futures v0.3.34
-   Compiling cookie-factory v0.3.3
-   Compiling p256 v0.13.2
-   Compiling secrecy v0.10.3
-   Compiling sha3 v0.10.9
-   Compiling find-crate v0.6.3
-   Compiling hpke v0.12.0
+   Compiling chacha20poly1305 v0.10.1
    Compiling rustls-webpki v0.103.16
+   Compiling tungstenite v0.28.0
+   Compiling cookie-factory v0.3.3
+   Compiling secrecy v0.10.3
+   Compiling primeorder v0.13.6
+   Compiling pbkdf2 v0.12.2
+   Compiling find-crate v0.6.3
+   Compiling salsa20 v0.10.2
+   Compiling p256 v0.13.2
    Compiling fluent v0.17.0
-   Compiling form_urlencoded v1.2.2
-   Compiling rand v0.8.8
-   Compiling hybrid-array v0.2.3
+   Compiling sha3 v0.10.9
    Compiling nom v8.0.0
+   Compiling io_tee v0.1.1
+   Compiling base64 v0.22.1
+   Compiling hpke v0.12.0
+   Compiling base64ct v1.8.3
    Compiling i18n-embed-impl v0.8.4
    Compiling ryu v1.0.23
    Compiling hyper v1.12.0
    Compiling tokio-tungstenite v0.28.0
-   Compiling i18n-embed v0.16.0
-   Compiling base64 v0.22.1
-   Compiling strsim v0.11.1
    Compiling bech32 v0.11.1
-   Compiling base64ct v1.8.3
-   Compiling io_tee v0.1.1
-   Compiling axum-core v0.5.6
-   Compiling ml-kem v0.2.3
-   Compiling password-hash v0.5.0
-   Compiling tower v0.5.3
+   Compiling strsim v0.11.1
+   Compiling i18n-embed v0.16.0
    Compiling serde_urlencoded v0.7.1
-   Compiling hyper-util v0.1.21
-   Compiling i18n-embed-fl v0.10.1
+   Compiling tower v0.5.3
+   Compiling password-hash v0.5.0
+   Compiling ml-kem v0.2.3
+   Compiling axum-core v0.5.6
    Compiling scrypt v0.11.0
-   Compiling x25519-dalek v2.0.1
+   Compiling hyper-util v0.1.21
    Compiling blake2 v0.10.6
+   Compiling x25519-dalek v2.0.1
+   Compiling i18n-embed-fl v0.10.1
    Compiling pin-project v1.1.13
    Compiling serde_path_to_error v0.1.20
    Compiling matchit v0.8.4
    Compiling lazy_static v1.5.1
-   Compiling axum v0.8.9
    Compiling argon2 v0.5.3
    Compiling age-core v0.12.0
+   Compiling axum v0.8.9
    Compiling age v0.12.1
    Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/link)
    Compiling tokio-rustls v0.26.6
    Compiling rusqlite v0.38.0
-   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
    Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/manager)
-    Finished `release` profile [optimized] target(s) in 21.79s
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6003f52f/agent)
+    Finished `release` profile [optimized] target(s) in 23.72s
 botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT --worker-tls-cert PATH --worker-tls-key PATH --worker-client-ca PATH]
 botstral-agent identity --client-cert PATH
 botstral-agent enroll --state-dir PATH --manager wss://HOST:PORT --manager-ca PATH --client-cert PATH --client-key PATH --invitation-file PATH
