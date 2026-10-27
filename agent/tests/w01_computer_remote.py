@@ -12,6 +12,18 @@ import w01_remote
 
 def dispatch(r):
     op=r['op']
+    if op=='configure_computer':
+        path=Path(r['root'],'agent','computer.json')
+        temporary=path.with_suffix('.fixture-tmp')
+        with temporary.open('x') as f:
+            os.chmod(temporary,0o600)
+            json.dump(r['configuration'],f)
+            f.flush();os.fsync(f.fileno())
+        temporary.replace(path)
+        directory=os.open(path.parent,os.O_RDONLY)
+        try:os.fsync(directory)
+        finally:os.close(directory)
+        return True
     if op=='download':
         host,port=r['address'].rsplit(':',1)
         assert host=='127.0.0.1'

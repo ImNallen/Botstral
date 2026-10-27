@@ -61,13 +61,13 @@ def exercise(f,certificates,args):
         f.stop(f.daemon)
         configuration=json.loads(f.worker.call('read',path=f.worker.root+'/agent/computer.json'))
         configuration['ceilings']['processes']=32
-        f.worker.call('write',files={f.worker.root+'/agent/computer.json':json.dumps(configuration)})
+        f.worker.call('configure_computer',root=f.worker.root,configuration=configuration)
         f.start_daemon('computer-low-resource-probe');a=f.confirmed(a);b=f.confirmed(b)
         rejected=f.owner('POST','/v1/tasks',computer(f,a,[{'type':'write_file','path':f.worker.root+'/failed-probe.txt','text':'must not run'}]),status=409)
         m02.require(f.worker.call('read',path=f.worker.root+'/agent/computer-probe/manifest.json',optional=True) is not None,'failed probe did not retain recovery state')
         f.stop(f.daemon)
         configuration['ceilings']['processes']=128
-        f.worker.call('write',files={f.worker.root+'/agent/computer.json':json.dumps(configuration)})
+        f.worker.call('configure_computer',root=f.worker.root,configuration=configuration)
         f.start_daemon('computer-probe-recovered');a=f.confirmed(a);b=f.confirmed(b)
         recovered=submit(f,computer(f,a,[{'type':'write_file','path':f.worker.root+'/stopped-probe-recovered.txt','text':'stopped probe recovered'}]))
         process.task(f,recovered,'completed')
