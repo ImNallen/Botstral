@@ -8,6 +8,8 @@ use sha2::{Digest, Sha256};
 use std::io::{Read, Write};
 use zeroize::Zeroizing;
 
+const PROVIDER_PREFIX: &[u8] = b"botstral-provider-v1\0mistral\0";
+
 pub(super) fn random_token() -> String {
     use base64::Engine;
     let mut bytes = Zeroizing::new([0; 32]);
@@ -87,7 +89,7 @@ pub(super) fn encrypt_provider(
     secret: ProviderSecret,
 ) -> Result<Vec<u8>, OperationError> {
     let recipient = identity.to_public();
-    let mut payload = Zeroizing::new(Vec::from(b"botstral-provider-v1\0mistral\0".as_slice()));
+    let mut payload = Zeroizing::new(Vec::from(PROVIDER_PREFIX));
     payload.extend_from_slice(secret.0.expose_secret().as_bytes());
     encrypt(
         age::Encryptor::with_recipients(std::iter::once(&recipient as &dyn age::Recipient))
@@ -96,7 +98,6 @@ pub(super) fn encrypt_provider(
     )
 }
 
-#[cfg(test)]
 pub(super) fn decrypt_provider(
     identity: &age::x25519::Identity,
     ciphertext: &[u8],
@@ -106,10 +107,14 @@ pub(super) fn decrypt_provider(
         .map_err(|_| OperationError::Internal)?
         .decrypt(std::iter::once(identity as &dyn age::Identity))
         .map_err(|_| OperationError::Internal)?
+        .take((PROVIDER_PREFIX.len() + 8192 + 1) as u64)
         .read_to_end(&mut plaintext)
         .map_err(|_| OperationError::Internal)?;
-    let prefix = b"botstral-provider-v1\0mistral\0";
-    if !plaintext.starts_with(prefix) {
+    let prefix = PROVIDER_PREFIX;
+    if !plaintext.starts_with(prefix)
+        || plaintext.len() > prefix.len() + 8192
+        || plaintext.len() == prefix.len()
+    {
         return Err(OperationError::Internal);
     }
     Ok(Zeroizing::new(plaintext[prefix.len()..].to_vec()))

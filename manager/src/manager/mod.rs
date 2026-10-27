@@ -1,4 +1,5 @@
 mod crypto;
+mod inference;
 mod state;
 mod tasks;
 mod workers;
@@ -20,6 +21,8 @@ pub enum OperationError {
     RateLimited,
     Busy,
     Internal,
+    InferenceUnverified,
+    InferenceBudget,
     Protocol(botstral_link::ErrorCode),
 }
 
@@ -131,6 +134,20 @@ struct Queue {
 }
 
 impl Queue {
+    async fn call_wait<T: Send + 'static>(
+        &self,
+        operation: impl FnOnce(&mut state::State) -> Result<T, OperationError> + Send + 'static,
+    ) -> Result<T, OperationError> {
+        let (reply, receive) = oneshot::channel();
+        self.sender
+            .send(Box::new(move |state| {
+                let _ = reply.send(operation(state));
+            }))
+            .await
+            .map_err(|_| OperationError::Internal)?;
+        receive.await.map_err(|_| OperationError::Internal)?
+    }
+
     async fn call<T: Send + 'static>(
         &self,
         expensive: bool,
@@ -161,6 +178,8 @@ impl Queue {
 #[derive(Clone)]
 pub struct Manager {
     queue: Queue,
+    inference: Arc<inference::InferenceControl>,
+    provider: inference::Provider,
 }
 #[derive(Clone)]
 pub struct LocalSetup {
@@ -172,10 +191,18 @@ pub(crate) struct Runtime {
     pub manager: Manager,
     pub setup: Option<LocalSetup>,
     pub thread: thread::JoinHandle<()>,
+    pub inference: inference::InferenceRuntime,
 }
 
 impl Manager {
     pub(crate) fn start(directory: PathBuf) -> Result<Runtime, OperationError> {
+        Self::start_with_provider(directory, inference::Provider::new()?)
+    }
+
+    pub(crate) fn start_with_provider(
+        directory: PathBuf,
+        provider: inference::Provider,
+    ) -> Result<Runtime, OperationError> {
         let (sender, mut receiver) = mpsc::channel::<Job>(32);
         let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(1);
         let (configured_tx, configured) = watch::channel(false);
@@ -204,10 +231,21 @@ impl Manager {
                     queue: queue.clone(),
                     configured,
                 });
+                let control = Arc::new(inference::InferenceControl::default());
+                let inference = inference::InferenceRuntime::start(
+                    queue.clone(),
+                    provider.clone(),
+                    control.clone(),
+                );
                 Ok(Runtime {
-                    manager: Self { queue },
+                    manager: Self {
+                        queue,
+                        inference: control,
+                        provider,
+                    },
                     setup,
                     thread,
+                    inference,
                 })
             }
             Err(error) => {
@@ -342,6 +380,7 @@ mod tests {
             manager,
             setup,
             thread,
+            inference,
         } = Manager::start(local.directory().to_owned()).unwrap();
         let observer = Arc::new(AdmissionWake {
             credential: manager.queue.credential.clone(),
@@ -378,6 +417,7 @@ mod tests {
         drop(observer);
         drop(manager);
         drop(setup);
+        inference.shutdown().await.unwrap();
         thread.join().unwrap();
     }
 
@@ -389,6 +429,7 @@ mod tests {
             manager,
             setup,
             thread,
+            inference,
         } = Manager::start(local.directory().to_owned()).unwrap();
         let (entered_tx, entered_rx) = oneshot::channel();
         let (release_tx, release_rx) = std::sync::mpsc::channel();
@@ -470,6 +511,7 @@ mod tests {
         );
         drop(setup);
         drop(manager);
+        inference.shutdown().await.unwrap();
         tokio::task::spawn_blocking(move || thread.join().unwrap())
             .await
             .unwrap();

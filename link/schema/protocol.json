@@ -6,6 +6,15 @@
     "document": {
       "$ref": "#/$defs/WriteDocument"
     },
+    "inference": {
+      "$ref": "#/$defs/SubmitInference"
+    },
+    "inference_configuration": {
+      "$ref": "#/$defs/ConfigureInference"
+    },
+    "inference_verification": {
+      "$ref": "#/$defs/VerifyInference"
+    },
     "manager": {
       "$ref": "#/$defs/Envelope2"
     },
@@ -24,7 +33,10 @@
     "manager",
     "owner",
     "replay",
-    "document"
+    "document",
+    "inference",
+    "inference_configuration",
+    "inference_verification"
   ],
   "$defs": {
     "Acknowledgment": {
@@ -779,6 +791,28 @@
         "outputs"
       ]
     },
+    "ConfigureInference": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "policy": {
+          "$ref": "#/$defs/InferencePolicy"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "expected_revision",
+        "policy"
+      ]
+    },
     "ControlStatus": {
       "type": "string",
       "enum": [
@@ -1251,6 +1285,490 @@
       "format": "uint64",
       "minimum": 0
     },
+    "InferenceAccounting": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "held"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "charged_microusd": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "settled"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "charged_microusd"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "released"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "InferenceAcknowledgment": {
+      "type": "object",
+      "properties": {
+        "acknowledged_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "developer_terms_url": {
+          "type": "string"
+        },
+        "model_developer": {
+          "type": "string"
+        },
+        "privacy_terms_url": {
+          "type": "string"
+        },
+        "release": {
+          "$ref": "#/$defs/ModelReleaseAcknowledgment"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "model_developer",
+        "developer_terms_url",
+        "privacy_terms_url",
+        "acknowledged_at",
+        "release"
+      ]
+    },
+    "InferenceAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "InferenceAttentionReason": {
+      "type": "string",
+      "enum": [
+        "interrupted",
+        "provider_rejected",
+        "invalid_response",
+        "invalid_usage",
+        "unexpected_model",
+        "response_too_large",
+        "shutdown",
+        "restart"
+      ]
+    },
+    "InferenceBilling": {
+      "type": "string",
+      "enum": [
+        "text_tokens_only_at_acknowledged_ceilings"
+      ]
+    },
+    "InferenceConfiguration": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "policy": {
+          "$ref": "#/$defs/InferencePolicy"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "verification": {
+          "$ref": "#/$defs/InferenceVerification"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "revision",
+        "policy",
+        "verification"
+      ]
+    },
+    "InferenceEndpoint": {
+      "type": "string",
+      "enum": [
+        "global",
+        "eu",
+        "us"
+      ]
+    },
+    "InferenceFinishReason": {
+      "type": "string",
+      "enum": [
+        "stop",
+        "length"
+      ]
+    },
+    "InferenceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "InferenceNotSentReason": {
+      "type": "string",
+      "enum": [
+        "deadline",
+        "configuration_changed",
+        "vault_locked",
+        "shutdown",
+        "restart"
+      ]
+    },
+    "InferencePhase": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "admitted"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "attempt": {
+              "$ref": "#/$defs/InferenceAttemptId"
+            },
+            "started_at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "type": {
+              "type": "string",
+              "const": "sending"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "attempt",
+            "started_at"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "attempt": {
+              "$ref": "#/$defs/InferenceAttemptId"
+            },
+            "finish_reason": {
+              "$ref": "#/$defs/InferenceFinishReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "completed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "attempt",
+            "finish_reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "cancelled"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/InferenceNotSentReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "not_sent"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "attempt": {
+              "$ref": "#/$defs/InferenceAttemptId"
+            },
+            "reason": {
+              "$ref": "#/$defs/InferenceAttentionReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "awaiting_attention"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "attempt",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "InferencePolicy": {
+      "type": "object",
+      "properties": {
+        "acknowledgment": {
+          "$ref": "#/$defs/InferenceAcknowledgment"
+        },
+        "context_tokens": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "endpoint": {
+          "$ref": "#/$defs/InferenceEndpoint"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "prices": {
+          "$ref": "#/$defs/InferencePrices"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "endpoint",
+        "model_id",
+        "context_tokens",
+        "acknowledgment",
+        "prices"
+      ]
+    },
+    "InferencePrices": {
+      "type": "object",
+      "properties": {
+        "billing": {
+          "$ref": "#/$defs/InferenceBilling"
+        },
+        "effective_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expires_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "input_microusd_per_million_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "output_microusd_per_million_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "input_microusd_per_million_tokens",
+        "output_microusd_per_million_tokens",
+        "effective_at",
+        "expires_at",
+        "billing"
+      ]
+    },
+    "InferenceReservation": {
+      "type": "object",
+      "properties": {
+        "cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "total_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "total_tokens",
+        "cost_microusd"
+      ]
+    },
+    "InferenceUsage": {
+      "type": "object",
+      "properties": {
+        "completion_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "prompt_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "total_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens"
+      ]
+    },
+    "InferenceVerification": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "unverified"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "checked_at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "expires_at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "type": {
+              "type": "string",
+              "const": "verified"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "checked_at",
+            "expires_at"
+          ]
+        }
+      ]
+    },
+    "InferenceView": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/InferenceAccounting"
+        },
+        "cancellation_requested_at": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "configuration": {
+          "$ref": "#/$defs/InferenceConfiguration"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "output": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phase": {
+          "$ref": "#/$defs/InferencePhase"
+        },
+        "provider_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request": {
+          "$ref": "#/$defs/SubmitInference"
+        },
+        "reservation": {
+          "$ref": "#/$defs/InferenceReservation"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "configuration",
+        "phase",
+        "reservation",
+        "accounting",
+        "created_at",
+        "updated_at"
+      ]
+    },
     "InputFence": {
       "type": "object",
       "properties": {
@@ -1686,6 +2204,40 @@
       "type": "string",
       "format": "uuid"
     },
+    "ModelReleaseAcknowledgment": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "stable"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "terms_url": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "preview"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "terms_url"
+          ]
+        }
+      ]
+    },
     "OperationId": {
       "type": "string",
       "format": "uuid"
@@ -1751,6 +2303,18 @@
             "$ref": "#/$defs/Document"
           }
         },
+        "inference_configurations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InferenceConfiguration"
+          }
+        },
+        "inferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InferenceView"
+          }
+        },
         "messages": {
           "type": "array",
           "items": {
@@ -1773,6 +2337,8 @@
       "additionalProperties": false,
       "required": [
         "tasks",
+        "inferences",
+        "inference_configurations",
         "conversations",
         "messages",
         "documents",
@@ -2218,6 +2784,55 @@
         }
       ]
     },
+    "SubmitInference": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "configuration_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "$ref": "#/$defs/InferenceId"
+        },
+        "max_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_total_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "prompt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "bot",
+        "configuration_revision",
+        "prompt",
+        "deadline",
+        "max_output_tokens",
+        "max_total_tokens",
+        "max_cost_microusd"
+      ]
+    },
     "SubmitTask": {
       "type": "object",
       "properties": {
@@ -2573,6 +3188,24 @@
         "progress",
         "effect_evidence",
         "approval"
+      ]
+    },
+    "VerifyInference": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "revision"
       ]
     },
     "Viewport": {

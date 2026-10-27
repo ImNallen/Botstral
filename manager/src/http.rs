@@ -1,3 +1,4 @@
+mod inference;
 mod tasks;
 mod workers;
 
@@ -51,15 +52,20 @@ pub async fn serve_with_worker(
         manager,
         setup,
         thread,
+        inference,
     } = runtime;
     let result = listeners(&local, manager, setup, listen, setup_listen, worker_tls).await;
+    let inference_result = inference
+        .shutdown()
+        .await
+        .map_err(|_| io::Error::other("inference stopped"));
     let joined = tokio::task::spawn_blocking(move || {
         thread.join().map_err(|_| io::Error::other("state stopped"))
     })
     .await
     .map_err(io::Error::other)?;
     local.remove("listeners.json")?;
-    result.and(joined)
+    result.and(inference_result).and(joined)
 }
 
 #[derive(Serialize)]
@@ -151,7 +157,7 @@ async fn listeners(
     result
 }
 
-async fn serve_listener(
+pub(crate) async fn serve_listener(
     listener: TcpListener,
     router: Router,
     mut stopped: watch::Receiver<bool>,
@@ -229,10 +235,11 @@ async fn browser_boundary(State(host): State<String>, request: Request, next: Ne
     response
 }
 
-fn regular_router(manager: Manager) -> Router {
+pub(crate) fn regular_router(manager: Manager) -> Router {
     Router::new()
         .merge(workers::router())
         .merge(tasks::router())
+        .merge(inference::router())
         .route(
             "/health",
             get(|| async { Json(serde_json::json!({"status":"ok"})) }),
@@ -285,6 +292,10 @@ impl From<OperationError> for ApiError {
             OperationError::RateLimited => Self(StatusCode::TOO_MANY_REQUESTS, "rate_limited"),
             OperationError::Busy => Self(StatusCode::SERVICE_UNAVAILABLE, "busy"),
             OperationError::Internal => Self(StatusCode::INTERNAL_SERVER_ERROR, "internal_error"),
+            OperationError::InferenceUnverified => {
+                Self(StatusCode::CONFLICT, "inference_unverified")
+            }
+            OperationError::InferenceBudget => Self(StatusCode::CONFLICT, "inference_budget"),
         }
     }
 }
@@ -602,7 +613,7 @@ async fn status(
     let status = manager.connection_status(token(&headers)?).await?;
     Ok(Json(serde_json::json!({
         "vault": match status.vault { VaultStatus::Locked => "locked", VaultStatus::Unlocked => "unlocked" },
-        "provider": status.provider.map(ProviderWire::from), "worker":"not_implemented", "inference":"not_implemented", "remote":"disabled",
+        "provider": status.provider.map(ProviderWire::from), "worker":"not_implemented", "inference":"single_turn_text", "remote":"disabled",
     })))
 }
 async fn unlock(

@@ -562,6 +562,8 @@ impl State {
             return Ok(EventReplay::Snapshot {
                 state: OwnerSnapshot {
                     tasks,
+                    inferences: self.inference_views(None)?,
+                    inference_configurations: self.inference_configurations()?,
                     conversations,
                     messages,
                     documents,
@@ -719,7 +721,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            4
+            5
         );
     }
 }

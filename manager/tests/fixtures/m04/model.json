@@ -1,0 +1,9 @@
+{
+  "id": "mistral-small-2506",
+  "object": "model",
+  "owned_by": "mistralai",
+  "max_context_length": 32768,
+  "capabilities": { "completion_chat": true, "function_calling": true, "vision": false },
+  "aliases": [],
+  "archived": false
+}

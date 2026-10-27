@@ -73,12 +73,14 @@ Provider metadata contains exactly `provider` and `updated_at`. There is no valu
 	"vault": "locked",
 	"provider": {"provider": "mistral", "updated_at": 1792960000},
 	"worker": "not_implemented",
-	"inference": "not_implemented",
+	"inference": "single_turn_text",
 	"remote": "disabled"
 }
 ```
 
 `provider` is `null` before entry. `vault` is `locked` or `unlocked`. Metadata makes no claim that a provider connection works. The worker marker is retained for M01 compatibility. Use [the M02 worker methods](worker-protocol.md#owner-methods) for current worker state and session operations.
+
+`inference` reports the implemented API, not configuration readiness or a working provider connection. Admission requires a current verified configuration and an unlocked vault.
 
 ## Errors and admission
 
@@ -174,3 +176,32 @@ M03 admits 128 retained tasks and 256 records each for conversations, messages, 
 ## Download a declared output
 
 `GET /v1/tasks/{task}/artifacts/{artifact}` requires the existing owner bearer session and task ownership. The task's `outputs` list reports pending, transferring, available, or unavailable delivery separately from execution completion. Only an available output has a downloadable artifact. Responses use attachment disposition, a fixed declared media type, `nosniff`, and `no-store`. Length and SHA-256 are verified before streaming. Sign in again after a manager restart. Durable artifacts remain retrievable.
+
+## Single-turn text inference
+
+These methods require the owner bearer session and existing strict JSON and loopback protections. Shared types are generated from `link/src/inference.rs`.
+
+| Method | Request | Result |
+| --- | --- | --- |
+| `PUT /v1/inference-configurations` | `ConfigureInference`. | A new immutable policy revision, initially `unverified`. `expected_revision` is zero for first configuration and the current revision thereafter. |
+| `GET /v1/inference-configurations/{bot}` | None. | The latest configuration and verification timestamps. |
+| `POST /v1/inference-configurations/verify` | `VerifyInference` with `bot` and `revision`. | Verifies the exact model ID, chat capability, and context ceiling against the selected endpoint. Requires the unlocked vault and stored key. |
+| `POST /v1/inferences` | `SubmitInference`. | An admitted durable `InferenceView`. Identical identifiers return the original record, including after restart. Changed input returns `409`. |
+| `GET /v1/inferences/{id}` | None. | The persisted request, configuration snapshot, phase, reservation, accounting, timestamps, usage, provider request identifier, and bounded output. |
+| `POST /v1/inferences/{id}/cancel` | `{}`. | Cancels and releases an unsent admission. After sending, records intent and keeps the reservation until valid completion evidence arrives. |
+
+`InferencePolicy` requires an endpoint enum of `global`, `eu`, or `us`, an explicit pinned `model_id`, and `context_tokens`. There is no default or arbitrary URL. Its `acknowledgment` records `model_developer`, `developer_terms_url`, `privacy_terms_url`, `acknowledged_at`, and `release`. Release is `{"type":"stable"}` or `{"type":"preview","terms_url":"https://..."}`. The owner attests to the developer and terms. API catalog metadata does not establish legal or privacy compliance.
+
+`prices` records `input_microusd_per_million_tokens`, `output_microusd_per_million_tokens`, `effective_at`, `expires_at`, and `billing`. The only supported billing value is `text_tokens_only_at_acknowledged_ceilings`. Prices use USD millionths and must include any applicable regional surcharge. Other billing dimensions are unsupported. These are owner-configured ceilings, not a promise about invoices. Verification lasts at most one hour and expires with the price ceilings. Replacing the provider key invalidates verification. Failed verification leaves admission blocked.
+
+`SubmitInference` contains `id`, `bot`, `configuration_revision`, `prompt`, `deadline`, `max_output_tokens`, `max_total_tokens`, and `max_cost_microusd`. The prompt is one user text message, without conversation history or tool execution. Its limit is 4,096 UTF-8 bytes. Deadlines must be future, within 120 seconds, and covered by the price expiry. Output caps range from 1 through 16,384 tokens and must be below the verified context ceiling. Context ceilings are at most 2,000,000 tokens.
+
+Admission reserves the full verified context ceiling at the input price plus the output cap at the output price. Each component rounds upward to one USD millionth with checked integer arithmetic. The total token budget must cover `context_tokens + max_output_tokens`. A short prompt can therefore require a much larger budget than its actual usage. There is no local tokenizer estimate. Limits apply per inference, with at most two admitted or sending calls manager-wide. Metadata verification shares the two-call HTTP limit. The ledger retains at most 128 inferences and 256 configuration revisions.
+
+Phases are `admitted`, `sending`, `completed`, `cancelled`, `not_sent`, and `awaiting_attention`. Accounting is independently `held`, `settled`, or `released`. Usage settles once against the recorded prices. Valid completion after a cancellation retains both cancellation intent and measured usage. Cancellation after sending does not abort HTTP or prove that the provider stopped billing.
+
+Unknown responses retain the entire reservation without replacement calls. These include transport failures, provider rejections, redirects, missing or contradictory usage, unsupported usage dimensions, unexpected models, malformed content, tool calls, and oversized responses. Output is limited to 32,768 bytes and the provider body to 65,536 bytes. Provider errors and reflected credentials are not returned or persisted. There are no retries, redirects, or ambient proxies.
+
+Restart marks sending attempts `awaiting_attention` and retains accounting. Admitted but unsent runs become `not_sent` and release their reservations. Shutdown interrupts HTTP and persists uncertainty before closing the State queue. There is no generic retry, attention acknowledgment, or reservation-release API. Replay snapshots include all inference records and configuration revisions. Configuration and lifecycle events commit with their authoritative records.
+
+`409` adds `inference_unverified` and `inference_budget`. The first also covers stale configuration authority. `503 busy` covers concurrency and retained-ledger limits. The [architecture](m04-inference.md) describes execution ownership and acceptance limits.

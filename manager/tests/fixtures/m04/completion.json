@@ -1,0 +1,7 @@
+{
+  "id": "cmpl-fixture-m04",
+  "object": "chat.completion",
+  "model": "mistral-small-2506",
+  "choices": [{ "index": 0, "message": { "role": "assistant", "content": "The fixture completed one text turn." }, "finish_reason": "stop" }],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 8, "total_tokens": 20 }
+}
