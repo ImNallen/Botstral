@@ -1,6 +1,6 @@
 # Botstral
 
-Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app manages the local owner session and bot roster. Model execution follows later.
+Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app manages the local owner session and bot roster. The manager supports explicitly configured single-turn text inference.
 
 ## Repository layout
 
@@ -30,7 +30,9 @@ Stop the manager with Control-C. Its SQLite database and encrypted credentials r
 
 See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records verification and remaining gaps. [Two-VM acceptance](docs/m02-two-vm-acceptance.md) passed with isolated production and synthetic test fixtures. [M03 recovery acceptance](docs/m03-acceptance.md) records durable task verification and exact synthetic limits.
 
-The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor. Model integration, owner-device pairing, and remote access remain later work.
+The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor.
+
+[M04 text inference](docs/m04-inference.md) adds a separate durable ledger, conservative budgets, and uncertainty recovery. HTTP fixtures verify the first slice. Live provider acceptance, tool loops, Vibe, owner-device pairing, and remote access remain open.
 
 ## Run the desktop
 

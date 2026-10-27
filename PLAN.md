@@ -136,6 +136,8 @@ Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) 
 
 Depends on M03 and W01 for live execution.
 
+The first bounded slice adds manager-owned single-turn text inference with explicit configuration, model verification, encrypted vault access, durable accounting, and HTTP fixture acceptance. [The inference architecture](docs/m04-inference.md) records its limits. M04 remains open. Tool loops, Vibe, vision, automatic worker operations, and live two-VM acceptance remain future work. No whole milestone item below is closed by this slice.
+
 - [ ] Add the manager's Mistral reasoning and tool loop.
 - [ ] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
 - [ ] Record model usage, deadlines, budgets, tool requests, and results. Enforce turn, token, time, spending, and concurrency limits before admitting each operation.
