@@ -870,7 +870,7 @@ mod migration_tests {
             .unwrap();
         assert_eq!(
             stored,
-            crypto::token_hash(invitation.secret.expose_secret())
+            crypto::worker_invitation_hash(invitation.secret.expose_secret())
         );
         assert!(
             !stored

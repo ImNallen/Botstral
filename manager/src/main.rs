@@ -33,13 +33,25 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             listen = value.to_str().ok_or("invalid address")?.parse()?;
         } else if argument == "--setup-listen" {
             setup_listen = value.to_str().ok_or("invalid address")?.parse()?;
-        } else if argument == "--worker-listen" {
+        } else if argument == "--worker-listen" || argument == "--public-listen" {
+            if worker_listen.is_some() {
+                return Err("duplicate public listener option".into());
+            }
             worker_listen = Some(value.to_str().ok_or("invalid address")?.parse()?);
-        } else if argument == "--worker-tls-cert" {
+        } else if argument == "--worker-tls-cert" || argument == "--public-tls-cert" {
+            if worker_cert.is_some() {
+                return Err("duplicate public certificate option".into());
+            }
             worker_cert = Some(PathBuf::from(value));
-        } else if argument == "--worker-tls-key" {
+        } else if argument == "--worker-tls-key" || argument == "--public-tls-key" {
+            if worker_key.is_some() {
+                return Err("duplicate public key option".into());
+            }
             worker_key = Some(PathBuf::from(value));
-        } else if argument == "--worker-client-ca" {
+        } else if argument == "--worker-client-ca" || argument == "--public-worker-ca" {
+            if worker_ca.is_some() {
+                return Err("duplicate public worker CA option".into());
+            }
             worker_ca = Some(PathBuf::from(value));
         } else {
             return Err("unknown option".into());

@@ -26,6 +26,71 @@ fn trust_roots(profile: &crate::ManagerTrust) -> io::Result<RootCertStore> {
     Ok(roots)
 }
 
+#[derive(Debug)]
+struct PinnedManager {
+    verifier: std::sync::Arc<rustls::client::WebPkiServerVerifier>,
+    leaf: crate::CertificateFingerprint,
+}
+impl rustls::client::danger::ServerCertVerifier for PinnedManager {
+    fn verify_server_cert(
+        &self,
+        leaf: &CertificateDer<'_>,
+        intermediates: &[CertificateDer<'_>],
+        name: &rustls::pki_types::ServerName<'_>,
+        ocsp: &[u8],
+        now: rustls::pki_types::UnixTime,
+    ) -> Result<rustls::client::danger::ServerCertVerified, rustls::Error> {
+        self.verifier
+            .verify_server_cert(leaf, intermediates, name, ocsp, now)?;
+        if crate::CertificateFingerprint::from_der(leaf.as_ref()) != self.leaf {
+            return Err(rustls::Error::InvalidCertificate(
+                rustls::CertificateError::ApplicationVerificationFailure,
+            ));
+        }
+        Ok(rustls::client::danger::ServerCertVerified::assertion())
+    }
+    fn verify_tls12_signature(
+        &self,
+        message: &[u8],
+        certificate: &CertificateDer<'_>,
+        signature: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        self.verifier
+            .verify_tls12_signature(message, certificate, signature)
+    }
+    fn verify_tls13_signature(
+        &self,
+        message: &[u8],
+        certificate: &CertificateDer<'_>,
+        signature: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        self.verifier
+            .verify_tls13_signature(message, certificate, signature)
+    }
+    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+        self.verifier.supported_verify_schemes()
+    }
+}
+
+pub fn pinned_manager_config(profile: &crate::ManagerTrust) -> io::Result<rustls::ClientConfig> {
+    let provider = std::sync::Arc::new(rustls::crypto::ring::default_provider());
+    let verifier = rustls::client::WebPkiServerVerifier::builder_with_provider(
+        std::sync::Arc::new(trust_roots(profile)?),
+        provider.clone(),
+    )
+    .build()
+    .map_err(io::Error::other)?;
+    Ok(rustls::ClientConfig::builder_with_provider(provider)
+        .with_safe_default_protocol_versions()
+        .map_err(io::Error::other)?
+        .dangerous()
+        .with_custom_certificate_verifier(std::sync::Arc::new(PinnedManager {
+            verifier,
+            leaf: profile.leaf.clone(),
+        }))
+        .with_no_client_auth())
+}
+
 pub fn validate_manager_trust(
     profile: &crate::ManagerTrust,
     certificates: &[CertificateDer<'_>],

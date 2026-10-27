@@ -7,6 +7,18 @@ pub const OWNER_TRANSFER_BYTES: usize = 80 * 1024 * 1024;
 pub const OWNER_TRANSFER_SECONDS: u64 = 120;
 pub const MAX_OWNER_DEVICES: usize = 128;
 pub const MAX_OWNER_CONNECTIONS: usize = 8;
+pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_TASKS * 24 * 1024
+    + MAX_RUNS * 4096
+    + MAX_INFERENCES
+        * (6 * (MAX_INFERENCE_PROMPT_BYTES + MAX_INFERENCE_OUTPUT_BYTES + 200) + 32768 + 4096)
+    + MAX_INFERENCE_CONFIGURATIONS * 32768
+    + MAX_RECORDS * (128 + (6 * 4096 + 256) + (6 * (4096 + 8 * 512) + 2048) + 128)
+    + 4096;
+pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_TASKS * 256 * 1024
+    + MAX_RUNS * 4096
+    + MAX_INFERENCES * 128 * 1024
+    + MAX_INFERENCE_CONFIGURATIONS * 16 * 1024
+    + MAX_RECORDS * (256 + 16 * 1024 + 32 * 1024 + 128);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -145,7 +157,7 @@ pub enum OwnerOperation {
         id: InferenceId,
     },
     SubmitRun {
-        input: SubmitRun,
+        input: Box<SubmitRun>,
     },
     Run {
         id: RunId,

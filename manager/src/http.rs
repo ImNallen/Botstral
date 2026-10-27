@@ -1,3 +1,4 @@
+mod devices;
 mod inference;
 mod runs;
 mod tasks;
@@ -74,6 +75,8 @@ struct Listeners {
     listen: SocketAddr,
     setup: Option<SocketAddr>,
     worker: Option<SocketAddr>,
+    #[serde(rename = "public")]
+    public_listener: Option<SocketAddr>,
 }
 
 async fn listeners(
@@ -97,6 +100,10 @@ async fn listeners(
         None => None,
     };
     let mut addresses = Listeners {
+        public_listener: worker_listener
+            .as_ref()
+            .map(crate::worker_http::WorkerListener::local_addr)
+            .transpose()?,
         worker: worker_listener
             .as_ref()
             .map(crate::worker_http::WorkerListener::local_addr)
@@ -239,6 +246,7 @@ async fn browser_boundary(State(host): State<String>, request: Request, next: Ne
 pub(crate) fn regular_router(manager: Manager) -> Router {
     Router::new()
         .merge(workers::router())
+        .merge(devices::router())
         .merge(tasks::router())
         .merge(inference::router())
         .merge(runs::router())

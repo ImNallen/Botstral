@@ -33,7 +33,7 @@ impl State {
         let secret = SecretString::from(crypto::random_token());
         let expires_at = now + i64::from(lifetime_seconds);
         self.connection.execute("INSERT INTO worker_invitations(token_hash, fingerprint, expires_at, manager) VALUES(?1, ?2, ?3, ?4)",
-            params![crypto::token_hash(secret.expose_secret()).as_slice(), fingerprint.as_str(), expires_at, self.manager_identity()?.to_string()])?;
+            params![crypto::worker_invitation_hash(secret.expose_secret()).as_slice(), fingerprint.as_str(), expires_at, self.manager_identity()?.to_string()])?;
         Ok(InvitationGrant { secret, expires_at })
     }
 
@@ -252,6 +252,7 @@ impl State {
         peer: crate::worker_http::VerifiedIdentity,
         secret: SecretString,
     ) -> Result<WorkerId, OperationError> {
+        self.remote_attempt()?;
         if secret.expose_secret().len() != 43 {
             return Err(ErrorCode::InvalidInvitation.into());
         }
@@ -259,7 +260,7 @@ impl State {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        let hash = crypto::token_hash(secret.expose_secret());
+        let hash = crypto::worker_invitation_hash(secret.expose_secret());
         let (fingerprint, expires_at, consumed): (String, i64, Option<i64>) = tx.query_row(
             "SELECT fingerprint, expires_at, consumed_at FROM worker_invitations WHERE manager = (SELECT identity FROM manager_identity WHERE id=1) AND role='worker' AND token_hash = ?1", [hash.as_slice()],
             |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?))).optional()?.ok_or(ErrorCode::InvalidInvitation)?;

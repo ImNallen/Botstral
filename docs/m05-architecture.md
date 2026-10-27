@@ -85,4 +85,12 @@ The pin lifecycle uses trusted local rotation rather than the candidates' staged
 
 ## Implementation reconciliation
 
-No implementation deviations are accepted yet. Record accepted changes here and update the affected contract before the next unit begins.
+The implementation keeps local public Manager signatures and admits the private authority enum inside shared State methods. Device leases register by independent connection identity, so several connections can share a device without sharing disconnect cleanup.
+
+Owner wire version 1 is separate from worker wire version 3. Every reply uses the same counted and hashed chunk transfer, including ordinary domain replies. A global permit covers snapshot materialization and serialization. Each viewer releases that permit before sending. The [snapshot bound](m05-snapshot-bound.md) accounts for every collection and the additional recovery allocations.
+
+The reusable native client lives in `manager::owner_client` and has an `owner-probe` binary. Its private filesystem storage is a protocol acceptance implementation. Native keychain integration remains C02. Events prompt a complete authoritative M03 image read before the client commits its replacement image and cursor. This is a conservative implementation of the required authoritative-read rule. It avoids presenting event references as replacement entity state.
+
+The old worker listener names remain aliases for the public listener. Public command-line aliases reject duplicate configuration. Worker paths and wire types remain unchanged. Legacy unbound worker invitations expire during migration. Existing worker registrations remain intact.
+
+No external route acceptance is claimed until the temporary relay has carried actual pinned owner traffic and cleanup has been verified. Independent implementation review remains the parent's gate.
