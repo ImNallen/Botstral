@@ -1,0 +1,40 @@
+{
+  "issue": "https://github.com/ImNallen/Botstral/issues/28",
+  "review": "https://github.com/ImNallen/Botstral/pull/27#discussion_r4392589254",
+  "acceptance_snapshot": "e5467a345d29f1711c1f62ab15dfc9872214e973",
+  "change": "derive Vibe child task settings deadline from translated work",
+  "cases": [
+    {
+      "policy_deadline": 1450,
+      "parent_deadline": 1500,
+      "child_deadline": 1450
+    },
+    {
+      "policy_deadline": 1500,
+      "parent_deadline": 1500,
+      "child_deadline": 1500
+    },
+    {
+      "policy_deadline": 1600,
+      "parent_deadline": 1500,
+      "child_deadline": 1500
+    }
+  ],
+  "paid_calls": 0,
+  "source": {
+    "manager/src/manager/state/runs/settlement.rs": {
+      "before": "0b1d2f9195c49931dca5f9f3fce2240cd1182136e18e7412138ea809b91a7425",
+      "after": "b499e89003b814e7c02855e638239fb49b02e58a99bdc65148c65be3625e5642"
+    },
+    "manager/src/manager/state/runs/coding_tests.rs": {
+      "before": "28869118286f2e3b295472d871621a1e20e35791e02a0854893cb5f2ec077fc8",
+      "after": "cd7c2467d00c02377ef51c8e03d96b85bf16e42cb15dd68030b538eb9e0855b1"
+    }
+  },
+  "evidence": [
+    "pr-deadline-before.log",
+    "pr-deadline-after.log",
+    "pr-deadline-manager-suite.log",
+    "pr-deadline-clippy.log"
+  ]
+}

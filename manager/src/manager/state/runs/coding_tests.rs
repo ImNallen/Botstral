@@ -6,7 +6,7 @@ use crate::manager::{
 use serde_json::{Value, json};
 use std::sync::{Arc, Mutex};
 
-fn coding(f: &mut Fixture) -> TaskView {
+fn coding(f: &mut Fixture, deadline: Option<i64>) -> TaskView {
     f.state
         .worker_connections
         .get_mut(&f.lease.worker)
@@ -40,6 +40,7 @@ fn coding(f: &mut Fixture) -> TaskView {
             outputs: vec![],
         },
         limits: RunLimits {
+            deadline: deadline.unwrap_or(f.input.limits.deadline),
             max_operations: 1,
             max_turns: 3,
             ..f.input.limits.clone()
@@ -69,6 +70,28 @@ fn coding(f: &mut Fixture) -> TaskView {
     f.approve_and_claim(task.id);
     task
 }
+#[test]
+fn coding_child_uses_the_earlier_policy_or_parent_deadline() {
+    for (policy_deadline, expected_deadline) in [(1450, 1450), (1500, 1500), (1600, 1500)] {
+        let mut f = fixture();
+        let task = coding(&mut f, Some(policy_deadline));
+        assert_eq!(task.state, TaskState::Queued);
+        assert_eq!(task.request.settings.deadline, expected_deadline);
+        let WorkSpec::Vibe { spec } = &task.command.work else {
+            panic!("expected coding child");
+        };
+        assert_eq!(spec.limits.deadline, expected_deadline);
+        let run = f.state.load_run(f.input.id).unwrap();
+        assert!(
+            matches!(run.summary.phase, RunPhase::WaitingForTool { task: id, .. } if id == task.id)
+        );
+        assert_eq!(
+            f.state.load_task(task.id).unwrap().state,
+            TaskState::Running
+        );
+    }
+}
+
 fn request(model: &str, tools: bool) -> CodingRequest {
     serde_json::from_value(json!({"model":model,"messages":[{"role":"user","content":"Recorded coding request"}],"stream":true,
         "stream_options":{"include_usage":true},"tools":if tools { vec![json!({"type":"function","function":{"name":"edit","parameters":{"type":"object"}}})] } else { vec![] }})).unwrap()
@@ -104,7 +127,7 @@ fn reply(model: &str) -> Value {
 #[tokio::test]
 async fn coding_helpers_retry_and_parent_limits_use_recorded_http_and_prior_durable_holds() {
     let mut f = fixture();
-    let task = coding(&mut f);
+    let task = coding(&mut f, None);
     let requests = Arc::new(Mutex::new(Vec::<Value>::new()));
     let captured = requests.clone();
     let body = reply(
@@ -202,7 +225,7 @@ fn coding_uncertainty_recovery_cancellation_and_identity_never_restore_authority
         "changed_request",
     ] {
         let mut f = fixture();
-        let task = coding(&mut f);
+        let task = coding(&mut f, None);
         let id = InferenceAttemptId::new();
         assert!(matches!(
             f.state.admit_coding(
@@ -279,7 +302,7 @@ fn coding_uncertainty_recovery_cancellation_and_identity_never_restore_authority
 #[test]
 fn coding_validation_rejects_model_switches_tools_urls_and_unknown_options() {
     let mut f = fixture();
-    let task = coding(&mut f);
+    let task = coding(&mut f, None);
     let WorkSpec::Vibe { spec } = task.command.work else {
         panic!()
     };
@@ -315,7 +338,7 @@ fn coding_validation_rejects_model_switches_tools_urls_and_unknown_options() {
 #[test]
 fn pinned_vibe_wire_requests_pass_the_production_boundary_except_forbidden_tool_history() {
     let mut f = fixture();
-    let task = coding(&mut f);
+    let task = coding(&mut f, None);
     let WorkSpec::Vibe { spec } = task.command.work else {
         panic!()
     };
@@ -337,7 +360,7 @@ fn pinned_vibe_wire_requests_pass_the_production_boundary_except_forbidden_tool_
 #[test]
 fn resume_requires_confirmed_exit_same_owner_workspace_policy_and_exact_session() {
     let mut f = fixture();
-    let task = coding(&mut f);
+    let task = coding(&mut f, None);
     let WorkSpec::Vibe { mut spec } = task.command.work.clone() else {
         panic!()
     };
@@ -407,7 +430,7 @@ async fn abandoned_coding_caller_during_state_admission_releases_known_unsent_ho
     use crate::manager::{Manager, Queue, inference::InferenceControl};
     use std::time::Duration;
     let mut f = fixture();
-    let task = coding(&mut f);
+    let task = coding(&mut f, None);
     let WorkSpec::Vibe { spec } = &task.command.work else {
         panic!()
     };

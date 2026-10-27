@@ -31,13 +31,19 @@ Independent review also corrected literal workspace glob boundaries in [issue 25
 
 ## Source applicability and verification
 
-[The source comparison](../agent/tests/evidence/m04-completion/source-applicability.json) identifies two production files changed after the successful live Vibe/vision observations. They implement Process stop proof and its diagnostic. The additional manager change extends an ignored integration test. Mistral transport, coding authority, Vibe wrapper, model configuration, vision decoding and shared schemas are unchanged.
+[The acceptance snapshot source comparison](../agent/tests/evidence/m04-completion/source-applicability.json) identifies two production files changed after the successful live Vibe/vision observations. They implement Process stop proof and its diagnostic. The additional manager change extends an ignored integration test. Mistral transport, coding authority, Vibe wrapper, model configuration, vision decoding and shared schemas are unchanged.
 
-The final Linux source matches the local component files. Installed Manager binaries match across the two VMs. [Provenance](../agent/tests/evidence/m04-completion/source-provenance.json) records the hashes and source archive digest. Existing installations remained untouched; corrected binaries used the unique base `/home/botstral/m04-stop-final.TIi8kJ`.
+The accepted Linux snapshot matches its recorded component files. Installed Manager binaries match across the two VMs. [Provenance](../agent/tests/evidence/m04-completion/source-provenance.json) records the hashes and source archive digest. Existing installations remained untouched; corrected binaries used the unique base `/home/botstral/m04-stop-final.TIi8kJ`.
 
 Final-source [Linux verification](../agent/tests/evidence/m04-completion/linux-production.log) passes eight real-systemd stop regressions, the native Vibe integration, the actual browser/file/process/artifact integration, and all five production Process acceptance tests. A ninth portable stop test rejects missing population data. The additional native integration passes cancellation after observing the real CLI, completed-artifact recovery, bounded manager shutdown, and retained unknown/held recovery after restart. Its provider is recorded.
 
 [Repository verification](../agent/tests/evidence/m04-completion/verify.log) passes formatting, all-target Clippy, workspace/default and test-worker suites, release builds and both release refusals. The manager suite passes 56 tests with two Linux lanes ignored; those two lanes pass separately on Linux. Six acceptance-budget tests pass. The desktop's 17 tests, frontend build and six actual native desktop tests pass in their retained logs.
+
+## PR review follow-up
+
+[PR review](https://github.com/ImNallen/Botstral/pull/27#discussion_r4392589254) found that an earlier owner-selected Vibe deadline survived translation but differed from the parent deadline copied into child task settings. Valid coding proposals therefore stopped before approval. Child settings now use the translated Vibe deadline. Earlier, equal and later policy bounds produce the minimum of policy and parent deadlines, without changing approval or worker execution.
+
+[The correction receipt](../agent/tests/evidence/m04-completion/pr-deadline-correction.json) records before/after source hashes and regression logs. The regression fails on the previous production code and passes after the fix. All 57 manager tests pass with the same two Linux lanes ignored, and workspace all-target Clippy passes. No additional paid call was made. The original independent review and Linux provenance describe the earlier acceptance snapshot; this receipt records the later State-only correction.
 
 ## Spending and scope
 

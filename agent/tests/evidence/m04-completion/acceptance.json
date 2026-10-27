@@ -43,8 +43,16 @@
     "final-clippy.log": "e30da4071b459874c9cb3793464b06c961da70353d57e6f77f2ed5aed0ceba9a",
     "final-acceptance-review.md": "8df93756c237f42cff0bcb11df71c93a976e7e396ca3fc9d1e353fbc4ba4653a",
     "final-comment-review.md": "36f87ab1efbb01454c3a0434d76f960d40dd1f4b3ca57776f5fda2f4e452bf25",
-    "publication-secret-scan.json": "6d419ec999f6c293b4059fec92d2c84f7aa4a0da1921d6aa66283a2c7b10a61a"
+    "publication-secret-scan.json": "6d419ec999f6c293b4059fec92d2c84f7aa4a0da1921d6aa66283a2c7b10a61a",
+    "pr-deadline-before.log": "ac16608f770de5c5731d6e77936ee9aed47236194cb7777b6a7747939cc64431",
+    "pr-deadline-after.log": "5de60624acea24f7c19de719223c75b94354ec3f2f0468e491ac3ca0876553ca",
+    "pr-deadline-manager-suite.log": "4194638154a6ef945e88e6506f84e75d6debc7ef55a24b7fc55131cb1342d3a8",
+    "pr-deadline-clippy.log": "7486881dac0fa915499d0d62714d1c7aaf1f0c144c10cce266c74d1ea5861551",
+    "pr-deadline-correction.json": "aa2f0b57d71406c8d2782dbe44ac5f87dd206ad0ca767e7be123ad72d2e3e6bb"
   },
   "production_commit": "126392a",
-  "independent_reviewer": "gpt-6-astra"
+  "independent_reviewer": "gpt-6-astra",
+  "post_acceptance_corrections": [
+    "pr-deadline-correction.json"
+  ]
 }

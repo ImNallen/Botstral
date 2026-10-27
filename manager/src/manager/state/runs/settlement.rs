@@ -116,7 +116,10 @@ impl State {
                                         model: view.configuration.policy.model_id.clone(),
                                         max_turns: 1,
                                         max_tokens: view.request.limits.max_output_tokens,
-                                        deadline: view.request.limits.deadline,
+                                        deadline: match &work {
+                                            WorkSpec::Vibe { spec } => spec.limits.deadline,
+                                            _ => view.request.limits.deadline,
+                                        },
                                         max_cost_micros: view.request.limits.max_cost_microusd,
                                     },
                                     work,
