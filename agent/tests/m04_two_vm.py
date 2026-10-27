@@ -131,7 +131,8 @@ def exercise(f, certificates, args):
         second=computer.submit(f,computer.computer(f,b,[{'type':'read_file','path':shared,'output':'file'}],[computer.output('file')]))
         second=computer.ready(f,process.task(f,second,'completed'));computer.download(f,second,'file',b'M04 shared file\n')
         policy={'computer':{'profile':'linux_playwright_v1','account':{'uid':1000,'gid':1000},'runtime':{'sha256':f.runtime},'limits':{'runtime_seconds':60,'output_bytes':1024,'processes':128,'memory_bytes':1073741824},'viewport':{'width':800,'height':600},'outputs':[computer.output('text')]},'process':None}
-        reasoning=run(f,a,'Use the computer tool once to navigate to '+origin+' and capture #proof into text. Then answer briefly.',CALL_PLAN['reasoning'],policy)
+        arguments={'operations':[{'type':'navigate','url':origin},{'type':'capture_text','selector':'#proof','output':'text'}],'outputs':['text']}
+        reasoning=run(f,a,'Call computer exactly once with these arguments, preserving operation order and output slot names: '+json.dumps(arguments)+'. After its result, answer briefly without another tool call.',CALL_PLAN['reasoning'],policy)
         m02.require(reasoning['summary']['phase']['type']=='completed' and any(t['intent'] for t in reasoning['turns']),'live reasoning did not execute a browser child')
         results = [json.loads(t['intent']['result']) for t in reasoning['turns'] if t['intent'] and t['intent']['result']]
         m02.require(any(a.get('untrusted_text') == 'M04 reasoning browser proof' for r in results for a in r['untrusted_tool_result']['artifacts']), 'reasoning did not receive the observed browser text')

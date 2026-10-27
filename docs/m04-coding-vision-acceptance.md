@@ -95,6 +95,20 @@ The ledger parent directory must already exist and be private. Live checks requi
 
 A missing, failed, or merely prepared check cannot mark live acceptance passed. A budget stop is a failed acceptance result; the runner does not increase limits or retry the campaign.
 
+## Reconcile a stopped fixture
+
+When a fixture stops before using its planned calls, keep its database intact and reconcile only the unused allocations before starting another run:
+
+```sh
+python3 -B agent/tests/m04_reconcile_budget.py \
+  --evidence /absolute/failed-run/results.json \
+  --ledger /home/botstral/PRIVATE-CAMPAIGN/m04-budget.json
+```
+
+The tool requires successful shutdown and cleanup evidence. On Manager it takes the actual manager state lock, refuses a running manager, reads every durable inference attempt, and retains each attempt's full original reservation, including settled and unknown calls. It records the old allocation, retained attempts, database hashes, and evidence hash atomically under the campaign lock. The cap and prior allowance stay unchanged. Keep the reconciled fixture stopped. Missing or corrupt state cannot release an allocation.
+
+The parent observed one safely rejected model proposal in the first live run. Its single durable attempt retains 53,249 microdollars. Together with the immutable prior 432,544 and another full 425,992 plan, the campaign reserves 911,785 microdollars. This preserves the same US$1 cap. It does not erase or replay the rejected run.
+
 ## Observed implementation evidence
 
 On 2026-10-27, `scripts/verify.sh` passed formatting, clippy, default and test-worker suites, release builds, and both release feature refusals. `scripts/verify-m04-coding-vision.sh` passed the recorded manager library suite with 56 tests and two Linux integration lanes ignored, the three acceptance-ledger tests, and generated-binding/TypeScript checks. `npm test` passed 17 desktop tests, and `npm run build` passed. The actual CLI contract passed on macOS and Linux without provider spending. The Linux contract ran under 256 MiB and 32-process limits and recorded an 82,722,816-byte cgroup peak. The production worker integration passed its real edit, resume, denied-tool failure, and shutdown checks. The stalled coding request initially exceeded the three-second manager shutdown bound. After registration and shared shutdown signaling, the same test drained within that bound and found the persisted unknown/held row before reopening State. The blocked-admission caller-cancellation regression also passed.
