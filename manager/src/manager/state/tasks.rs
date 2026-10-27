@@ -127,7 +127,7 @@ impl State {
         )?;
         id.parse().map_err(|_| OperationError::Internal)
     }
-    fn permission(&self, bot: BotId) -> Result<Permission, OperationError> {
+    pub(super) fn permission(&self, bot: BotId) -> Result<Permission, OperationError> {
         Ok(self
             .connection
             .query_row(
@@ -576,6 +576,7 @@ impl State {
                 state: OwnerSnapshot {
                     tasks,
                     inferences: self.inference_views(None)?,
+                    runs: self.run_summaries()?,
                     inference_configurations: self.inference_configurations()?,
                     conversations,
                     messages,
@@ -734,7 +735,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            5
+            6
         );
     }
 }

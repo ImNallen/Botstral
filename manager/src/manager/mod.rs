@@ -1,6 +1,7 @@
 mod crypto;
 mod inference;
 mod provider;
+mod runs;
 mod state;
 mod tasks;
 mod workers;
@@ -207,13 +208,20 @@ impl Manager {
         let (sender, mut receiver) = mpsc::channel::<Job>(32);
         let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(1);
         let (configured_tx, configured) = watch::channel(false);
+        let control = Arc::new(inference::InferenceControl::default());
+        let state_wake = control.clone();
         let thread = thread::Builder::new()
             .name("botstral-state".into())
             .spawn(move || match state::State::open(directory, configured_tx) {
                 Ok(mut state) => {
+                    state.set_inference_control(state_wake.clone());
                     let _ = ready_tx.send(Ok(state.is_configured()));
                     while let Some(job) = receiver.blocking_recv() {
+                        let before = state.change_sequence();
                         job(&mut state);
+                        if before != state.change_sequence() {
+                            state_wake.run_wake.notify_one();
+                        }
                     }
                 }
                 Err(error) => {
@@ -232,7 +240,6 @@ impl Manager {
                     queue: queue.clone(),
                     configured,
                 });
-                let control = Arc::new(inference::InferenceControl::default());
                 let inference = inference::InferenceRuntime::start(
                     queue.clone(),
                     provider.clone(),
@@ -495,7 +502,10 @@ mod tests {
             (waited, outcome)
         };
         while let Some(result) = pending.join_next().await {
-            assert_eq!(result.unwrap(), Err(OperationError::Unauthorized));
+            assert!(matches!(
+                result.unwrap(),
+                Err(OperationError::Unauthorized | OperationError::Busy)
+            ));
         }
         assert!(waited, "delivery bypassed queue admission with {outcome:?}");
         assert_eq!(

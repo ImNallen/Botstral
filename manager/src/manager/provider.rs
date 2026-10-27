@@ -128,7 +128,7 @@ impl Provider {
         Ok(body)
     }
 
-    pub(super) async fn verify(&self, permit: &VerificationPermit) -> bool {
+    pub(super) async fn verify(&self, permit: &VerificationPermit) -> Option<bool> {
         #[derive(Deserialize)]
         struct Model {
             id: String,
@@ -140,8 +140,11 @@ impl Provider {
         #[derive(Deserialize)]
         struct Capabilities {
             completion_chat: bool,
+            #[serde(default)]
+            function_calling: bool,
         }
         let policy = &permit.configuration.policy;
+        let secret = &permit.secret;
         let verification = async {
             let response = self
                 .client
@@ -150,28 +153,81 @@ impl Provider {
                     self.base(policy.endpoint),
                     policy.model_id
                 ))
-                .bearer_auth(permit.secret.expose_secret())
+                .bearer_auth(secret.expose_secret())
                 .send()
                 .await
                 .ok()?;
-            let body = Self::body(response, &permit.secret).await.ok()?;
+            let body = Self::body(response, secret).await.ok()?;
             let model: Model = serde_json::from_slice(&body).ok()?;
-            Some(
-                model.id == policy.model_id
-                    && model.max_context_length == policy.context_tokens
-                    && model.capabilities.completion_chat
-                    && !model.archived,
-            )
+            (model.id == policy.model_id
+                && model.max_context_length == policy.context_tokens
+                && model.capabilities.completion_chat
+                && !model.archived)
+                .then_some(model.capabilities.function_calling)
         };
-        matches!(
-            tokio::time::timeout(Duration::from_secs(10), verification).await,
-            Ok(Some(true))
-        )
+        tokio::time::timeout(Duration::from_secs(10), verification)
+            .await
+            .ok()
+            .flatten()
     }
 
     pub(super) async fn execute(&self, permit: &CallPermit) -> ProviderOutcome {
-        let request = &permit.view.request;
-        let policy = &permit.view.configuration.policy;
+        let input = &permit.view.request;
+        let messages = [RunMessage::User {
+            content: input.prompt.clone(),
+        }];
+        match self
+            .chat(
+                ModelRequest {
+                    policy: &permit.view.configuration.policy,
+                    deadline: input.deadline,
+                    max_output_tokens: input.max_output_tokens,
+                    max_total_tokens: input.max_total_tokens,
+                    messages: &messages,
+                    tools: None,
+                },
+                &permit.secret,
+                None,
+            )
+            .await
+        {
+            ModelOutcome::NotSent { reason } => ProviderOutcome::NotSent { reason },
+            ModelOutcome::Unknown { reason, request_id } => {
+                ProviderOutcome::Unknown { reason, request_id }
+            }
+            ModelOutcome::Billed {
+                usage,
+                request_id,
+                response,
+                finish_reason,
+            } => match (response, finish_reason) {
+                (
+                    Ok(RunMessage::Assistant {
+                        content,
+                        tool_call: None,
+                    }),
+                    Some(finish_reason),
+                ) => ProviderOutcome::Completed {
+                    usage,
+                    request_id,
+                    output: content,
+                    finish_reason,
+                },
+                _ => ProviderOutcome::Unknown {
+                    reason: InferenceAttentionReason::InvalidResponse,
+                    request_id: Some(request_id),
+                },
+            },
+        }
+    }
+
+    pub(super) async fn chat(
+        &self,
+        request: ModelRequest<'_>,
+        secret: &SecretString,
+        capacity: Option<tokio::sync::OwnedSemaphorePermit>,
+    ) -> ModelOutcome {
+        let policy = request.policy;
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default();
@@ -179,68 +235,89 @@ impl Provider {
             .saturating_sub(now)
             .min(Duration::from_secs(MAX_INFERENCE_SECONDS as u64));
         if remaining.is_zero() {
-            return ProviderOutcome::NotSent {
+            return ModelOutcome::NotSent {
                 reason: InferenceNotSentReason::Deadline,
             };
         }
         let deadline = tokio::time::Instant::now() + remaining;
-        let _capacity = match tokio::time::timeout_at(deadline, self.calls.acquire()).await {
-            Ok(Ok(capacity)) => capacity,
-            Ok(Err(_)) => {
-                return ProviderOutcome::NotSent {
-                    reason: InferenceNotSentReason::Shutdown,
-                };
-            }
-            Err(_) => {
-                return ProviderOutcome::NotSent {
-                    reason: InferenceNotSentReason::Deadline,
-                };
+        let _capacity = match capacity {
+            Some(capacity) => capacity,
+            None => {
+                match tokio::time::timeout_at(deadline, self.calls.clone().acquire_owned()).await {
+                    Ok(Ok(capacity)) => capacity,
+                    Ok(Err(_)) => {
+                        return ModelOutcome::NotSent {
+                            reason: InferenceNotSentReason::Shutdown,
+                        };
+                    }
+                    Err(_) => {
+                        return ModelOutcome::NotSent {
+                            reason: InferenceNotSentReason::Deadline,
+                        };
+                    }
+                }
             }
         };
         if tokio::time::Instant::now() >= deadline {
-            return ProviderOutcome::NotSent {
+            return ModelOutcome::NotSent {
                 reason: InferenceNotSentReason::Deadline,
             };
         }
         let mut request_id = None;
         let execution = async {
-            let response = self.client.post(format!("{}/v1/chat/completions", self.base(policy.endpoint)))
-                .bearer_auth(permit.secret.expose_secret())
-                .json(&serde_json::json!({
-                    "model": policy.model_id, "messages": [{"role":"user","content":request.prompt}],
-                    "max_tokens":request.max_output_tokens, "n":1, "stream":false, "tool_choice":"none",
-                    "service_tier":"standard_only"
-                }))
-                .send().await.map_err(|_| InferenceAttentionReason::Interrupted)?;
+            let mut body = serde_json::json!({
+                "model":policy.model_id, "messages":request.messages.iter().map(message).collect::<Vec<_>>(),
+                "max_tokens":request.max_output_tokens, "n":1, "stream":false,
+                "tool_choice": if request.tools.is_some() { "auto" } else { "none" },
+                "service_tier":"standard_only"
+            });
+            if let Some(tools) = request.tools {
+                body["tools"] = serde_json::json!(super::runs::tools::definitions(tools));
+                body["parallel_tool_calls"] = false.into();
+            }
+            if reflects_secret(&body, secret.expose_secret()) {
+                return Err(InferenceAttentionReason::InvalidResponse);
+            }
+            let response = self
+                .client
+                .post(format!(
+                    "{}/v1/chat/completions",
+                    self.base(policy.endpoint)
+                ))
+                .bearer_auth(secret.expose_secret())
+                .json(&body)
+                .send()
+                .await
+                .map_err(|_| InferenceAttentionReason::Interrupted)?;
             request_id = response
                 .headers()
                 .get("x-request-id")
                 .and_then(|id| id.to_str().ok())
-                .filter(|id| valid_request_id(id) && !id.contains(permit.secret.expose_secret()))
+                .filter(|id| valid_request_id(id) && !id.contains(secret.expose_secret()))
                 .map(str::to_owned);
-            let body = Self::body(response, &permit.secret).await?;
+            let body = Self::body(response, secret).await?;
             #[derive(Deserialize)]
             struct Identity {
                 id: String,
             }
             if let Ok(identity) = serde_json::from_slice::<Identity>(&body)
                 && valid_request_id(&identity.id)
-                && !identity.id.contains(permit.secret.expose_secret())
+                && !identity.id.contains(secret.expose_secret())
             {
                 request_id = Some(identity.id);
             }
-            let outcome = parse_completion(&body, &permit.view)?;
-            if matches!(&outcome, ProviderOutcome::Completed { output, request_id, .. }
-                if output.contains(permit.secret.expose_secret()) || request_id.contains(permit.secret.expose_secret()))
-            {
+            let decoded: serde_json::Value = serde_json::from_slice(&body)
+                .map_err(|_| InferenceAttentionReason::InvalidResponse)?;
+            if reflects_secret(&decoded, secret.expose_secret()) {
                 return Err(InferenceAttentionReason::InvalidResponse);
             }
+            let outcome = parse_completion(decoded, &request)?;
             Ok(outcome)
         };
         match tokio::time::timeout_at(deadline, execution).await {
             Ok(Ok(outcome)) => outcome,
-            Ok(Err(reason)) => ProviderOutcome::Unknown { reason, request_id },
-            Err(_) => ProviderOutcome::Unknown {
+            Ok(Err(reason)) => ModelOutcome::Unknown { reason, request_id },
+            Err(_) => ModelOutcome::Unknown {
                 reason: InferenceAttentionReason::Interrupted,
                 request_id,
             },
@@ -256,84 +333,174 @@ fn valid_request_id(id: &str) -> bool {
             .all(|b| b.is_ascii_alphanumeric() || b"-_.:".contains(&b))
 }
 
+pub(super) struct ModelRequest<'a> {
+    pub policy: &'a InferencePolicy,
+    pub deadline: i64,
+    pub max_output_tokens: u32,
+    pub max_total_tokens: u64,
+    pub messages: &'a [RunMessage],
+    pub tools: Option<&'a RunExecutionPolicy>,
+}
+
+pub(super) enum ModelOutcome {
+    NotSent {
+        reason: InferenceNotSentReason,
+    },
+    Billed {
+        usage: InferenceUsage,
+        request_id: String,
+        response: Result<RunMessage, InferenceAttentionReason>,
+        finish_reason: Option<InferenceFinishReason>,
+    },
+    Unknown {
+        reason: InferenceAttentionReason,
+        request_id: Option<String>,
+    },
+}
+
+fn message(message: &RunMessage) -> serde_json::Value {
+    use serde_json::json;
+    match message {
+        RunMessage::User { content } => json!({"role":"user","content":content}),
+        RunMessage::Assistant { content, tool_call } => {
+            let mut message = json!({"role":"assistant","content":content});
+            if let Some(call) = tool_call {
+                message["tool_calls"] = json!([{"id":call.id,"type":"function","function":super::runs::tools::function(&call.proposal)}]);
+            }
+            message
+        }
+        RunMessage::Tool {
+            content,
+            tool_call_id,
+        } => json!({"role":"tool","content":content,"tool_call_id":tool_call_id}),
+    }
+}
+
+pub(super) fn reflects_secret(value: &serde_json::Value, secret: &str) -> bool {
+    match value {
+        serde_json::Value::String(value) => {
+            value.contains(secret)
+                || serde_json::from_str::<serde_json::Value>(value)
+                    .is_ok_and(|v| reflects_secret(&v, secret))
+        }
+        serde_json::Value::Array(values) => values.iter().any(|v| reflects_secret(v, secret)),
+        serde_json::Value::Object(values) => values
+            .iter()
+            .any(|(k, v)| k.contains(secret) || reflects_secret(v, secret)),
+        _ => false,
+    }
+}
+
 fn parse_completion(
-    body: &[u8],
-    view: &InferenceView,
-) -> Result<ProviderOutcome, InferenceAttentionReason> {
+    value: serde_json::Value,
+    request: &ModelRequest<'_>,
+) -> Result<ModelOutcome, InferenceAttentionReason> {
     use InferenceAttentionReason as Reason;
     #[derive(Deserialize)]
-    struct Completion {
-        id: String,
-        model: String,
-        choices: Vec<Choice>,
-        usage: serde_json::Value,
-    }
-    #[derive(Deserialize)]
-    struct Choice {
-        index: u32,
-        message: Message,
-        finish_reason: InferenceFinishReason,
-    }
-    #[derive(Deserialize)]
-    struct Message {
-        role: String,
-        content: String,
-        #[serde(default)]
-        tool_calls: Option<Vec<serde_json::Value>>,
-    }
-    #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
-    struct ProviderUsage {
+    struct Usage {
         prompt_tokens: u64,
         completion_tokens: u64,
         total_tokens: u64,
         #[serde(default)]
         service_tier: Option<String>,
     }
-    let response: Completion = serde_json::from_slice(body).map_err(|_| Reason::InvalidResponse)?;
-    if response.model != view.configuration.policy.model_id {
+    if value["model"].as_str() != Some(&request.policy.model_id) {
         return Err(Reason::UnexpectedModel);
     }
-    let report: ProviderUsage =
-        serde_json::from_value(response.usage).map_err(|_| Reason::InvalidUsage)?;
-    if !matches!(report.service_tier.as_deref(), None | Some("standard")) {
-        return Err(Reason::InvalidUsage);
-    }
-    let usage = InferenceUsage {
-        prompt_tokens: report.prompt_tokens,
-        completion_tokens: report.completion_tokens,
-        total_tokens: report.total_tokens,
-    };
-    if usage.prompt_tokens == 0
-        || usage.prompt_tokens.checked_add(usage.completion_tokens) != Some(usage.total_tokens)
-        || usage.total_tokens > u64::from(view.configuration.policy.context_tokens)
-        || usage.total_tokens > view.request.max_total_tokens
-        || usage.completion_tokens > u64::from(view.request.max_output_tokens)
+    let report: Usage =
+        serde_json::from_value(value["usage"].clone()).map_err(|_| Reason::InvalidUsage)?;
+    if !matches!(report.service_tier.as_deref(), None | Some("standard"))
+        || report.prompt_tokens == 0
+        || report.prompt_tokens.checked_add(report.completion_tokens) != Some(report.total_tokens)
+        || report.total_tokens > u64::from(request.policy.context_tokens)
+        || report.total_tokens > request.max_total_tokens
+        || report.completion_tokens > u64::from(request.max_output_tokens)
     {
         return Err(Reason::InvalidUsage);
     }
-    if !valid_request_id(&response.id) || response.choices.len() != 1 {
-        return Err(Reason::InvalidResponse);
-    }
-    let choice = response
-        .choices
-        .into_iter()
-        .next()
+    let id = value["id"]
+        .as_str()
+        .filter(|id| valid_request_id(id))
         .ok_or(Reason::InvalidResponse)?;
-    if choice.index != 0
-        || choice.message.role != "assistant"
-        || choice.message.content.len() > MAX_INFERENCE_OUTPUT_BYTES
-        || choice
-            .message
-            .tool_calls
-            .is_some_and(|tools| !tools.is_empty())
-    {
-        return Err(Reason::InvalidResponse);
-    }
-    Ok(ProviderOutcome::Completed {
-        usage,
-        output: choice.message.content,
-        request_id: response.id,
-        finish_reason: choice.finish_reason,
+    let finish_reason = match value["choices"][0]["finish_reason"].as_str() {
+        Some("stop") => Some(InferenceFinishReason::Stop),
+        Some("length") => Some(InferenceFinishReason::Length),
+        _ => None,
+    };
+    let response = parse_assistant(&value["choices"], request.tools.is_some());
+    Ok(ModelOutcome::Billed {
+        usage: InferenceUsage {
+            prompt_tokens: report.prompt_tokens,
+            completion_tokens: report.completion_tokens,
+            total_tokens: report.total_tokens,
+        },
+        request_id: id.into(),
+        response,
+        finish_reason,
     })
+}
+
+fn parse_assistant(
+    choices: &serde_json::Value,
+    tools: bool,
+) -> Result<RunMessage, InferenceAttentionReason> {
+    use InferenceAttentionReason::InvalidResponse as Invalid;
+    if choices.as_array().is_none_or(|choices| choices.len() != 1) {
+        return Err(Invalid);
+    }
+    let choice = &choices[0];
+    let message = &choice["message"];
+    if choice["index"].as_u64() != Some(0) || message["role"] != "assistant" {
+        return Err(Invalid);
+    }
+    let content = match &message["content"] {
+        serde_json::Value::String(content) => content.clone(),
+        serde_json::Value::Null if tools => String::new(),
+        _ => return Err(Invalid),
+    };
+    if content.len()
+        > if tools {
+            MAX_RUN_TEXT_BYTES
+        } else {
+            MAX_INFERENCE_OUTPUT_BYTES
+        }
+    {
+        return Err(Invalid);
+    }
+    let calls = match &message["tool_calls"] {
+        serde_json::Value::Null => &[][..],
+        serde_json::Value::Array(calls) => calls.as_slice(),
+        _ => return Err(Invalid),
+    };
+    let tool_call = match calls {
+        [] if matches!(choice["finish_reason"].as_str(), Some("stop" | "length")) => None,
+        [call] if tools && choice["finish_reason"] == "tool_calls" => {
+            let id = call["id"]
+                .as_str()
+                .filter(|id| {
+                    !id.is_empty()
+                        && id.len() <= 64
+                        && id
+                            .bytes()
+                            .all(|b| b.is_ascii_alphanumeric() || b"_-".contains(&b))
+                })
+                .ok_or(Invalid)?;
+            if call["type"] != "function" {
+                return Err(Invalid);
+            }
+            let function = &call["function"];
+            let proposal = super::runs::tools::decode(
+                function["name"].as_str().ok_or(Invalid)?,
+                function["arguments"].as_str().ok_or(Invalid)?,
+            )
+            .map_err(|_| Invalid)?;
+            Some(RunToolCall {
+                id: id.into(),
+                proposal,
+            })
+        }
+        _ => return Err(Invalid),
+    };
+    Ok(RunMessage::Assistant { content, tool_call })
 }

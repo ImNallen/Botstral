@@ -147,14 +147,36 @@ impl State {
             ManagerMessage::Delivery(delivery) => {
                 self.check_input_fence(lease.worker, delivery.fence)?
             }
-            ManagerMessage::Permit { fence, binding, .. } => {
+            ManagerMessage::Permit {
+                incarnation,
+                fence,
+                binding,
+            } => {
                 self.check_input_fence(lease.worker, *fence)?;
                 let task = self.load_task(binding.task)?;
-                if matches!(
-                    task.state,
-                    botstral_link::TaskState::Cancelling
-                        | botstral_link::TaskState::AwaitingAttention
-                ) || binding.expires_at <= self.now()
+                let permission = self.permission(task.command.bot)?;
+                let current: String = self.connection.query_row(
+                    "SELECT incarnation FROM worker_journals WHERE worker=?1",
+                    [lease.worker.to_string()],
+                    |r| r.get(0),
+                )?;
+                if task.state.terminal()
+                    || !task.approval.consumed
+                    || task.approval.revoked
+                    || task.approval.binding.as_ref() != Some(binding)
+                    || !task.command.matches_authority(binding)
+                    || task.command.worker != lease.worker
+                    || current != incarnation.to_string()
+                    || !permission.allow
+                    || permission.revision != binding.permission_revision
+                    || matches!(
+                        task.state,
+                        botstral_link::TaskState::Cancelling
+                            | botstral_link::TaskState::AwaitingAttention
+                    )
+                    || !self.run_child_eligible(&task)?
+                    || task.request.settings.deadline <= self.now()
+                    || binding.expires_at <= self.now()
                 {
                     return Err(ErrorCode::WrongPhase.into());
                 }

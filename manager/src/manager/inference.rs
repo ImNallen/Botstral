@@ -16,18 +16,26 @@ mod tests;
 #[derive(Default)]
 pub(super) struct InferenceControl {
     wake: Notify,
-    stopping: AtomicBool,
+    pub(super) stopping: AtomicBool,
+    pub(super) run_wake: Notify,
 }
 
 pub(crate) struct InferenceRuntime {
     stop: watch::Sender<bool>,
     task: Option<JoinHandle<Result<(), OperationError>>>,
+    run_task: Option<JoinHandle<Result<(), OperationError>>>,
     control: Arc<InferenceControl>,
 }
 
 impl InferenceRuntime {
     pub(super) fn start(queue: Queue, provider: Provider, control: Arc<InferenceControl>) -> Self {
         let (stop, mut stopped) = watch::channel(false);
+        let run_task = super::runs::start(
+            queue.clone(),
+            provider.clone(),
+            control.clone(),
+            stop.clone(),
+        );
         let stop_calls = stop.clone();
         let wake = control.clone();
         let task = tokio::spawn(async move {
@@ -88,6 +96,7 @@ impl InferenceRuntime {
         Self {
             stop,
             task: Some(task),
+            run_task: Some(run_task),
             control,
         }
     }
@@ -95,11 +104,19 @@ impl InferenceRuntime {
     pub(crate) async fn shutdown(mut self) -> Result<(), OperationError> {
         self.control.stopping.store(true, Ordering::Release);
         self.stop.send_replace(true);
-        self.task
+        let result = self
+            .task
             .take()
             .ok_or(OperationError::Internal)?
             .await
-            .map_err(|_| OperationError::Internal)?
+            .map_err(|_| OperationError::Internal)?;
+        let runs = self
+            .run_task
+            .take()
+            .ok_or(OperationError::Internal)?
+            .await
+            .map_err(|_| OperationError::Internal)?;
+        result.and(runs)
     }
 }
 

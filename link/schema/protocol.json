@@ -24,6 +24,12 @@
     "replay": {
       "$ref": "#/$defs/EventReplay"
     },
+    "run": {
+      "$ref": "#/$defs/SubmitRun"
+    },
+    "run_view": {
+      "$ref": "#/$defs/RunView"
+    },
     "worker": {
       "$ref": "#/$defs/Envelope"
     }
@@ -35,6 +41,8 @@
     "replay",
     "document",
     "inference",
+    "run",
+    "run_view",
     "inference_configuration",
     "inference_verification"
   ],
@@ -696,6 +704,28 @@
         "linux_playwright_v1"
       ]
     },
+    "ComputerProposal": {
+      "type": "object",
+      "properties": {
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComputerOperation"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "operations",
+        "outputs"
+      ]
+    },
     "ComputerRuntime": {
       "type": "object",
       "properties": {
@@ -788,6 +818,41 @@
         "limits",
         "viewport",
         "operations",
+        "outputs"
+      ]
+    },
+    "ComputerToolPolicy": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "limits": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OutputDeclaration"
+          }
+        },
+        "profile": {
+          "$ref": "#/$defs/ComputerProfile"
+        },
+        "runtime": {
+          "$ref": "#/$defs/ComputerRuntime"
+        },
+        "viewport": {
+          "$ref": "#/$defs/Viewport"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "account",
+        "runtime",
+        "limits",
+        "viewport",
         "outputs"
       ]
     },
@@ -2327,6 +2392,12 @@
             "$ref": "#/$defs/Permission"
           }
         },
+        "runs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RunSummary"
+          }
+        },
         "tasks": {
           "type": "array",
           "items": {
@@ -2337,6 +2408,7 @@
       "additionalProperties": false,
       "required": [
         "tasks",
+        "runs",
         "inferences",
         "inference_configurations",
         "conversations",
@@ -2541,6 +2613,29 @@
         "linux_systemd_v1"
       ]
     },
+    "ProcessProposal": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cwd": {
+          "type": "string"
+        },
+        "executable": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "executable",
+        "args",
+        "cwd"
+      ]
+    },
     "ProcessResult": {
       "type": "object",
       "properties": {
@@ -2644,6 +2739,33 @@
         "limits"
       ]
     },
+    "ProcessToolPolicy": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limits": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProcessProfile"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "account",
+        "environment",
+        "limits"
+      ]
+    },
     "ReleaseChannel": {
       "type": "string",
       "enum": [
@@ -2659,6 +2781,624 @@
       "type": "integer",
       "format": "uint64",
       "minimum": 0
+    },
+    "RunAccounting": {
+      "type": "object",
+      "properties": {
+        "admitted_operations": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "admitted_turns": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "held_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "held_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "settled_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "settled_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "admitted_turns",
+        "admitted_operations",
+        "settled_tokens",
+        "settled_cost_microusd",
+        "held_tokens",
+        "held_cost_microusd"
+      ]
+    },
+    "RunAttemptId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "RunAttentionReason": {
+      "type": "string",
+      "enum": [
+        "provider",
+        "worker",
+        "result_invalid",
+        "restart",
+        "shutdown"
+      ]
+    },
+    "RunExecutionPolicy": {
+      "type": "object",
+      "properties": {
+        "computer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ComputerToolPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "process": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProcessToolPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "RunId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "RunLimits": {
+      "type": "object",
+      "properties": {
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_concurrent_operations": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_operations": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_total_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_turns": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "deadline",
+        "max_turns",
+        "max_total_tokens",
+        "max_cost_microusd",
+        "max_output_tokens",
+        "max_operations",
+        "max_concurrent_operations"
+      ]
+    },
+    "RunMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "const": "user"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "const": "assistant"
+            },
+            "tool_call": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RunToolCall"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "const": "tool"
+            },
+            "tool_call_id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "tool_call_id",
+            "content"
+          ]
+        }
+      ]
+    },
+    "RunPhase": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ready"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "turn": {
+              "$ref": "#/$defs/RunTurnId"
+            },
+            "type": {
+              "type": "string",
+              "const": "calling"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "turn"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "task": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "turn": {
+              "$ref": "#/$defs/RunTurnId"
+            },
+            "type": {
+              "type": "string",
+              "const": "waiting_for_tool"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "turn",
+            "task"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "completed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "cancelling"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "cancelled"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/RunStopReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "stopped"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/RunAttentionReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "awaiting_attention"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "RunStopReason": {
+      "type": "string",
+      "enum": [
+        "turn_limit",
+        "token_limit",
+        "cost_limit",
+        "operation_limit",
+        "deadline",
+        "configuration_changed",
+        "vault_locked",
+        "unsupported_proposal",
+        "transcript_limit",
+        "child_unavailable",
+        "shutdown",
+        "restart"
+      ]
+    },
+    "RunSummary": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/RunAccounting"
+        },
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "cancellation_requested_at": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "$ref": "#/$defs/RunId"
+        },
+        "phase": {
+          "$ref": "#/$defs/RunPhase"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "bot",
+        "phase",
+        "accounting",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "RunToolCall": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "proposal": {
+          "$ref": "#/$defs/ToolProposal"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "proposal"
+      ]
+    },
+    "RunToolIntent": {
+      "type": "object",
+      "properties": {
+        "call": {
+          "$ref": "#/$defs/RunToolCall"
+        },
+        "command": {
+          "$ref": "#/$defs/CommandId"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "operation": {
+          "$ref": "#/$defs/OperationId"
+        },
+        "result": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "work": {
+          "$ref": "#/$defs/WorkSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "call",
+        "task",
+        "command",
+        "operation",
+        "execution",
+        "work"
+      ]
+    },
+    "RunTurn": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/InferenceAccounting"
+        },
+        "attempt": {
+          "$ref": "#/$defs/RunAttemptId"
+        },
+        "id": {
+          "$ref": "#/$defs/RunTurnId"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunToolIntent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RunMessage"
+          }
+        },
+        "ordinal": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "phase": {
+          "$ref": "#/$defs/RunTurnPhase"
+        },
+        "provider_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reservation": {
+          "$ref": "#/$defs/InferenceReservation"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunMessage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "attempt",
+        "messages",
+        "reservation",
+        "accounting",
+        "phase"
+      ]
+    },
+    "RunTurnId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "RunTurnPhase": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "sending"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "responded"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/InferenceNotSentReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "not_sent"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/InferenceAttentionReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "awaiting_attention"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "RunView": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "$ref": "#/$defs/InferenceConfiguration"
+        },
+        "request": {
+          "$ref": "#/$defs/SubmitRun"
+        },
+        "summary": {
+          "$ref": "#/$defs/RunSummary"
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RunTurn"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "request",
+        "configuration",
+        "turns"
+      ]
     },
     "SealedOutput": {
       "oneOf": [
@@ -2831,6 +3571,44 @@
         "max_output_tokens",
         "max_total_tokens",
         "max_cost_microusd"
+      ]
+    },
+    "SubmitRun": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "configuration_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "execution_policy": {
+          "$ref": "#/$defs/RunExecutionPolicy"
+        },
+        "id": {
+          "$ref": "#/$defs/RunId"
+        },
+        "limits": {
+          "$ref": "#/$defs/RunLimits"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/ComputerSessionId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "bot",
+        "session",
+        "configuration_revision",
+        "prompt",
+        "execution_policy",
+        "limits"
       ]
     },
     "SubmitTask": {
@@ -3188,6 +3966,44 @@
         "progress",
         "effect_evidence",
         "approval"
+      ]
+    },
+    "ToolProposal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/ComputerProposal"
+            },
+            "tool": {
+              "type": "string",
+              "const": "computer"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/ProcessProposal"
+            },
+            "tool": {
+              "type": "string",
+              "const": "process"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
+        }
       ]
     },
     "VerifyInference": {

@@ -546,7 +546,8 @@ impl State {
         )?;
         let capacity = requested_bytes + reserved as u64 <= MAX_STORE_BYTES
             && records as usize + task.command.work.outputs().len() <= MAX_ARTIFACT_RECORDS;
-        let valid = allowed
+        let valid = self.run_child_eligible(&task)?
+            && allowed
             && (!task.command.work.supervised() || !occupied)
             && capacity
             && !missing_scope
