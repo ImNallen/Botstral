@@ -129,7 +129,7 @@ impl Provider {
         Ok(body)
     }
 
-    pub(super) async fn verify(&self, permit: &VerificationPermit) -> Option<bool> {
+    pub(super) async fn verify(&self, permit: &VerificationPermit) -> Option<(bool, bool)> {
         #[derive(Deserialize)]
         struct Model {
             id: String,
@@ -143,6 +143,8 @@ impl Provider {
             completion_chat: bool,
             #[serde(default)]
             function_calling: bool,
+            #[serde(default)]
+            vision: bool,
         }
         let policy = &permit.configuration.policy;
         let secret = &permit.secret;
@@ -164,7 +166,10 @@ impl Provider {
                 && model.max_context_length == policy.context_tokens
                 && model.capabilities.completion_chat
                 && !model.archived)
-                .then_some(model.capabilities.function_calling)
+                .then_some((
+                    model.capabilities.function_calling,
+                    model.capabilities.vision,
+                ))
         };
         tokio::time::timeout(Duration::from_secs(10), verification)
             .await
@@ -233,6 +238,37 @@ impl Provider {
         secret: &SecretString,
         capacity: Option<tokio::sync::OwnedSemaphorePermit>,
     ) -> ModelOutcome {
+        let tools = request.prepared.tools;
+        match self.envelope(request, secret, capacity).await {
+            EnvelopeOutcome::NotSent { reason } => ModelOutcome::NotSent { reason },
+            EnvelopeOutcome::Unknown { reason, request_id } => {
+                ModelOutcome::Unknown { reason, request_id }
+            }
+            EnvelopeOutcome::Billed {
+                usage,
+                request_id,
+                value,
+            } => {
+                let finish_reason = match value["choices"][0]["finish_reason"].as_str() {
+                    Some("stop") => Some(InferenceFinishReason::Stop),
+                    Some("length") => Some(InferenceFinishReason::Length),
+                    _ => None,
+                };
+                ModelOutcome::Billed {
+                    usage,
+                    request_id,
+                    response: parse_assistant(&value["choices"], tools),
+                    finish_reason,
+                }
+            }
+        }
+    }
+    pub(super) async fn envelope(
+        &self,
+        request: ModelRequest<'_>,
+        secret: &SecretString,
+        capacity: Option<tokio::sync::OwnedSemaphorePermit>,
+    ) -> EnvelopeOutcome {
         let policy = request.policy;
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -241,7 +277,7 @@ impl Provider {
             .saturating_sub(now)
             .min(Duration::from_secs(MAX_INFERENCE_SECONDS as u64));
         if remaining.is_zero() {
-            return ModelOutcome::NotSent {
+            return EnvelopeOutcome::NotSent {
                 reason: InferenceNotSentReason::Deadline,
             };
         }
@@ -252,12 +288,12 @@ impl Provider {
                 match tokio::time::timeout_at(deadline, self.calls.clone().acquire_owned()).await {
                     Ok(Ok(capacity)) => capacity,
                     Ok(Err(_)) => {
-                        return ModelOutcome::NotSent {
+                        return EnvelopeOutcome::NotSent {
                             reason: InferenceNotSentReason::Shutdown,
                         };
                     }
                     Err(_) => {
-                        return ModelOutcome::NotSent {
+                        return EnvelopeOutcome::NotSent {
                             reason: InferenceNotSentReason::Deadline,
                         };
                     }
@@ -265,7 +301,7 @@ impl Provider {
             }
         };
         if tokio::time::Instant::now() >= deadline {
-            return ModelOutcome::NotSent {
+            return EnvelopeOutcome::NotSent {
                 reason: InferenceNotSentReason::Deadline,
             };
         }
@@ -313,8 +349,8 @@ impl Provider {
         };
         match tokio::time::timeout_at(deadline, execution).await {
             Ok(Ok(outcome)) => outcome,
-            Ok(Err(reason)) => ModelOutcome::Unknown { reason, request_id },
-            Err(_) => ModelOutcome::Unknown {
+            Ok(Err(reason)) => EnvelopeOutcome::Unknown { reason, request_id },
+            Err(_) => EnvelopeOutcome::Unknown {
                 reason: InferenceAttentionReason::Interrupted,
                 request_id,
             },
@@ -331,30 +367,72 @@ fn valid_request_id(id: &str) -> bool {
 }
 
 pub(super) struct PreparedChat {
-    body: serde_json::Value,
+    pub(super) body: serde_json::Value,
     tools: bool,
 }
 impl PreparedChat {
+    pub(super) fn coding(body: serde_json::Value) -> Self {
+        Self { body, tools: true }
+    }
     pub(super) fn new(
         policy: &InferencePolicy,
         max_output_tokens: u32,
         messages: &[RunMessage],
         tools: Option<&RunExecutionPolicy>,
     ) -> Self {
+        let definitions = tools
+            .map(super::runs::tools::definitions)
+            .filter(|d| !d.is_empty());
+        let has_tools = definitions.is_some();
         let mut body = serde_json::json!({
             "model":policy.model_id, "messages":messages.iter().map(message).collect::<Vec<_>>(),
             "max_tokens":max_output_tokens, "n":1, "stream":false,
-            "tool_choice": if tools.is_some() { "auto" } else { "none" },
+            "tool_choice": if has_tools { "auto" } else { "none" },
             "service_tier":"standard_only"
         });
-        if let Some(tools) = tools {
-            body["tools"] = serde_json::json!(super::runs::tools::definitions(tools));
+        if let Some(definitions) = definitions {
+            body["tools"] = serde_json::json!(definitions);
             body["parallel_tool_calls"] = false.into();
         }
         Self {
             body,
-            tools: tools.is_some(),
+            tools: has_tools,
         }
+    }
+    pub(super) fn materialize_images(
+        &mut self,
+        directory: &std::path::Path,
+    ) -> Result<(), OperationError> {
+        use base64::{Engine, engine::general_purpose::STANDARD};
+        let mut count = 0;
+        for message in self.body["messages"]
+            .as_array_mut()
+            .ok_or(OperationError::Internal)?
+        {
+            let Some(images) = message.as_object_mut().unwrap().remove("authorized_images") else {
+                continue;
+            };
+            let images: Vec<AuthorizedImage> =
+                serde_json::from_value(images).map_err(|_| OperationError::Internal)?;
+            let mut content = vec![serde_json::json!({"type":"text","text":message["content"]})];
+            for image in images {
+                count += 1;
+                if count > MAX_IMAGES {
+                    return Err(OperationError::InvalidInput);
+                }
+                let (bytes, width, height) =
+                    super::vision::image_bytes(directory, &image.reference, image.length)?;
+                if image.width != width || image.height != height {
+                    return Err(OperationError::InvalidInput);
+                }
+                content.push(serde_json::json!({"type":"image_url","image_url":{"url":format!("data:image/png;base64,{}", STANDARD.encode(bytes))}}));
+            }
+            message["content"] = serde_json::json!(content);
+        }
+        if self.encoded().len() > MAX_MULTIMODAL_REQUEST {
+            return Err(OperationError::InvalidInput);
+        }
+        Ok(())
     }
     pub(super) fn encoded(&self) -> String {
         self.body.to_string()
@@ -388,6 +466,9 @@ pub(super) enum ModelOutcome {
 fn message(message: &RunMessage) -> serde_json::Value {
     use serde_json::json;
     match message {
+        RunMessage::UserMultimodal { content, images } => {
+            json!({"role":"user","content":content,"authorized_images":images})
+        }
         RunMessage::User { content } => json!({"role":"user","content":content}),
         RunMessage::Assistant { content, tool_call } => {
             let mut message = json!({"role":"assistant","content":content});
@@ -421,8 +502,20 @@ pub(super) fn reflects_secret(value: &serde_json::Value, secret: &str) -> bool {
 fn parse_completion(
     value: serde_json::Value,
     request: &ModelRequest<'_>,
-) -> Result<ModelOutcome, InferenceAttentionReason> {
+) -> Result<EnvelopeOutcome, InferenceAttentionReason> {
     use InferenceAttentionReason as Reason;
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct PromptTokenDetails {
+        #[serde(default)]
+        cached_tokens: u64,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct CompletionTokenDetails {
+        #[serde(default)]
+        reasoning_tokens: u64,
+    }
     #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
     struct Usage {
@@ -431,6 +524,10 @@ fn parse_completion(
         total_tokens: u64,
         #[serde(default)]
         service_tier: Option<String>,
+        #[serde(default)]
+        prompt_tokens_details: Option<PromptTokenDetails>,
+        #[serde(default)]
+        completion_tokens_details: Option<CompletionTokenDetails>,
     }
     if value["model"].as_str() != Some(&request.policy.model_id) {
         return Err(Reason::UnexpectedModel);
@@ -443,6 +540,12 @@ fn parse_completion(
         || report.total_tokens > u64::from(request.policy.context_tokens)
         || report.total_tokens > request.max_total_tokens
         || report.completion_tokens > u64::from(request.max_output_tokens)
+        || report
+            .prompt_tokens_details
+            .is_some_and(|details| details.cached_tokens > report.prompt_tokens)
+        || report
+            .completion_tokens_details
+            .is_some_and(|details| details.reasoning_tokens > report.completion_tokens)
     {
         return Err(Reason::InvalidUsage);
     }
@@ -450,21 +553,14 @@ fn parse_completion(
         .as_str()
         .filter(|id| valid_request_id(id))
         .ok_or(Reason::InvalidResponse)?;
-    let finish_reason = match value["choices"][0]["finish_reason"].as_str() {
-        Some("stop") => Some(InferenceFinishReason::Stop),
-        Some("length") => Some(InferenceFinishReason::Length),
-        _ => None,
-    };
-    let response = parse_assistant(&value["choices"], request.prepared.tools);
-    Ok(ModelOutcome::Billed {
+    Ok(EnvelopeOutcome::Billed {
         usage: InferenceUsage {
             prompt_tokens: report.prompt_tokens,
             completion_tokens: report.completion_tokens,
             total_tokens: report.total_tokens,
         },
         request_id: id.into(),
-        response,
-        finish_reason,
+        value,
     })
 }
 
@@ -530,4 +626,19 @@ fn parse_assistant(
         _ => return Err(Invalid),
     };
     Ok(RunMessage::Assistant { content, tool_call })
+}
+
+pub(super) enum EnvelopeOutcome {
+    NotSent {
+        reason: InferenceNotSentReason,
+    },
+    Billed {
+        usage: InferenceUsage,
+        request_id: String,
+        value: serde_json::Value,
+    },
+    Unknown {
+        reason: InferenceAttentionReason,
+        request_id: Option<String>,
+    },
 }

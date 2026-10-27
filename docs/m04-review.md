@@ -1,5 +1,7 @@
 # M04 first-slice review
 
+This is a historical slice record. Its pending-work statements describe that checkpoint. See [M04 completion acceptance](m04-completion.md) for the current milestone result.
+
 The reviewed change adds durable manager-owned single-turn text inference. It leaves worker task authority intact. M04 remains open.
 
 ## Independent findings and corrections

@@ -90,7 +90,7 @@ impl State {
                             let duplicate = view.turns.iter().any(|turn| matches!(&turn.response,Some(RunMessage::Assistant { tool_call: Some(prior), .. }) if prior.id == call.id));
                             let operations = match &call.proposal {
                                 ToolProposal::Computer(args) => args.operations.len() as u32,
-                                ToolProposal::Process(_) => 1,
+                                ToolProposal::Process(_) | ToolProposal::Vibe(_) => 1,
                             };
                             let reason = if duplicate {
                                 Some(RunStopReason::UnsupportedProposal)
@@ -116,7 +116,10 @@ impl State {
                                         model: view.configuration.policy.model_id.clone(),
                                         max_turns: 1,
                                         max_tokens: view.request.limits.max_output_tokens,
-                                        deadline: view.request.limits.deadline,
+                                        deadline: match &work {
+                                            WorkSpec::Vibe { spec } => spec.limits.deadline,
+                                            _ => view.request.limits.deadline,
+                                        },
                                         max_cost_micros: view.request.limits.max_cost_microusd,
                                     },
                                     work,

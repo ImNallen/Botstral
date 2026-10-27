@@ -76,6 +76,12 @@ impl Journal {
                 Err(error) => eprintln!("computer capability unavailable: {error}"),
             }
         }
+        if let Some(config) = crate::vibe::Configuration::read(&self.directory)?
+            && self.process_capable()
+            && config.verify().is_ok()
+        {
+            self.vibe = Some(config);
+        }
         for mut e in self.executions()? {
             if let Some(process) = e.process.clone()
                 && !matches!(process.lifecycle, Lifecycle::Stopped { .. })
@@ -115,8 +121,24 @@ impl Journal {
                     == Some(config)
             })
     }
+    pub fn vibe_capable(&self) -> bool {
+        self.process_capable()
+            && self.vibe.as_ref().is_some_and(|c| {
+                crate::vibe::Configuration::read(&self.directory)
+                    .ok()
+                    .flatten()
+                    .as_ref()
+                    == Some(c)
+            })
+    }
     fn permits_work(&self, work: &WorkSpec) -> bool {
         match work {
+            WorkSpec::Vibe { spec } => {
+                self.vibe_capable()
+                    && spec.validate().is_ok()
+                    && self.vibe.as_ref().is_some_and(|c| c.permits(spec))
+                    && spec.limits.deadline > now()
+            }
             WorkSpec::Process { spec } => {
                 self.process_capable()
                     && spec.validate().is_ok()
@@ -205,8 +227,8 @@ impl Journal {
         }
         let backend = self.backend.as_ref().unwrap().clone();
         let directory = process::directory(&self.directory, e.body.execution);
-        let (spec, computer) = match &e.body.work {
-            WorkSpec::Process { spec } => (*spec.clone(), None),
+        let (spec, computer, vibe) = match &e.body.work {
+            WorkSpec::Process { spec } => (*spec.clone(), None, None),
             WorkSpec::Computer { spec } => {
                 let launch = self.computer.as_ref().unwrap().launch(
                     spec,
@@ -215,7 +237,16 @@ impl Journal {
                     false,
                 );
                 launch.prepare()?;
-                (launch.lower(), Some(launch))
+                (launch.lower(), Some(launch), None)
+            }
+            WorkSpec::Vibe { spec } => {
+                let launch =
+                    self.vibe
+                        .as_ref()
+                        .unwrap()
+                        .launch(spec, &self.directory, &directory, &e.body);
+                launch.prepare()?;
+                (launch.lower(), None, Some(launch))
             }
             _ => unreachable!(),
         };
@@ -226,6 +257,7 @@ impl Journal {
             boot: backend.boot.clone(),
             spec,
             computer,
+            vibe,
             expires_at: binding.expires_at,
         };
         std::fs::remove_file(directory.join("reserved"))?;
@@ -414,7 +446,20 @@ impl Journal {
                 },
                 ProcessOperation::Stop(handle) => match handle.await.map_err(err)? {
                     Ok(proof) => return self.finish_process(&mut e, proof),
-                    Err(_) => {
+                    Err(error) => {
+                        let diagnostic: String = error
+                            .to_string()
+                            .chars()
+                            .take(256)
+                            .map(|character| {
+                                if character.is_control() {
+                                    '?'
+                                } else {
+                                    character
+                                }
+                            })
+                            .collect();
+                        eprintln!("process scope stop unproved for {id}: {diagnostic}");
                         if let Lifecycle::StopIntent {
                             ready: Some(ready), ..
                         } = e.process.as_ref().unwrap().lifecycle.clone()
@@ -442,7 +487,11 @@ impl Journal {
                     && p.manifest
                         .computer
                         .as_ref()
-                        .is_none_or(|c| c.verify(&p.manifest.spec).is_ok());
+                        .is_none_or(|c| c.verify(&p.manifest.spec).is_ok())
+                    && p.manifest
+                        .vibe
+                        .as_ref()
+                        .is_none_or(|v| v.verify(&p.manifest.spec).is_ok());
                 if !authorized {
                     self.request_stop(&mut e, StopReason::Control)?;
                     return Ok(());

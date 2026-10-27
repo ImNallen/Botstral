@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "lane": "recorded-actual-vibe",
+  "version": "vibe 2.24.2",
+  "binary_sha256": "1ffaf2dd0540ce5d42faa3c8713b166b9943524c411863153b3d7b32b2e925a2",
+  "runtime_script_sha256": "a83c64238838a812d625b3eb018a6e2469ac4938d4b10b31886dfd24b9397e67",
+  "calls": 5,
+  "tools": [
+    "read_file",
+    "grep",
+    "write_file",
+    "edit"
+  ],
+  "native_session": "b2616fce-a049-d9db-e1a8-e0cbfec935dc",
+  "checks": [
+    "real edit",
+    "separate Python test",
+    "explicit same-session resume",
+    "outside-path callback denied",
+    "bash unavailable",
+    "SSE usage"
+  ],
+  "live_acceptance": false,
+  "max_child_rss": 88064000,
+  "max_child_rss_units": "bytes"
+}

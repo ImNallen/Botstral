@@ -53,6 +53,8 @@ pub(crate) struct Manifest {
     pub spec: ProcessSpec,
     #[serde(default)]
     pub computer: Option<crate::computer::Launch>,
+    #[serde(default)]
+    pub vibe: Option<crate::vibe::Launch>,
     pub expires_at: i64,
 }
 impl Manifest {

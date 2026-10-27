@@ -13,11 +13,24 @@ use super::provider::*;
 #[cfg(test)]
 mod tests;
 
-#[derive(Default)]
 pub(super) struct InferenceControl {
     wake: Notify,
     pub(super) stopping: AtomicBool,
     pub(super) run_wake: Notify,
+    pub(super) stop: watch::Sender<bool>,
+    pub(super) coding_calls: tokio::sync::Mutex<JoinSet<()>>,
+}
+
+impl Default for InferenceControl {
+    fn default() -> Self {
+        Self {
+            wake: Notify::new(),
+            stopping: AtomicBool::new(false),
+            run_wake: Notify::new(),
+            stop: watch::channel(false).0,
+            coding_calls: tokio::sync::Mutex::new(JoinSet::new()),
+        }
+    }
 }
 
 pub(crate) struct InferenceRuntime {
@@ -29,7 +42,8 @@ pub(crate) struct InferenceRuntime {
 
 impl InferenceRuntime {
     pub(super) fn start(queue: Queue, provider: Provider, control: Arc<InferenceControl>) -> Self {
-        let (stop, mut stopped) = watch::channel(false);
+        let stop = control.stop.clone();
+        let mut stopped = stop.subscribe();
         let run_task = super::runs::start(
             queue.clone(),
             provider.clone(),
@@ -116,7 +130,14 @@ impl InferenceRuntime {
             .ok_or(OperationError::Internal)?
             .await
             .map_err(|_| OperationError::Internal)?;
-        result.and(runs)
+        let mut coding = self.control.coding_calls.lock().await;
+        let mut coding_result = Ok(());
+        while let Some(result) = coding.join_next().await {
+            if result.is_err() {
+                coding_result = Err(OperationError::Internal);
+            }
+        }
+        result.and(runs).and(coding_result)
     }
 }
 

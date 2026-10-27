@@ -11,6 +11,7 @@ mod session;
 #[cfg(feature = "nonproduction-test-worker")]
 mod test_worker;
 pub mod transport;
+mod vibe;
 mod worker;
 
 pub use config::{Config, entry};

@@ -216,6 +216,12 @@ impl State {
                     return Err(OperationError::InvalidInput);
                 }
             }
+            WorkSpec::Vibe { spec } => {
+                self.validate_coding_task(session.bot_id, session.worker_id, input.id, spec)?;
+                if spec.limits.deadline != input.settings.deadline {
+                    return Err(OperationError::InvalidInput);
+                }
+            }
             WorkSpec::Process { spec } => {
                 spec.validate()?;
                 if spec.deadline != input.settings.deadline {
@@ -735,7 +741,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            6
+            7
         );
     }
 }

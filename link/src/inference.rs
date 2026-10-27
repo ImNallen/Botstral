@@ -40,6 +40,7 @@ pub struct InferenceAcknowledgment {
 #[serde(rename_all = "snake_case")]
 pub enum InferenceBilling {
     TextTokensOnlyAtAcknowledgedCeilings,
+    ContextTokensIncludingImagesAtAcknowledgedCeilings,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -74,7 +75,12 @@ pub struct ConfigureInference {
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum InferenceVerification {
     Unverified,
-    Verified { checked_at: i64, expires_at: i64 },
+    Verified {
+        checked_at: i64,
+        expires_at: i64,
+        #[serde(default)]
+        vision: bool,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

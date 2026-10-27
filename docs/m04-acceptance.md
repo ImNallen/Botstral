@@ -1,5 +1,7 @@
 # M04 first-slice acceptance
 
+This is a historical slice record. Its pending-work statements describe that checkpoint. See [M04 completion acceptance](m04-completion.md) for the current milestone result.
+
 The first slice implements durable manager-owned single-turn text inference. M04 remains open. No live credentials were supplied or requested.
 
 ## Reproducible checks

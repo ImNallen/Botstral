@@ -1,8 +1,10 @@
 mod artifacts;
+mod coding;
 mod inference;
 mod memory;
 mod runs;
 mod tasks;
+mod vision;
 mod workers;
 
 use super::{crypto, *};
@@ -68,7 +70,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 6 {
+    if version > 7 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -99,6 +101,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 6 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0006.sql"))?;
+        tx.commit()?;
+    }
+    if version < 7 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0007.sql"))?;
         tx.commit()?;
     }
     Ok(())
@@ -173,6 +180,7 @@ impl State {
         state.reconcile_artifacts()?;
         state.recover_inferences(false)?;
         state.recover_runs(false)?;
+        state.recover_coding()?;
         Ok(state)
     }
 
@@ -578,12 +586,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 7).unwrap();
+        db.pragma_update(None, "user_version", 8).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            7
+            8
         );
     }
 

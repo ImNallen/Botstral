@@ -46,7 +46,8 @@ identifiers!(
     InferenceAttemptId,
     RunId,
     RunTurnId,
-    RunAttemptId
+    RunAttemptId,
+    CodingWorkspaceId
 );
 
 macro_rules! counters {
@@ -80,6 +81,10 @@ mod artifact;
 pub use artifact::*;
 mod computer;
 pub use computer::*;
+mod vision;
+pub use vision::*;
+mod vibe;
+pub use vibe::*;
 mod process;
 pub use process::*;
 
@@ -175,6 +180,7 @@ pub enum Capability {
     InputFencing,
     TestInput,
     ProcessSystemdV1,
+    VibeV1,
     ComputerV1,
 }
 
@@ -297,6 +303,7 @@ pub enum WorkSpec {
     TestInput { steps: u32 },
     TestEffect { value: u32, observable: bool },
     Process { spec: Box<ProcessSpec> },
+    Vibe { spec: Box<VibeSpec> },
     Computer { spec: Box<ComputerSpec> },
 }
 
@@ -550,6 +557,8 @@ pub fn schema() -> String {
         inference: SubmitInference,
         run: SubmitRun,
         run_view: RunView,
+        coding_calls: Vec<CodingCallView>,
+        coding_result: VibeResult,
         inference_configuration: ConfigureInference,
         inference_verification: VerifyInference,
     }

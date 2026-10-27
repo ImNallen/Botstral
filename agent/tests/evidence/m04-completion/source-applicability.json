@@ -1,0 +1,32 @@
+{
+  "prior_report": "live-full-failed.json",
+  "changes": [
+    {
+      "path": "agent/src/journal/process.rs",
+      "before": "55ec61077eeceff0f4316d91aa2a628260485ce37dd2bef3588777759f7e8e0d",
+      "after": "9a813836871a8b6ac198c3afe98fc5aa090028e7e56251a5f4368a8508657318",
+      "test_only": false
+    },
+    {
+      "path": "agent/src/process/systemd.rs",
+      "before": "d020a100fbcc5e0f1b19b737fb37c09faebbe27f540f7d25831f1d45b8b66ae6",
+      "after": "8aabd666a84e2e954f88bc6324db806af5e75ba63994ab7e6a493d29fa1245b5",
+      "test_only": false
+    },
+    {
+      "path": "manager/src/manager/inference/coding_production.rs",
+      "before": "be17eab8339ac0607e0d1ee5a753e04f3fa71465e7a98f433286ce5389a7ed69",
+      "after": "04a30e0000e82261566e19f59423645696c4bc9bf86695d7a9f1b4fd8860cf37",
+      "test_only": true
+    }
+  ],
+  "production_changes": [
+    "agent/src/process/systemd.rs",
+    "agent/src/journal/process.rs"
+  ],
+  "verification": [
+    "linux-production.log",
+    "linux-native-cancel.log",
+    "live-lifecycle.json"
+  ]
+}

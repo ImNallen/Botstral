@@ -1,0 +1,1887 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "production.separate_hosts_and_binary_hashes",
+      "status": "passed",
+      "details": {
+        "manager": {
+          "hostname": "botstral-manager",
+          "machine_id_sha256": "ca094c14f8c5c29e98154ddc4bb7d768377360ee4cc8039e4819ab7e495ba274",
+          "kernel": "6.8.0-147-generic",
+          "addresses": [
+            "192.168.1.40"
+          ],
+          "binaries": {
+            "/home/botstral/m04-parent-live.mff8XD/bin/production/botstral-manager": "471b1434f4e464d21439f580da133a98ada8dd5fec06f3b42b70fbc6f93ffff2"
+          }
+        },
+        "worker": {
+          "hostname": "botstral-computer",
+          "machine_id_sha256": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+          "kernel": "6.8.0-147-generic",
+          "addresses": [
+            "192.168.1.235"
+          ],
+          "binaries": {
+            "/home/botstral/m04-parent-live.mff8XD/bin/production/botstral-agent": "39b87b0a0cc37ea30c4b2cadcb6727cd38091b68e29f16d86f46cd61edc5c863"
+          }
+        }
+      }
+    },
+    {
+      "name": "production.private_fixture_and_manager",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.production_runtime_enrollment",
+      "status": "passed",
+      "details": {
+        "runtime": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061",
+        "sessions": [
+          {
+            "id": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "bot_id": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "worker_id": "6e8bf425-03ab-4a39-b00d-9f5714b8cca3",
+            "owner": "bot",
+            "revision": 2,
+            "status": "confirmed"
+          },
+          {
+            "id": "97471a5d-6ebf-4e17-8f7e-96435360edf1",
+            "bot_id": "6ec6b761-8923-49f9-9e16-90b1ed6f4f47",
+            "worker_id": "6e8bf425-03ab-4a39-b00d-9f5714b8cca3",
+            "owner": "bot",
+            "revision": 2,
+            "status": "confirmed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "production.live_model_configuration",
+      "status": "passed",
+      "details": {
+        "configuration": {
+          "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+          "revision": 1,
+          "policy": {
+            "endpoint": "eu",
+            "model_id": "mistral-small-2603",
+            "context_tokens": 262144,
+            "acknowledgment": {
+              "model_developer": "Mistral AI",
+              "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+              "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+              "acknowledged_at": 1793118651,
+              "release": {
+                "type": "stable"
+              }
+            },
+            "prices": {
+              "input_microusd_per_million_tokens": 200000,
+              "output_microusd_per_million_tokens": 800000,
+              "effective_at": 1793118650,
+              "expires_at": 1793205051,
+              "billing": "text_tokens_only_at_acknowledged_ceilings"
+            }
+          },
+          "verification": {
+            "type": "unverified"
+          }
+        },
+        "verification": {
+          "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+          "revision": 1,
+          "policy": {
+            "endpoint": "eu",
+            "model_id": "mistral-small-2603",
+            "context_tokens": 262144,
+            "acknowledgment": {
+              "model_developer": "Mistral AI",
+              "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+              "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+              "acknowledged_at": 1793118651,
+              "release": {
+                "type": "stable"
+              }
+            },
+            "prices": {
+              "input_microusd_per_million_tokens": 200000,
+              "output_microusd_per_million_tokens": 800000,
+              "effective_at": 1793118650,
+              "expires_at": 1793205051,
+              "billing": "text_tokens_only_at_acknowledged_ceilings"
+            }
+          },
+          "verification": {
+            "type": "verified",
+            "checked_at": 1793118652,
+            "expires_at": 1793122252
+          }
+        }
+      }
+    },
+    {
+      "name": "production.live_browser_shared_file_and_durable_artifact",
+      "status": "passed",
+      "details": {
+        "request": {
+          "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+          "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+          "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+          "configuration_revision": 1,
+          "prompt": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]",
+          "execution_policy": {
+            "computer": {
+              "profile": "linux_playwright_v1",
+              "account": {
+                "uid": 1000,
+                "gid": 1000
+              },
+              "runtime": {
+                "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+              },
+              "limits": {
+                "runtime_seconds": 60,
+                "output_bytes": 1024,
+                "processes": 128,
+                "memory_bytes": 1073741824
+              },
+              "viewport": {
+                "width": 800,
+                "height": 600
+              },
+              "outputs": [
+                {
+                  "slot": "page",
+                  "name": "page.txt",
+                  "media_type": "text_plain",
+                  "max_bytes": 4096
+                },
+                {
+                  "slot": "file",
+                  "name": "file.txt",
+                  "media_type": "text_plain",
+                  "max_bytes": 4096
+                }
+              ]
+            },
+            "process": null
+          },
+          "limits": {
+            "deadline": 1793118891,
+            "max_turns": 3,
+            "max_total_tokens": 792576,
+            "max_cost_microusd": 200000,
+            "max_output_tokens": 2048,
+            "max_operations": 12,
+            "max_concurrent_operations": 1
+          }
+        },
+        "initial": {
+          "summary": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "phase": {
+              "type": "ready"
+            },
+            "accounting": {
+              "admitted_turns": 0,
+              "admitted_operations": 0,
+              "settled_tokens": 0,
+              "settled_cost_microusd": 0,
+              "held_tokens": 0,
+              "held_cost_microusd": 0
+            },
+            "cancellation_requested_at": null,
+            "created_at": 1793118652,
+            "updated_at": 1793118652
+          },
+          "request": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "configuration_revision": 1,
+            "prompt": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]",
+            "execution_policy": {
+              "computer": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              },
+              "process": null
+            },
+            "limits": {
+              "deadline": 1793118891,
+              "max_turns": 3,
+              "max_total_tokens": 792576,
+              "max_cost_microusd": 200000,
+              "max_output_tokens": 2048,
+              "max_operations": 12,
+              "max_concurrent_operations": 1
+            }
+          },
+          "configuration": {
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "revision": 1,
+            "policy": {
+              "endpoint": "eu",
+              "model_id": "mistral-small-2603",
+              "context_tokens": 262144,
+              "acknowledgment": {
+                "model_developer": "Mistral AI",
+                "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+                "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+                "acknowledged_at": 1793118651,
+                "release": {
+                  "type": "stable"
+                }
+              },
+              "prices": {
+                "input_microusd_per_million_tokens": 200000,
+                "output_microusd_per_million_tokens": 800000,
+                "effective_at": 1793118650,
+                "expires_at": 1793205051,
+                "billing": "text_tokens_only_at_acknowledged_ceilings"
+              }
+            },
+            "verification": {
+              "type": "verified",
+              "checked_at": 1793118652,
+              "expires_at": 1793122252
+            }
+          },
+          "turns": []
+        },
+        "pending": {
+          "summary": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "phase": {
+              "type": "waiting_for_tool",
+              "turn": "7ac54a08-e95e-4a98-b1ad-48fe1c94f39d",
+              "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63"
+            },
+            "accounting": {
+              "admitted_turns": 1,
+              "admitted_operations": 4,
+              "settled_tokens": 1183,
+              "settled_cost_microusd": 371,
+              "held_tokens": 0,
+              "held_cost_microusd": 0
+            },
+            "cancellation_requested_at": null,
+            "created_at": 1793118652,
+            "updated_at": 1793118653
+          },
+          "request": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "configuration_revision": 1,
+            "prompt": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]",
+            "execution_policy": {
+              "computer": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              },
+              "process": null
+            },
+            "limits": {
+              "deadline": 1793118891,
+              "max_turns": 3,
+              "max_total_tokens": 792576,
+              "max_cost_microusd": 200000,
+              "max_output_tokens": 2048,
+              "max_operations": 12,
+              "max_concurrent_operations": 1
+            }
+          },
+          "configuration": {
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "revision": 1,
+            "policy": {
+              "endpoint": "eu",
+              "model_id": "mistral-small-2603",
+              "context_tokens": 262144,
+              "acknowledgment": {
+                "model_developer": "Mistral AI",
+                "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+                "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+                "acknowledged_at": 1793118651,
+                "release": {
+                  "type": "stable"
+                }
+              },
+              "prices": {
+                "input_microusd_per_million_tokens": 200000,
+                "output_microusd_per_million_tokens": 800000,
+                "effective_at": 1793118650,
+                "expires_at": 1793205051,
+                "billing": "text_tokens_only_at_acknowledged_ceilings"
+              }
+            },
+            "verification": {
+              "type": "verified",
+              "checked_at": 1793118652,
+              "expires_at": 1793122252
+            }
+          },
+          "turns": [
+            {
+              "id": "7ac54a08-e95e-4a98-b1ad-48fe1c94f39d",
+              "ordinal": 1,
+              "attempt": "c667ddf8-08b4-4107-a257-5b741169e68c",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]"
+                }
+              ],
+              "reservation": {
+                "total_tokens": 264192,
+                "cost_microusd": 54068
+              },
+              "accounting": {
+                "type": "settled",
+                "charged_microusd": 371
+              },
+              "phase": {
+                "type": "responded"
+              },
+              "finish_reason": null,
+              "usage": {
+                "prompt_tokens": 960,
+                "completion_tokens": 223,
+                "total_tokens": 1183
+              },
+              "provider_request_id": "9a3026cb9b4a4ef4ba694a346abd7f42",
+              "response": {
+                "role": "assistant",
+                "content": "",
+                "tool_call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                }
+              },
+              "intent": {
+                "call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                },
+                "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+                "command": "adc4f747-e487-4a58-a908-f22e6e6765f7",
+                "operation": "3dcfeb75-fba1-4bc7-89c9-336891f3805a",
+                "execution": "042bb3a8-a1f0-44b0-b285-09df2a930ffc",
+                "work": {
+                  "type": "computer",
+                  "spec": {
+                    "profile": "linux_playwright_v1",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "runtime": {
+                      "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                    },
+                    "deadline": 1793118891,
+                    "limits": {
+                      "runtime_seconds": 60,
+                      "output_bytes": 1024,
+                      "processes": 128,
+                      "memory_bytes": 1073741824
+                    },
+                    "viewport": {
+                      "width": 800,
+                      "height": 600
+                    },
+                    "operations": [
+                      {
+                        "type": "navigate",
+                        "url": "http://127.0.0.1:45505/"
+                      },
+                      {
+                        "type": "capture_text",
+                        "selector": "#proof",
+                        "output": "page"
+                      },
+                      {
+                        "type": "write_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "text": "M04 shared file outside coding workspace.\n"
+                      },
+                      {
+                        "type": "read_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "output": "file"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "slot": "page",
+                        "name": "page.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      },
+                      {
+                        "slot": "file",
+                        "name": "file.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      }
+                    ]
+                  }
+                },
+                "result": null
+              }
+            }
+          ]
+        },
+        "approved": {
+          "id": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+          "request": {
+            "id": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+            "session_id": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "conversation_id": null,
+            "settings": {
+              "model": "mistral-small-2603",
+              "max_turns": 1,
+              "max_tokens": 2048,
+              "deadline": 1793118891,
+              "max_cost_micros": 200000
+            },
+            "work": {
+              "type": "computer",
+              "spec": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "deadline": 1793118891,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "operations": [
+                  {
+                    "type": "navigate",
+                    "url": "http://127.0.0.1:45505/"
+                  },
+                  {
+                    "type": "capture_text",
+                    "selector": "#proof",
+                    "output": "page"
+                  },
+                  {
+                    "type": "write_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "text": "M04 shared file outside coding workspace.\n"
+                  },
+                  {
+                    "type": "read_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "output": "file"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              }
+            }
+          },
+          "command": {
+            "id": "adc4f747-e487-4a58-a908-f22e6e6765f7",
+            "owner": "8e5c0275-1745-4484-8a1c-9059078a593f",
+            "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "worker": "6e8bf425-03ab-4a39-b00d-9f5714b8cca3",
+            "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "operation": "3dcfeb75-fba1-4bc7-89c9-336891f3805a",
+            "execution": "042bb3a8-a1f0-44b0-b285-09df2a930ffc",
+            "work": {
+              "type": "computer",
+              "spec": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "deadline": 1793118891,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "operations": [
+                  {
+                    "type": "navigate",
+                    "url": "http://127.0.0.1:45505/"
+                  },
+                  {
+                    "type": "capture_text",
+                    "selector": "#proof",
+                    "output": "page"
+                  },
+                  {
+                    "type": "write_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "text": "M04 shared file outside coding workspace.\n"
+                  },
+                  {
+                    "type": "read_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "output": "file"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              }
+            }
+          },
+          "state": "awaiting_approval",
+          "progress": 0,
+          "outcome": null,
+          "effect_evidence": [],
+          "process": null,
+          "outputs": [
+            {
+              "declaration": {
+                "slot": "page",
+                "name": "page.txt",
+                "media_type": "text_plain",
+                "max_bytes": 4096
+              },
+              "state": {
+                "type": "pending"
+              }
+            },
+            {
+              "declaration": {
+                "slot": "file",
+                "name": "file.txt",
+                "media_type": "text_plain",
+                "max_bytes": 4096
+              },
+              "state": {
+                "type": "pending"
+              }
+            }
+          ],
+          "approval": {
+            "id": "8c702548-cf4b-4ff7-99f0-fe022c83652c",
+            "binding": {
+              "owner": "8e5c0275-1745-4484-8a1c-9059078a593f",
+              "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+              "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+              "operation": "3dcfeb75-fba1-4bc7-89c9-336891f3805a",
+              "arguments": "340922d437561fc607aba4dcc7f0b1601211dabb69739a362969cf1dc66de6d9",
+              "permission_revision": 1,
+              "approval": "8c702548-cf4b-4ff7-99f0-fe022c83652c",
+              "execution": "042bb3a8-a1f0-44b0-b285-09df2a930ffc",
+              "expires_at": 1793118744
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": false
+          }
+        },
+        "final": {
+          "summary": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "phase": {
+              "type": "completed"
+            },
+            "accounting": {
+              "admitted_turns": 2,
+              "admitted_operations": 4,
+              "settled_tokens": 3190,
+              "settled_cost_microusd": 792,
+              "held_tokens": 0,
+              "held_cost_microusd": 0
+            },
+            "cancellation_requested_at": null,
+            "created_at": 1793118652,
+            "updated_at": 1793118656
+          },
+          "request": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "configuration_revision": 1,
+            "prompt": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]",
+            "execution_policy": {
+              "computer": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              },
+              "process": null
+            },
+            "limits": {
+              "deadline": 1793118891,
+              "max_turns": 3,
+              "max_total_tokens": 792576,
+              "max_cost_microusd": 200000,
+              "max_output_tokens": 2048,
+              "max_operations": 12,
+              "max_concurrent_operations": 1
+            }
+          },
+          "configuration": {
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "revision": 1,
+            "policy": {
+              "endpoint": "eu",
+              "model_id": "mistral-small-2603",
+              "context_tokens": 262144,
+              "acknowledgment": {
+                "model_developer": "Mistral AI",
+                "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+                "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+                "acknowledged_at": 1793118651,
+                "release": {
+                  "type": "stable"
+                }
+              },
+              "prices": {
+                "input_microusd_per_million_tokens": 200000,
+                "output_microusd_per_million_tokens": 800000,
+                "effective_at": 1793118650,
+                "expires_at": 1793205051,
+                "billing": "text_tokens_only_at_acknowledged_ceilings"
+              }
+            },
+            "verification": {
+              "type": "verified",
+              "checked_at": 1793118652,
+              "expires_at": 1793122252
+            }
+          },
+          "turns": [
+            {
+              "id": "7ac54a08-e95e-4a98-b1ad-48fe1c94f39d",
+              "ordinal": 1,
+              "attempt": "c667ddf8-08b4-4107-a257-5b741169e68c",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]"
+                }
+              ],
+              "reservation": {
+                "total_tokens": 264192,
+                "cost_microusd": 54068
+              },
+              "accounting": {
+                "type": "settled",
+                "charged_microusd": 371
+              },
+              "phase": {
+                "type": "responded"
+              },
+              "finish_reason": null,
+              "usage": {
+                "prompt_tokens": 960,
+                "completion_tokens": 223,
+                "total_tokens": 1183
+              },
+              "provider_request_id": "9a3026cb9b4a4ef4ba694a346abd7f42",
+              "response": {
+                "role": "assistant",
+                "content": "",
+                "tool_call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                }
+              },
+              "intent": {
+                "call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                },
+                "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+                "command": "adc4f747-e487-4a58-a908-f22e6e6765f7",
+                "operation": "3dcfeb75-fba1-4bc7-89c9-336891f3805a",
+                "execution": "042bb3a8-a1f0-44b0-b285-09df2a930ffc",
+                "work": {
+                  "type": "computer",
+                  "spec": {
+                    "profile": "linux_playwright_v1",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "runtime": {
+                      "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                    },
+                    "deadline": 1793118891,
+                    "limits": {
+                      "runtime_seconds": 60,
+                      "output_bytes": 1024,
+                      "processes": 128,
+                      "memory_bytes": 1073741824
+                    },
+                    "viewport": {
+                      "width": 800,
+                      "height": 600
+                    },
+                    "operations": [
+                      {
+                        "type": "navigate",
+                        "url": "http://127.0.0.1:45505/"
+                      },
+                      {
+                        "type": "capture_text",
+                        "selector": "#proof",
+                        "output": "page"
+                      },
+                      {
+                        "type": "write_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "text": "M04 shared file outside coding workspace.\n"
+                      },
+                      {
+                        "type": "read_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "output": "file"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "slot": "page",
+                        "name": "page.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      },
+                      {
+                        "slot": "file",
+                        "name": "file.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      }
+                    ]
+                  }
+                },
+                "result": "{\"untrusted_tool_result\":{\"artifacts\":[{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"page.txt\",\"slot\":\"page\"},\"state\":{\"content\":{\"length\":22,\"sha256\":\"ee232f0ce8dfe54e73b92bfb1c92c00eae328080a211bdc24de568428e76f645\"},\"id\":\"eb73bcc3-5e07-4a19-bc88-6e96ae1d76f9\",\"type\":\"available\"},\"untrusted_text\":\"M04 real browser proof\"},{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"file.txt\",\"slot\":\"file\"},\"state\":{\"content\":{\"length\":42,\"sha256\":\"0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5\"},\"id\":\"908bf133-cbe3-4040-a43a-6cad6def54be\",\"type\":\"available\"},\"untrusted_text\":\"M04 shared file outside coding workspace.\\n\"}],\"outcome\":{\"reason\":\"result\",\"scope\":{\"boot\":\"a9e5b8c7-8f54-445d-83bc-2e120b765cd9\",\"cgroup\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\",\"execution\":\"042bb3a8-a1f0-44b0-b285-09df2a930ffc\",\"host\":\"4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134\",\"invocation\":\"fd42183348384962af2bbfa481ede226\",\"journal\":\"ecbb8f5e-dede-40f4-b873-072e868e6d7d\",\"unit\":\"botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\"},\"success\":true,\"type\":\"process_finished\"},\"process\":{\"effect\":\"observed\",\"result\":{\"exit\":{\"code\":0,\"type\":\"exited\"},\"stderr\":{\"complete\":true,\"text\":\"\",\"truncated\":false},\"stdout\":{\"complete\":true,\"text\":\"\",\"truncated\":false}}},\"state\":\"completed\",\"task\":\"dd32f871-bb49-4b8f-b15c-638e601a6c63\"}}"
+              }
+            },
+            {
+              "id": "d73e0661-d3f6-438e-a545-4288d40912bf",
+              "ordinal": 2,
+              "attempt": "1a480d59-30b5-4f76-bce1-737369cd0085",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]"
+                },
+                {
+                  "role": "assistant",
+                  "content": "",
+                  "tool_call": {
+                    "id": "4Ataj2fiq",
+                    "proposal": {
+                      "tool": "computer",
+                      "arguments": {
+                        "operations": [
+                          {
+                            "type": "navigate",
+                            "url": "http://127.0.0.1:45505/"
+                          },
+                          {
+                            "type": "capture_text",
+                            "selector": "#proof",
+                            "output": "page"
+                          },
+                          {
+                            "type": "write_file",
+                            "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                            "text": "M04 shared file outside coding workspace.\n"
+                          },
+                          {
+                            "type": "read_file",
+                            "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                            "output": "file"
+                          }
+                        ],
+                        "outputs": [
+                          "page",
+                          "file"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "role": "tool",
+                  "tool_call_id": "4Ataj2fiq",
+                  "content": "{\"untrusted_tool_result\":{\"artifacts\":[{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"page.txt\",\"slot\":\"page\"},\"state\":{\"content\":{\"length\":22,\"sha256\":\"ee232f0ce8dfe54e73b92bfb1c92c00eae328080a211bdc24de568428e76f645\"},\"id\":\"eb73bcc3-5e07-4a19-bc88-6e96ae1d76f9\",\"type\":\"available\"},\"untrusted_text\":\"M04 real browser proof\"},{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"file.txt\",\"slot\":\"file\"},\"state\":{\"content\":{\"length\":42,\"sha256\":\"0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5\"},\"id\":\"908bf133-cbe3-4040-a43a-6cad6def54be\",\"type\":\"available\"},\"untrusted_text\":\"M04 shared file outside coding workspace.\\n\"}],\"outcome\":{\"reason\":\"result\",\"scope\":{\"boot\":\"a9e5b8c7-8f54-445d-83bc-2e120b765cd9\",\"cgroup\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\",\"execution\":\"042bb3a8-a1f0-44b0-b285-09df2a930ffc\",\"host\":\"4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134\",\"invocation\":\"fd42183348384962af2bbfa481ede226\",\"journal\":\"ecbb8f5e-dede-40f4-b873-072e868e6d7d\",\"unit\":\"botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\"},\"success\":true,\"type\":\"process_finished\"},\"process\":{\"effect\":\"observed\",\"result\":{\"exit\":{\"code\":0,\"type\":\"exited\"},\"stderr\":{\"complete\":true,\"text\":\"\",\"truncated\":false},\"stdout\":{\"complete\":true,\"text\":\"\",\"truncated\":false}}},\"state\":\"completed\",\"task\":\"dd32f871-bb49-4b8f-b15c-638e601a6c63\"}}"
+                }
+              ],
+              "reservation": {
+                "total_tokens": 264192,
+                "cost_microusd": 54068
+              },
+              "accounting": {
+                "type": "settled",
+                "charged_microusd": 421
+              },
+              "phase": {
+                "type": "responded"
+              },
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 1976,
+                "completion_tokens": 31,
+                "total_tokens": 2007
+              },
+              "provider_request_id": "2cf41ee8ebb247fe9babcb7dc09884d2",
+              "response": {
+                "role": "assistant",
+                "content": "Observed page text: \"M04 real browser proof\"\nObserved file content: \"M04 shared file outside coding workspace.\\n\"",
+                "tool_call": null
+              },
+              "intent": null
+            }
+          ]
+        },
+        "file": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=utf-8",
+            "content-disposition": "attachment; filename=\"file.txt\"",
+            "content-length": "42",
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+            "connection": "close",
+            "date": "Tue, 27 Oct 2026 16:30:57 GMT"
+          },
+          "length": 42,
+          "sha256": "0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5",
+          "prefix": "4d3034207368617265642066696c65206f75747369646520636f64696e6720776f726b73706163652e0a"
+        },
+        "page": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=utf-8",
+            "content-disposition": "attachment; filename=\"page.txt\"",
+            "content-length": "22",
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+            "connection": "close",
+            "date": "Tue, 27 Oct 2026 16:30:57 GMT"
+          },
+          "length": 22,
+          "sha256": "ee232f0ce8dfe54e73b92bfb1c92c00eae328080a211bdc24de568428e76f645",
+          "prefix": "4d3034207265616c2062726f777365722070726f6f66"
+        }
+      }
+    },
+    {
+      "name": "production.second_bot_shared_file_access",
+      "status": "passed",
+      "details": {
+        "task": {
+          "id": "f8d555f4-c44e-4b9c-9441-5858b5f5db39",
+          "request": {
+            "id": "f8d555f4-c44e-4b9c-9441-5858b5f5db39",
+            "session_id": "97471a5d-6ebf-4e17-8f7e-96435360edf1",
+            "conversation_id": null,
+            "settings": {
+              "model": "unavailable",
+              "max_turns": 1,
+              "max_tokens": 1,
+              "deadline": 1793118777,
+              "max_cost_micros": 0
+            },
+            "work": {
+              "type": "computer",
+              "spec": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "deadline": 1793118777,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "operations": [
+                  {
+                    "type": "read_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "output": "shared"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "slot": "shared",
+                    "name": "shared.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              }
+            }
+          },
+          "command": {
+            "id": "a6cf6c8f-941a-4ae4-a30d-92c5b523177a",
+            "owner": "8e5c0275-1745-4484-8a1c-9059078a593f",
+            "task": "f8d555f4-c44e-4b9c-9441-5858b5f5db39",
+            "bot": "6ec6b761-8923-49f9-9e16-90b1ed6f4f47",
+            "worker": "6e8bf425-03ab-4a39-b00d-9f5714b8cca3",
+            "session": "97471a5d-6ebf-4e17-8f7e-96435360edf1",
+            "operation": "e564feb9-ce9a-40ed-9b70-8629f44ef585",
+            "execution": "3df5c68e-918f-459d-afb4-e9695786686e",
+            "work": {
+              "type": "computer",
+              "spec": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "deadline": 1793118777,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "operations": [
+                  {
+                    "type": "read_file",
+                    "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                    "output": "shared"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "slot": "shared",
+                    "name": "shared.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              }
+            }
+          },
+          "state": "completed",
+          "progress": 0,
+          "outcome": {
+            "type": "process_finished",
+            "reason": "result",
+            "success": true,
+            "scope": {
+              "journal": "ecbb8f5e-dede-40f4-b873-072e868e6d7d",
+              "execution": "3df5c68e-918f-459d-afb4-e9695786686e",
+              "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+              "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+              "invocation": "577af9c1225940d29eec51b7fcd9a5e4",
+              "unit": "botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-3df5c68e-918f-459d-afb4-e9695786686e.service",
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-3df5c68e-918f-459d-afb4-e9695786686e.service"
+            }
+          },
+          "effect_evidence": [],
+          "process": {
+            "effect": "observed",
+            "result": {
+              "exit": {
+                "type": "exited",
+                "code": 0
+              },
+              "stdout": {
+                "hex": "",
+                "truncated": false,
+                "complete": true
+              },
+              "stderr": {
+                "hex": "",
+                "truncated": false,
+                "complete": true
+              }
+            }
+          },
+          "outputs": [
+            {
+              "declaration": {
+                "slot": "shared",
+                "name": "shared.txt",
+                "media_type": "text_plain",
+                "max_bytes": 4096
+              },
+              "state": {
+                "type": "available",
+                "id": "6120ac95-1d5e-42ea-b90d-2b587d995278",
+                "content": {
+                  "sha256": "0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5",
+                  "length": 42
+                }
+              }
+            }
+          ],
+          "approval": {
+            "id": "2253b940-f561-4e32-8413-ba09174e41d9",
+            "binding": {
+              "owner": "8e5c0275-1745-4484-8a1c-9059078a593f",
+              "bot": "6ec6b761-8923-49f9-9e16-90b1ed6f4f47",
+              "task": "f8d555f4-c44e-4b9c-9441-5858b5f5db39",
+              "operation": "e564feb9-ce9a-40ed-9b70-8629f44ef585",
+              "arguments": "1118f0d80cc413c209e70e00b7d61ab29025d9ccbc712f30766c30d918068466",
+              "permission_revision": 1,
+              "approval": "2253b940-f561-4e32-8413-ba09174e41d9",
+              "execution": "3df5c68e-918f-459d-afb4-e9695786686e",
+              "expires_at": 1793118747
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": true
+          }
+        },
+        "artifact": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=utf-8",
+            "content-disposition": "attachment; filename=\"shared.txt\"",
+            "content-length": "42",
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+            "connection": "close",
+            "date": "Tue, 27 Oct 2026 16:30:59 GMT"
+          },
+          "length": 42,
+          "sha256": "0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5",
+          "prefix": "4d3034207368617265642066696c65206f75747369646520636f64696e6720776f726b73706163652e0a"
+        }
+      }
+    },
+    {
+      "name": "production.budget_refusal",
+      "status": "passed",
+      "details": {
+        "response": {
+          "error": "inference_budget"
+        }
+      }
+    },
+    {
+      "name": "production.artifact_survives_worker_disconnect_and_manager_restart",
+      "status": "passed",
+      "details": {
+        "download": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=utf-8",
+            "content-disposition": "attachment; filename=\"file.txt\"",
+            "content-length": "42",
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+            "connection": "close",
+            "date": "Tue, 27 Oct 2026 16:31:01 GMT"
+          },
+          "length": 42,
+          "sha256": "0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5",
+          "prefix": "4d3034207368617265642066696c65206f75747369646520636f64696e6720776f726b73706163652e0a"
+        },
+        "run": {
+          "summary": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "phase": {
+              "type": "completed"
+            },
+            "accounting": {
+              "admitted_turns": 2,
+              "admitted_operations": 4,
+              "settled_tokens": 3190,
+              "settled_cost_microusd": 792,
+              "held_tokens": 0,
+              "held_cost_microusd": 0
+            },
+            "cancellation_requested_at": null,
+            "created_at": 1793118652,
+            "updated_at": 1793118656
+          },
+          "request": {
+            "id": "0ce43b84-a706-4dea-9759-1afa1d5fc6ab",
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "session": "f5fa0442-9701-41a4-b562-32f71a24789a",
+            "configuration_revision": 1,
+            "prompt": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]",
+            "execution_policy": {
+              "computer": {
+                "profile": "linux_playwright_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "runtime": {
+                  "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                },
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 128,
+                  "memory_bytes": 1073741824
+                },
+                "viewport": {
+                  "width": 800,
+                  "height": 600
+                },
+                "outputs": [
+                  {
+                    "slot": "page",
+                    "name": "page.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  },
+                  {
+                    "slot": "file",
+                    "name": "file.txt",
+                    "media_type": "text_plain",
+                    "max_bytes": 4096
+                  }
+                ]
+              },
+              "process": null
+            },
+            "limits": {
+              "deadline": 1793118891,
+              "max_turns": 3,
+              "max_total_tokens": 792576,
+              "max_cost_microusd": 200000,
+              "max_output_tokens": 2048,
+              "max_operations": 12,
+              "max_concurrent_operations": 1
+            }
+          },
+          "configuration": {
+            "bot": "042d29ed-7f18-4cc8-b008-ab2d1391d62c",
+            "revision": 1,
+            "policy": {
+              "endpoint": "eu",
+              "model_id": "mistral-small-2603",
+              "context_tokens": 262144,
+              "acknowledgment": {
+                "model_developer": "Mistral AI",
+                "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
+                "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
+                "acknowledged_at": 1793118651,
+                "release": {
+                  "type": "stable"
+                }
+              },
+              "prices": {
+                "input_microusd_per_million_tokens": 200000,
+                "output_microusd_per_million_tokens": 800000,
+                "effective_at": 1793118650,
+                "expires_at": 1793205051,
+                "billing": "text_tokens_only_at_acknowledged_ceilings"
+              }
+            },
+            "verification": {
+              "type": "verified",
+              "checked_at": 1793118652,
+              "expires_at": 1793122252
+            }
+          },
+          "turns": [
+            {
+              "id": "7ac54a08-e95e-4a98-b1ad-48fe1c94f39d",
+              "ordinal": 1,
+              "attempt": "c667ddf8-08b4-4107-a257-5b741169e68c",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]"
+                }
+              ],
+              "reservation": {
+                "total_tokens": 264192,
+                "cost_microusd": 54068
+              },
+              "accounting": {
+                "type": "settled",
+                "charged_microusd": 371
+              },
+              "phase": {
+                "type": "responded"
+              },
+              "finish_reason": null,
+              "usage": {
+                "prompt_tokens": 960,
+                "completion_tokens": 223,
+                "total_tokens": 1183
+              },
+              "provider_request_id": "9a3026cb9b4a4ef4ba694a346abd7f42",
+              "response": {
+                "role": "assistant",
+                "content": "",
+                "tool_call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                }
+              },
+              "intent": {
+                "call": {
+                  "id": "4Ataj2fiq",
+                  "proposal": {
+                    "tool": "computer",
+                    "arguments": {
+                      "operations": [
+                        {
+                          "type": "navigate",
+                          "url": "http://127.0.0.1:45505/"
+                        },
+                        {
+                          "type": "capture_text",
+                          "selector": "#proof",
+                          "output": "page"
+                        },
+                        {
+                          "type": "write_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "text": "M04 shared file outside coding workspace.\n"
+                        },
+                        {
+                          "type": "read_file",
+                          "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                          "output": "file"
+                        }
+                      ],
+                      "outputs": [
+                        "page",
+                        "file"
+                      ]
+                    }
+                  }
+                },
+                "task": "dd32f871-bb49-4b8f-b15c-638e601a6c63",
+                "command": "adc4f747-e487-4a58-a908-f22e6e6765f7",
+                "operation": "3dcfeb75-fba1-4bc7-89c9-336891f3805a",
+                "execution": "042bb3a8-a1f0-44b0-b285-09df2a930ffc",
+                "work": {
+                  "type": "computer",
+                  "spec": {
+                    "profile": "linux_playwright_v1",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "runtime": {
+                      "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+                    },
+                    "deadline": 1793118891,
+                    "limits": {
+                      "runtime_seconds": 60,
+                      "output_bytes": 1024,
+                      "processes": 128,
+                      "memory_bytes": 1073741824
+                    },
+                    "viewport": {
+                      "width": 800,
+                      "height": 600
+                    },
+                    "operations": [
+                      {
+                        "type": "navigate",
+                        "url": "http://127.0.0.1:45505/"
+                      },
+                      {
+                        "type": "capture_text",
+                        "selector": "#proof",
+                        "output": "page"
+                      },
+                      {
+                        "type": "write_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "text": "M04 shared file outside coding workspace.\n"
+                      },
+                      {
+                        "type": "read_file",
+                        "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                        "output": "file"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "slot": "page",
+                        "name": "page.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      },
+                      {
+                        "slot": "file",
+                        "name": "file.txt",
+                        "media_type": "text_plain",
+                        "max_bytes": 4096
+                      }
+                    ]
+                  }
+                },
+                "result": "{\"untrusted_tool_result\":{\"artifacts\":[{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"page.txt\",\"slot\":\"page\"},\"state\":{\"content\":{\"length\":22,\"sha256\":\"ee232f0ce8dfe54e73b92bfb1c92c00eae328080a211bdc24de568428e76f645\"},\"id\":\"eb73bcc3-5e07-4a19-bc88-6e96ae1d76f9\",\"type\":\"available\"},\"untrusted_text\":\"M04 real browser proof\"},{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"file.txt\",\"slot\":\"file\"},\"state\":{\"content\":{\"length\":42,\"sha256\":\"0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5\"},\"id\":\"908bf133-cbe3-4040-a43a-6cad6def54be\",\"type\":\"available\"},\"untrusted_text\":\"M04 shared file outside coding workspace.\\n\"}],\"outcome\":{\"reason\":\"result\",\"scope\":{\"boot\":\"a9e5b8c7-8f54-445d-83bc-2e120b765cd9\",\"cgroup\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\",\"execution\":\"042bb3a8-a1f0-44b0-b285-09df2a930ffc\",\"host\":\"4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134\",\"invocation\":\"fd42183348384962af2bbfa481ede226\",\"journal\":\"ecbb8f5e-dede-40f4-b873-072e868e6d7d\",\"unit\":\"botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\"},\"success\":true,\"type\":\"process_finished\"},\"process\":{\"effect\":\"observed\",\"result\":{\"exit\":{\"code\":0,\"type\":\"exited\"},\"stderr\":{\"complete\":true,\"text\":\"\",\"truncated\":false},\"stdout\":{\"complete\":true,\"text\":\"\",\"truncated\":false}}},\"state\":\"completed\",\"task\":\"dd32f871-bb49-4b8f-b15c-638e601a6c63\"}}"
+              }
+            },
+            {
+              "id": "d73e0661-d3f6-438e-a545-4288d40912bf",
+              "ordinal": 2,
+              "attempt": "1a480d59-30b5-4f76-bce1-737369cd0085",
+              "messages": [
+                {
+                  "role": "user",
+                  "content": "Perform this exact computer batch once, selecting outputs page and file. After the tool succeeds, briefly report the observed page text and file content. Do not claim success before the tool result. Operations are [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:45505/\"}, {\"type\": \"capture_text\", \"selector\": \"#proof\", \"output\": \"page\"}, {\"type\": \"write_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"text\": \"M04 shared file outside coding workspace.\\n\"}, {\"type\": \"read_file\", \"path\": \"/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt\", \"output\": \"file\"}]"
+                },
+                {
+                  "role": "assistant",
+                  "content": "",
+                  "tool_call": {
+                    "id": "4Ataj2fiq",
+                    "proposal": {
+                      "tool": "computer",
+                      "arguments": {
+                        "operations": [
+                          {
+                            "type": "navigate",
+                            "url": "http://127.0.0.1:45505/"
+                          },
+                          {
+                            "type": "capture_text",
+                            "selector": "#proof",
+                            "output": "page"
+                          },
+                          {
+                            "type": "write_file",
+                            "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                            "text": "M04 shared file outside coding workspace.\n"
+                          },
+                          {
+                            "type": "read_file",
+                            "path": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7/shared-proof.txt",
+                            "output": "file"
+                          }
+                        ],
+                        "outputs": [
+                          "page",
+                          "file"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "role": "tool",
+                  "tool_call_id": "4Ataj2fiq",
+                  "content": "{\"untrusted_tool_result\":{\"artifacts\":[{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"page.txt\",\"slot\":\"page\"},\"state\":{\"content\":{\"length\":22,\"sha256\":\"ee232f0ce8dfe54e73b92bfb1c92c00eae328080a211bdc24de568428e76f645\"},\"id\":\"eb73bcc3-5e07-4a19-bc88-6e96ae1d76f9\",\"type\":\"available\"},\"untrusted_text\":\"M04 real browser proof\"},{\"declaration\":{\"max_bytes\":4096,\"media_type\":\"text_plain\",\"name\":\"file.txt\",\"slot\":\"file\"},\"state\":{\"content\":{\"length\":42,\"sha256\":\"0d307fb9f74d3335cee61a38537db6aa377717c44625fe3c8444ec1691c83ea5\"},\"id\":\"908bf133-cbe3-4040-a43a-6cad6def54be\",\"type\":\"available\"},\"untrusted_text\":\"M04 shared file outside coding workspace.\\n\"}],\"outcome\":{\"reason\":\"result\",\"scope\":{\"boot\":\"a9e5b8c7-8f54-445d-83bc-2e120b765cd9\",\"cgroup\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\",\"execution\":\"042bb3a8-a1f0-44b0-b285-09df2a930ffc\",\"host\":\"4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134\",\"invocation\":\"fd42183348384962af2bbfa481ede226\",\"journal\":\"ecbb8f5e-dede-40f4-b873-072e868e6d7d\",\"unit\":\"botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service\"},\"success\":true,\"type\":\"process_finished\"},\"process\":{\"effect\":\"observed\",\"result\":{\"exit\":{\"code\":0,\"type\":\"exited\"},\"stderr\":{\"complete\":true,\"text\":\"\",\"truncated\":false},\"stdout\":{\"complete\":true,\"text\":\"\",\"truncated\":false}}},\"state\":\"completed\",\"task\":\"dd32f871-bb49-4b8f-b15c-638e601a6c63\"}}"
+                }
+              ],
+              "reservation": {
+                "total_tokens": 264192,
+                "cost_microusd": 54068
+              },
+              "accounting": {
+                "type": "settled",
+                "charged_microusd": 421
+              },
+              "phase": {
+                "type": "responded"
+              },
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 1976,
+                "completion_tokens": 31,
+                "total_tokens": 2007
+              },
+              "provider_request_id": "2cf41ee8ebb247fe9babcb7dc09884d2",
+              "response": {
+                "role": "assistant",
+                "content": "Observed page text: \"M04 real browser proof\"\nObserved file content: \"M04 shared file outside coding workspace.\\n\"",
+                "tool_call": null
+              },
+              "intent": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "production.shutdown.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-manager-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.shutdown.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-page.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.permissions.manager",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.permissions.worker",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.state_redaction.manager",
+      "status": "passed",
+      "details": {
+        "files": [
+          "manager.sqlite3",
+          "manager.lock",
+          "memory-index.sqlite3",
+          "artifacts/908bf133-cbe3-4040-a43a-6cad6def54be.blob",
+          "artifacts/6120ac95-1d5e-42ea-b90d-2b587d995278.blob",
+          "artifacts/eb73bcc3-5e07-4a19-bc88-6e96ae1d76f9.blob"
+        ]
+      }
+    },
+    {
+      "name": "production.state_redaction.worker",
+      "status": "passed",
+      "details": {
+        "files": [
+          "computer.json",
+          "agent.sqlite3",
+          "agent.lock",
+          "process.json",
+          "config.json",
+          "automation-profile/Default/Cookies",
+          "automation-profile/Default/Cookies-journal",
+          "automation-profile/Default/DIPS",
+          "automation-profile/Default/declarative_performance_observer.db-journal",
+          "automation-profile/Default/declarative_performance_observer.db",
+          "automation-profile/Default/PersistentOriginTrials/LOG",
+          "automation-profile/Default/PersistentOriginTrials/LOCK",
+          "automation-profile/Default/shared_proto_db/CURRENT",
+          "automation-profile/Default/shared_proto_db/MANIFEST-000001",
+          "automation-profile/Default/shared_proto_db/000003.log",
+          "automation-profile/Default/shared_proto_db/LOG",
+          "automation-profile/Default/shared_proto_db/LOCK",
+          "automation-profile/Default/DawnGraphiteCache/data_2",
+          "automation-profile/Default/DawnGraphiteCache/data_0",
+          "automation-profile/Default/DawnGraphiteCache/data_3",
+          "automation-profile/Default/DawnGraphiteCache/data_1",
+          "automation-profile/Default/DawnGraphiteCache/index",
+          "automation-profile/Default/Shared Dictionary/db",
+          "automation-profile/Default/Shared Dictionary/db-journal",
+          "automation-profile/Default/GPUCache/data_2",
+          "automation-profile/Default/GPUCache/data_0",
+          "automation-profile/Default/GPUCache/data_3",
+          "automation-profile/Default/GPUCache/data_1",
+          "automation-profile/Default/GPUCache/index",
+          "automation-profile/Default/DawnWebGPUCache/data_2",
+          "automation-profile/Default/DawnWebGPUCache/data_0",
+          "automation-profile/Default/DawnWebGPUCache/data_3",
+          "automation-profile/Default/DawnWebGPUCache/data_1",
+          "automation-profile/Default/DawnWebGPUCache/index",
+          "automation-profile/Default/Session Storage/CURRENT",
+          "automation-profile/Default/Session Storage/MANIFEST-000001",
+          "automation-profile/Default/Session Storage/000003.log",
+          "automation-profile/Default/Session Storage/LOG",
+          "automation-profile/Default/Session Storage/LOCK",
+          "automation-profile/Default/Local Storage/leveldb/CURRENT",
+          "automation-profile/Default/Local Storage/leveldb/MANIFEST-000001",
+          "automation-profile/Default/Local Storage/leveldb/000003.log",
+          "automation-profile/Default/Local Storage/leveldb/LOG",
+          "automation-profile/Default/Local Storage/leveldb/LOCK",
+          "automation-profile/Default/Code Cache/js/index",
+          "automation-profile/Default/Code Cache/wasm/index",
+          "automation-profile/Default/Code Cache/js/index-dir/the-real-index",
+          "automation-profile/Default/Code Cache/wasm/index-dir/the-real-index",
+          "automation-profile/Default/shared_proto_db/metadata/CURRENT",
+          "automation-profile/Default/shared_proto_db/metadata/MANIFEST-000001",
+          "automation-profile/Default/shared_proto_db/metadata/000003.log",
+          "automation-profile/Default/shared_proto_db/metadata/LOG",
+          "automation-profile/Default/shared_proto_db/metadata/LOCK",
+          "automation-profile/Default/Shared Dictionary/cache/index",
+          "automation-profile/Default/Shared Dictionary/cache/index-dir/the-real-index",
+          "automation-profile/Default/Cache/Cache_Data/2f15a2efd862a475_0",
+          "automation-profile/Default/Cache/Cache_Data/index",
+          "automation-profile/Default/Cache/No_Vary_Search/snapshot.baf",
+          "automation-profile/Default/Cache/No_Vary_Search/journal.baj",
+          "automation-profile/Default/Cache/Cache_Data/index-dir/the-real-index",
+          "automation-profile/.cache/fontconfig/99e8ed0e538f840c565b6ed5dad60d56-le64.cache-12",
+          "automation-profile/.cache/fontconfig/6333f38776742d18e214673cd2c24e34-le64.cache-12",
+          "automation-profile/.cache/fontconfig/d589a48862398ed80a3d6066f4f56f4c-le64.cache-12",
+          "automation-profile/.cache/fontconfig/7ef2298fde41cc6eeb7af42e48b7d293-le64.cache-12",
+          "automation-profile/.cache/fontconfig/573ec803664ed168555e0e8b6d0f0c7f-le64.cache-12",
+          "automation-profile/.cache/fontconfig/3047814df9a2f067bd2d96a2b9c36e5a-le64.cache-12",
+          "automation-profile/.cache/fontconfig/d52a8644073d54c13679302ca1180695-le64.cache-12",
+          "automation-profile/.cache/fontconfig/e13b20fdb08344e0e664864cc2ede53d-le64.cache-12",
+          "automation-profile/.cache/fontconfig/0bd3dc0958fa2205aaaa8ebb13e2872b-le64.cache-12",
+          "automation-profile/.cache/fontconfig/4c599c202bc5c08e2d34565a40eac3b2-le64.cache-12",
+          "automation-profile/.cache/fontconfig/bb9ef35e7661cc55c3d6e0d2d8cc2051-le64.cache-12",
+          "automation-profile/.cache/fontconfig/fe547fea3a41b43a38975d292a2b19c7-le64.cache-12",
+          "automation-profile/.cache/fontconfig/da82082e1ef13c4097208324d67c180c-le64.cache-12",
+          "automation-profile/.cache/fontconfig/707971e003b4ae6c8121c3a920e507f5-le64.cache-12",
+          "automation-profile/.cache/fontconfig/3830d5c3ddfd5cd38a049b759396e72e-le64.cache-12",
+          "automation-profile/.cache/fontconfig/111149350c6eff283e78acef98e70f62-le64.cache-12",
+          "automation-profile/.cache/fontconfig/4d6aee6d44eccb37054d3216e945f618-le64.cache-12",
+          "automation-profile/.cache/fontconfig/c855463f699352c367813e37f3f70ea7-le64.cache-12",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/computer.json",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/capture.json",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/manifest.json",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/release.json",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/ready.json",
+          "processes/042bb3a8-a1f0-44b0-b285-09df2a930ffc/result.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/computer.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/capture.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/manifest.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/release.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/ready.json",
+          "processes/3df5c68e-918f-459d-afb4-e9695786686e/result.json"
+        ]
+      }
+    },
+    {
+      "name": "production.logs.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-manager.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-enroll.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-computer.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-page.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-manager-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "process_cleanup",
+      "status": "passed",
+      "details": [
+        {
+          "unit": "botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-042bb3a8-a1f0-44b0-b285-09df2a930ffc.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "botstral-ecbb8f5e-dede-40f4-b873-072e868e6d7d-3df5c68e-918f-459d-afb4-e9695786686e.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-enroll.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-computer.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "m02-bd4b5018-0e2d-4418-bec5-921794058ce7-production-live-page.service",
+          "scope": "absent"
+        }
+      ]
+    }
+  ],
+  "root": "/home/botstral/m04-parent-live.mff8XD/runs/bd4b5018-0e2d-4418-bec5-921794058ce7",
+  "maximum_paid_calls": 3,
+  "reserved_cap_microusd": 200000,
+  "head": "685800647ca11577630941a994da9f9208065aa6"
+}
