@@ -1,5 +1,6 @@
 pub(crate) mod coding;
 mod crypto;
+pub(crate) mod devices;
 mod inference;
 mod provider;
 mod runs;
@@ -7,6 +8,8 @@ mod state;
 mod tasks;
 mod vision;
 mod workers;
+pub use devices::DeviceInvitationGrant;
+use devices::OwnerAuthority;
 pub use workers::*;
 
 use age::secrecy::{ExposeSecret, SecretString};
@@ -184,6 +187,8 @@ pub struct Manager {
     queue: Queue,
     inference: Arc<inference::InferenceControl>,
     provider: provider::Provider,
+    events: watch::Receiver<u64>,
+    pub(crate) snapshots: Arc<Semaphore>,
 }
 #[derive(Clone)]
 pub struct LocalSetup {
@@ -210,18 +215,21 @@ impl Manager {
         let (sender, mut receiver) = mpsc::channel::<Job>(32);
         let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(1);
         let (configured_tx, configured) = watch::channel(false);
+        let (event_tx, events) = watch::channel(0);
         let control = Arc::new(inference::InferenceControl::default());
         let state_wake = control.clone();
         let thread = thread::Builder::new()
             .name("botstral-state".into())
             .spawn(move || match state::State::open(directory, configured_tx) {
                 Ok(mut state) => {
+                    event_tx.send_replace(state.change_sequence().unwrap_or(0) as u64);
                     state.set_inference_control(state_wake.clone());
                     let _ = ready_tx.send(Ok(state.is_configured()));
                     while let Some(job) = receiver.blocking_recv() {
                         let before = state.change_sequence();
                         job(&mut state);
                         if before != state.change_sequence() {
+                            event_tx.send_replace(state.change_sequence().unwrap_or(0) as u64);
                             state_wake.run_wake.notify_one();
                         }
                     }
@@ -252,6 +260,8 @@ impl Manager {
                         queue,
                         inference: control,
                         provider,
+                        events,
+                        snapshots: Arc::new(Semaphore::new(1)),
                     },
                     setup,
                     thread,

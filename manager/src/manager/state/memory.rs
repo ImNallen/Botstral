@@ -96,6 +96,9 @@ impl State {
             if (name.starts_with("instructions-") || name.starts_with("memory-"))
                 && name.ends_with(".md")
             {
+                if documents.len() >= MAX_RECORDS {
+                    return Err(OperationError::Busy);
+                }
                 documents.push(self.read_document(&path)?);
             }
         }
@@ -159,6 +162,13 @@ impl State {
                 Err(_) => return Err(OperationError::Internal),
             }
         }
+        fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .custom_flags(libc::O_NOFOLLOW)
+            .open(&path)
+            .map_err(|_| OperationError::Internal)?;
         let mut index = Connection::open_with_flags(
             &path,
             OpenFlags::SQLITE_OPEN_READ_WRITE
@@ -180,10 +190,10 @@ impl State {
     }
     pub(in crate::manager) fn write_document(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: WriteDocument,
     ) -> Result<Document, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let documents = self.reconcile_documents()?;
         let previous = documents
             .iter()
@@ -237,11 +247,11 @@ impl State {
     }
     pub(in crate::manager) fn search_documents(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         bot: BotId,
         query: String,
     ) -> Result<Vec<Document>, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if query.is_empty() || query.len() > 256 {
             return Err(OperationError::InvalidInput);
         }
@@ -264,9 +274,9 @@ impl State {
     }
     pub(in crate::manager) fn rebuild_documents(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
     ) -> Result<Vec<Document>, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.reconcile_documents()
     }
     pub(in crate::manager) fn fault(&self, point: &str) {

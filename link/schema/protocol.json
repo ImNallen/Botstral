@@ -27,8 +27,29 @@
     "manager": {
       "$ref": "#/$defs/Envelope2"
     },
+    "manager_trust": {
+      "$ref": "#/$defs/ManagerTrust"
+    },
     "owner": {
       "$ref": "#/$defs/OwnerSnapshot"
+    },
+    "owner_client": {
+      "$ref": "#/$defs/OwnerClientMessage"
+    },
+    "owner_device": {
+      "$ref": "#/$defs/OwnerDevice"
+    },
+    "owner_hello": {
+      "$ref": "#/$defs/OwnerHello"
+    },
+    "owner_invitation": {
+      "$ref": "#/$defs/OwnerInvitation"
+    },
+    "owner_reply": {
+      "$ref": "#/$defs/OwnerReply"
+    },
+    "owner_server": {
+      "$ref": "#/$defs/OwnerServerMessage"
     },
     "replay": {
       "$ref": "#/$defs/EventReplay"
@@ -44,6 +65,13 @@
     }
   },
   "required": [
+    "owner_hello",
+    "owner_client",
+    "owner_server",
+    "owner_invitation",
+    "manager_trust",
+    "owner_device",
+    "owner_reply",
     "worker",
     "manager",
     "owner",
@@ -1040,6 +1068,20 @@
         "id",
         "conversation",
         "text"
+      ]
+    },
+    "DeviceFingerprint": {
+      "type": "string"
+    },
+    "DeviceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "DeviceRole": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "worker"
       ]
     },
     "Document": {
@@ -2049,6 +2091,10 @@
         "stopped"
       ]
     },
+    "ManagerId": {
+      "type": "string",
+      "format": "uuid"
+    },
     "ManagerMessage": {
       "oneOf": [
         {
@@ -2402,6 +2448,34 @@
         }
       ]
     },
+    "ManagerTrust": {
+      "type": "object",
+      "properties": {
+        "ca_pem": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "leaf": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        },
+        "manager": {
+          "$ref": "#/$defs/ManagerId"
+        },
+        "server_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "manager",
+        "endpoint",
+        "server_name",
+        "ca_pem",
+        "leaf"
+      ]
+    },
     "MediaType": {
       "type": "string",
       "enum": [
@@ -2494,9 +2568,1211 @@
         "state"
       ]
     },
+    "OwnerClientMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "operation": {
+              "$ref": "#/$defs/OwnerOperation"
+            },
+            "type": {
+              "type": "string",
+              "const": "call"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "operation"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "watch"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "cursor"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "applied"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "cursor"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ping"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "OwnerDevice": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/DeviceFingerprint"
+        },
+        "id": {
+          "$ref": "#/$defs/DeviceId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "revoked": {
+          "type": "boolean"
+        },
+        "role": {
+          "$ref": "#/$defs/DeviceRole"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "fingerprint",
+        "role",
+        "revoked",
+        "created_at"
+      ]
+    },
+    "OwnerHello": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "credential": {
+              "type": "string"
+            },
+            "manager": {
+              "$ref": "#/$defs/ManagerId"
+            },
+            "role": {
+              "$ref": "#/$defs/DeviceRole"
+            },
+            "type": {
+              "type": "string",
+              "const": "authenticate"
+            },
+            "version": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "version",
+            "manager",
+            "role",
+            "credential"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "credential": {
+              "type": "string"
+            },
+            "invitation": {
+              "type": "string"
+            },
+            "manager": {
+              "$ref": "#/$defs/ManagerId"
+            },
+            "role": {
+              "$ref": "#/$defs/DeviceRole"
+            },
+            "type": {
+              "type": "string",
+              "const": "enroll"
+            },
+            "version": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "version",
+            "manager",
+            "role",
+            "credential",
+            "invitation"
+          ]
+        }
+      ]
+    },
     "OwnerId": {
       "type": "string",
       "format": "uuid"
+    },
+    "OwnerInvitation": {
+      "type": "object",
+      "properties": {
+        "expires_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/DeviceFingerprint"
+        },
+        "invitation": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/DeviceRole"
+        },
+        "trust": {
+          "$ref": "#/$defs/ManagerTrust"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "trust",
+        "role",
+        "fingerprint",
+        "expires_at",
+        "invitation"
+      ]
+    },
+    "OwnerOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "limit": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "method": {
+              "type": "string",
+              "const": "resume"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "cursor",
+            "limit"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SubmitTask"
+            },
+            "method": {
+              "type": "string",
+              "const": "submit_task"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "method": {
+              "type": "string",
+              "const": "task"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "method": {
+              "type": "string",
+              "const": "cancel_task"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expires_at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "method": {
+              "type": "string",
+              "const": "grant_approval"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expires_at"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "method": {
+              "type": "string",
+              "const": "revoke_approval"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "allow": {
+              "type": "boolean"
+            },
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "method": {
+              "type": "string",
+              "const": "set_permission"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "expected_revision",
+            "allow"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Conversation"
+            },
+            "method": {
+              "type": "string",
+              "const": "conversation"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ConversationMessage"
+            },
+            "method": {
+              "type": "string",
+              "const": "append_message"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/WriteDocument"
+            },
+            "method": {
+              "type": "string",
+              "const": "write_document"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "method": {
+              "type": "string",
+              "const": "search_documents"
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "query"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "rebuild_documents"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "method": {
+              "type": "string",
+              "const": "inference_configuration"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ConfigureInference"
+            },
+            "method": {
+              "type": "string",
+              "const": "configure_inference"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SubmitInference"
+            },
+            "method": {
+              "type": "string",
+              "const": "submit_inference"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/InferenceId"
+            },
+            "method": {
+              "type": "string",
+              "const": "inference"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/InferenceId"
+            },
+            "method": {
+              "type": "string",
+              "const": "cancel_inference"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/SubmitRun"
+            },
+            "method": {
+              "type": "string",
+              "const": "submit_run"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "method": {
+              "type": "string",
+              "const": "run"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RunId"
+            },
+            "method": {
+              "type": "string",
+              "const": "cancel_run"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ComputerSessionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "computer_session"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "method": {
+              "type": "string",
+              "const": "open_computer_session"
+            },
+            "worker": {
+              "$ref": "#/$defs/WorkerId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "worker"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected": {
+              "$ref": "#/$defs/Revision"
+            },
+            "id": {
+              "$ref": "#/$defs/ComputerSessionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "set_input_owner"
+            },
+            "owner": {
+              "$ref": "#/$defs/InputOwner"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expected",
+            "owner"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fence": {
+              "$ref": "#/$defs/InputFence"
+            },
+            "id": {
+              "$ref": "#/$defs/CommandId"
+            },
+            "method": {
+              "type": "string",
+              "const": "input"
+            },
+            "value": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "fence",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/CommandId"
+            },
+            "method": {
+              "type": "string",
+              "const": "receipt"
+            },
+            "worker": {
+              "$ref": "#/$defs/WorkerId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "worker",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "method": {
+              "type": "string",
+              "const": "artifact"
+            },
+            "task": {
+              "$ref": "#/$defs/TaskId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "task",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "coding_calls"
+            },
+            "task": {
+              "$ref": "#/$defs/TaskId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "task"
+          ]
+        }
+      ]
+    },
+    "OwnerReceipt": {
+      "type": "object",
+      "properties": {
+        "acknowledgment": {
+          "$ref": "#/$defs/Acknowledgment"
+        },
+        "bot_inputs": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "command_id": {
+          "$ref": "#/$defs/CommandId"
+        },
+        "generation": {
+          "$ref": "#/$defs/Generation"
+        },
+        "last_event": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskEvent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "command_id",
+        "generation",
+        "acknowledgment",
+        "bot_inputs"
+      ]
+    },
+    "OwnerReply": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "replay"
+            },
+            "value": {
+              "$ref": "#/$defs/EventReplay"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "task"
+            },
+            "value": {
+              "$ref": "#/$defs/TaskView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "permission"
+            },
+            "value": {
+              "$ref": "#/$defs/Permission"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "conversation"
+            },
+            "value": {
+              "$ref": "#/$defs/Conversation"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "message"
+            },
+            "value": {
+              "$ref": "#/$defs/ConversationMessage"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "document"
+            },
+            "value": {
+              "$ref": "#/$defs/Document"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "documents"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Document"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "configuration"
+            },
+            "value": {
+              "$ref": "#/$defs/InferenceConfiguration"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "inference"
+            },
+            "value": {
+              "$ref": "#/$defs/InferenceView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "run"
+            },
+            "value": {
+              "$ref": "#/$defs/RunView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "computer_session"
+            },
+            "value": {
+              "$ref": "#/$defs/ComputerSession"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "receipt"
+            },
+            "value": {
+              "$ref": "#/$defs/OwnerReceipt"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "coding_calls"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/CodingCallView"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "artifact"
+            },
+            "value": {
+              "type": "object",
+              "properties": {
+                "base64": {
+                  "type": "string"
+                },
+                "declaration": {
+                  "$ref": "#/$defs/OutputDeclaration"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "declaration",
+                "base64"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        }
+      ]
+    },
+    "OwnerServerMessage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "device": {
+              "$ref": "#/$defs/DeviceId"
+            },
+            "manager": {
+              "$ref": "#/$defs/ManagerId"
+            },
+            "type": {
+              "type": "string",
+              "const": "welcome"
+            },
+            "version": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "version",
+            "manager",
+            "device"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "code": {
+              "$ref": "#/$defs/ErrorCode"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RequestId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "error"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "code"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "head": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "notification"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "head"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "pong"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bytes": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "chunks": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "digest": {
+              "type": "string"
+            },
+            "id": {
+              "$ref": "#/$defs/TransferId"
+            },
+            "request": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RequestId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "transfer_start"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "bytes",
+            "chunks",
+            "digest"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string"
+            },
+            "id": {
+              "$ref": "#/$defs/TransferId"
+            },
+            "index": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "transfer_chunk"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "index",
+            "data"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/TransferId"
+            },
+            "type": {
+              "type": "string",
+              "const": "transfer_complete"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id"
+          ]
+        }
+      ]
     },
     "OwnerSnapshot": {
       "type": "object",
@@ -4237,6 +5513,10 @@
           ]
         }
       ]
+    },
+    "TransferId": {
+      "type": "string",
+      "format": "uuid"
     },
     "VerifyInference": {
       "type": "object",

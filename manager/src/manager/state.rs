@@ -1,5 +1,6 @@
 mod artifacts;
 mod coding;
+mod devices;
 mod inference;
 mod memory;
 mod runs;
@@ -58,6 +59,8 @@ pub(super) struct State {
     setup_attempts: Attempts,
     worker_connections:
         std::collections::HashMap<botstral_link::WorkerId, workers::WorkerConnection>,
+    owner_connections:
+        std::collections::HashMap<botstral_link::OwnerConnectionId, devices::DeviceConnection>,
     #[cfg(test)]
     test_time: Option<i64>,
 }
@@ -70,7 +73,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 7 {
+    if version > 8 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -108,6 +111,15 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
         tx.execute_batch(include_str!("../../migrations/0007.sql"))?;
         tx.commit()?;
     }
+    if version < 8 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0008.sql"))?;
+        tx.commit()?;
+    }
+    connection.execute(
+        "INSERT OR IGNORE INTO manager_identity VALUES(1, ?1)",
+        [Uuid::new_v4().to_string()],
+    )?;
     Ok(())
 }
 
@@ -173,6 +185,7 @@ impl State {
             unlock_attempts: Attempts::new(),
             setup_attempts: Attempts::new(),
             worker_connections: Default::default(),
+            owner_connections: Default::default(),
             #[cfg(test)]
             test_time: None,
         };
@@ -291,7 +304,10 @@ impl State {
         Ok(SessionGrant { token, session })
     }
 
-    fn authorize(&self, token: &SessionToken) -> Result<SessionId, OperationError> {
+    pub(in crate::manager) fn authorize(
+        &self,
+        token: &SessionToken,
+    ) -> Result<SessionId, OperationError> {
         let id: Option<String> = self
             .connection
             .query_row(
@@ -361,10 +377,10 @@ impl State {
 
     pub(super) fn create_bot(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: NewBot,
     ) -> Result<Bot, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if let Some(bot) = self.find_bot(input.id)? {
             return if bot.name == input.name {
                 Ok(bot)
@@ -401,14 +417,17 @@ impl State {
     }
     pub(super) fn get_bot(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: BotId,
     ) -> Result<Bot, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.find_bot(id)?.ok_or(OperationError::NotFound)
     }
-    pub(super) fn list_bots(&mut self, token: SessionToken) -> Result<Vec<Bot>, OperationError> {
-        self.authorize(&token)?;
+    pub(super) fn list_bots(
+        &mut self,
+        token: impl Into<OwnerAuthority>,
+    ) -> Result<Vec<Bot>, OperationError> {
+        self.authorize_owner(&token.into())?;
         let mut statement = self
             .connection
             .prepare("SELECT id, name, created_at FROM bots ORDER BY created_at, id")?;
@@ -586,12 +605,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 8).unwrap();
+        db.pragma_update(None, "user_version", 9).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            8
+            9
         );
     }
 

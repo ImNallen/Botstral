@@ -264,6 +264,7 @@ export type ErrorCode =
   | 'queue_full'
   | 'disconnected'
   | 'conflict';
+export type ManagerId = string;
 export type ConversationId = string;
 export type InferenceVerification =
   | {
@@ -455,6 +456,222 @@ export type TaskState =
   | 'failed'
   | 'cancelled'
   | 'awaiting_attention';
+export type OwnerClientMessage =
+  | {
+      id: RequestId;
+      operation: OwnerOperation;
+      type: 'call';
+    }
+  | {
+      cursor: number;
+      type: 'watch';
+    }
+  | {
+      cursor: number;
+      type: 'applied';
+    }
+  | {
+      type: 'ping';
+    };
+export type OwnerOperation =
+  | {
+      cursor: number;
+      limit: number;
+      method: 'resume';
+    }
+  | {
+      input: SubmitTask;
+      method: 'submit_task';
+    }
+  | {
+      id: TaskId;
+      method: 'task';
+    }
+  | {
+      id: TaskId;
+      method: 'cancel_task';
+    }
+  | {
+      expires_at: number;
+      id: TaskId;
+      method: 'grant_approval';
+    }
+  | {
+      id: TaskId;
+      method: 'revoke_approval';
+    }
+  | {
+      allow: boolean;
+      bot: BotId;
+      expected_revision: number;
+      method: 'set_permission';
+    }
+  | {
+      input: Conversation;
+      method: 'conversation';
+    }
+  | {
+      input: ConversationMessage;
+      method: 'append_message';
+    }
+  | {
+      input: WriteDocument;
+      method: 'write_document';
+    }
+  | {
+      bot: BotId;
+      method: 'search_documents';
+      query: string;
+    }
+  | {
+      method: 'rebuild_documents';
+    }
+  | {
+      bot: BotId;
+      method: 'inference_configuration';
+    }
+  | {
+      input: ConfigureInference;
+      method: 'configure_inference';
+    }
+  | {
+      input: SubmitInference;
+      method: 'submit_inference';
+    }
+  | {
+      id: InferenceId;
+      method: 'inference';
+    }
+  | {
+      id: InferenceId;
+      method: 'cancel_inference';
+    }
+  | {
+      input: SubmitRun;
+      method: 'submit_run';
+    }
+  | {
+      id: RunId;
+      method: 'run';
+    }
+  | {
+      id: RunId;
+      method: 'cancel_run';
+    }
+  | {
+      id: ComputerSessionId;
+      method: 'computer_session';
+    }
+  | {
+      bot: BotId;
+      method: 'open_computer_session';
+      worker: WorkerId;
+    }
+  | {
+      expected: Revision;
+      id: ComputerSessionId;
+      method: 'set_input_owner';
+      owner: InputOwner;
+    }
+  | {
+      fence: InputFence;
+      id: CommandId;
+      method: 'input';
+      value: number;
+    }
+  | {
+      id: CommandId;
+      method: 'receipt';
+      worker: WorkerId;
+    }
+  | {
+      id: ArtifactId;
+      method: 'artifact';
+      task: TaskId;
+    }
+  | {
+      method: 'coding_calls';
+      task: TaskId;
+    };
+export type DeviceFingerprint = string;
+export type DeviceId = string;
+export type DeviceRole = 'owner' | 'worker';
+export type OwnerHello =
+  | {
+      credential: string;
+      manager: ManagerId;
+      role: DeviceRole;
+      type: 'authenticate';
+      version: number;
+    }
+  | {
+      credential: string;
+      invitation: string;
+      manager: ManagerId;
+      role: DeviceRole;
+      type: 'enroll';
+      version: number;
+    };
+export type OwnerReply =
+  | {
+      type: 'replay';
+      value: EventReplay;
+    }
+  | {
+      type: 'task';
+      value: TaskView;
+    }
+  | {
+      type: 'permission';
+      value: Permission;
+    }
+  | {
+      type: 'conversation';
+      value: Conversation;
+    }
+  | {
+      type: 'message';
+      value: ConversationMessage;
+    }
+  | {
+      type: 'document';
+      value: Document;
+    }
+  | {
+      type: 'documents';
+      value: Document[];
+    }
+  | {
+      type: 'configuration';
+      value: InferenceConfiguration;
+    }
+  | {
+      type: 'inference';
+      value: InferenceView;
+    }
+  | {
+      type: 'run';
+      value: RunView;
+    }
+  | {
+      type: 'computer_session';
+      value: ComputerSession;
+    }
+  | {
+      type: 'receipt';
+      value: OwnerReceipt;
+    }
+  | {
+      type: 'coding_calls';
+      value: CodingCallView[];
+    }
+  | {
+      type: 'artifact';
+      value: {
+        base64: string;
+        declaration: OutputDeclaration;
+      };
+    };
 export type EventReplay =
   | {
       cursor: number;
@@ -515,6 +732,89 @@ export type RunTurnPhase =
       reason: InferenceAttentionReason;
       type: 'awaiting_attention';
     };
+export type TaskEvent =
+  | {
+      type: 'acceptance';
+    }
+  | {
+      applied: number;
+      total: number;
+      type: 'progress';
+    }
+  | {
+      code: LogCode;
+      type: 'redacted_log';
+    }
+  | {
+      argument_digest: CertificateFingerprint;
+      operation_id: OperationId;
+      type: 'approval_request';
+    }
+  | {
+      artifact: ArtifactReference;
+      type: 'screenshot';
+    }
+  | {
+      artifact: ArtifactReference;
+      type: 'artifact';
+    }
+  | {
+      applied: number;
+      type: 'completed';
+    }
+  | {
+      code: ErrorCode;
+      type: 'failed';
+    }
+  | {
+      applied: number;
+      type: 'cancelled';
+    }
+  | {
+      applied: number;
+      status: TaskStatus;
+      type: 'status';
+    };
+export type LogCode = 'started' | 'input_applied' | 'stopped';
+export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
+export type OwnerServerMessage =
+  | {
+      device: DeviceId;
+      manager: ManagerId;
+      type: 'welcome';
+      version: number;
+    }
+  | {
+      code: ErrorCode;
+      id?: RequestId | null;
+      type: 'error';
+    }
+  | {
+      head: number;
+      type: 'notification';
+    }
+  | {
+      type: 'pong';
+    }
+  | {
+      bytes: number;
+      chunks: number;
+      digest: string;
+      id: TransferId;
+      request?: RequestId | null;
+      type: 'transfer_start';
+    }
+  | {
+      data: string;
+      id: TransferId;
+      index: number;
+      type: 'transfer_chunk';
+    }
+  | {
+      id: TransferId;
+      type: 'transfer_complete';
+    };
+export type TransferId = string;
 export type WorkerMessage =
   | {
       offer: ArtifactOffer;
@@ -607,51 +907,6 @@ export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved
 export type Capability =
   'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1' | 'vibe_v1' | 'computer_v1';
 export type ReleaseChannel = 'stable' | 'experimental';
-export type TaskEvent =
-  | {
-      type: 'acceptance';
-    }
-  | {
-      applied: number;
-      total: number;
-      type: 'progress';
-    }
-  | {
-      code: LogCode;
-      type: 'redacted_log';
-    }
-  | {
-      argument_digest: CertificateFingerprint;
-      operation_id: OperationId;
-      type: 'approval_request';
-    }
-  | {
-      artifact: ArtifactReference;
-      type: 'screenshot';
-    }
-  | {
-      artifact: ArtifactReference;
-      type: 'artifact';
-    }
-  | {
-      applied: number;
-      type: 'completed';
-    }
-  | {
-      code: ErrorCode;
-      type: 'failed';
-    }
-  | {
-      applied: number;
-      type: 'cancelled';
-    }
-  | {
-      applied: number;
-      status: TaskStatus;
-      type: 'status';
-    };
-export type LogCode = 'started' | 'input_applied' | 'stopped';
-export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
 
 export interface Protocol {
   coding_calls: CodingCallView[];
@@ -661,7 +916,14 @@ export interface Protocol {
   inference_configuration: ConfigureInference;
   inference_verification: VerifyInference;
   manager: Envelope2;
+  manager_trust: ManagerTrust;
   owner: OwnerSnapshot;
+  owner_client: OwnerClientMessage;
+  owner_device: OwnerDevice;
+  owner_hello: OwnerHello;
+  owner_invitation: OwnerInvitation;
+  owner_reply: OwnerReply;
+  owner_server: OwnerServerMessage;
   replay: EventReplay;
   run: SubmitRun;
   run_view: RunView;
@@ -854,6 +1116,13 @@ export interface ComputerSession {
   status: ControlStatus;
   worker_id: WorkerId;
 }
+export interface ManagerTrust {
+  ca_pem: string;
+  endpoint: string;
+  leaf: CertificateFingerprint;
+  manager: ManagerId;
+  server_name: string;
+}
 export interface OwnerSnapshot {
   conversations: Conversation[];
   documents: Document[];
@@ -986,11 +1255,6 @@ export interface TaskSettings {
   max_turns: number;
   model: string;
 }
-export interface AuthoritativeEvent {
-  entity: string;
-  kind: string;
-  sequence: number;
-}
 export interface SubmitRun {
   bot: BotId;
   configuration_revision: number;
@@ -1038,6 +1302,26 @@ export interface ImageReference {
   sha256: CertificateFingerprint;
   slot: string;
   task: TaskId;
+}
+export interface OwnerDevice {
+  created_at: number;
+  fingerprint: DeviceFingerprint;
+  id: DeviceId;
+  label: string;
+  revoked: boolean;
+  role: DeviceRole;
+}
+export interface OwnerInvitation {
+  expires_at: number;
+  fingerprint: DeviceFingerprint;
+  invitation: string;
+  role: DeviceRole;
+  trust: ManagerTrust;
+}
+export interface AuthoritativeEvent {
+  entity: string;
+  kind: string;
+  sequence: number;
 }
 export interface RunView {
   configuration: InferenceConfiguration;
@@ -1091,6 +1375,19 @@ export interface AuthorizedImage {
   reference: ImageReference;
   width: number;
 }
+export interface OwnerReceipt {
+  acknowledgment: Acknowledgment;
+  bot_inputs: number;
+  command_id: CommandId;
+  generation: Generation;
+  last_event?: TaskEvent | null;
+}
+export interface ArtifactReference {
+  id: ArtifactId;
+  length: number;
+  media_type: MediaType;
+  sha256: CertificateFingerprint;
+}
 export interface Envelope {
   message: WorkerMessage;
   request_id: RequestId;
@@ -1120,10 +1417,4 @@ export interface DurableReport {
   event: ExecutionEvent;
   execution: ExecutionId;
   sequence: number;
-}
-export interface ArtifactReference {
-  id: ArtifactId;
-  length: number;
-  media_type: MediaType;
-  sha256: CertificateFingerprint;
 }

@@ -32,8 +32,8 @@ impl State {
         }
         let secret = SecretString::from(crypto::random_token());
         let expires_at = now + i64::from(lifetime_seconds);
-        self.connection.execute("INSERT INTO worker_invitations(token_hash, fingerprint, expires_at) VALUES(?1, ?2, ?3)",
-            params![crypto::token_hash(secret.expose_secret()).as_slice(), fingerprint.as_str(), expires_at])?;
+        self.connection.execute("INSERT INTO worker_invitations(token_hash, fingerprint, expires_at, manager) VALUES(?1, ?2, ?3, ?4)",
+            params![crypto::token_hash(secret.expose_secret()).as_slice(), fingerprint.as_str(), expires_at, self.manager_identity()?.to_string()])?;
         Ok(InvitationGrant { secret, expires_at })
     }
 
@@ -92,11 +92,11 @@ impl State {
 
     pub(in crate::manager) fn open_computer_session(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         bot: BotId,
         worker: WorkerId,
     ) -> Result<ComputerSession, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if self.find_bot(bot)?.is_none() {
             return Err(OperationError::NotFound);
         }
@@ -183,10 +183,10 @@ impl State {
 
     pub(in crate::manager) fn authorized_computer_session(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: ComputerSessionId,
     ) -> Result<ComputerSession, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.find_computer_session(id)
     }
 
@@ -261,7 +261,7 @@ impl State {
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let hash = crypto::token_hash(secret.expose_secret());
         let (fingerprint, expires_at, consumed): (String, i64, Option<i64>) = tx.query_row(
-            "SELECT fingerprint, expires_at, consumed_at FROM worker_invitations WHERE token_hash = ?1", [hash.as_slice()],
+            "SELECT fingerprint, expires_at, consumed_at FROM worker_invitations WHERE manager = (SELECT identity FROM manager_identity WHERE id=1) AND role='worker' AND token_hash = ?1", [hash.as_slice()],
             |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?))).optional()?.ok_or(ErrorCode::InvalidInvitation)?;
         if peer.fingerprint().as_str() != fingerprint {
             return Err(ErrorCode::IdentityMismatch.into());

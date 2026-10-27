@@ -156,10 +156,10 @@ impl State {
     }
     pub(in crate::manager) fn run(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: RunId,
     ) -> Result<RunView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.load_run(id)
     }
     pub(super) fn tools_authorized(
@@ -175,10 +175,10 @@ impl State {
     }
     pub(in crate::manager) fn submit_run(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         request: SubmitRun,
     ) -> Result<RunView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         match self.load_run(request.id) {
             Ok(view) => {
                 return if view.request == request {
@@ -274,10 +274,10 @@ impl State {
     }
     pub(in crate::manager) fn cancel_run(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: RunId,
     ) -> Result<RunView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let mut view = self.load_run(id)?;
         if view.summary.cancellation_requested_at.is_some()
             || matches!(

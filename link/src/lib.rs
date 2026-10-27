@@ -87,6 +87,8 @@ mod vibe;
 pub use vibe::*;
 mod process;
 pub use process::*;
+mod owner;
+pub use owner::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(try_from = "String", into = "String")]
@@ -549,6 +551,13 @@ pub fn schema() -> String {
     #[derive(JsonSchema)]
     #[allow(dead_code)]
     struct Protocol {
+        owner_hello: OwnerHello,
+        owner_client: OwnerClientMessage,
+        owner_server: OwnerServerMessage,
+        owner_invitation: OwnerInvitation,
+        manager_trust: ManagerTrust,
+        owner_device: OwnerDevice,
+        owner_reply: OwnerReply,
         worker: Envelope<WorkerMessage>,
         manager: Envelope<ManagerMessage>,
         owner: OwnerSnapshot,

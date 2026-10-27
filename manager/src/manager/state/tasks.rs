@@ -113,10 +113,10 @@ impl State {
     }
     pub(in crate::manager) fn task(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: TaskId,
     ) -> Result<TaskView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.load_task(id)
     }
     pub(super) fn principal(&self) -> Result<OwnerId, OperationError> {
@@ -150,10 +150,10 @@ impl State {
     }
     pub(in crate::manager) fn submit_task(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: SubmitTask,
     ) -> Result<TaskView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         input.settings.validate()?;
         match self.load_task(input.id) {
             Ok(previous) => {
@@ -280,10 +280,10 @@ impl State {
     }
     pub(in crate::manager) fn cancel_task(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: TaskId,
     ) -> Result<TaskView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let mut task = self.load_task(id)?;
         if task.state.terminal() || task.state == TaskState::Cancelling {
             return Ok(task);
@@ -304,11 +304,11 @@ impl State {
     }
     pub(in crate::manager) fn grant_approval(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: TaskId,
         expires_at: i64,
     ) -> Result<TaskView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let mut task = self.load_task(id)?;
         let policy = self.permission(task.command.bot)?;
         if task.state.terminal()
@@ -348,10 +348,10 @@ impl State {
     }
     pub(in crate::manager) fn revoke_approval(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: TaskId,
     ) -> Result<TaskView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let mut task = self.load_task(id)?;
         task.approval.revoked = true;
         let stop =
@@ -378,12 +378,12 @@ impl State {
     }
     pub(in crate::manager) fn set_permission(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         bot: BotId,
         expected_revision: u64,
         allow: bool,
     ) -> Result<Permission, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.find_bot(bot)?.ok_or(OperationError::NotFound)?;
         let exists: bool = self.connection.query_row(
             "SELECT EXISTS(SELECT 1 FROM permissions WHERE bot=?1)",
@@ -440,10 +440,10 @@ impl State {
     }
     pub(in crate::manager) fn conversation(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: Conversation,
     ) -> Result<Conversation, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.find_bot(input.bot)?.ok_or(OperationError::NotFound)?;
         if let Some(body) = self
             .connection
@@ -472,10 +472,10 @@ impl State {
     }
     pub(in crate::manager) fn append_message(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: ConversationMessage,
     ) -> Result<ConversationMessage, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if input.text.is_empty() || input.text.len() > 4096 {
             return Err(OperationError::InvalidInput);
         }
@@ -518,11 +518,11 @@ impl State {
     }
     pub(in crate::manager) fn resume(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         cursor: u64,
         limit: u16,
     ) -> Result<EventReplay, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if !(1..=64).contains(&limit) {
             return Err(OperationError::InvalidInput);
         }
@@ -741,7 +741,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            7
+            8
         );
     }
 }
