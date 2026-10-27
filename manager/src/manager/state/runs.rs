@@ -4,7 +4,7 @@ use super::{
     *,
 };
 use crate::manager::{
-    provider::{ModelOutcome, reflects_secret},
+    provider::{MAX_PROVIDER_REQUEST, ModelOutcome, PreparedChat, reflects_secret},
     runs::{CollectPermit, RunCallPermit, RunJob, tools},
 };
 use botstral_link::*;
@@ -358,25 +358,15 @@ impl State {
         }
         Ok(occupied < limits.max_concurrent_operations)
     }
-    pub(in crate::manager) fn claim_run_work(
-        &mut self,
-        excluded: &std::collections::HashSet<RunId>,
-        allow_model: bool,
-    ) -> Result<Option<RunJob>, OperationError> {
-        if self.run_admission_stopped() {
-            return Ok(None);
-        }
+    pub(in crate::manager) fn reconcile_run_stops(&mut self) -> Result<(), OperationError> {
         for summary in self.run_summaries()? {
-            if (summary.phase.terminal()
-                && !(summary.cancellation_requested_at.is_some()
-                    && matches!(
-                        summary.phase,
-                        RunPhase::AwaitingAttention {
-                            reason: RunAttentionReason::Worker
-                        }
-                    )))
-                || excluded.contains(&summary.id)
-            {
+            let resolving_stop = matches!(
+                summary.phase,
+                RunPhase::AwaitingAttention {
+                    reason: RunAttentionReason::Worker
+                }
+            );
+            if summary.phase.terminal() && !resolving_stop {
                 continue;
             }
             let mut view = self.load_run(summary.id)?;
@@ -385,8 +375,24 @@ impl State {
                 || summary.phase == RunPhase::Cancelling
             {
                 self.stop_run(&mut view, Some(RunStopReason::Deadline))?;
+            }
+        }
+        Ok(())
+    }
+    pub(in crate::manager) fn claim_run_work(
+        &mut self,
+        excluded: &std::collections::HashSet<RunId>,
+        allow_model: bool,
+    ) -> Result<Option<RunJob>, OperationError> {
+        if self.run_admission_stopped() {
+            return Ok(None);
+        }
+        self.reconcile_run_stops()?;
+        for summary in self.run_summaries()? {
+            if summary.phase.terminal() || excluded.contains(&summary.id) {
                 continue;
             }
+            let mut view = self.load_run(summary.id)?;
             match summary.phase {
                 RunPhase::Ready if allow_model => {
                     let reason = if !self.tools_authorized(&view.configuration)? {
@@ -409,6 +415,7 @@ impl State {
                         view.summary.phase = RunPhase::Stopped {
                             reason: RunStopReason::TranscriptLimit,
                         };
+                        view.summary.updated_at = self.now();
                         let tx = self.connection.transaction()?;
                         save_summary(&tx, &view.summary)?;
                         tx.commit()?;
@@ -429,6 +436,16 @@ impl State {
                         response: None,
                         intent: None,
                     };
+                    let prepared = PreparedChat::new(
+                        &view.configuration.policy,
+                        view.request.limits.max_output_tokens,
+                        &turn.messages,
+                        Some(&view.request.execution_policy),
+                    );
+                    let provider_request = prepared.encoded();
+                    if provider_request.len() > MAX_PROVIDER_REQUEST {
+                        return Err(OperationError::Internal);
+                    }
                     view.summary.accounting.admitted_turns += 1;
                     view.summary.accounting.held_tokens += turn.reservation.total_tokens;
                     view.summary.accounting.held_cost_microusd += turn.reservation.cost_microusd;
@@ -438,7 +455,7 @@ impl State {
                         .connection
                         .transaction_with_behavior(TransactionBehavior::Immediate)?;
                     tx.execute(
-                        "INSERT INTO run_turns VALUES(?1,?2,?3,?4,?5,?6,?7)",
+                        "INSERT INTO run_turns VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",
                         params![
                             turn.id.to_string(),
                             summary.id.to_string(),
@@ -446,19 +463,21 @@ impl State {
                             turn.attempt.to_string(),
                             json(&turn.messages)?,
                             json(&turn.reservation)?,
+                            provider_request,
                             json(&turn)?
                         ],
                     )?;
                     save_summary(&tx, &view.summary)?;
                     tx.commit()?;
                     self.fault("run_call_committed");
-                    return Ok(Some(RunJob::Call(RunCallPermit {
+                    return Ok(Some(RunJob::Call(Box::new(RunCallPermit {
                         run: view.request.id,
                         request: view.request,
                         configuration: view.configuration,
                         turn,
+                        prepared,
                         secret,
-                    })));
+                    }))));
                 }
                 RunPhase::WaitingForTool { turn, task } => {
                     let task = self.load_task(task)?;
@@ -466,6 +485,7 @@ impl State {
                         view.summary.phase = RunPhase::AwaitingAttention {
                             reason: RunAttentionReason::Worker,
                         };
+                        view.summary.updated_at = self.now();
                         let tx = self.connection.transaction()?;
                         save_summary(&tx, &view.summary)?;
                         tx.commit()?;
@@ -494,7 +514,7 @@ impl State {
                             }
                         }
                         // Collection has no effect and can repeat after a crash. Only its committed result enters history.
-                        return Ok(Some(RunJob::Collect(CollectPermit {
+                        return Ok(Some(RunJob::Collect(Box::new(CollectPermit {
                             run: summary.id,
                             turn,
                             task,
@@ -504,7 +524,7 @@ impl State {
                                 Err(OperationError::Locked) => continue,
                                 Err(error) => return Err(error),
                             },
-                        })));
+                        }))));
                     }
                 }
                 _ => {}

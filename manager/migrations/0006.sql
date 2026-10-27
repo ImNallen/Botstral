@@ -13,6 +13,7 @@ CREATE TABLE run_turns (
     attempt TEXT NOT NULL UNIQUE,
     input TEXT NOT NULL,
     reservation TEXT NOT NULL,
+    provider_request TEXT NOT NULL CHECK(length(provider_request) <= 65536),
     view TEXT NOT NULL,
     UNIQUE(run, ordinal),
     UNIQUE(run, id)
@@ -27,7 +28,7 @@ CREATE TABLE run_children (
 ) STRICT;
 CREATE TRIGGER immutable_run BEFORE UPDATE OF id,owner,request,configuration ON runs
 BEGIN SELECT RAISE(ABORT, 'immutable run'); END;
-CREATE TRIGGER immutable_run_turn BEFORE UPDATE OF id,run,ordinal,attempt,input,reservation ON run_turns
+CREATE TRIGGER immutable_run_turn BEFORE UPDATE OF id,run,ordinal,attempt,input,reservation,provider_request ON run_turns
 BEGIN SELECT RAISE(ABORT, 'immutable turn'); END;
 CREATE TRIGGER immutable_run_child BEFORE UPDATE ON run_children
 BEGIN SELECT RAISE(ABORT, 'immutable child'); END;

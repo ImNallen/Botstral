@@ -5,6 +5,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use zeroize::Zeroizing;
 
 pub(super) const MAX_PROVIDER_BODY: usize = 65536;
+pub(super) const MAX_PROVIDER_REQUEST: usize = 65536;
 
 pub(super) struct CallPermit {
     pub view: InferenceView,
@@ -176,6 +177,12 @@ impl Provider {
         let messages = [RunMessage::User {
             content: input.prompt.clone(),
         }];
+        let prepared = PreparedChat::new(
+            &permit.view.configuration.policy,
+            input.max_output_tokens,
+            &messages,
+            None,
+        );
         match self
             .chat(
                 ModelRequest {
@@ -183,8 +190,7 @@ impl Provider {
                     deadline: input.deadline,
                     max_output_tokens: input.max_output_tokens,
                     max_total_tokens: input.max_total_tokens,
-                    messages: &messages,
-                    tools: None,
+                    prepared: &prepared,
                 },
                 &permit.secret,
                 None,
@@ -265,17 +271,8 @@ impl Provider {
         }
         let mut request_id = None;
         let execution = async {
-            let mut body = serde_json::json!({
-                "model":policy.model_id, "messages":request.messages.iter().map(message).collect::<Vec<_>>(),
-                "max_tokens":request.max_output_tokens, "n":1, "stream":false,
-                "tool_choice": if request.tools.is_some() { "auto" } else { "none" },
-                "service_tier":"standard_only"
-            });
-            if let Some(tools) = request.tools {
-                body["tools"] = serde_json::json!(super::runs::tools::definitions(tools));
-                body["parallel_tool_calls"] = false.into();
-            }
-            if reflects_secret(&body, secret.expose_secret()) {
+            let body = &request.prepared.body;
+            if reflects_secret(body, secret.expose_secret()) {
                 return Err(InferenceAttentionReason::InvalidResponse);
             }
             let response = self
@@ -285,7 +282,7 @@ impl Provider {
                     self.base(policy.endpoint)
                 ))
                 .bearer_auth(secret.expose_secret())
-                .json(&body)
+                .json(body)
                 .send()
                 .await
                 .map_err(|_| InferenceAttentionReason::Interrupted)?;
@@ -333,13 +330,43 @@ fn valid_request_id(id: &str) -> bool {
             .all(|b| b.is_ascii_alphanumeric() || b"-_.:".contains(&b))
 }
 
+pub(super) struct PreparedChat {
+    body: serde_json::Value,
+    tools: bool,
+}
+impl PreparedChat {
+    pub(super) fn new(
+        policy: &InferencePolicy,
+        max_output_tokens: u32,
+        messages: &[RunMessage],
+        tools: Option<&RunExecutionPolicy>,
+    ) -> Self {
+        let mut body = serde_json::json!({
+            "model":policy.model_id, "messages":messages.iter().map(message).collect::<Vec<_>>(),
+            "max_tokens":max_output_tokens, "n":1, "stream":false,
+            "tool_choice": if tools.is_some() { "auto" } else { "none" },
+            "service_tier":"standard_only"
+        });
+        if let Some(tools) = tools {
+            body["tools"] = serde_json::json!(super::runs::tools::definitions(tools));
+            body["parallel_tool_calls"] = false.into();
+        }
+        Self {
+            body,
+            tools: tools.is_some(),
+        }
+    }
+    pub(super) fn encoded(&self) -> String {
+        self.body.to_string()
+    }
+}
+
 pub(super) struct ModelRequest<'a> {
     pub policy: &'a InferencePolicy,
     pub deadline: i64,
     pub max_output_tokens: u32,
     pub max_total_tokens: u64,
-    pub messages: &'a [RunMessage],
-    pub tools: Option<&'a RunExecutionPolicy>,
+    pub prepared: &'a PreparedChat,
 }
 
 pub(super) enum ModelOutcome {
@@ -428,7 +455,7 @@ fn parse_completion(
         Some("length") => Some(InferenceFinishReason::Length),
         _ => None,
     };
-    let response = parse_assistant(&value["choices"], request.tools.is_some());
+    let response = parse_assistant(&value["choices"], request.prepared.tools);
     Ok(ModelOutcome::Billed {
         usage: InferenceUsage {
             prompt_tokens: report.prompt_tokens,

@@ -118,7 +118,7 @@ fn claim(state: &mut State) -> RunCallPermit {
         .unwrap()
         .unwrap()
     {
-        RunJob::Call(permit) => permit,
+        RunJob::Call(permit) => *permit,
         _ => panic!("expected provider call"),
     }
 }
@@ -491,7 +491,7 @@ fn results_are_durable_and_reconciled_without_replacement_effects() {
     };
     let turn = collection.turn;
     let snapshot = collection.task.clone();
-    let result = crate::manager::runs::results::collect(collection).unwrap();
+    let result = crate::manager::runs::results::collect(*collection).unwrap();
     assert!(result.contains("hello"));
     f.state
         .finish_run_result(f.input.id, turn, snapshot.clone(), Ok(result.clone()))
@@ -598,3 +598,5 @@ fn registry_preserves_owner_policy_and_rejects_persistent_tab_assumptions() {
 mod artifact_tests;
 #[path = "recovery_tests.rs"]
 mod recovery_tests;
+#[path = "restart_tests.rs"]
+mod restart_tests;

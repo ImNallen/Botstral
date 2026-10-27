@@ -3,7 +3,7 @@ pub(super) mod tools;
 
 use super::{
     inference::InferenceControl,
-    provider::{ModelOutcome, ModelRequest},
+    provider::{ModelOutcome, ModelRequest, PreparedChat},
     *,
 };
 use botstral_link::*;
@@ -15,6 +15,7 @@ pub(super) struct RunCallPermit {
     pub request: SubmitRun,
     pub configuration: InferenceConfiguration,
     pub turn: RunTurn,
+    pub prepared: PreparedChat,
     pub secret: SecretString,
 }
 pub(super) struct CollectPermit {
@@ -25,8 +26,8 @@ pub(super) struct CollectPermit {
     pub secret: SecretString,
 }
 pub(super) enum RunJob {
-    Call(RunCallPermit),
-    Collect(CollectPermit),
+    Call(Box<RunCallPermit>),
+    Collect(Box<CollectPermit>),
 }
 impl RunJob {
     fn run(&self) -> RunId {
@@ -52,6 +53,10 @@ pub(super) fn start(
         timer.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         'running: loop {
             if *stopped.borrow() {
+                break;
+            }
+            if let Err(error) = queue.call_wait(|s| s.reconcile_run_stops()).await {
+                failure = Some(error);
                 break;
             }
             while jobs.len() < MAX_INFERENCE_CALLS && !*stopped.borrow() {
@@ -81,7 +86,7 @@ pub(super) fn start(
                             let outcome = if *stopped.borrow() { unknown() } else {
                                 tokio::select! {
                                     biased;
-                                    outcome = provider.chat(ModelRequest { policy: &permit.configuration.policy, deadline: permit.request.limits.deadline, max_output_tokens: permit.request.limits.max_output_tokens, max_total_tokens: permit.turn.reservation.total_tokens, messages: &permit.turn.messages, tools: Some(&permit.request.execution_policy) }, &permit.secret, capacity) => outcome,
+                                    outcome = provider.chat(ModelRequest { policy: &permit.configuration.policy, deadline: permit.request.limits.deadline, max_output_tokens: permit.request.limits.max_output_tokens, max_total_tokens: permit.turn.reservation.total_tokens, prepared: &permit.prepared }, &permit.secret, capacity) => outcome,
                                     _ = stopped.changed() => unknown(),
                                 }
                             };
@@ -94,7 +99,7 @@ pub(super) fn start(
                             drop(capacity);
                             let turn = permit.turn;
                             let expected = permit.task.clone();
-                            let collection = tokio::task::spawn_blocking(move || results::collect(permit));
+                            let collection = tokio::task::spawn_blocking(move || results::collect(*permit));
                             let result = if *stopped.borrow() { return (run, Ok(())); } else {
                                 tokio::select! {
                                     result = tokio::time::timeout(Duration::from_secs(5), collection) => result.ok().and_then(Result::ok).unwrap_or(Err(())),

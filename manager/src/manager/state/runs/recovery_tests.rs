@@ -45,10 +45,11 @@ fn cancellation_requires_stop_evidence_and_reconciliation_is_idempotent() {
             .unwrap()
             .is_none()
     );
-    // Cancelling tasks retain their state until a stop report; an uncertain report is still evidence.
-    assert_ne!(
+    assert_eq!(
         f.state.load_run(f.input.id).unwrap().summary.phase,
-        RunPhase::Cancelled
+        RunPhase::AwaitingAttention {
+            reason: RunAttentionReason::Worker
+        }
     );
     let scope = ProcessScope {
         journal: f.journal,

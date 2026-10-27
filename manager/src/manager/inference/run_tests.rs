@@ -317,6 +317,23 @@ async fn m04_run_recorded_browser_file_approval_result_artifact_and_followup() {
     assert_eq!(completed.summary.accounting.admitted_turns, 2);
     assert_eq!(completed.summary.accounting.settled_tokens, 40);
     assert_eq!(completed.summary.accounting.settled_cost_microusd, 56);
+    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
+    let prepared: String = db
+        .query_row(
+            "SELECT provider_request FROM run_turns WHERE id=?1",
+            [waiting.turns[0].id.to_string()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(&prepared).unwrap(),
+        fixture.state.requests.lock().unwrap()[0]
+    );
+    assert!(
+        db.execute("UPDATE run_turns SET provider_request='{}'", [])
+            .is_err()
+    );
+    drop(db);
     let requests = fixture.state.requests.lock().unwrap().clone();
     assert_eq!(
         requests[1]["messages"][1]["tool_calls"][0]["id"],
@@ -615,6 +632,7 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     );
     release_tx.send(()).unwrap();
     blocker.await.unwrap().unwrap();
+    app.manager.queue.call_wait(|_| Ok(())).await.unwrap();
     let completed = phase(&app, input.id, RunPhase::terminal).await;
     assert_eq!(completed.summary.phase, RunPhase::Completed);
     assert_eq!(completed.summary.accounting.settled_cost_microusd, 28);
@@ -645,4 +663,100 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     assert_eq!(fixture.chats(), 2);
     app.shutdown().await;
     no_plaintext(local.directory());
+}
+
+#[tokio::test]
+async fn m04_run_deadlines_reconcile_while_provider_slots_are_full() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let worker = SyntheticWorker::start(&app).await;
+    fixture.reply(Reply {
+        body: TOOL.into(),
+        ..Reply::default()
+    });
+    let mut expiring = request(&app, worker.session.id);
+    expiring.limits.deadline = now() + 3;
+    app.call("POST", "/v1/runs", json!(expiring), 200).await;
+    let waiting = phase(&app, expiring.id, |p| {
+        matches!(p, RunPhase::WaitingForTool { .. })
+    })
+    .await;
+    let intent = waiting.turns[0].intent.as_ref().unwrap();
+    let gate = Arc::new(Semaphore::new(0));
+    fixture.reply(Reply {
+        gate: Some(gate.clone()),
+        ..Reply::default()
+    });
+    let first = request(&app, worker.session.id);
+    let second = request(&app, worker.session.id);
+    for input in [&first, &second] {
+        app.call("POST", "/v1/runs", json!(input), 200).await;
+    }
+    fixture.reached(3).await;
+    phase(&app, expiring.id, |p| *p == RunPhase::Cancelling).await;
+    assert_eq!(
+        app.call(
+            "GET",
+            &format!("/v1/tasks/{}", intent.task),
+            Value::Null,
+            200
+        )
+        .await["state"],
+        "cancelling"
+    );
+    assert!(matches!(
+        view(&app, first.id).await.summary.phase,
+        RunPhase::Calling { .. }
+    ));
+    assert!(matches!(
+        view(&app, second.id).await.summary.phase,
+        RunPhase::Calling { .. }
+    ));
+    worker
+        .report(WorkerMessage::Reports {
+            generation: worker.lease.generation,
+            incarnation: worker.journal,
+            high_water: 1,
+            reports: vec![DurableReport {
+                sequence: 1,
+                command: intent.command,
+                execution: intent.execution,
+                event: ExecutionEvent::Stopped {
+                    applied: 0,
+                    evidence: StopEvidence::NotLaunched,
+                },
+            }],
+        })
+        .await;
+    let stopped = phase(&app, expiring.id, RunPhase::terminal).await;
+    assert_eq!(
+        stopped.summary.phase,
+        RunPhase::Stopped {
+            reason: RunStopReason::Deadline
+        }
+    );
+    for input in [&first, &second] {
+        app.call(
+            "POST",
+            &format!("/v1/runs/{}/cancel", input.id),
+            json!({}),
+            200,
+        )
+        .await;
+    }
+    gate.add_permits(2);
+    for input in [&first, &second] {
+        assert_eq!(
+            phase(&app, input.id, RunPhase::terminal)
+                .await
+                .summary
+                .phase,
+            RunPhase::Cancelled
+        );
+    }
+    drop(worker);
+    app.shutdown().await;
 }

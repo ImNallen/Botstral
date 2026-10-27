@@ -22,9 +22,9 @@ The fixture requests `/srv/shared/m04-note.txt`, outside a coding workspace. The
 
 ## Failure coverage
 
-State tests cover atomic rollback across usage settlement, intent, task, command, child link, and event persistence. Repeated completion and result reconciliation preserve the original identities. They cover cumulative turn, token, cost, and operation stops; cancellation before claim and publication; revoked, expired, modified, and revised approval authority; configuration and key changes; locked vaults; deadlines; duplicate tool-call IDs; restart uncertainty; and cancellation stop evidence.
+State tests cover atomic rollback across usage settlement, intent, task, command, child link, and event persistence. Repeated completion and result reconciliation preserve the original identities. Database reopen tests cover run, call, child-link, result, and final-response commit boundaries. The HTTP test aborts a supervisor after a provider send and checks restart uncertainty without a replacement call. They cover cumulative turn, token, cost, and operation stops; cancellation before claim and publication; revoked, expired, modified, and revised approval authority; configuration and key changes; locked vaults; deadlines; duplicate tool-call IDs; restart uncertainty; and cancellation stop evidence.
 
-Adapter tests cover unsupported batches, unknown tools, malformed or oversized arguments, attempted authority injection, missing or invalid usage, and literal or encoded credential reflection. Valid usage settles without a child. Invalid usage stays reserved. Run tests also saturate shared transport capacity and the State queue, then verify settlement and bounded shutdown. Existing standalone inference tests continue to exercise transport failures, response limits, standard-tier billing, cancellation, and shutdown through the shared transport.
+Adapter tests cover unsupported batches, unknown tools, malformed or oversized arguments, attempted authority injection, missing or invalid usage, and literal or encoded credential reflection. Valid usage settles without a child. Invalid usage stays reserved. Run tests also saturate shared transport capacity and the State queue, then verify settlement and bounded shutdown. A separate test holds both provider slots while an unrelated child deadline requests stopping. Existing standalone inference tests continue to exercise transport failures, response limits, standard-tier billing, cancellation, and shutdown through the shared transport.
 
 Result tests read real local files to check length, digest, UTF-8, symlink refusal, output ceilings, unavailable output metadata, text limits, non-text metadata, and secret reflection. Retention tests check admission refusal and summary replay bounds. The tests preserve process effect evidence after confirmed stopping.
 
@@ -50,3 +50,17 @@ BOTSTRAL_RUN_RUNTIME=/absolute/path/to/runtime BOTSTRAL_M04_PRODUCTION_WORKER=1 
 ```
 
 `BOTSTRAL_RUN_AGENT_BIN` can select an already built production worker. The test otherwise uses `target/debug/botstral-agent`. The test creates temporary certificates, local state, and guest files. It does not use live provider credentials. This lane compiles on the macOS implementation host but is not observed there. It is a single-host production integration lane, not live two-VM milestone acceptance.
+
+## Observed verification on macOS
+
+The implementation checkout passed these commands on 2026-10-27.
+
+- `./scripts/verify.sh` passed workspace formatting, clippy, builds, default and test-worker suites, release builds, and both release feature refusals. The manager library suite passed 45 tests and skipped the opt-in production worker test.
+- `./scripts/verify-m04-tool-loop.sh` passed six recorded HTTP tests, 13 run state tests, generated-schema and TypeScript checks, 17 desktop TypeScript tests, and the actual-manager native desktop integration test.
+- `npm run format:check` and `npm run build` passed.
+- `cargo fmt --manifest-path desktop/src-tauri/Cargo.toml --check` passed.
+- `cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --all-targets --locked -- -D warnings` passed.
+- `cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked` passed five native tests. The separately invoked actual-manager test also passed.
+- `cargo test -p botstral-agent --test m02_transport --locked w01_unsupported_host -- --ignored --nocapture` passed against the production worker. It verified that this host cannot consume process approval or accept a computer task without the required capabilities.
+
+Real Linux browser and systemd execution in the new run lane remains unobserved. Live provider behavior and live two-VM milestone acceptance remain unobserved. Independent review belongs to the parent implementation review.

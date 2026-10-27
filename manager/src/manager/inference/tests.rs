@@ -965,6 +965,7 @@ async fn m04_completion_waits_for_state_queue_capacity() {
     );
     release_tx.send(()).unwrap();
     blocker.await.unwrap().unwrap();
+    app.manager.queue.call_wait(|_| Ok(())).await.unwrap();
     let view = app.settled(input.id).await;
     assert_eq!(view["phase"]["type"], "completed");
     assert_eq!(view["accounting"]["charged_microusd"], 28);
