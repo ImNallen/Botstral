@@ -2,7 +2,7 @@ use super::{
     tasks::{event, json, parse},
     *,
 };
-use crate::manager::inference::{CallPermit, ProviderOutcome, VerificationPermit};
+use crate::manager::provider::{CallPermit, ProviderOutcome, VerificationPermit};
 use botstral_link::*;
 
 #[cfg(test)]

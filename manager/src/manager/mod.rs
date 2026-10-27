@@ -1,5 +1,6 @@
 mod crypto;
 mod inference;
+mod provider;
 mod state;
 mod tasks;
 mod workers;
@@ -179,7 +180,7 @@ impl Queue {
 pub struct Manager {
     queue: Queue,
     inference: Arc<inference::InferenceControl>,
-    provider: inference::Provider,
+    provider: provider::Provider,
 }
 #[derive(Clone)]
 pub struct LocalSetup {
@@ -196,12 +197,12 @@ pub(crate) struct Runtime {
 
 impl Manager {
     pub(crate) fn start(directory: PathBuf) -> Result<Runtime, OperationError> {
-        Self::start_with_provider(directory, inference::Provider::new()?)
+        Self::start_with_provider(directory, provider::Provider::new()?)
     }
 
     pub(crate) fn start_with_provider(
         directory: PathBuf,
-        provider: inference::Provider,
+        provider: provider::Provider,
     ) -> Result<Runtime, OperationError> {
         let (sender, mut receiver) = mpsc::channel::<Job>(32);
         let (ready_tx, ready_rx) = std::sync::mpsc::sync_channel(1);
