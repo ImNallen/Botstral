@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Exercise production Manager and native owner binaries with synthetic private state."""
 import argparse
 import base64
 import hashlib

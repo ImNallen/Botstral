@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Verify pinned LAN and temporary bore traffic between isolated real-binary fixtures."""
 import argparse
 import base64
 import hashlib

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Control only one synthetic M05 fixture. Protocol traffic uses the real binaries."""
 import base64
 import hashlib
 import http.client
