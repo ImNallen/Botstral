@@ -469,6 +469,7 @@ impl State {
             ArtifactTransferState::Receiving
         };
         if through == content.length && state != "available" {
+            self.fault("artifact_offset_committed");
             if digest(&mut file, content).is_err() {
                 self.corrupt(id, &offer)?;
                 receipt = ArtifactTransferState::Unavailable;

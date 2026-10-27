@@ -479,6 +479,12 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
     );
     let partial = format!("{task_path}/artifacts/{id}");
     assert_eq!(f.owner("GET", &partial, json!({})).await.0, 404);
+    #[cfg(feature = "nonproduction-test-worker")]
+    {
+        socket.close(None).await.unwrap();
+        f.restart_manager(Some("artifact_offset_committed")).await;
+        socket = connection(&f, journal, vec![entry.clone()], 2).await.0;
+    }
     wire(
         &mut socket,
         chunk(
@@ -489,8 +495,35 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
         ),
     )
     .await;
-    offset_committed(&f, id, bytes.len() as u64).await;
-    socket.close(None).await.unwrap();
+    #[cfg(feature = "nonproduction-test-worker")]
+    {
+        recovery::reached(
+            &mut f.manager,
+            &f.root.path().join("manager"),
+            "artifact_offset_committed",
+        )
+        .await;
+        let artifacts = f.root.path().join("manager/artifacts");
+        assert_eq!(
+            fs::read(artifacts.join(format!("{id}.part"))).unwrap(),
+            bytes
+        );
+        assert!(!artifacts.join(format!("{id}.blob")).exists());
+        let db = rusqlite::Connection::open(f.root.path().join("manager/manager.sqlite3")).unwrap();
+        let persisted: (i64, String) = db
+            .query_row(
+                "SELECT offset,state FROM artifacts WHERE id=?1",
+                [id.to_string()],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(persisted, (bytes.len() as i64, "transferring".into()));
+    }
+    #[cfg(not(feature = "nonproduction-test-worker"))]
+    {
+        offset_committed(&f, id, bytes.len() as u64).await;
+        socket.close(None).await.unwrap();
+    }
     f.restart_manager(None).await;
     let (mut socket, _) = connection(&f, journal, vec![entry], 2).await;
     wire(
