@@ -425,12 +425,28 @@ fn parse_completion(
     use InferenceAttentionReason as Reason;
     #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
+    struct PromptTokenDetails {
+        #[serde(default)]
+        cached_tokens: u64,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct CompletionTokenDetails {
+        #[serde(default)]
+        reasoning_tokens: u64,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
     struct Usage {
         prompt_tokens: u64,
         completion_tokens: u64,
         total_tokens: u64,
         #[serde(default)]
         service_tier: Option<String>,
+        #[serde(default)]
+        prompt_tokens_details: Option<PromptTokenDetails>,
+        #[serde(default)]
+        completion_tokens_details: Option<CompletionTokenDetails>,
     }
     if value["model"].as_str() != Some(&request.policy.model_id) {
         return Err(Reason::UnexpectedModel);
@@ -443,6 +459,12 @@ fn parse_completion(
         || report.total_tokens > u64::from(request.policy.context_tokens)
         || report.total_tokens > request.max_total_tokens
         || report.completion_tokens > u64::from(request.max_output_tokens)
+        || report
+            .prompt_tokens_details
+            .is_some_and(|details| details.cached_tokens > report.prompt_tokens)
+        || report
+            .completion_tokens_details
+            .is_some_and(|details| details.reasoning_tokens > report.completion_tokens)
     {
         return Err(Reason::InvalidUsage);
     }
