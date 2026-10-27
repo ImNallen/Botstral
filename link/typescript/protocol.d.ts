@@ -15,6 +15,17 @@ export type SourceReference =
     };
 export type TaskId = string;
 export type MessageId = string;
+export type InferenceId = string;
+export type ModelReleaseAcknowledgment =
+  | {
+      type: 'stable';
+    }
+  | {
+      terms_url: string;
+      type: 'preview';
+    };
+export type InferenceEndpoint = 'global' | 'eu' | 'us';
+export type InferenceBilling = 'text_tokens_only_at_acknowledged_ceilings';
 export type ManagerMessage =
   | {
       execution: ExecutionId;
@@ -225,6 +236,64 @@ export type ErrorCode =
   | 'conflict';
 export type RequestId = string;
 export type ConversationId = string;
+export type InferenceVerification =
+  | {
+      type: 'unverified';
+    }
+  | {
+      checked_at: number;
+      expires_at: number;
+      type: 'verified';
+    };
+export type InferenceAccounting =
+  | {
+      type: 'held';
+    }
+  | {
+      charged_microusd: number;
+      type: 'settled';
+    }
+  | {
+      type: 'released';
+    };
+export type InferencePhase =
+  | {
+      type: 'admitted';
+    }
+  | {
+      attempt: InferenceAttemptId;
+      started_at: number;
+      type: 'sending';
+    }
+  | {
+      attempt: InferenceAttemptId;
+      finish_reason: InferenceFinishReason;
+      type: 'completed';
+    }
+  | {
+      type: 'cancelled';
+    }
+  | {
+      reason: InferenceNotSentReason;
+      type: 'not_sent';
+    }
+  | {
+      attempt: InferenceAttemptId;
+      reason: InferenceAttentionReason;
+      type: 'awaiting_attention';
+    };
+export type InferenceAttemptId = string;
+export type InferenceFinishReason = 'stop' | 'length';
+export type InferenceNotSentReason = 'deadline' | 'configuration_changed' | 'vault_locked' | 'shutdown' | 'restart';
+export type InferenceAttentionReason =
+  | 'interrupted'
+  | 'provider_rejected'
+  | 'invalid_response'
+  | 'invalid_usage'
+  | 'unexpected_model'
+  | 'response_too_large'
+  | 'shutdown'
+  | 'restart';
 export type ExecutionEvent =
   | {
       evidence: ProcessEvidence;
@@ -471,6 +540,9 @@ export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | '
 
 export interface Protocol {
   document: WriteDocument;
+  inference: SubmitInference;
+  inference_configuration: ConfigureInference;
+  inference_verification: VerifyInference;
   manager: Envelope2;
   owner: OwnerSnapshot;
   replay: EventReplay;
@@ -482,6 +554,46 @@ export interface WriteDocument {
   kind: DocumentKind;
   markdown: string;
   sources: SourceReference[];
+}
+export interface SubmitInference {
+  bot: BotId;
+  configuration_revision: number;
+  deadline: number;
+  id: InferenceId;
+  max_cost_microusd: number;
+  max_output_tokens: number;
+  max_total_tokens: number;
+  prompt: string;
+}
+export interface ConfigureInference {
+  bot: BotId;
+  expected_revision: number;
+  policy: InferencePolicy;
+}
+export interface InferencePolicy {
+  acknowledgment: InferenceAcknowledgment;
+  context_tokens: number;
+  endpoint: InferenceEndpoint;
+  model_id: string;
+  prices: InferencePrices;
+}
+export interface InferenceAcknowledgment {
+  acknowledged_at: number;
+  developer_terms_url: string;
+  model_developer: string;
+  privacy_terms_url: string;
+  release: ModelReleaseAcknowledgment;
+}
+export interface InferencePrices {
+  billing: InferenceBilling;
+  effective_at: number;
+  expires_at: number;
+  input_microusd_per_million_tokens: number;
+  output_microusd_per_million_tokens: number;
+}
+export interface VerifyInference {
+  bot: BotId;
+  revision: number;
 }
 export interface Envelope2 {
   message: ManagerMessage;
@@ -572,6 +684,8 @@ export interface ComputerSession {
 export interface OwnerSnapshot {
   conversations: Conversation[];
   documents: Document[];
+  inference_configurations: InferenceConfiguration[];
+  inferences: InferenceView[];
   messages: ConversationMessage[];
   permissions: Permission[];
   tasks: TaskView[];
@@ -586,6 +700,34 @@ export interface Document {
   markdown: string;
   revision: number;
   sources: SourceReference[];
+}
+export interface InferenceConfiguration {
+  bot: BotId;
+  policy: InferencePolicy;
+  revision: number;
+  verification: InferenceVerification;
+}
+export interface InferenceView {
+  accounting: InferenceAccounting;
+  cancellation_requested_at?: number | null;
+  configuration: InferenceConfiguration;
+  created_at: number;
+  output?: string | null;
+  phase: InferencePhase;
+  provider_request_id?: string | null;
+  request: SubmitInference;
+  reservation: InferenceReservation;
+  updated_at: number;
+  usage?: InferenceUsage | null;
+}
+export interface InferenceReservation {
+  cost_microusd: number;
+  total_tokens: number;
+}
+export interface InferenceUsage {
+  completion_tokens: number;
+  prompt_tokens: number;
+  total_tokens: number;
 }
 export interface ConversationMessage {
   conversation: ConversationId;

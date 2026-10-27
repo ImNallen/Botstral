@@ -302,6 +302,8 @@ pub struct AuthoritativeEvent {
 #[serde(deny_unknown_fields)]
 pub struct OwnerSnapshot {
     pub tasks: Vec<TaskView>,
+    pub inferences: Vec<crate::InferenceView>,
+    pub inference_configurations: Vec<crate::InferenceConfiguration>,
     pub conversations: Vec<Conversation>,
     pub messages: Vec<ConversationMessage>,
     pub documents: Vec<Document>,

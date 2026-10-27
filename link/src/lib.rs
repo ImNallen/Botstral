@@ -41,7 +41,9 @@ identifiers!(
     TaskId,
     ApprovalId,
     OperationId,
-    ArtifactId
+    ArtifactId,
+    InferenceId,
+    InferenceAttemptId
 );
 
 macro_rules! counters {
@@ -67,6 +69,8 @@ macro_rules! counters {
 counters!(Generation, Revision);
 mod durable;
 pub use durable::*;
+mod inference;
+pub use inference::*;
 mod artifact;
 pub use artifact::*;
 mod computer;
@@ -538,6 +542,9 @@ pub fn schema() -> String {
         owner: OwnerSnapshot,
         replay: EventReplay,
         document: WriteDocument,
+        inference: SubmitInference,
+        inference_configuration: ConfigureInference,
+        inference_verification: VerifyInference,
     }
     serde_json::to_string_pretty(&schemars::schema_for!(Protocol)).unwrap() + "\n"
 }

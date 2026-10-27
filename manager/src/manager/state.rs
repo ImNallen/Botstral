@@ -1,4 +1,5 @@
 mod artifacts;
+mod inference;
 mod memory;
 mod tasks;
 mod workers;
@@ -65,7 +66,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 4 {
+    if version > 5 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -86,6 +87,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 4 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0004.sql"))?;
+        tx.commit()?;
+    }
+    if version < 5 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0005.sql"))?;
         tx.commit()?;
     }
     Ok(())
@@ -157,6 +163,7 @@ impl State {
         };
         state.reconcile_documents()?;
         state.reconcile_artifacts()?;
+        state.recover_inferences(false)?;
         Ok(state)
     }
 
@@ -476,6 +483,12 @@ impl State {
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute("INSERT INTO provider_keys(provider, format_version, ciphertext, updated_at) VALUES('mistral', 1, ?1, ?2) ON CONFLICT(provider) DO UPDATE SET ciphertext = excluded.ciphertext, updated_at = excluded.updated_at",
             params![ciphertext, metadata.updated_at])?;
+        tx.execute(
+            "UPDATE inference_authority SET provider_epoch = provider_epoch + 1",
+            [],
+        )?;
+        tx.execute("UPDATE inference_configurations SET verified_at=NULL, verified_until=NULL, provider_epoch=NULL", [])?;
+        tasks::event(&tx, "inference_verification_invalidated", "mistral")?;
         tx.commit()?;
         Ok(metadata)
     }
@@ -543,12 +556,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 5).unwrap();
+        db.pragma_update(None, "user_version", 6).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            5
+            6
         );
     }
 
