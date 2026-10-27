@@ -210,4 +210,4 @@ Restart marks sending attempts `awaiting_attention` and retains accounting. Admi
 
 `POST /v1/runs` admits an authenticated `SubmitRun`. `GET /v1/runs/{id}` returns its request, accounting, ordered turns, and child task identities. `POST /v1/runs/{id}/cancel` accepts an empty JSON body and records cancellation. Child operations use the existing exact task approval and artifact download methods.
 
-The [run contract](m04-tool-loop.md) describes execution policy, cumulative limits, tool results, and recovery. Shared request and response types are generated from `link/src/run.rs`. Recorded acceptance and the unobserved production Linux lane are distinguished in [the acceptance record](m04-tool-loop-acceptance.md).
+The [run contract](m04-tool-loop.md) describes execution policy, cumulative limits, tool results, and recovery. Shared request and response types are generated from `link/src/run.rs`. The [acceptance record](m04-tool-loop-acceptance.md) distinguishes synthetic worker outcomes from the observed production Linux lane. Both use recorded provider responses.

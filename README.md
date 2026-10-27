@@ -1,6 +1,6 @@
 # Botstral
 
-Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app manages the local owner session and bot roster. The manager supports explicitly configured single-turn text inference.
+Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app manages the local owner session and bot roster. The manager supports explicitly configured text inference and durable tool runs.
 
 ## Repository layout
 
@@ -32,7 +32,7 @@ See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) f
 
 The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor.
 
-[M04 text inference](docs/m04-inference.md) adds a separate durable ledger, conservative budgets, and uncertainty recovery. HTTP fixtures verify the first slice. Live provider acceptance, tool loops, Vibe, owner-device pairing, and remote access remain open.
+[M04 tool runs](docs/m04-tool-loop.md) combine model turns with exactly approved browser, file, and process operations. Recorded responses verify the loop with synthetic outcomes and a real Linux worker. Live provider acceptance, Vibe, owner-device pairing, and remote access remain open.
 
 ## Run the desktop
 
