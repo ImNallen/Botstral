@@ -1,6 +1,6 @@
 # M04 coding and vision acceptance
 
-M04 remains open until the parent observes the live two-VM results and finishes independent review. These runners distinguish recorded-provider checks, real Vibe against a recorded endpoint, and paid production acceptance. Implementation work made no paid calls and did not read a provider secret.
+These runners distinguish recorded-provider checks, real Vibe against a recorded endpoint, and paid production acceptance. [The completion record](m04-completion.md) maps observed gates to evidence, including the failed full reports and successful focused follow-up. The isolated implementation phase made no paid calls or provider-secret reads; live acceptance used the explicitly authorized private credential.
 
 ## Recorded checks
 
@@ -41,7 +41,7 @@ BOTSTRAL_RUN_AGENT_BIN="$PWD/target/release/botstral-agent" \
   m04_coding_production_worker_pinned_vibe -- --ignored --nocapture
 ```
 
-Run it as the non-root Linux guest account with a working systemd user manager. It proves no edit or call before approval, real edit, duplicate task suppression, explicit resume, settled coding calls, no provider key in worker logs, failed task after Vibe denies an outside-path edit despite CLI exit zero, and clean shutdown. Its five provider requests go only to the recorded endpoint. The final request stalls while the worker disconnects. Manager shutdown must drain within three seconds, and restart must retain the sent request as unknown and held without replacement.
+Run it as the non-root Linux guest account with a working systemd user manager. It proves no edit or call before approval, real edit, duplicate task suppression, explicit resume, settled coding calls, no provider key in worker logs, failed task after Vibe denies an outside-path edit despite CLI exit zero, and clean shutdown. Its provider requests go only to the recorded endpoint. It also observes the native CLI before cancellation, proves the scope empty, and verifies completed coding calls and exact artifact bytes after Manager restart. The final request stalls while the worker disconnects. Manager shutdown must drain within three seconds, and restart must retain the sent request as unknown and held without replacement.
 
 The worker uses the existing ceilings: 256 MiB memory, 32 processes, and one KiB captured output. The test chooses 120 seconds. No global Process limit changed.
 
@@ -71,13 +71,13 @@ Without `--live`, the runner creates fresh state, enrolls the worker, seals Vibe
 
 ## Capped live acceptance
 
-Only the parent runs this lane after integration and review. The provider key file stays on Manager VM, must be a bounded regular file owned by the guest with mode `0600`, and is read only by the Manager-side helper. Its value is never returned to the local runner or Computer VM.
+Run this lane after integration and independent review. The provider key file stays on Manager VM, must be a bounded regular file owned by the guest with mode `0600`, and is read only by the Manager-side helper. Its value is never returned to the local runner or Computer VM.
 
 The live configuration pins EU `mistral-small-2603`, context 262,144, output 1,024, and acknowledged ceilings of 200,000 input and 800,000 output microdollars per million tokens. It verifies model capabilities through the production API. One call reserves 53,249 microdollars. The plan allows two reasoning calls, three edit calls, one resume call, one vision call, and one cancellation call: eight calls, reserving 425,992 microdollars.
 
 A persistent Manager-side ledger reserves the entire plan before provisioning or paid inference. Its lock serializes concurrent runners. Repeating one run identity is idempotent; new runs require remaining allowance. Failure does not release reservations automatically. The ledger includes prior acceptance reservations, including unknown outcomes, and refuses changed caps or changed prior allowance. It is an acceptance control, not provider invoice reconciliation.
 
-The parent's eight prior attempts were bounded at 54,068 microdollars each. With that recorded campaign history, use 432,544 as the prior reservation, making the combined worst case 858,536 microdollars. If the parent performs another paid attempt, update the campaign accounting before invoking this runner. Do not reset the ledger to obtain another allowance.
+The eight prior acceptance attempts were bounded at 54,068 microdollars each. With that recorded campaign history, use 432,544 as the prior reservation, making the combined worst case 858,536 microdollars. If another paid attempt is performed, update the campaign accounting before invoking this runner. Do not reset the ledger to obtain another allowance.
 
 ```sh
 python3 -B agent/tests/m04_two_vm.py \
@@ -107,7 +107,7 @@ python3 -B agent/tests/m04_reconcile_budget.py \
 
 The tool requires successful shutdown and cleanup evidence. On Manager it takes the actual manager state lock, refuses a running manager, reads every durable inference attempt, and retains each attempt's full original reservation, including settled and unknown calls. It records the old allocation, retained attempts, database hashes, and evidence hash atomically under the campaign lock. The cap and prior allowance stay unchanged. Keep the reconciled fixture stopped. Missing or corrupt state cannot release an allocation.
 
-The parent observed one safely rejected model proposal in the first live run. Its single durable attempt retains 53,249 microdollars. Together with the immutable prior 432,544 and another full 425,992 plan, the campaign reserves 911,785 microdollars. This preserves the same US$1 cap. It does not erase or replay the rejected run.
+The first live run observed one safely rejected model proposal in the first live run. Its single durable attempt retains 53,249 microdollars. Together with the immutable prior 432,544 and another full 425,992 plan, the campaign reserves 911,785 microdollars. This preserves the same US$1 cap. It does not erase or replay the rejected run.
 
 ## Observed implementation evidence
 
@@ -115,4 +115,10 @@ On 2026-10-27, `scripts/verify.sh` passed formatting, clippy, default and test-w
 
 The two-VM preparation passed against separate Manager and Computer VMs, including private permissions, redaction, and clean shutdown. Its result explicitly reports `live_acceptance: false`. Its isolated base was `/home/botstral/m04-acceptance-566a8a7fffeb4d7ebd3d7e008f3bbb21`; the passing evidence UUID was `6dc6c98e-0b23-4aa1-81c5-a97cdef83b8d`. A first preparation attempt exposed import-created cache permissions; the helper now disables bytecode writes and establishes a private umask before local imports.
 
-Live execution of this new coding/vision runner remains pending with the parent. Parent-observed provider compatibility and earlier browser/file acceptance are grounding evidence, not proof of these newly implemented live paths.
+Observed live coding and vision checks passed in the retained full run before its cancellation failure. The final focused lifecycle run passed cancellation, pre-call refusal, reattached restart and clean shutdown. [The completion record](m04-completion.md) explains the combined evidence and remaining product scope.
+
+## Focused lifecycle follow-up
+
+Use the same live invocation with `--suite coding-lifecycle` to run cancellation, budget refusal and reattached restart in a fresh isolated fixture. It reserves one full 53,249-microdollar call before provider provisioning. It retains the same immutable prior allowance and all existing campaign reservations. Its passing report is scoped and deliberately keeps `live_acceptance: false`; it cannot stand in for browser, vision, editing or completed-artifact proof.
+
+The observed follow-up reserved 965,034 microdollars in total. Its UUID is `5fc6971a-3c32-4d76-8f2a-5c165b6f8374`. Another one-call allowance would exceed this campaign's remaining cap. Keep the ledger intact and do not repeat paid acceptance under the existing authorization.

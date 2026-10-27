@@ -32,7 +32,7 @@ See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) f
 
 The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor.
 
-[M04 tool runs](docs/m04-tool-loop.md) combine model turns with exactly approved browser, file, and process operations. Recorded responses verify the loop with synthetic outcomes and a real Linux worker. Live provider acceptance, Vibe, owner-device pairing, and remote access remain open.
+[M04 is complete](docs/m04-completion.md). Model turns use exactly approved browser, file, process and Vibe operations, with bounded PNG vision and durable artifacts. Acceptance combines live EU Mistral work across two VMs with repeatable recorded-provider checks. Owner-device pairing and remote access remain open.
 
 ## Run the desktop
 

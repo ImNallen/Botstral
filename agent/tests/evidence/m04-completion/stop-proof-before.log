@@ -1,0 +1,77 @@
+   Compiling syn v3.0.9
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling zeroize v1.9.1
+   Compiling generic-array v0.14.7
+   Compiling getrandom v0.2.17
+   Compiling once_cell v1.21.4
+   Compiling serde_json v1.0.154
+   Compiling memchr v2.8.3
+   Compiling subtle v2.6.1
+   Compiling futures-sink v0.3.34
+   Compiling deranged v0.5.9
+   Compiling powerfmt v0.2.1
+   Compiling rustls-pki-types v1.15.1
+   Compiling ring v0.17.14
+   Compiling num-conv v0.2.2
+   Compiling time-core v0.1.9
+   Compiling base64 v0.22.1
+   Compiling tempfile v3.27.0
+   Compiling rustls-pemfile v2.2.0
+   Compiling pem v3.0.6
+   Compiling time v0.3.55
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha1 v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling rustls-webpki v0.103.16
+   Compiling yasna v0.5.2
+   Compiling rustls v0.23.46
+   Compiling rcgen v0.13.2
+   Compiling serde_derive_internals v0.30.0
+   Compiling uuid v1.29.0
+   Compiling tokio-macros v2.7.2
+   Compiling ref-cast-impl v1.0.27
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling futures-macro v0.3.34
+   Compiling schemars_derive v1.2.3
+   Compiling ref-cast v1.0.27
+   Compiling tokio v1.54.1
+   Compiling futures-util v0.3.34
+   Compiling thiserror v2.0.21
+   Compiling tungstenite v0.28.0
+   Compiling serde v1.0.229
+   Compiling schemars v1.2.3
+   Compiling botstral-link v0.1.0 (/home/botstral/m04-final-acceptance.GycLnu/source/link)
+   Compiling hyper v1.12.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tokio-rustls v0.26.6
+   Compiling hyper-util v0.1.21
+   Compiling botstral-agent v0.1.0 (/home/botstral/m04-final-acceptance.GycLnu/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.50s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-576a1d2090a45bf4)
+
+running 4 tests
+test process::systemd::stop_tests::wrong_invocation_is_refused_before_stop ... ok
+test process::systemd::stop_tests::delayed_kernel_stop_is_proved ... FAILED
+test process::systemd::stop_tests::populated_kernel_scope_is_refused ... ok
+
+thread 'process::systemd::stop_tests::delayed_kernel_stop_is_proved' (318636) panicked at agent/src/process/systemd.rs:402:9:
+delayed empty scope was not proved: Some(Custom { kind: Other, error: "scope still populated" })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test process::systemd::stop_tests::stop_error_after_kernel_stop_is_proved ... FAILED
+
+failures:
+
+failures:
+    process::systemd::stop_tests::delayed_kernel_stop_is_proved
+    process::systemd::stop_tests::stop_error_after_kernel_stop_is_proved
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+
+
+thread 'process::systemd::stop_tests::stop_error_after_kernel_stop_is_proved' (318638) panicked at agent/src/process/systemd.rs:387:9:
+actual stopped scope was not proved: Some(Custom { kind: Other, error: "injected lost stop response after actual stop" })
+error: test failed, to rerun pass `-p botstral-agent --lib`

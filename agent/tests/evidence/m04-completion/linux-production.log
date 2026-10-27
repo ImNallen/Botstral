@@ -1,0 +1,48 @@
+bash: line 4: cargo: command not found
+   Compiling botstral-agent v0.1.0 (/home/botstral/m04-stop-final.TIi8kJ/source/agent)
+   Compiling botstral-link v0.1.0 (/home/botstral/m04-stop-final.TIi8kJ/source/link)
+    Finished `release` profile [optimized] target(s) in 5.39s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (/home/botstral/m04-final-acceptance.GycLnu/source/target/debug/deps/botstral_agent-576a1d2090a45bf4)
+
+running 8 tests
+test process::systemd::stop_tests::active_empty_service_after_failed_stop_is_refused ... ok
+test process::systemd::stop_tests::delayed_kernel_stop_is_proved ... ok
+test process::systemd::stop_tests::populated_kernel_scope_is_refused ... ok
+test process::systemd::stop_tests::production_stop_proves_real_scope ... ok
+test process::systemd::stop_tests::replacement_after_stop_is_refused ... ok
+test process::systemd::stop_tests::stop_error_after_kernel_stop_is_proved ... ok
+test process::systemd::stop_tests::wrong_boot_is_refused_before_stop ... ok
+test process::systemd::stop_tests::wrong_invocation_is_refused_before_stop ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 3.12s
+
+   Compiling botstral-manager v0.1.0 (/home/botstral/m04-stop-final.TIi8kJ/source/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.88s
+     Running unittests src/lib.rs (/home/botstral/m04-final-acceptance.GycLnu/source/target/debug/deps/botstral_manager-c4f358204e68019f)
+
+running 1 test
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 14.76s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (/home/botstral/m04-final-acceptance.GycLnu/source/target/debug/deps/botstral_manager-c4f358204e68019f)
+
+running 1 test
+test manager::inference::tests::run_tests::production::m04_run_production_worker_browser_file_process_and_artifact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 57 filtered out; finished in 10.72s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/m02_transport.rs (/home/botstral/m04-final-acceptance.GycLnu/source/target/debug/deps/m02_transport-289a555b6bbbe884)
+
+running 5 tests
+test process_acceptance::w01_crash_runtime_bound ... ok
+test process_acceptance::w01_journal_replacement ... ok
+test process_acceptance::w01_production_contract ... ok
+test process_acceptance::w01_review_interrupted_probe ... ok
+test process_acceptance::w01_review_reconnect_confirmation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 54.43s
+

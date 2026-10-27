@@ -1,5 +1,7 @@
 # M04 tool-loop review
 
+This is a historical slice record. Its pending-work statements describe that checkpoint. See [M04 completion acceptance](m04-completion.md) for the current milestone result.
+
 The change adds durable model turns above existing worker task authority. It preserves the single-turn API and uses exact child approvals. M04 remains open.
 
 ## Independent source review

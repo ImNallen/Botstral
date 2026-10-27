@@ -1,5 +1,7 @@
 # M04 durable reasoning and tool loop
 
+This is a historical slice record. Its pending-work statements describe that checkpoint. See [M04 completion acceptance](m04-completion.md) for the current milestone result.
+
 An authenticated owner can submit a run, inspect its turns and child tasks, and cancel it. Recorded provider responses exercise the complete loop with synthetic outcomes and an actual production worker on Linux. Live provider credentials, live two-VM acceptance, Vibe, vision, connectors, and daily spending controls remain outside this slice. M04 remains open.
 
 ## Ownership and authority

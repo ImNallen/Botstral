@@ -94,7 +94,63 @@ def finished_coding(f, request):
     return result, native, calls
 
 
+def coding_lifecycle(f, session, args):
+    with f.check('coding_cancel_and_pre_call_budget_refusal') as details:
+        workspace={'id':str(uuid.uuid4()),'path':f.worker.root+'/cancel-workspace'}
+        f.worker.call('mkdir',path=workspace['path'])
+        request=coding_request(f,session,workspace,'Create answer.py with a carefully documented implementation of a parser. Work until complete.','cancel')
+        pending=computer.submit(f,request)
+        def native_scope():
+            for candidate in f.worker.call('scopes',root=f.worker.root):
+                if candidate['scope']['execution'] != pending['command']['execution']:
+                    continue
+                pids = [int(v) for v in (candidate['values']['cgroup.procs'] or '').split()]
+                observed = f.worker.call('vibe_processes', pids=pids, binary=args.vibe_runtime + '/bin/vibe')
+                if any(p['vibe_cli'] for p in observed):
+                    return {'scope': candidate, 'processes': observed}
+            return None
+        observed=f.poll(native_scope,lambda value:value is not None,'actual Vibe CLI in coding scope')
+        scope=observed['scope']
+        cancelled=process.cancel(f,pending)
+        pids=[int(v) for v in scope['values']['cgroup.procs'].split()]
+        m02.require(not any(v['live'] for v in f.worker.call('liveness',pids=pids)),'coding descendants survived cancellation')
+        stopped = next(s for s in f.worker.call('scopes', root=f.worker.root) if s['scope']['execution'] == pending['command']['execution'])
+        events = stopped['values']['cgroup.events']
+        m02.require(events is None or 'populated 0' in events.splitlines(), 'cancelled scope remains populated')
+        refused=coding_request(f,session,{'id':str(uuid.uuid4()),'path':f.worker.root+'/refused'},'Do not run.','edit')
+        refused['work']['spec']['limits']['max_cost_microusd']=1
+        rejection=f.owner('POST','/v1/tasks',refused,status=409)
+        m02.require(rejection['error'] == 'inference_budget', 'unexpected coding budget refusal')
+        f.owner('GET', '/v1/tasks/' + refused['id'], status=404)
+        f.owner('GET', '/v1/tasks/' + refused['id'] + '/coding-calls', status=404)
+        details.update(stopped_scope=stopped,refused_task=refused['id'],cancelled=cancelled,native_processes=observed['processes'],provider_calls=f.owner('GET','/v1/tasks/'+pending['id']+'/coding-calls'),budget_refused=True)
+    return cancelled
+
+
+def lifecycle_restart(f, task, session):
+    with f.check('manager_restart_keeps_cancelled_result_and_never_reexecutes') as details:
+        path = '/v1/tasks/' + task['id']
+        before = f.owner('GET', path + '/coding-calls')
+        executions = {s['scope']['execution'] for s in f.worker.call('scopes', root=f.worker.root)}
+        process.restart_manager(f, 'm04-lifecycle-manager-restarted')
+        reattached = f.phase_wait('ready', f.generation + 1)
+        f.generation = reattached['generation']
+        f.confirmed(session)
+        after = f.owner('GET', path + '/coding-calls')
+        restored = f.owner('GET', path)
+        m02.require(before == after, 'restart changed cancelled coding attempts')
+        m02.require(restored['state'] == 'cancelled' and restored['process'] == task['process'], 'restart changed cancelled process result')
+        time.sleep(2)
+        m02.require(f.owner('GET', path + '/coding-calls') == before, 'delayed coding replay after restart')
+        m02.require(f.owner('GET', path)['process'] == task['process'], 'delayed process replay after restart')
+        scopes = f.worker.call('scopes', root=f.worker.root)
+        m02.require({s['scope']['execution'] for s in scopes} == executions, 'restart created a native execution')
+        m02.require(all(s['values']['cgroup.events'] is None or 'populated 0' in s['values']['cgroup.events'].splitlines() for s in scopes), 'restart repopulated a stopped scope')
+        details.update(calls=after, task=restored, scopes_after_restart=scopes, worker_after_restart=reattached)
+
+
 def exercise(f, certificates, args):
+    plan = {'cancel': 1} if args.suite == 'coding-lifecycle' else CALL_PLAN
     with f.check('runtime_and_worker') as details:
         f.enroll(f.invitation(certificates), certificates)
         a = f.session('M04 A')
@@ -110,10 +166,13 @@ def exercise(f, certificates, args):
     if not args.live:
         return {'prepared':True,'live_acceptance':False}
     with f.check('provider_configuration') as details:
-        budget=f.manager.call('acceptance_budget',path=args.budget_ledger,run=f.output.name,cap_microusd=args.cap_microusd,previous_reserved_microusd=args.previous_reserved_microusd,reservation_microusd=CALL_HOLD*sum(CALL_PLAN.values()))
+        budget=f.manager.call('acceptance_budget',path=args.budget_ledger,run=f.output.name,cap_microusd=args.cap_microusd,previous_reserved_microusd=args.previous_reserved_microusd,reservation_microusd=CALL_HOLD*sum(plan.values()))
         f.owner('POST','/v1/vault/unlock',{'passphrase':m02.VAULT},status=204)
         f.manager.call('provision_provider',address=f.listen,token=f.owner_token,provider_key_file=args.provider_key_file)
-        details.update(budget=budget,configuration=configure(f,a['bot_id']),cap_microusd=args.cap_microusd,worst_case_microusd=CALL_HOLD*sum(CALL_PLAN.values()))
+        details.update(budget=budget,configuration=configure(f,a['bot_id']),cap_microusd=args.cap_microusd,worst_case_microusd=CALL_HOLD*sum(plan.values()))
+    if args.suite == 'coding-lifecycle':
+        lifecycle_restart(f, coding_lifecycle(f, a, args), a)
+        return {'live_acceptance': False}
     with f.check('browser_shared_file_and_owner_artifacts') as details:
         challenge = str(secrets.randbelow(900000) + 100000)
         page = f.worker.root+'/challenge.html'
@@ -159,30 +218,7 @@ def exercise(f, certificates, args):
         computer.download(f,edited,'answer',b'def answer():\n    return 42\n')
         f.start_daemon('m04-worker-returned');a=f.confirmed(a);b=f.confirmed(b)
         details.update(edit=edited['id'],test=tested['id'],resume=resumed['id'],native_session=native['native_session'],calls=calls+calls2)
-    with f.check('coding_cancel_and_pre_call_budget_refusal') as details:
-        workspace={'id':str(uuid.uuid4()),'path':f.worker.root+'/cancel-workspace'}
-        f.worker.call('mkdir',path=workspace['path'])
-        request=coding_request(f,a,workspace,'Create answer.py with a carefully documented implementation of a parser. Work until complete.','cancel')
-        pending=computer.submit(f,request)
-        def native_scope():
-            for candidate in f.worker.call('scopes',root=f.worker.root):
-                if candidate['scope']['execution'] != pending['command']['execution']:
-                    continue
-                pids = [int(v) for v in (candidate['values']['cgroup.procs'] or '').split()]
-                observed = f.worker.call('vibe_processes', pids=pids, binary=args.vibe_runtime + '/bin/vibe')
-                if any(p['vibe_cli'] for p in observed):
-                    return {'scope': candidate, 'processes': observed}
-            return None
-        observed=f.poll(native_scope,lambda value:value is not None,'actual Vibe CLI in coding scope')
-        scope=observed['scope']
-        cancelled=process.cancel(f,pending)
-        pids=[int(v) for v in scope['values']['cgroup.procs'].split()]
-        m02.require(not any(v['live'] for v in f.worker.call('liveness',pids=pids)),'coding descendants survived cancellation')
-        refused=coding_request(f,a,{'id':str(uuid.uuid4()),'path':f.worker.root+'/refused'},'Do not run.','edit')
-        refused['work']['spec']['limits']['max_cost_microusd']=1
-        rejection=f.owner('POST','/v1/tasks',refused,status=409)
-        m02.require(rejection['error'] == 'inference_budget', 'unexpected coding budget refusal')
-        details.update(cancelled=cancelled,native_processes=observed['processes'],provider_calls=f.owner('GET','/v1/tasks/'+pending['id']+'/coding-calls'),budget_refused=True)
+    coding_lifecycle(f, a, args)
     with f.check('manager_restart_keeps_results_and_never_reexecutes') as details:
         before=f.owner('GET','/v1/tasks/'+edited['id']+'/coding-calls')
         process.restart_manager(f,'m04-manager-restarted')
@@ -206,14 +242,16 @@ def main():
     parser.add_argument('--manager-address',default='192.168.1.40:43124')
     parser.add_argument('--page-port',type=int,default=43871)
     parser.add_argument('--live',action='store_true')
+    parser.add_argument('--suite', choices=['full', 'coding-lifecycle'], default='full', help='The lifecycle suite checks cancellation, budget refusal and restart only.')
     parser.add_argument('--endpoint',choices=['eu'],default='eu')
     parser.add_argument('--provider-key-file',help='Private key file already provisioned on Manager. Never copied to Computer.')
     parser.add_argument('--budget-ledger',help='Persistent Manager-side ledger. A run reserves its full plan before paid work, across retries.')
     parser.add_argument('--previous-reserved-microusd',type=int,help='Prior paid attempts and unknown holds in this acceptance campaign; recorded permanently in the ledger.')
     parser.add_argument('--cap-microusd',type=int,default=1000000)
     args=parser.parse_args()
+    plan = {'cancel': 1} if args.suite == 'coding-lifecycle' else CALL_PLAN
     if args.live and (not args.provider_key_file or not args.budget_ledger or args.previous_reserved_microusd is None):parser.error('--live requires --provider-key-file, --budget-ledger and --previous-reserved-microusd')
-    if not 0<args.cap_microusd<=1000000 or not 0 <= (args.previous_reserved_microusd or 0) or CALL_HOLD*sum(CALL_PLAN.values())+(args.previous_reserved_microusd or 0)>args.cap_microusd:parser.error('worst-case acceptance reservations exceed the authorized cap')
+    if not 0<args.cap_microusd<=1000000 or not 0 <= (args.previous_reserved_microusd or 0) or CALL_HOLD*sum(plan.values())+(args.previous_reserved_microusd or 0)>args.cap_microusd:parser.error('worst-case acceptance reservations exceed the authorized cap')
     if args.manager_ssh==args.worker_ssh:parser.error('separate VMs are required')
     os.umask(0o077);m02.BASE=args.base;m02.TIMEOUT=180
     run_id=str(uuid.uuid4());out=args.output_dir/run_id;out.mkdir(mode=0o700,parents=True)
@@ -231,13 +269,18 @@ def main():
         try:m02.record('process_cleanup','passed',f.worker.call('cleanup_processes',root=root,units=[p.unit for p in f.processes if p.remote is f.worker]))
         except Exception as error:m02.record('process_cleanup','failed',type(error).__name__)
     required={'runtime_and_worker'}
-    if args.live:required.update(('provider_configuration','browser_shared_file_and_owner_artifacts','actual_vision','vibe_edit_separate_test_and_exact_resume','coding_cancel_and_pre_call_budget_refusal','manager_restart_keeps_results_and_never_reexecutes'))
+    if args.live:
+        required.update(('provider_configuration', 'coding_cancel_and_pre_call_budget_refusal'))
+        if args.suite == 'full':
+            required.update(('browser_shared_file_and_owner_artifacts', 'actual_vision', 'vibe_edit_separate_test_and_exact_resume', 'manager_restart_keeps_results_and_never_reexecutes'))
+        else:
+            required.add('manager_restart_keeps_cancelled_result_and_never_reexecutes')
     missing={'production.'+n for n in required}-{v['name'] for v in m02.RESULTS if v['status']=='passed'}
     passed=not missing and all(v['status']=='passed' for v in m02.RESULTS)
     source_root=Path(__file__).resolve().parents[2]
     names=subprocess.check_output(['git','ls-files','-z','--cached','--others','--exclude-standard','--','Cargo.toml','Cargo.lock','rust-toolchain.toml','agent','manager','link'],cwd=source_root).decode().split('\0')
     sources={name:hashlib.sha256((source_root/name).read_bytes()).hexdigest() for name in sorted(set(names)) if name and '__pycache__' not in Path(name).parts}
-    result={'passed':passed,'live_acceptance':passed and outcome['live_acceptance'],'checks':m02.RESULTS,'missing':sorted(missing),'root':root,'source_hashes':sources,'call_plan':CALL_PLAN,'worst_case_microusd':CALL_HOLD*sum(CALL_PLAN.values()),'cap_microusd':args.cap_microusd}
+    result={'suite':args.suite,'live_checks_passed':args.live and passed,'passed':passed,'live_acceptance':passed and outcome['live_acceptance'],'checks':m02.RESULTS,'missing':sorted(missing),'root':root,'source_hashes':sources,'call_plan':plan,'worst_case_microusd':CALL_HOLD*sum(plan.values()),'cap_microusd':args.cap_microusd}
     m02.private_json(out/'results.json',result)
     print(json.dumps({'passed':passed,'live_acceptance':result['live_acceptance'],'evidence':str(out.resolve())}))
     return 0 if passed else 1

@@ -1,5 +1,7 @@
 # M04 tool-loop acceptance
 
+This is a historical slice record. Its pending-work statements describe that checkpoint. See [M04 completion acceptance](m04-completion.md) for the current milestone result.
+
 The committed tests use recorded provider responses through the real private HTTP adapter and authenticated manager handlers. The default worker supplies synthetic process evidence and artifact bytes through the real gateway. A separate production lane passed on the Linux Computer VM with a real browser, file operations, systemd process execution, and durable artifact retrieval. Neither lane uses live provider credentials.
 
 ## Recorded acceptance

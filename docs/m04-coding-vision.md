@@ -1,6 +1,6 @@
 # M04 coding and vision
 
-The manager can dispatch an approved Vibe file-edit task and send authorized PNG artifacts to a verified vision model. Recorded-provider tests and real Vibe tests cover these paths. Live two-VM acceptance and independent parent review remain required before closing M04.
+The manager can dispatch an approved Vibe file-edit task and send authorized PNG artifacts to a verified vision model. Recorded-provider tests, real Vibe tests and observed live two-VM checks cover these paths. [The completion record](m04-completion.md) maps each gate to its evidence and explains the failed campaigns and focused follow-up.
 
 ## Accepted design
 
@@ -42,4 +42,4 @@ Retained history stores authorized artifact identities and dimensions. Immediate
 
 ## Verification and setup
 
-See [the reproducible runners and evidence](m04-coding-vision-acceptance.md). The provider usage-detail correction from parent commit `685800647ca11577630941a994da9f9208065aa6` is included with its authenticated HTTP regression. This document copies the accepted implementation contract; external design and parent acceptance artifacts remain read-only.
+See [the reproducible runners and evidence](m04-coding-vision-acceptance.md). The provider usage-detail correction from commit `685800647ca11577630941a994da9f9208065aa6` is included with its authenticated HTTP regression. The completion record retains source provenance and independent review.
