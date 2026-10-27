@@ -83,7 +83,7 @@ An untracked software-version probe initially failed because shell quoting broke
 
 The [snapshot calculation](m05-snapshot-bound.md) remains 64,317,440 serialized bytes and 67,272,704 decoded bytes, with additional owner recovery allocation below 1 GiB. These are conservative calculated bounds. Runtime acceptance demonstrated complete chunked snapshots and oversized ordinary replies.
 
-[Independent correction review](m05-correction-review.md) approved the frozen production source. This agent does not claim independent review of its own evidence. Parent inspection and integration remain pending. No observed source or acceptance blocker remains.
+[Independent correction review](m05-correction-review.md) approved the frozen production source. The verification agent did not claim independent review of its own evidence. The parent subsequently checked the 12 reviewed source objects, exact 111-file inventory, retained Linux binary hashes, suite logs, and cleanup records, then integrated the evidence and reran every evidence control. No observed source or acceptance blocker remains.
 
 C02 still owns graphical pairing, native keychain integration, and notification display. Durable public hosting remains a separate operator choice documented in [remote owner access](remote-owner.md). Temporary bore forwarding was removed. A stolen device bearer credential can impersonate that device until revocation. Short-code pairing, another owner certificate authority, custom signature handshakes, and automatic online pin rotation remain outside M05.
 
