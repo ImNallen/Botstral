@@ -17,11 +17,11 @@ fn private(path: &Path, bytes: &[u8]) {
     fs::write(path, bytes).unwrap();
     fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
 }
-async fn wait_process(child: &mut Child) {
+async fn wait_process(child: &mut Child, operation: &str) {
     tokio::time::timeout(Duration::from_secs(30), async {
         loop {
             if let Some(status) = child.try_wait().unwrap() {
-                assert!(status.success());
+                assert!(status.success(), "{operation} exited with {status}");
                 break;
             }
             tokio::time::sleep(Duration::from_millis(25)).await;
@@ -50,7 +50,7 @@ async fn m04_run_production_worker_browser_file_process_and_artifact() {
     let source = Path::new(env!("CARGO_MANIFEST_DIR")).parent().unwrap();
     let binary = std::env::var_os("BOTSTRAL_RUN_AGENT_BIN")
         .map(PathBuf::from)
-        .unwrap_or_else(|| source.join("target/debug/botstral-agent"))
+        .unwrap_or_else(|| source.join("target/release/botstral-agent"))
         .canonicalize()
         .unwrap();
     let root = tempfile::tempdir().unwrap();
@@ -69,7 +69,7 @@ async fn m04_run_production_worker_browser_file_process_and_artifact() {
             .spawn()
             .unwrap(),
     );
-    wait_process(&mut generate.0).await;
+    wait_process(&mut generate.0, "certificate generation").await;
     let certificates = certificates.join("certificates");
     let listener = crate::worker_http::WorkerListener::bind(crate::WorkerTls {
         listen: "127.0.0.1:0".parse().unwrap(),
@@ -96,7 +96,7 @@ async fn m04_run_production_worker_browser_file_process_and_artifact() {
     let invitation = root.path().join("invitation");
     private(
         &invitation,
-        grant["invitation"].as_str().unwrap().as_bytes(),
+        &serde_json::to_vec(&json!({"invitation":grant["invitation"]})).unwrap(),
     );
     let state = root.path().join("agent");
     let mut enroll = WorkerProcess(
@@ -116,7 +116,7 @@ async fn m04_run_production_worker_browser_file_process_and_artifact() {
             .spawn()
             .unwrap(),
     );
-    wait_process(&mut enroll.0).await;
+    wait_process(&mut enroll.0, "worker enrollment").await;
     fs::remove_file(invitation).unwrap();
     let workers = app.call("GET", "/v1/workers", Value::Null, 200).await;
     let worker: WorkerId = serde_json::from_value(workers[0]["id"].clone()).unwrap();

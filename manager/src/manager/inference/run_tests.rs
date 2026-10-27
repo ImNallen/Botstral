@@ -238,9 +238,11 @@ async fn view(app: &App, id: RunId) -> RunView {
     .unwrap()
 }
 async fn phase(app: &App, id: RunId, predicate: impl Fn(&RunPhase) -> bool) -> RunView {
+    let mut last_phase = None;
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
             let view = view(app, id).await;
+            last_phase = Some(view.summary.phase.clone());
             if predicate(&view.summary.phase) {
                 return view;
             }
@@ -248,7 +250,9 @@ async fn phase(app: &App, id: RunId, predicate: impl Fn(&RunPhase) -> bool) -> R
         }
     })
     .await
-    .expect("run reaches expected durable phase")
+    .unwrap_or_else(|_| {
+        panic!("run did not reach expected durable phase; last phase {last_phase:?}")
+    })
 }
 
 #[tokio::test]
