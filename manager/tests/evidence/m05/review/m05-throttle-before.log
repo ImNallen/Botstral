@@ -1,0 +1,22 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-79a01e83/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.91s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-a5c4c28522e557f4)
+
+running 1 test
+test manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials ... FAILED
+
+failures:
+
+---- manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials stdout ----
+
+thread 'manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials' (612555858) panicked at manager/src/manager/state/devices/tests.rs:191:5:
+Valid owner authentication failed with Some(RateLimited)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 62 filtered out; finished in 3.79s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

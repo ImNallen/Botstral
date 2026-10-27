@@ -1,0 +1,9 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-79a01e83/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.49s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-a5c4c28522e557f4)
+
+running 1 test
+test manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 62 filtered out; finished in 3.80s
+

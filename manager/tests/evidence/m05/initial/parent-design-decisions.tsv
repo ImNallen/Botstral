@@ -1,0 +1,6 @@
+ts	phase	decision	why	evidence	result
+2026-10-27T19:18:13Z	frame	Implement M05 after merged M04.	Remote owner access unlocks desktop pairing and connectors.	PLAN.md:157	open
+2026-10-27T19:20:49Z	baseline	Keep existing manager behavior as the baseline.	M05 changes owner authorization and public transport.	.audit/m05-baseline.log	57 passed; 2 Linux-specific tests ignored
+2026-10-27T19:20:49Z	environment	Use isolated fixtures on both existing acceptance VMs.	Both hosts respond; no mesh network is configured.	docs/m02-two-vm-acceptance.md	SSH available; remote route undecided
+2026-10-27T19:28:24Z	design	Use pinned TLS and digest-bound owner credentials with existing worker mutual TLS.	Independent cross-judgment rejected additional certificate and signature lifecycles.	docs/m05-design-verdict.md	design accepted; implementation unverified
+2026-10-27T19:28:24Z	route	Use a temporary bore relay for synthetic external acceptance.	The owner has no existing route; bore control is reachable from the manager VM.	docs/m05-architecture.md	external data path unverified

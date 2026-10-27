@@ -1,0 +1,21 @@
+{
+  "production_source_head": "e2547e132732f8b7ed9774e4f1c54c4e3f6da5fa",
+  "source_archive_sha256": "db37badcbb22ff32a768d85ef9931b2f5beb6c2f2ac5c3309ceefaa0d2166a4a",
+  "production_objects": {
+    "Cargo.toml": "5a8a887bc9778968286ec9c7a34406d87ec62a21",
+    "Cargo.lock": "bb91e4a56a9097c24b7a441c2b5ccdd9fcc0b23a",
+    "manager/src": "bd441d207fd7dc682cf6aa5c406da48ee9a7962f",
+    "manager/migrations": "3f6b5b02a580b44d2cec04429c587a39df480c08",
+    "link/src": "c3022bfa14d4c242c2c177bba19c152a4402d8a6",
+    "link/schema/protocol.json": "bc0e833502f178d3c3d75c7fb330414c7333b1a7",
+    "link/typescript/protocol.d.ts": "3f30dafd54a1dc2180d881377040e0a3bdfa2ed4"
+  },
+  "binary_sha256": {
+    "m04-botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+    "owner-probe": "41022bce77ba935d5fa115ceecf146a1b6768dbb868edfd64bbd06fbc25bde50",
+    "botstral-manager": "c0aba18eddd8e9ac45f978fe6b28da49ddce738374acd74445ce4e9dbed9928f",
+    "botstral-agent": "e0840227bed3d51a728e89db63ecb44dcf3c8970e1bba0f040cd434e286729dc"
+  },
+  "bore_archive_sha256": "e484d1e3acba77169b773f31a5bfb34192d4b660f44a094a658a2522cd2270f7",
+  "bore_binary_sha256": "60548b7a145ba334981b19fda7cd0210d24a108a3d0dc113919b33fd2eaa90ab"
+}

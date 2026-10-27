@@ -1,0 +1,7 @@
+{
+  ".audit/unit1-tests.log": "manager/tests/evidence/m05/initial/unit1-tests.log",
+  ".audit/worker-compat.log": "manager/tests/evidence/m05/initial/worker-compat.log",
+  ".audit/m05-local-final.log": "manager/tests/evidence/m05/initial/m05-local-final.log",
+  ".audit/m05-local-diagnostic.log": "manager/tests/evidence/m05/initial/m05-local-diagnostic.log",
+  ".audit/m05-two-vm/summary.json": "manager/tests/evidence/m05/initial/m05-two-vm/summary.json"
+}

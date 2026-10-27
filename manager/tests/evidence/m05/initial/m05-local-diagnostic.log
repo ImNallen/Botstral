@@ -1,0 +1,19 @@
+PASS public_setup_absent_before_owner_with_forwarded_headers
+PASS separate_worker_and_owner_admission
+PASS native_persisted_pairing_and_authenticated_snapshot
+PASS exact_pin_precedes_all_application_bytes_and_unknown_mutations_are_not_replayed
+PASS concurrent_native_credential_enrollment_consumes_invitation_once
+PASS bounded_device_capacity_retries_without_discarding_credentials_or_trust
+PASS subscribe_before_initial_replay_preserves_the_concurrent_commit_and_wake
+PASS chunked_snapshot_and_ordinary_reply_above_64k_and_retention_rollover
+PASS interrupted_snapshot_preserves_cursor_and_recovers_after_retention_rollover
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-7f98da24/manager/tests/m05_acceptance.py", line 665, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-7f98da24/manager/tests/m05_acceptance.py", line 651, in main
+    exercise(fixture, checks)
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-7f98da24/manager/tests/m05_acceptance.py", line 518, in exercise
+    require(json.loads((directory/'state.json').read_text())['cursor']>previous,f'dead-peer fixture did not first recover normally, connections={silent.accepted}, first_end={silent.first_end}, server_bytes={silent.server_bytes}, client_bytes={silent.client_bytes}')
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-7f98da24/manager/tests/m05_acceptance.py", line 26, in require
+    raise AssertionError(message)
+AssertionError: dead-peer fixture did not first recover normally, connections=1, first_end=None, server_bytes=7895906, client_bytes=1088

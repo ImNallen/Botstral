@@ -26,4 +26,8 @@ Provider verification releases the materialization permit during network I/O. It
 
 Independent comment review found three narrative Python module docstrings. They were removed in `3de495e`. It found no workaround comments or suppression annotations requiring structural changes.
 
-The coordinator ran the native client regressions, the authentication regression, the provider-concurrency regression, the Manager library tests, formatting, and all-target Clippy. Final independent correction review and final-source repository, native, and two-VM public-relay acceptance remain open. The initial acceptance source is retained separately and does not establish the corrected source's acceptance.
+The coordinator ran the native client regressions, the authentication regression, the provider-concurrency regression, the Manager library tests, formatting, and all-target Clippy. [Fresh independent correction review](m05-correction-review.md) approved the five production corrections. Additional pinned-TLS fixtures confirmed that malformed responses and uncorrelated refusals produce unknown mutation outcomes, while a correlated refusal remains explicit.
+
+The evidence audit required exact named acceptance gates, explicit endpoint keys, and complete production build-input coverage. The evidence validator now encodes those checks and their negative controls. The canonical trail maps inherited audit pointers to packaged initial logs. The audit inspected 177 exported parent activity items, including 23 truncated items, and does not claim an exhaustive transcript audit.
+
+Final-source repository, native, two-VM public-relay acceptance, and evidence controls remain open. Initial acceptance is retained separately and does not establish the corrected source's acceptance.
