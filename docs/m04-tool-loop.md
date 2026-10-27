@@ -20,6 +20,8 @@ Each new turn atomically reserves the entire verified input context plus the req
 
 Turn, token, cost, operation, deadline, and concurrency limits apply before another operation. A tool response on the final allowed model turn stops after settlement. A child is eligible only while its run can still admit the follow-up model turn. Configuration, capability verification, key epoch, and deadlines are checked for every new model admission.
 
+Text turns retain the provider's `stop` or `length` finish reason. A length-limited final response produces an `output_limit` stop, with its partial answer and settled usage preserved. It is not reported as a completed answer.
+
 ## Tool policy and results
 
 `computer` accepts a bounded operation batch and names of owner-declared output slots. Browser actions require a preceding navigation in the same batch because executions do not preserve tabs. File operations accept absolute guest paths, including shared files outside a coding workspace. `process` accepts an executable, arguments, and working directory. The owner supplies accounts, profiles, runtime digest, environment, viewport, resource limits, and output declarations. A proposal cannot increase these limits or change approval authority. Existing `ComputerSpec` and `ProcessSpec` validation remains authoritative.

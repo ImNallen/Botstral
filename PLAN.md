@@ -136,10 +136,10 @@ Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) 
 
 Depends on M03 and W01 for live execution.
 
-The first bounded slice adds manager-owned single-turn text inference with explicit configuration, model verification, encrypted vault access, durable accounting, and HTTP fixture acceptance. [The inference architecture](docs/m04-inference.md) records its limits. M04 remains open. Tool loops, Vibe, vision, automatic worker operations, and live two-VM acceptance remain future work. No whole milestone item below is closed by this slice.
+The first slice provides manager-owned single-turn text inference. The second adds a durable reasoning and tool loop with exact child approvals, cumulative run limits, artifact results, cancellation, and recovery. [Recorded tool-loop acceptance](docs/m04-tool-loop-acceptance.md) verifies manager orchestration with synthetic provider and worker outcomes. The production Linux worker lane compiles but remains unobserved on the macOS implementation host. M04 remains open for Vibe, vision, live provider checks, and live two-VM acceptance.
 
-- [ ] Add the manager's Mistral reasoning and tool loop.
-- [ ] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
+- [x] Add the manager's Mistral reasoning and tool loop.
+- [x] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
 - [ ] Record model usage, deadlines, budgets, tool requests, and results. Enforce turn, token, time, spending, and concurrency limits before admitting each operation.
 - [ ] Add Playwright browser execution through the supported runtime selected in W01. Treat screenshots and page content as untrusted inputs.
 - [ ] Add real worker tools for file operations, shell commands, and processes across the guest computer.

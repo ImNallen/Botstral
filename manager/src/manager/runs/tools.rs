@@ -94,7 +94,6 @@ pub(in crate::manager) fn translate(
                 outputs,
             };
             spec.validate()?;
-            // Every declared output is required for result readiness.
             for output in &spec.outputs {
                 if !args.operations.iter().any(|op| match op {
                     ComputerOperation::CaptureText { output: slot, .. }

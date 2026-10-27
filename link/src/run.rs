@@ -104,6 +104,7 @@ pub enum RunMessage {
 #[serde(rename_all = "snake_case")]
 pub enum RunStopReason {
     TurnLimit,
+    OutputLimit,
     TokenLimit,
     CostLimit,
     OperationLimit,
@@ -198,6 +199,7 @@ pub struct RunTurn {
     pub reservation: InferenceReservation,
     pub accounting: InferenceAccounting,
     pub phase: RunTurnPhase,
+    pub finish_reason: Option<InferenceFinishReason>,
     pub usage: Option<InferenceUsage>,
     pub provider_request_id: Option<String>,
     pub response: Option<RunMessage>,

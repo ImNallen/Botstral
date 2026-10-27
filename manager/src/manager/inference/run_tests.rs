@@ -382,6 +382,45 @@ async fn m04_run_recorded_browser_file_approval_result_artifact_and_followup() {
 }
 
 #[tokio::test]
+async fn m04_run_truncated_final_is_stopped_and_persisted() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let worker = SyntheticWorker::start(&app).await;
+    let input = request(&app, worker.session.id);
+    let mut response: Value = serde_json::from_str(COMPLETION).unwrap();
+    response["choices"][0]["finish_reason"] = json!("length");
+    fixture.reply(Reply {
+        body: response.to_string(),
+        ..Reply::default()
+    });
+    app.call("POST", "/v1/runs", json!(input), 200).await;
+    let stopped = phase(&app, input.id, RunPhase::terminal).await;
+    let saved = serde_json::to_value(&stopped).unwrap();
+    assert_eq!(saved["summary"]["phase"]["type"], "stopped");
+    assert_eq!(saved["summary"]["phase"]["reason"], "output_limit");
+    assert_eq!(saved["turns"][0]["finish_reason"], "length");
+    assert_eq!(
+        saved["turns"][0]["response"]["content"],
+        response["choices"][0]["message"]["content"]
+    );
+    assert_eq!(saved["turns"][0]["accounting"]["type"], "settled");
+    assert_eq!(stopped.summary.accounting.settled_tokens, 20);
+    assert_eq!(stopped.summary.accounting.settled_cost_microusd, 28);
+    assert_eq!(stopped.summary.accounting.held_tokens, 0);
+    assert!(stopped.turns[0].intent.is_none());
+    assert_eq!(fixture.chats(), 1);
+    drop(worker);
+    app.shutdown().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    assert_eq!(view(&app, input.id).await, stopped);
+    assert_eq!(fixture.chats(), 1);
+    app.shutdown().await;
+}
+
+#[tokio::test]
 async fn m04_run_unsupported_proposals_settle_valid_usage_without_children() {
     let root = tempfile::tempdir().unwrap();
     let local = private_local(&root);

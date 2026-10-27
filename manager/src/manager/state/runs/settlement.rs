@@ -46,7 +46,7 @@ impl State {
                 usage,
                 request_id,
                 response,
-                ..
+                finish_reason,
             } => {
                 let charged = inference::cost(
                     &view.configuration.policy.prices,
@@ -59,9 +59,9 @@ impl State {
                     charged_microusd: charged,
                 };
                 turn.usage = Some(usage);
+                turn.finish_reason = finish_reason;
                 turn.provider_request_id = Some(request_id);
                 turn.phase = RunTurnPhase::Responded;
-                // Remove this reservation before checking admission for a following turn or operation.
                 view.summary.accounting.held_tokens -= turn.reservation.total_tokens;
                 view.summary.accounting.held_cost_microusd -= turn.reservation.cost_microusd;
                 if view.summary.cancellation_requested_at.is_some() {
@@ -73,6 +73,13 @@ impl State {
                 } else if let Ok(response) = response {
                     turn.response = Some(response.clone());
                     match response {
+                        RunMessage::Assistant { .. }
+                            if finish_reason == Some(InferenceFinishReason::Length) =>
+                        {
+                            view.summary.phase = RunPhase::Stopped {
+                                reason: RunStopReason::OutputLimit,
+                            }
+                        }
                         RunMessage::Assistant {
                             tool_call: None, ..
                         } => view.summary.phase = RunPhase::Completed,

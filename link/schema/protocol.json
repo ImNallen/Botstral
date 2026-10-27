@@ -3120,6 +3120,7 @@
       "type": "string",
       "enum": [
         "turn_limit",
+        "output_limit",
         "token_limit",
         "cost_limit",
         "operation_limit",
@@ -3236,6 +3237,16 @@
         },
         "attempt": {
           "$ref": "#/$defs/RunAttemptId"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceFinishReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "id": {
           "$ref": "#/$defs/RunTurnId"

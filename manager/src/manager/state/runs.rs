@@ -431,6 +431,7 @@ impl State {
                         reservation,
                         accounting: InferenceAccounting::Held,
                         phase: RunTurnPhase::Sending,
+                        finish_reason: None,
                         usage: None,
                         provider_request_id: None,
                         response: None,
@@ -513,7 +514,6 @@ impl State {
                                 }
                             }
                         }
-                        // Collection has no effect and can repeat after a crash. Only its committed result enters history.
                         return Ok(Some(RunJob::Collect(Box::new(CollectPermit {
                             run: summary.id,
                             turn,
@@ -558,7 +558,6 @@ impl State {
                     changed = true;
                 }
             }
-            // Ready has no admitted provider attempt. Reconciliation may admit it with current authority.
             if changed {
                 view.summary.updated_at = self.now();
                 let tx = self

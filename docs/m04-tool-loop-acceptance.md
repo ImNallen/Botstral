@@ -26,6 +26,8 @@ State tests cover atomic rollback across usage settlement, intent, task, command
 
 Adapter tests cover unsupported batches, unknown tools, malformed or oversized arguments, attempted authority injection, missing or invalid usage, and literal or encoded credential reflection. Valid usage settles without a child. Invalid usage stays reserved. Run tests also saturate shared transport capacity and the State queue, then verify settlement and bounded shutdown. A separate test holds both provider slots while an unrelated child deadline requests stopping. Existing standalone inference tests continue to exercise transport failures, response limits, standard-tier billing, cancellation, and shutdown through the shared transport.
 
+Parent review also found a truncated-answer reporting defect. The added HTTP regression returned `completed` instead of `stopped` before correction. It now verifies `output_limit`, the retained `length` finish reason and partial text, settled usage, no executable child, and unchanged state after restart without a replacement call. The correction is tracked in [issue 20](https://github.com/ImNallen/Botstral/issues/20).
+
 Result tests read real local files to check length, digest, UTF-8, symlink refusal, output ceilings, unavailable output metadata, text limits, non-text metadata, and secret reflection. Retention tests check admission refusal and summary replay bounds. The tests preserve process effect evidence after confirmed stopping.
 
 ## Integration checks

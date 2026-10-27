@@ -328,6 +328,7 @@ export type RunPhase =
 export type RunTurnId = string;
 export type RunStopReason =
   | 'turn_limit'
+  | 'output_limit'
   | 'token_limit'
   | 'cost_limit'
   | 'operation_limit'
@@ -961,6 +962,7 @@ export interface RunView {
 export interface RunTurn {
   accounting: InferenceAccounting;
   attempt: RunAttemptId;
+  finish_reason?: InferenceFinishReason | null;
   id: RunTurnId;
   intent?: RunToolIntent | null;
   messages: RunMessage[];
