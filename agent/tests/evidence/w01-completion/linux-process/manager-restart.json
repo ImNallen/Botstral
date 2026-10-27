@@ -1,0 +1,138 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "723b28ef-7e39-4839-a8e5-2642579f4948",
+      "arguments": "e96acd257abdc43dfd2ba53929df6b8408e97f1c6a86590bad3aca5a6805117b",
+      "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+      "execution": "cf4ef1aa-9f44-4e72-8568-e84b772c0ede",
+      "expires_at": 1793090165,
+      "operation": "b18f0d97-bd15-47cf-af36-3a117bbd307e",
+      "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+      "permission_revision": 1,
+      "task": "01c5b227-4ce6-4726-a001-6508f0849ee7"
+    },
+    "consumed": true,
+    "id": "723b28ef-7e39-4839-a8e5-2642579f4948",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+    "execution": "cf4ef1aa-9f44-4e72-8568-e84b772c0ede",
+    "id": "cee1626e-d204-42d0-b9b8-7909cedb251e",
+    "operation": "b18f0d97-bd15-47cf-af36-3a117bbd307e",
+    "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+    "session": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "task": "01c5b227-4ce6-4726-a001-6508f0849ee7",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmp6tDHHP/reconnect.py"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090195,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "83591a58-1537-4ecc-bc34-0a30e10d91a7"
+  },
+  "effect_evidence": [
+    {
+      "reason": "process_interrupted",
+      "type": "uncertain"
+    }
+  ],
+  "id": "01c5b227-4ce6-4726-a001-6508f0849ee7",
+  "outcome": {
+    "applied": 0,
+    "evidence": {
+      "systemd_scope_empty": {
+        "scope": {
+          "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+          "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-cf4ef1aa-9f44-4e72-8568-e84b772c0ede.service",
+          "execution": "cf4ef1aa-9f44-4e72-8568-e84b772c0ede",
+          "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+          "invocation": "09f1ad3c62194179bc703c24ba7d5ec4",
+          "journal": "072b014f-e9e3-4c27-a8a8-1f60d8761dcb",
+          "unit": "botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-cf4ef1aa-9f44-4e72-8568-e84b772c0ede.service"
+        }
+      }
+    },
+    "type": "stopped"
+  },
+  "outputs": [],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "type": "unobserved"
+      },
+      "stderr": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": false,
+        "hex": "656666656374206265666f72652073746f7070696e670a",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "01c5b227-4ce6-4726-a001-6508f0849ee7",
+    "session_id": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "settings": {
+      "deadline": 1793090195,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmp6tDHHP/reconnect.py"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090195,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "cancelled"
+}

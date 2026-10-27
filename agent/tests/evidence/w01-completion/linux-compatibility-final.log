@@ -1,0 +1,177 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-76b03bf1/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+
+running 1 test
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-289a555b6bbbe884)
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 10.12s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-289a555b6bbbe884)
+
+running 1 test
+test artifact_acceptance::w01_manager_store_reservation_refuses_authority_at_the_finite_byte_limit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 5.18s
+
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-76b03bf1/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.18s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-576a1d2090a45bf4)
+
+running 1 test
+test journal::artifacts::tests::spool_capacity_is_reserved_before_authority_and_released_only_when_not_admitted ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.04s
+
+   Compiling botstral-link v0.1.0 (/home/botstral/w01-76b03bf1/source/link)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.92s
+     Running tests/computer.rs (target/debug/deps/computer-fc9030ccbd3aec14)
+
+running 3 tests
+test owner_computer_command_is_first_class_and_strict ... ok
+test computer_bounds_and_immutable_inputs_preserve_process_ceilings ... ok
+test bounded_artifact_chunks_fit_the_existing_transport_envelope ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+Run agent/tests/w01_computer_two_vm.py with fresh fixture roots and certificates for actual Linux browser acceptance.
+./scripts/verify-desktop.sh
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> check
+> npm run bindings:check && npm run check --workspaces
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+
+> @botstral/link@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/home/botstral/w01-76b03bf1/source/desktop[39m
+
+ [32m✓[39m src/native.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/application.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/App.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1122[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+[2m   Start at [22m 08:37:19
+[2m   Duration [22m 1.62s[2m (tests 48%, environment 40%, setup 5%, import 5%, transform 1%)[22m
+
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 123 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-DNb6lioO.css   11.88 kB │ gzip:   3.10 kB
+dist/assets/index-D9fsSq8U.js   330.65 kB │ gzip: 100.48 kB
+
+✓ built in 107ms
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-53cf68136af2e0ad)
+
+running 2 tests
+test shell::tests::rejected_callers_receive_no_application_data ... ok
+test shell::tests::native_page_policy_rejects_remote_and_nested_content ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-4fbf38f6fcfb2c95)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-7744f6666c68833a)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+   Doc-tests botstral_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling botstral-manager v0.1.0 (/home/botstral/w01-76b03bf1/source/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.43s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-7744f6666c68833a)
+
+running 1 test
+test actual_manager_owner_bot_workers_and_sign_out ... Verified real manager sign-in, owner, idempotent bot creation, status, workers, and local sign-out through the production native service.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 5.38s
+
+
+> desktop
+> npm run tauri --workspace @botstral/desktop -- build --debug --no-bundle
+
+
+> @botstral/desktop@0.1.0 tauri
+> tauri build --debug --no-bundle
+
+        Info Looking up installed tauri packages to check mismatched versions...
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+     Running beforeBuildCommand `npm run build`
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 123 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-DNb6lioO.css   11.88 kB │ gzip:   3.10 kB
+dist/assets/index-D9fsSq8U.js   330.65 kB │ gzip: 100.48 kB
+
+✓ built in 104ms
+   Compiling botstral-desktop v0.1.0 (/home/botstral/w01-76b03bf1/source/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.17s
+       Built application at: /home/botstral/w01-76b03bf1/source/desktop/src-tauri/target/debug/botstral-desktop
+    Finished `release` profile [optimized] target(s) in 0.06s

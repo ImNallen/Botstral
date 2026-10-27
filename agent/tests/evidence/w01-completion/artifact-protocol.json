@@ -1,0 +1,166 @@
+{
+  "lost_chunk_ack": true,
+  "lost_final_receipt": true,
+  "offset": 16401,
+  "passed": true,
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "24bea74f-a051-4277-9ecf-2b563e117e4d",
+        "arguments": "97662395b2ea5aa54e9427730aad75d5dfa3d1337618ee7dbc73f1b7b69ec309",
+        "bot": "770f3530-baac-487b-af81-44523467a7b8",
+        "execution": "43556abf-4344-4816-8d23-68bcf448df30",
+        "expires_at": 1793090223,
+        "operation": "11e527aa-6188-4c0b-979d-5ac484dc5dd8",
+        "owner": "9bf33f9d-1482-4c80-a519-5644bd4e2331",
+        "permission_revision": 1,
+        "task": "f6c0ea99-ddb6-4a33-932d-88bec4c8b1ea"
+      },
+      "consumed": true,
+      "id": "24bea74f-a051-4277-9ecf-2b563e117e4d",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "770f3530-baac-487b-af81-44523467a7b8",
+      "execution": "43556abf-4344-4816-8d23-68bcf448df30",
+      "id": "3534f512-73e2-4025-af24-aea0d857a4b9",
+      "operation": "11e527aa-6188-4c0b-979d-5ac484dc5dd8",
+      "owner": "9bf33f9d-1482-4c80-a519-5644bd4e2331",
+      "session": "93ce7058-cc51-45cf-86b6-11e71db7bd9e",
+      "task": "f6c0ea99-ddb6-4a33-932d-88bec4c8b1ea",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793090520,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 60
+          },
+          "operations": [
+            {
+              "output": "file",
+              "path": "/approved/file",
+              "type": "export_file"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "file"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      },
+      "worker": "b18e94a0-ffd6-4a3e-ab42-acfac3a710ab"
+    },
+    "effect_evidence": [],
+    "id": "f6c0ea99-ddb6-4a33-932d-88bec4c8b1ea",
+    "outcome": {
+      "reason": "result",
+      "scope": {
+        "boot": "9f2187e0-88c4-4c88-8dac-5ff81f33245c",
+        "cgroup": "/fixture/botstral-4e420ba7-48b2-4110-bde2-8ec66d1c5135-43556abf-4344-4816-8d23-68bcf448df30.service",
+        "execution": "43556abf-4344-4816-8d23-68bcf448df30",
+        "host": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d",
+        "invocation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "journal": "4e420ba7-48b2-4110-bde2-8ec66d1c5135",
+        "unit": "botstral-4e420ba7-48b2-4110-bde2-8ec66d1c5135-43556abf-4344-4816-8d23-68bcf448df30.service"
+      },
+      "success": true,
+      "type": "process_finished"
+    },
+    "outputs": [
+      {
+        "declaration": {
+          "max_bytes": 65536,
+          "media_type": "text_plain",
+          "name": "file.txt",
+          "slot": "file"
+        },
+        "state": {
+          "content": {
+            "length": 16401,
+            "sha256": "d4b11392927653e43ccb15dd841a7eb990399314423efdb1defaf7cca4a47990"
+          },
+          "id": "35c37f14-ca68-46f3-8bea-df595355ddc7",
+          "type": "available"
+        }
+      }
+    ],
+    "process": {
+      "effect": "observed",
+      "result": null
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "f6c0ea99-ddb6-4a33-932d-88bec4c8b1ea",
+      "session_id": "93ce7058-cc51-45cf-86b6-11e71db7bd9e",
+      "settings": {
+        "deadline": 1793090520,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793090520,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 60
+          },
+          "operations": [
+            {
+              "output": "file",
+              "path": "/approved/file",
+              "type": "export_file"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "file"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      }
+    },
+    "state": "completed"
+  },
+  "wrong_worker_refused": true
+}

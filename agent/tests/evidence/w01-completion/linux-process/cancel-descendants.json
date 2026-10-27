@@ -1,0 +1,140 @@
+{
+  "dead": true,
+  "pids": [
+    207070,
+    207071
+  ],
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "0a065441-3c1e-4525-ad07-b23afb2eb6b4",
+        "arguments": "e37120365b7f8d5864b9528716b63d19a71a743eabe7e1dad4108099f9a4f488",
+        "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+        "execution": "e6b51ca0-6d5b-4111-8a48-5e88b4d5038c",
+        "expires_at": 1793090143,
+        "operation": "9d38ed58-3589-452c-b710-a9930709da22",
+        "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+        "permission_revision": 1,
+        "task": "fe708a45-668e-4afc-acdb-2aea7ca2a9ef"
+      },
+      "consumed": true,
+      "id": "0a065441-3c1e-4525-ad07-b23afb2eb6b4",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+      "execution": "e6b51ca0-6d5b-4111-8a48-5e88b4d5038c",
+      "id": "06865627-decb-4beb-beb6-9f008fde53d5",
+      "operation": "9d38ed58-3589-452c-b710-a9930709da22",
+      "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+      "session": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+      "task": "fe708a45-668e-4afc-acdb-2aea7ca2a9ef",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmp6tDHHP/cancel.py"
+          ],
+          "cwd": "/tmp/.tmp6tDHHP",
+          "deadline": 1793090173,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "83591a58-1537-4ecc-bc34-0a30e10d91a7"
+    },
+    "effect_evidence": [],
+    "id": "fe708a45-668e-4afc-acdb-2aea7ca2a9ef",
+    "outcome": {
+      "applied": 0,
+      "evidence": {
+        "systemd_scope_empty": {
+          "scope": {
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-e6b51ca0-6d5b-4111-8a48-5e88b4d5038c.service",
+            "execution": "e6b51ca0-6d5b-4111-8a48-5e88b4d5038c",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "invocation": "6c1a8dbc0c2944b693041c5c5e5a72b7",
+            "journal": "072b014f-e9e3-4c27-a8a8-1f60d8761dcb",
+            "unit": "botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-e6b51ca0-6d5b-4111-8a48-5e88b4d5038c.service"
+          }
+        }
+      },
+      "type": "stopped"
+    },
+    "outputs": [],
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "type": "unobserved"
+        },
+        "stderr": {
+          "complete": false,
+          "hex": "",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": false,
+          "hex": "656666656374206265666f72652073746f7070696e670a",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "fe708a45-668e-4afc-acdb-2aea7ca2a9ef",
+      "session_id": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+      "settings": {
+        "deadline": 1793090173,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmp6tDHHP/cancel.py"
+          ],
+          "cwd": "/tmp/.tmp6tDHHP",
+          "deadline": 1793090173,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "cancelled"
+  }
+}

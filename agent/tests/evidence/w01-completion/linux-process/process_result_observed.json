@@ -1,0 +1,131 @@
+{
+  "invocations": 1,
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "fd8efea4-4599-4d01-bc8f-c69f450a0c8b",
+        "arguments": "c098e3a6a3db693d63161eb441d970acd18839509726f1e6a93d46942ba98ba3",
+        "bot": "6c8502e7-92a3-43da-91d5-8a95abaf8e68",
+        "execution": "2afef035-ebd3-49e2-a3e1-81972932e220",
+        "expires_at": 1793090198,
+        "operation": "0e51c6f9-0f75-4f1d-8508-e4ae16b1821e",
+        "owner": "ea4fd4ed-c5fe-40fc-b222-a96e9e633d7c",
+        "permission_revision": 1,
+        "task": "873885da-323a-4c3c-9a8a-b64dce0e2667"
+      },
+      "consumed": true,
+      "id": "fd8efea4-4599-4d01-bc8f-c69f450a0c8b",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "6c8502e7-92a3-43da-91d5-8a95abaf8e68",
+      "execution": "2afef035-ebd3-49e2-a3e1-81972932e220",
+      "id": "e2fda6d0-e402-4f55-86fd-b9e200856ac2",
+      "operation": "0e51c6f9-0f75-4f1d-8508-e4ae16b1821e",
+      "owner": "ea4fd4ed-c5fe-40fc-b222-a96e9e633d7c",
+      "session": "0b044cd8-6e2b-4903-b4b5-622c12c069a1",
+      "task": "873885da-323a-4c3c-9a8a-b64dce0e2667",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "-c",
+            "open('invocations','a').write('one\\n')"
+          ],
+          "cwd": "/tmp/.tmp0vXqu9",
+          "deadline": 1793090228,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "73f3734a-a91e-4b14-b4e3-4ff7197fa164"
+    },
+    "effect_evidence": [
+      {
+        "reason": "process_interrupted",
+        "type": "uncertain"
+      }
+    ],
+    "id": "873885da-323a-4c3c-9a8a-b64dce0e2667",
+    "outcome": {
+      "reason": "process_interrupted",
+      "type": "uncertain"
+    },
+    "outputs": [],
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "code": 0,
+          "type": "exited"
+        },
+        "stderr": {
+          "complete": true,
+          "hex": "",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": true,
+          "hex": "",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "873885da-323a-4c3c-9a8a-b64dce0e2667",
+      "session_id": "0b044cd8-6e2b-4903-b4b5-622c12c069a1",
+      "settings": {
+        "deadline": 1793090228,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "-c",
+            "open('invocations','a').write('one\\n')"
+          ],
+          "cwd": "/tmp/.tmp0vXqu9",
+          "deadline": 1793090228,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}

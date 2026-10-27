@@ -1,0 +1,133 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "cc50b44f-2d7b-4ec1-bc66-a51f30342ed1",
+      "arguments": "4eb7467a1c49853c90317ecf99b446667c8720eea16adb878c864447547897cf",
+      "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+      "execution": "c925e181-ee7e-4f1c-9657-261c6b56bb76",
+      "expires_at": 1793090163,
+      "operation": "6e81dd1d-614e-4282-90cf-1277dcfc43b6",
+      "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+      "permission_revision": 1,
+      "task": "c6168cf3-762a-4279-9beb-a12e92830c27"
+    },
+    "consumed": true,
+    "id": "cc50b44f-2d7b-4ec1-bc66-a51f30342ed1",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+    "execution": "c925e181-ee7e-4f1c-9657-261c6b56bb76",
+    "id": "3232f15f-1b95-4a85-b7d7-94a00f052364",
+    "operation": "6e81dd1d-614e-4282-90cf-1277dcfc43b6",
+    "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+    "session": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "task": "c6168cf3-762a-4279-9beb-a12e92830c27",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "raise SystemExit(17)"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090193,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "83591a58-1537-4ecc-bc34-0a30e10d91a7"
+  },
+  "effect_evidence": [],
+  "id": "c6168cf3-762a-4279-9beb-a12e92830c27",
+  "outcome": {
+    "reason": "result",
+    "scope": {
+      "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-c925e181-ee7e-4f1c-9657-261c6b56bb76.service",
+      "execution": "c925e181-ee7e-4f1c-9657-261c6b56bb76",
+      "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+      "invocation": "be327e121984421ea12225ae1af9e2fe",
+      "journal": "072b014f-e9e3-4c27-a8a8-1f60d8761dcb",
+      "unit": "botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-c925e181-ee7e-4f1c-9657-261c6b56bb76.service"
+    },
+    "success": false,
+    "type": "process_finished"
+  },
+  "outputs": [],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "code": 17,
+        "type": "exited"
+      },
+      "stderr": {
+        "complete": true,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": true,
+        "hex": "",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "c6168cf3-762a-4279-9beb-a12e92830c27",
+    "session_id": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "settings": {
+      "deadline": 1793090193,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "raise SystemExit(17)"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090193,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "failed"
+}

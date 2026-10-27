@@ -1,0 +1,125 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "f7d0cdec-acc6-401a-8452-561aee5d19de",
+      "arguments": "13fcfa692c64d21b09ac4c3fa8670670e6310b84740a1b0a8cc1943212f7e0cd",
+      "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+      "execution": "58055a32-a7a5-4da8-9bd1-2844eb1144c0",
+      "expires_at": 1793090163,
+      "operation": "1b2e71f5-1e6a-4d37-a50b-0e0867349545",
+      "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+      "permission_revision": 1,
+      "task": "c7397e0a-8fc8-4cf6-952f-8020dfbb420a"
+    },
+    "consumed": true,
+    "id": "f7d0cdec-acc6-401a-8452-561aee5d19de",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+    "execution": "58055a32-a7a5-4da8-9bd1-2844eb1144c0",
+    "id": "2820fa6d-452b-4ff5-97d9-5849b97e08f6",
+    "operation": "1b2e71f5-1e6a-4d37-a50b-0e0867349545",
+    "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+    "session": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "task": "c7397e0a-8fc8-4cf6-952f-8020dfbb420a",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmp6tDHHP/control.py"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090193,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "83591a58-1537-4ecc-bc34-0a30e10d91a7"
+  },
+  "effect_evidence": [
+    {
+      "reason": "process_interrupted",
+      "type": "uncertain"
+    }
+  ],
+  "id": "c7397e0a-8fc8-4cf6-952f-8020dfbb420a",
+  "outcome": {
+    "reason": "process_interrupted",
+    "type": "uncertain"
+  },
+  "outputs": [],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "type": "unobserved"
+      },
+      "stderr": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": false,
+        "hex": "656666656374206265666f72652073746f7070696e670a",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "c7397e0a-8fc8-4cf6-952f-8020dfbb420a",
+    "session_id": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "settings": {
+      "deadline": 1793090193,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmp6tDHHP/control.py"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090193,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "awaiting_attention"
+}

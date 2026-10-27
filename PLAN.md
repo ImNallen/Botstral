@@ -434,12 +434,12 @@ Depends on M02. Integrate the durable worker journal through M03 before M04 live
 The first process unit runs one explicitly approved guest command with bounded capture, descendant cancellation, and conservative crash recovery. [The verification record](docs/w01-verification.md) includes production acceptance across both VMs. Execution is opt-in and requires systemd 255. [The Computer guide](docs/w01-computer.md) adds the pinned browser runtime, typed file operations, and durable artifacts. [Completion acceptance](docs/w01-completion-acceptance.md) records verification and the remaining review gate.
 
 - [x] Implement the Rust Linux daemon on the separate Computer VM with persistent guest storage and its outbound WSS connection.
-- [ ] Select and package a supported Playwright runtime and its Rust integration or subprocess interface. Drive Chromium through that runtime.
-- [ ] Run browser, file, and shell operations using the configured guest account. Keep manager and hypervisor administration inaccessible.
-- [ ] Enforce global and per-bot browser and coding concurrency. Measure representative workloads before setting active limits.
-- [ ] Apply timeouts and stop cancelled process groups. Reconcile hangs and uncertain effects before restarting work.
-- [ ] Stage artifacts with transfer size limits and integrity checks, then copy durable deliverables to manager storage.
-- [ ] Preserve documented files and supported browser state across ordinary worker restarts.
+- [x] Select and package a supported Playwright runtime and its Rust integration or subprocess interface. Drive Chromium through that runtime.
+- [x] Run browser, file, and shell operations using the configured guest account. Keep manager and hypervisor administration inaccessible.
+- [x] Enforce global and per-bot browser and coding concurrency. Measure representative workloads before setting active limits.
+- [x] Apply timeouts and stop cancelled process groups. Reconcile hangs and uncertain effects before restarting work.
+- [x] Stage artifacts with transfer size limits and integrity checks, then copy durable deliverables to manager storage.
+- [x] Preserve documented files and supported browser state across ordinary worker restarts.
 
 Complete when the real daemon executes browser and file commands across the two VMs, returns verified artifacts, and confirms process-group cancellation. Headless contexts do not establish independent desktop screens.
 

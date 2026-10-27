@@ -1,0 +1,101 @@
+{
+  "computer": {
+    "error": "unsupported_execution"
+  },
+  "process": {
+    "approval": {
+      "binding": {
+        "approval": "03b7f533-80e9-4803-a4af-b33fb4e73546",
+        "arguments": "54ec51bf6a13727f14419d81dabab7b373aa09770c485cb14cbd9d47112359f2",
+        "bot": "6683ac3d-9bd3-4db5-9634-3d92d8a6f319",
+        "execution": "547d5731-e081-4bf7-8343-5788bf99ff91",
+        "expires_at": 1793090325,
+        "operation": "ac56b1b1-233b-4c00-8a1a-2d6fa0c88c7a",
+        "owner": "45fe540f-6bb9-4459-814d-83927883b5db",
+        "permission_revision": 1,
+        "task": "8efc4268-0fda-4008-8acd-67751ae96d8d"
+      },
+      "consumed": false,
+      "id": "03b7f533-80e9-4803-a4af-b33fb4e73546",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "6683ac3d-9bd3-4db5-9634-3d92d8a6f319",
+      "execution": "547d5731-e081-4bf7-8343-5788bf99ff91",
+      "id": "bbb6c4e6-b949-4658-b81a-221b99a10ccc",
+      "operation": "ac56b1b1-233b-4c00-8a1a-2d6fa0c88c7a",
+      "owner": "45fe540f-6bb9-4459-814d-83927883b5db",
+      "session": "d53b2e40-a1d9-442f-9952-7c8033043950",
+      "task": "8efc4268-0fda-4008-8acd-67751ae96d8d",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 20,
+            "uid": 501
+          },
+          "args": [],
+          "cwd": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/.tmpvygINL",
+          "deadline": 1793090355,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/true",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "09dc74c6-2a1e-41d3-ae82-311af858bfe0"
+    },
+    "effect_evidence": [],
+    "id": "8efc4268-0fda-4008-8acd-67751ae96d8d",
+    "outcome": null,
+    "outputs": [],
+    "process": null,
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "8efc4268-0fda-4008-8acd-67751ae96d8d",
+      "session_id": "d53b2e40-a1d9-442f-9952-7c8033043950",
+      "settings": {
+        "deadline": 1793090355,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 20,
+            "uid": 501
+          },
+          "args": [],
+          "cwd": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/.tmpvygINL",
+          "deadline": 1793090355,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/true",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "queued"
+  }
+}

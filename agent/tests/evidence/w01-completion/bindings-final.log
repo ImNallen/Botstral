@@ -1,0 +1,4 @@
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+

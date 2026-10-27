@@ -1,0 +1,127 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "6f4db8bf-3569-40af-8f7b-79e72876afed",
+      "arguments": "c87ee27bb5090e16eb82e129a49055ee9f4dd5feb3bef105d8c3a183af8b6e3b",
+      "bot": "a5ca26f7-bf56-44bf-a6dd-e1f3fa7b5f5d",
+      "execution": "1c30eebf-13f8-494e-9953-2facb6747048",
+      "expires_at": 1793090174,
+      "operation": "b14f4b22-9b26-4eea-8b7b-0f5c08f566d1",
+      "owner": "bab4aa36-f985-435b-ac85-22fc19287b0d",
+      "permission_revision": 1,
+      "task": "5b8525ca-43c2-4f3c-9746-63e2b6a8d23f"
+    },
+    "consumed": true,
+    "id": "6f4db8bf-3569-40af-8f7b-79e72876afed",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "a5ca26f7-bf56-44bf-a6dd-e1f3fa7b5f5d",
+    "execution": "1c30eebf-13f8-494e-9953-2facb6747048",
+    "id": "9fb96248-1633-4da6-9070-6ba6dfc57bc4",
+    "operation": "b14f4b22-9b26-4eea-8b7b-0f5c08f566d1",
+    "owner": "bab4aa36-f985-435b-ac85-22fc19287b0d",
+    "session": "38ead57c-aff9-4198-b738-cc8a663ffdf7",
+    "task": "5b8525ca-43c2-4f3c-9746-63e2b6a8d23f",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [],
+        "cwd": "/tmp/.tmpZq9yFn",
+        "deadline": 1793090204,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/true",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "bd365dae-04e6-4e50-b54d-bd69459ab227"
+  },
+  "effect_evidence": [],
+  "id": "5b8525ca-43c2-4f3c-9746-63e2b6a8d23f",
+  "outcome": {
+    "reason": "result",
+    "scope": {
+      "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-3aa1432f-dc83-47ff-81df-aedf8d9e14ac-1c30eebf-13f8-494e-9953-2facb6747048.service",
+      "execution": "1c30eebf-13f8-494e-9953-2facb6747048",
+      "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+      "invocation": "0ada00ff35d64addbc43e1c600f88bad",
+      "journal": "3aa1432f-dc83-47ff-81df-aedf8d9e14ac",
+      "unit": "botstral-3aa1432f-dc83-47ff-81df-aedf8d9e14ac-1c30eebf-13f8-494e-9953-2facb6747048.service"
+    },
+    "success": true,
+    "type": "process_finished"
+  },
+  "outputs": [],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "code": 0,
+        "type": "exited"
+      },
+      "stderr": {
+        "complete": true,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": true,
+        "hex": "",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "5b8525ca-43c2-4f3c-9746-63e2b6a8d23f",
+    "session_id": "38ead57c-aff9-4198-b738-cc8a663ffdf7",
+    "settings": {
+      "deadline": 1793090204,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [],
+        "cwd": "/tmp/.tmpZq9yFn",
+        "deadline": 1793090204,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/true",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "completed"
+}

@@ -1,0 +1,2065 @@
+{
+  "observations": [
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 2,
+        "status": "disconnected",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": true,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": false,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "pending",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    },
+    {
+      "previous_process_live": false,
+      "session": {
+        "bot_id": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+        "owner": "bot",
+        "revision": 3,
+        "status": "confirmed",
+        "worker_id": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+      }
+    }
+  ],
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "82915960-e078-4e25-a2f2-8e85cefda687",
+        "arguments": "c4cb35aa14482bc9705e4682db3c81ac3d64e8f4931380ac9ff529beb9c38153",
+        "bot": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+        "execution": "98f8dc35-2bbb-4809-b767-c520a36b3798",
+        "expires_at": 1793090179,
+        "operation": "8b1c48c0-4a00-4df9-b7a3-fcccf25fc86f",
+        "owner": "5a1dc57a-9dc0-4f98-a644-6b0ff50ddede",
+        "permission_revision": 1,
+        "task": "4ea9cf7b-d098-42e2-95ba-29f25daee3d8"
+      },
+      "consumed": true,
+      "id": "82915960-e078-4e25-a2f2-8e85cefda687",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "a7fc325f-38b0-4fff-b4b0-6f5abe757853",
+      "execution": "98f8dc35-2bbb-4809-b767-c520a36b3798",
+      "id": "a1c09032-4c20-41c7-a43b-e8e992ec4d87",
+      "operation": "8b1c48c0-4a00-4df9-b7a3-fcccf25fc86f",
+      "owner": "5a1dc57a-9dc0-4f98-a644-6b0ff50ddede",
+      "session": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+      "task": "4ea9cf7b-d098-42e2-95ba-29f25daee3d8",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpfjW3j3/reconnect-confirmation.py"
+          ],
+          "cwd": "/tmp/.tmpfjW3j3",
+          "deadline": 1793090209,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "62e1239f-67df-4e1f-88fe-cbe2e978ed6c"
+    },
+    "effect_evidence": [
+      {
+        "reason": "process_interrupted",
+        "type": "uncertain"
+      }
+    ],
+    "id": "4ea9cf7b-d098-42e2-95ba-29f25daee3d8",
+    "outcome": {
+      "reason": "process_interrupted",
+      "type": "uncertain"
+    },
+    "outputs": [],
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "type": "unobserved"
+        },
+        "stderr": {
+          "complete": false,
+          "hex": "",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": false,
+          "hex": "656666656374206265666f72652073746f7070696e670a",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "4ea9cf7b-d098-42e2-95ba-29f25daee3d8",
+      "session_id": "fd67a8fc-ecc8-4f15-9504-0ca1e261abb2",
+      "settings": {
+        "deadline": 1793090209,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpfjW3j3/reconnect-confirmation.py"
+          ],
+          "cwd": "/tmp/.tmpfjW3j3",
+          "deadline": 1793090209,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "awaiting_attention"
+  }
+}
