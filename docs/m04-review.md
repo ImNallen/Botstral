@@ -13,6 +13,12 @@ Three independent reviewers inspected the implementation at `e46fbc8`. The confi
 
 Both findings are tracked in [issue 17](https://github.com/ImNallen/Botstral/issues/17). The comment review proposed three narration deletions, which were applied. No suppressions or workaround constraints remain open.
 
+## Automated desktop compatibility finding
+
+Subsequent PR review found that the native desktop decoder accepted only the older `not_implemented` inference marker. The manager's `single_turn_text` response therefore broke desktop sign-in. This consumer was outside the initial TypeScript checks. The issue is tracked in [issue 19](https://github.com/ImNallen/Botstral/issues/19).
+
+The existing native test against the actual manager reproduced `Protocol` and `SignedOut`. The decoder now accepts both known markers, and its fixture uses the current manager response. All six native local-service tests then passed, including the actual-manager test. Native service formatting and clippy passed with the Tauri shell feature disabled.
+
 ## Final verdict and evidence
 
 A fresh GPT-6 Astra reviewer inspected `33bb4e5`, the corrected call paths, and verification logs. It found no actionable code findings. This was source and evidence-log review using the supplied transcript summary, not fresh test execution or a full transcript audit.

@@ -14,6 +14,8 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 npm run check
 npm test
 git diff --check
+cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test local -- --include-ignored --test-threads=1 --nocapture
+cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --all-targets --locked -- -D warnings
 ```
 
 `make verify` runs workspace formatting, clippy, build, and tests. It also runs the test-worker build and recovery checks, production release builds, and both nonproduction-feature release refusals. Existing Linux systemd acceptance tests remain explicitly ignored on this host. TypeScript checks preserve complete generated-schema drift checks. Desktop tests passed all 17 cases.
@@ -32,6 +34,8 @@ npm run bindings:check
 ## Focused coverage
 
 The eight HTTP tests live in `manager/src/manager/inference/tests.rs`. Recorded JSON fixtures live in `manager/tests/fixtures/m04/`. Two State tests live in `manager/src/manager/state/inference/tests.rs`.
+
+Automated PR review also found a native desktop status-decoder mismatch. The existing actual-manager desktop test reproduced `Protocol` and `SignedOut` before the correction. After the decoder and fixture update, all six native local-service tests passed, including actual-manager sign-in, bot creation, refresh, and sign-out. Native service formatting and clippy passed. These checks disable the Tauri shell feature and do not verify visual rendering or packaging.
 
 | Test suffix after `m04_` | Proven behavior |
 | --- | --- |

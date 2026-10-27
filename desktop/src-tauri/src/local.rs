@@ -174,6 +174,7 @@ enum LegacyWorker {
 #[serde(rename_all = "snake_case")]
 enum Inference {
     NotImplemented,
+    SingleTurnText,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "snake_case")]

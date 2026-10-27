@@ -110,7 +110,7 @@ impl Server {
         self.reply("GET", "/v1/owner", 200, json!({"name":"Synthetic owner"}))
             .await;
         self.reply("GET", "/v1/bots", 200, bots).await;
-        self.reply("GET", "/v1/status", 200, json!({"vault":"locked","provider":null,"worker":"not_implemented","inference":"not_implemented","remote":"disabled"})).await;
+        self.reply("GET", "/v1/status", 200, json!({"vault":"locked","provider":null,"worker":"not_implemented","inference":"single_turn_text","remote":"disabled"})).await;
         self.reply("GET", "/v1/workers", 200, json!([])).await;
     }
 }
