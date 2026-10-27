@@ -285,7 +285,7 @@ async fn m04_coding_production_worker_pinned_vibe() {
     .await;
     task(&app, input.id, TaskState::Completed).await;
     assert_eq!(fixture.chats(), 3);
-    let calls = app
+    let completed_calls = app
         .call(
             "GET",
             &format!("/v1/tasks/{first}/coding-calls"),
@@ -293,14 +293,28 @@ async fn m04_coding_production_worker_pinned_vibe() {
             200,
         )
         .await;
-    assert_eq!(calls.as_array().unwrap().len(), 2);
+    assert_eq!(completed_calls.as_array().unwrap().len(), 2);
     assert!(
-        calls
+        completed_calls
             .as_array()
             .unwrap()
             .iter()
             .all(|c| c["phase"] == "settled")
     );
+    let completed = tokio::time::timeout(Duration::from_secs(20), async {
+        loop {
+            let value = task(&app, first, TaskState::Completed).await;
+            if value.outputs.iter().any(|output| {
+                output.declaration.slot == "answer"
+                    && matches!(output.state, ArtifactState::Available { .. })
+            }) {
+                break value;
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+    })
+    .await
+    .expect("completed coding artifact becomes available");
     let denied_workspace = root.path().join("denied-workspace");
     fs::create_dir(&denied_workspace).unwrap();
     let outside = root.path().join("outside.py");
@@ -333,6 +347,68 @@ async fn m04_coding_production_worker_pinned_vibe() {
     );
     assert_eq!(result.calls, 1);
     assert_eq!(fixture.chats(), 4);
+    let cancel_workspace = root.path().join("cancel-workspace");
+    fs::create_dir(&cancel_workspace).unwrap();
+    input.id = TaskId::new();
+    if let WorkSpec::Vibe { spec } = &mut input.work {
+        spec.policy.workspace = CodingWorkspace {
+            id: CodingWorkspaceId::new(),
+            path: cancel_workspace.to_string_lossy().into_owned(),
+        };
+    }
+    let pending: TaskView =
+        serde_json::from_value(app.call("POST", "/v1/tasks", json!(input), 200).await).unwrap();
+    app.call(
+        "PUT",
+        &format!("/v1/tasks/{}/approval", input.id),
+        json!({"expires_at":now()+120}),
+        200,
+    )
+    .await;
+    let native_binary = runtime.join("bin/vibe");
+    let group = tokio::time::timeout(Duration::from_secs(20), async {
+        loop {
+            let ready = state
+                .join("processes")
+                .join(pending.command.execution.to_string())
+                .join("ready.json");
+            if let Ok(bytes) = fs::read(ready) {
+                let ready: Value = serde_json::from_slice(&bytes).unwrap();
+                let group = Path::new("/sys/fs/cgroup").join(
+                    ready["scope"]["cgroup"]
+                        .as_str()
+                        .unwrap()
+                        .trim_start_matches('/'),
+                );
+                let pids = fs::read_to_string(group.join("cgroup.procs")).unwrap_or_default();
+                if pids.split_whitespace().any(|pid| {
+                    fs::read(format!("/proc/{pid}/cmdline")).is_ok_and(|arguments| {
+                        arguments
+                            .split(|byte| *byte == 0)
+                            .any(|arg| arg == native_binary.as_os_str().as_encoded_bytes())
+                    })
+                }) {
+                    break group;
+                }
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("actual Vibe CLI observed before cancellation");
+    app.call(
+        "POST",
+        &format!("/v1/tasks/{}/cancel", input.id),
+        json!({}),
+        200,
+    )
+    .await;
+    task(&app, input.id, TaskState::Cancelled).await;
+    match fs::read_to_string(group.join("cgroup.events")) {
+        Ok(events) => assert!(events.lines().any(|line| line == "populated 0")),
+        Err(error) => assert_eq!(error.kind(), std::io::ErrorKind::NotFound),
+    }
+    let before_stall = fixture.chats();
     let stalled_workspace = root.path().join("stalled-workspace");
     fs::create_dir(&stalled_workspace).unwrap();
     input.id = TaskId::new();
@@ -356,7 +432,7 @@ async fn m04_coding_production_worker_pinned_vibe() {
         200,
     )
     .await;
-    fixture.reached(5).await;
+    fixture.reached(before_stall + 1).await;
     assert!(
         !fs::read_to_string(root.path().join("worker.log"))
             .unwrap()
@@ -418,6 +494,45 @@ async fn m04_coding_production_worker_pinned_vibe() {
     assert_eq!(calls.as_array().unwrap().len(), 1);
     assert_eq!(calls[0]["phase"], "unknown");
     assert_eq!(calls[0]["accounting"]["type"], "held");
-    assert_eq!(fixture.chats(), 5);
+    let restored = task(&restarted, first, TaskState::Completed).await;
+    assert_eq!(restored.process, completed.process);
+    assert_eq!(restored.outputs, completed.outputs);
+    assert_eq!(
+        restarted
+            .call(
+                "GET",
+                &format!("/v1/tasks/{first}/coding-calls"),
+                Value::Null,
+                200
+            )
+            .await,
+        completed_calls
+    );
+    let artifact = restored
+        .outputs
+        .iter()
+        .find(|o| o.declaration.slot == "answer")
+        .unwrap();
+    let ArtifactState::Available { id, .. } = artifact.state else {
+        panic!("completed coding artifact unavailable after restart");
+    };
+    let response = reqwest::Client::builder()
+        .no_proxy()
+        .build()
+        .unwrap()
+        .get(format!(
+            "{}/v1/tasks/{first}/artifacts/{id}",
+            restarted.address
+        ))
+        .bearer_auth(&restarted.token)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), reqwest::StatusCode::OK);
+    assert_eq!(
+        response.bytes().await.unwrap().as_ref(),
+        b"def answer():\n    return 42\n"
+    );
+    assert_eq!(fixture.chats(), before_stall + 1);
     restarted.shutdown().await;
 }

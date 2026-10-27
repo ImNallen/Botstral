@@ -446,7 +446,20 @@ impl Journal {
                 },
                 ProcessOperation::Stop(handle) => match handle.await.map_err(err)? {
                     Ok(proof) => return self.finish_process(&mut e, proof),
-                    Err(_) => {
+                    Err(error) => {
+                        let diagnostic: String = error
+                            .to_string()
+                            .chars()
+                            .take(256)
+                            .map(|character| {
+                                if character.is_control() {
+                                    '?'
+                                } else {
+                                    character
+                                }
+                            })
+                            .collect();
+                        eprintln!("process scope stop unproved for {id}: {diagnostic}");
                         if let Lifecycle::StopIntent {
                             ready: Some(ready), ..
                         } = e.process.as_ref().unwrap().lifecycle.clone()
