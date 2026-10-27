@@ -232,7 +232,11 @@ fn chunk(offer: &ArtifactOffer, id: ArtifactId, offset: u64, bytes: &[u8]) -> Wo
 }
 async fn denied(socket: &mut Socket, message: WorkerMessage) {
     wire(socket, message).await;
-    assert!(matches!(read(socket).await, ManagerMessage::Error { .. }));
+    let actual = read(socket).await;
+    assert!(
+        matches!(actual, ManagerMessage::Error { .. }),
+        "expected protocol rejection, received {actual:?}"
+    );
 }
 async fn offset_committed(f: &Fixture, id: ArtifactId, expected: u64) {
     let until = Instant::now() + Duration::from_secs(5);
@@ -260,7 +264,7 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
     let mut f = Fixture::new().await;
     let session = f.durable_session().await;
     let journal = JournalId::new();
-    let (mut socket, generation) = connection(&f, journal, vec![], 0).await;
+    let (mut socket, _) = connection(&f, journal, vec![], 0).await;
     let session = f.confirmed(session.id).await;
     let deadline = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -268,7 +272,15 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
         .as_secs() as i64
         + 300;
     let approval_expires = deadline - 297;
-    let request = json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,"settings":{"model":"unavailable","max_turns":1,"max_tokens":1,"deadline":deadline,"max_cost_micros":0},"work":{"type":"computer","spec":{"profile":"linux_playwright_v1","account":{"uid":1000,"gid":1000},"runtime":{"sha256":"a".repeat(64)},"deadline":deadline,"limits":{"runtime_seconds":60,"output_bytes":1024,"processes":128,"memory_bytes":1073741824},"viewport":{"width":800,"height":600},"operations":[{"type":"export_file","path":"/approved/file","output":"file"}],"outputs":[{"slot":"file","name":"file.txt","media_type":"text_plain","max_bytes":65536}]}}});
+    let mut request = json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,"settings":{"model":"unavailable","max_turns":1,"max_tokens":1,"deadline":deadline,"max_cost_micros":0},"work":{"type":"computer","spec":{"profile":"linux_playwright_v1","account":{"uid":1000,"gid":1000},"runtime":{"sha256":"a".repeat(64)},"deadline":deadline,"limits":{"runtime_seconds":60,"output_bytes":1024,"processes":128,"memory_bytes":1073741824},"viewport":{"width":800,"height":600},"operations":[{"type":"export_file","path":"/approved/file","output":"file"}],"outputs":[{"slot":"file","name":"file.txt","media_type":"text_plain","max_bytes":65536}]}}});
+    for slot in ["checksum", "partial"] {
+        request["work"]["spec"]["outputs"]
+            .as_array_mut()
+            .unwrap()
+            .push(
+                json!({"slot":slot,"name":"file.txt","media_type":"text_plain","max_bytes":65536}),
+            );
+    }
     let (status, task) = f.owner("POST", "/v1/tasks", request.clone()).await;
     assert_eq!(status, 200, "{task}");
     let task_path = format!("/v1/tasks/{}", task["id"].as_str().unwrap());
@@ -296,6 +308,32 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
         read(&mut socket).await,
         ManagerMessage::Permit { .. }
     ));
+    denied(
+        &mut socket,
+        WorkerMessage::ArtifactOffer {
+            offer: ArtifactOffer {
+                journal,
+                task: d.body.task,
+                execution: d.body.execution,
+                slot: "file".into(),
+                output: SealedOutput::Unavailable {
+                    reason: ArtifactUnavailable::Missing,
+                },
+            },
+        },
+    )
+    .await;
+    let (reconnected, generation) = connection(
+        &f,
+        journal,
+        vec![JournalEntry {
+            body: d.body.clone(),
+            phase: JournalPhase::Admitted,
+        }],
+        0,
+    )
+    .await;
+    socket = reconnected;
     let scope = ProcessScope {
         journal,
         execution: d.body.execution,
@@ -411,7 +449,6 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
     )
     .await;
     offset_committed(&f, id, ARTIFACT_CHUNK_BYTES as u64).await;
-    // Reconnect without reading the acknowledgment that the manager already committed.
     socket.close(None).await.unwrap();
     let entry = JournalEntry {
         body: d.body.clone(),
@@ -547,11 +584,89 @@ async fn w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes(
     assert_eq!(
         db.query_row::<i64, _, _>("SELECT count(*) FROM artifacts", [], |r| r.get(0))
             .unwrap(),
-        1
+        3
     );
+    for slot in ["checksum", "partial", "file"] {
+        let mut damaged = offer.clone();
+        damaged.slot = slot.into();
+        let (artifact, through) = if slot == "file" {
+            (id, bytes.len() as u64)
+        } else {
+            wire(
+                &mut socket,
+                WorkerMessage::ArtifactOffer {
+                    offer: damaged.clone(),
+                },
+            )
+            .await;
+            let (artifact, offset, stored) = progress(&mut socket).await;
+            assert_eq!((offset, stored), (0, false));
+            wire(
+                &mut socket,
+                chunk(&damaged, artifact, 0, &bytes[..ARTIFACT_CHUNK_BYTES]),
+            )
+            .await;
+            assert_eq!(
+                progress(&mut socket).await,
+                (artifact, ARTIFACT_CHUNK_BYTES as u64, false)
+            );
+            (artifact, ARTIFACT_CHUNK_BYTES as u64)
+        };
+        let suffix = if slot == "file" { "blob" } else { "part" };
+        let path = f
+            .root
+            .path()
+            .join("manager/artifacts")
+            .join(format!("{artifact}.{suffix}"));
+        let mut file = OpenOptions::new().write(true).open(path).unwrap();
+        if slot == "partial" {
+            file.set_len(0).unwrap();
+        } else {
+            file.write_all(b"corrupt").unwrap();
+        }
+        file.sync_all().unwrap();
+        if slot != "checksum" {
+            socket.close(None).await.unwrap();
+            f.restart_manager(None).await;
+            socket = connection(
+                &f,
+                journal,
+                vec![JournalEntry {
+                    body: d.body.clone(),
+                    phase: JournalPhase::Resolved,
+                }],
+                2,
+            )
+            .await
+            .0;
+        }
+        let resume = through.min(ARTIFACT_CHUNK_BYTES as u64);
+        wire(
+            &mut socket,
+            chunk(&damaged, artifact, resume, &bytes[resume as usize..]),
+        )
+        .await;
+        let receipt = read(&mut socket).await;
+        assert!(
+            matches!(receipt,
+            ManagerMessage::ArtifactProgress { id: received, state: ArtifactTransferState::Unavailable, .. } if received == artifact),
+            "expected durable unavailable progress, received {receipt:?}"
+        );
+        let state = f.owner("GET", &task_path, json!({})).await.1;
+        assert_eq!(state["state"], "completed");
+        assert_eq!(
+            state["outputs"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|o| o["declaration"]["slot"] == slot)
+                .unwrap()["state"]["type"],
+            "unavailable"
+        );
+    }
     if let Some(path) = std::env::var_os("BOTSTRAL_PROCESS_EVIDENCE") {
         fs::create_dir_all(&path).unwrap();
-        fs::write(PathBuf::from(path).join("artifact-protocol.json"),serde_json::to_vec_pretty(&json!({"passed":true,"task":result,"offset":bytes.len(),"lost_chunk_ack":true,"lost_final_receipt":true,"wrong_worker_refused":true})).unwrap()).unwrap();
+        fs::write(PathBuf::from(path).join("artifact-protocol.json"),serde_json::to_vec_pretty(&json!({"passed":true,"task":result,"offset":bytes.len(),"lost_chunk_ack":true,"lost_final_receipt":true,"wrong_worker_refused":true,"early_unavailable_refused":true,"corrupt_chunks_receive_terminal_progress":true})).unwrap()).unwrap();
     }
     f.manager.stop().await;
 }

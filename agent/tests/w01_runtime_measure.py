@@ -50,7 +50,6 @@ def child(args):
         assert (work/'png.out').read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
         assert (work/'file.out').read_bytes()==b'outside workspace\n'
         if index==0:
-            # A later clean context must read all persisted stores without logging in again.
             spec['operations']=[{'type':'navigate','url':args.url},{'type':'capture_text','selector':'#state[data-ready="saved"]','output':'text'}]
             (work/'spec.json').write_text(json.dumps(spec))
             subprocess.run([args.runtime+'/node/bin/node',args.runtime+'/run.mjs','run',str(work/'spec.json'),str(root/'profile'),str(work)],env={'HOME':str(root),'PLAYWRIGHT_BROWSERS_PATH':args.runtime+'/browsers','LANG':'C.UTF-8'},check=True,capture_output=True)

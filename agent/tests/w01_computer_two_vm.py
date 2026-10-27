@@ -51,8 +51,28 @@ def exercise(f,certificates,args):
         a=f.session('Computer A');b=f.session('Computer B')
         f.runtime=hashlib.sha256(Path(args.runtime_manifest).read_bytes()).hexdigest()
         f.worker.call('write',files={f.worker.root+'/agent/process.json':json.dumps({'profile':'linux_systemd_v1','account':{'uid':1000,'gid':1000},'ceilings':process.limits()}),f.worker.root+'/agent/computer.json':json.dumps({'account':{'uid':1000,'gid':1000},'runtime':{'sha256':f.runtime},'directory':args.runtime,'ceilings':{'runtime_seconds':60,'output_bytes':1024,'processes':128,'memory_bytes':1073741824}})})
+        f.worker.call('write',files={f.worker.root+'/agent/computer-probe/incomplete':'unpublished probe fixture'})
         f.start_daemon('computer-daemon');a=f.confirmed(a);b=f.confirmed(b)
+        recovered=submit(f,computer(f,a,[{'type':'write_file','path':f.worker.root+'/probe-recovered.txt','text':'probe recovered'}]))
+        process.task(f,recovered,'completed')
+        m02.require(f.worker.call('read',path=f.worker.root+'/probe-recovered.txt')=='probe recovered','incomplete probe prevented guest work')
         details.update(runtime=f.runtime,worker=f.workers())
+    with f.check('failed_computer_probe_recovery') as details:
+        f.stop(f.daemon)
+        configuration=json.loads(f.worker.call('read',path=f.worker.root+'/agent/computer.json'))
+        configuration['ceilings']['processes']=32
+        f.worker.call('write',files={f.worker.root+'/agent/computer.json':json.dumps(configuration)})
+        f.start_daemon('computer-low-resource-probe');a=f.confirmed(a);b=f.confirmed(b)
+        rejected=f.owner('POST','/v1/tasks',computer(f,a,[{'type':'write_file','path':f.worker.root+'/failed-probe.txt','text':'must not run'}]),status=409)
+        m02.require(f.worker.call('read',path=f.worker.root+'/agent/computer-probe/manifest.json',optional=True) is not None,'failed probe did not retain recovery state')
+        f.stop(f.daemon)
+        configuration['ceilings']['processes']=128
+        f.worker.call('write',files={f.worker.root+'/agent/computer.json':json.dumps(configuration)})
+        f.start_daemon('computer-probe-recovered');a=f.confirmed(a);b=f.confirmed(b)
+        recovered=submit(f,computer(f,a,[{'type':'write_file','path':f.worker.root+'/stopped-probe-recovered.txt','text':'stopped probe recovered'}]))
+        process.task(f,recovered,'completed')
+        m02.require(f.worker.call('read',path=f.worker.root+'/stopped-probe-recovered.txt')=='stopped probe recovered','stopped probe prevented guest work')
+        details.update(rejected=rejected,recovered=recovered['id'])
     source="""from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 import time,signal,sys
@@ -149,6 +169,14 @@ server.serve_forever()
         f.poll(lambda:f.manager.call('database',path=f.manager.root+'/state/manager.sqlite3',query='SELECT id,slot,offset,state,reserved FROM artifacts'),lambda rows:any(r[1]=='lost' and r[2]>0 and r[3]=='transferring' for r in rows),'snapshot transfer')
         f.worker.call('remove_snapshot',root=f.worker.root,execution=lost['command']['execution'],slot='lost')
         unavailable=ready(f,lost);m02.require(unavailable['state']=='completed' and unavailable['outputs'][0]['state']=={'type':'unavailable','reason':'corrupt'},'snapshot loss changed execution or remained available')
+        damaged=submit(f,computer(f,b,[{'type':'export_file','path':large,'output':'bad'},{'type':'read_file','path':guest,'output':'next'}],[output('bad','octet_stream',8388608),output('next')]))
+        process.task(f,damaged,'completed')
+        damaged_rows=f.poll(lambda:f.manager.call('database',path=f.manager.root+'/state/manager.sqlite3',query='SELECT id,slot,offset,state,reserved FROM artifacts'),lambda rows:any(r[1]=='bad' and r[2]>0 and r[3]=='transferring' for r in rows),'corrupt receiving transfer')
+        damaged_id=next(r[0] for r in damaged_rows if r[1]=='bad')
+        f.manager.call('corrupt_partial',root=f.manager.root,id=damaged_id)
+        recovered=ready(f,damaged)
+        m02.require(recovered['state']=='completed' and next(o for o in recovered['outputs'] if o['declaration']['slot']=='bad')['state']=={'type':'unavailable','reason':'corrupt'},'corrupt transfer did not finish unavailable')
+        download(f,recovered,'next',b'approved guest file\n')
         export=submit(f,computer(f,b,[{'type':'export_file','path':large,'output':'large'}],[output('large','octet_stream',8388608)]))
         completed=process.task(f,export,'completed')
         partial=f.poll(lambda:f.manager.call('database',path=f.manager.root+'/state/manager.sqlite3',query='SELECT id,slot,offset,state,reserved FROM artifacts'),lambda rows:any(r[1]=='large' and r[2]>0 and r[3]=='transferring' for r in rows),'partial transfer')
@@ -161,7 +189,7 @@ server.serve_forever()
         corrupt=f.manager.call('download',address=f.listen,path=path,token=f.owner_token);m02.require(corrupt['status']!=200,'corrupt artifact served')
         process.restart_manager(f,"manager-restarted-"+str(uuid.uuid4())[:8])
         corrupt_task=f.owner('GET','/v1/tasks/'+completed['id']);m02.require(corrupt_task['outputs'][0]['state']=={'type':'unavailable','reason':'corrupt'},'corruption not durable')
-        details.update(partial=partial,download=result,after_restart=result2,corrupt=corrupt_task,snapshot_loss=unavailable)
+        details.update(partial=partial,download=result,after_restart=result2,corrupt=corrupt_task,snapshot_loss=unavailable,receiving_corruption=recovered)
     with f.check('unavailable_capability_rejected'):
         f.stop(f.daemon)
         config=f.worker.root+'/agent/computer.json';f.worker.call('move',source=config,destination=config+'.disabled')
@@ -190,7 +218,7 @@ def main():
         f.finish()
         try:m02.record('process_cleanup','passed',f.worker.call('cleanup_processes',root=root,units=[p.unit for p in f.processes if p.remote is f.worker]))
         except Exception as e:m02.record('process_cleanup','failed',repr(e))
-    required={'production.'+v for v in ('computer_enrollment_and_runtime_probe','browser_text_screenshot_and_duplicate','global_and_per_bot_backpressure_and_browser_cancel','guest_files_and_shared_state_across_bots_and_worker_restart','missing_output_is_explicit','runtime_identity_mutation_refuses_launch','browser_deadline_and_revocation','active_browser_crash_remains_uncertain_without_replay','resumable_transfer_and_manager_restart','unavailable_capability_rejected','profile_corruption_refuses_without_erasing_state')}
+    required={'production.'+v for v in ('computer_enrollment_and_runtime_probe','failed_computer_probe_recovery','browser_text_screenshot_and_duplicate','global_and_per_bot_backpressure_and_browser_cancel','guest_files_and_shared_state_across_bots_and_worker_restart','missing_output_is_explicit','runtime_identity_mutation_refuses_launch','browser_deadline_and_revocation','active_browser_crash_remains_uncertain_without_replay','resumable_transfer_and_manager_restart','unavailable_capability_rejected','profile_corruption_refuses_without_erasing_state')}
     missing=required-{v['name'] for v in m02.RESULTS if v['status']=='passed'}
     if missing:m02.record('required_contract','failed',{'missing':sorted(missing)})
     passed=not missing and all(v['status']=='passed' for v in m02.RESULTS)

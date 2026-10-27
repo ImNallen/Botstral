@@ -83,10 +83,7 @@ impl Configuration {
         verify_profile(&root.join("automation-profile"))?;
         let directory = root.join("computer-probe");
         if directory.try_exists()? {
-            let manifest: Manifest = process::read(&directory.join("manifest.json"))?;
-            let ready = backend.observe(&directory, &manifest).await?;
-            backend.stop(&ready.scope).await?;
-            fs::remove_dir_all(&directory)?;
+            process::discard_probe(&directory).await?;
         }
         fs::DirBuilder::new().mode(0o700).create(&directory)?;
         let spec = ComputerSpec {

@@ -69,7 +69,7 @@ def dispatch(request):
         return True
     if op == "cleanup_processes":
         state = Path(request["root"], "agent")
-        paths = [state / "process-probe" / "manifest.json", *state.glob("processes/*/manifest.json")]
+        paths = [state / "process-probe" / "manifest.json", state / "computer-probe" / "manifest.json", *state.glob("processes/*/manifest.json")]
         units = set()
         for path in paths:
             if not path.exists():

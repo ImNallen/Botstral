@@ -83,8 +83,8 @@ fn snapshot(source: &Path, destination: &Path, max: u64) -> io::Result<ArtifactC
         }
         output.sync_all()?;
         fs::rename(temp, destination)?;
-        fs::File::open(destination.parent().unwrap())?.sync_all()?;
     }
+    fs::File::open(destination.parent().unwrap())?.sync_all()?;
     let mut file = fs::OpenOptions::new()
         .read(true)
         .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
@@ -288,7 +288,15 @@ impl Journal {
             return Ok(vec![]);
         };
         let offer = o.offer.unwrap();
-        let message = if let (Some(id), SealedOutput::Content { content }) = (o.id, &offer.output) {
+        let confirmed = self
+            .artifact_confirmed
+            .as_ref()
+            .is_some_and(|(execution, slot)| {
+                *execution == o.execution && *slot == o.declaration.slot
+            });
+        let message = if let (true, Some(id), SealedOutput::Content { content }) =
+            (confirmed, o.id, &offer.output)
+        {
             if o.offset > content.length {
                 return Err(err("artifact receipt offset"));
             }
@@ -370,6 +378,7 @@ impl Journal {
         o.offset = offset;
         o.received = state != ArtifactTransferState::Receiving;
         save_output(&self.db, &o)?;
+        self.artifact_confirmed = Some((execution, slot.to_owned()));
         self.artifact_flight = None;
         if o.received {
             let path = blob(&self.directory, execution, slot);

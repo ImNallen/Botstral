@@ -21,7 +21,7 @@ def main():
     args=p.parse_args()
     root=Path(__file__).resolve().parents[2]
     names=subprocess.check_output(['git','ls-files','-co','--exclude-standard'],cwd=root,text=True).splitlines()
-    names=sorted(n for n in names if n.endswith(('.rs','.toml','.lock','.mjs','.json','.py','.sh')) and not n.startswith(('agent/tests/evidence/','docs/')))
+    names=sorted(n for n in names if n.endswith(('.rs','.toml','.lock','.mjs','.json','.py','.sh','.sql','.ts','.tsx','.css','.html','.yml','.yaml')) and not n.startswith(('agent/tests/evidence/','docs/')))
     hashes={name:sha(root/name) for name in names if (root/name).is_file()}
     source="""import hashlib,json,pathlib,sys,platform
 p=json.load(sys.stdin)

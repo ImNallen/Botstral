@@ -9,7 +9,7 @@ use std::{
     os::unix::fs::OpenOptionsExt,
     path::{Path, PathBuf},
 };
-pub(crate) use systemd::{Backend, EmptyScopeProof};
+pub(crate) use systemd::{Backend, EmptyScopeProof, discard_probe};
 
 const FILE_LIMIT: usize = 8192;
 

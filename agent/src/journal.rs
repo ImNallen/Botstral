@@ -38,6 +38,7 @@ pub(crate) struct Journal {
     backend: Option<crate::process::Backend>,
     computer: Option<crate::computer::Configuration>,
     artifact_flight: Option<artifacts::Flight>,
+    artifact_confirmed: Option<(ExecutionId, String)>,
     process_slot: Option<ExecutionId>,
     process_operation: Option<ProcessOperation>,
     #[cfg(feature = "nonproduction-test-worker")]
@@ -194,6 +195,7 @@ impl Journal {
             backend: None,
             computer: None,
             artifact_flight: None,
+            artifact_confirmed: None,
             process_slot: None,
             process_operation: None,
             #[cfg(feature = "nonproduction-test-worker")]
@@ -211,6 +213,7 @@ impl Journal {
     }
     pub fn attach(&mut self) {
         self.artifact_flight = None;
+        self.artifact_confirmed = None;
         self.ready = false;
         self.deliveries.clear();
         self.sent_through = 0;

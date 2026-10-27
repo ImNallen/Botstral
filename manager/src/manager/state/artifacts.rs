@@ -170,6 +170,10 @@ impl State {
         offer: &ArtifactOffer,
         content: &ArtifactContent,
     ) -> Result<(), OperationError> {
+        fs::File::open(directory(&self.directory))
+            .map_err(storage_error)?
+            .sync_all()
+            .map_err(storage_error)?;
         let mut task = self.load_task(offer.task)?;
         task.outputs
             .iter_mut()
@@ -282,6 +286,28 @@ impl State {
                 }),
             );
         }
+        let stopped = matches!(
+            task.outcome,
+            Some(
+                ExecutionEvent::ProcessFinished { .. }
+                    | ExecutionEvent::Stopped {
+                        evidence: StopEvidence::SystemdScopeEmpty { .. },
+                        ..
+                    }
+            )
+        );
+        let uncertain = matches!(
+            (&offer.output, &task.outcome),
+            (
+                SealedOutput::Unavailable {
+                    reason: ArtifactUnavailable::ExecutionUncertain
+                },
+                Some(ExecutionEvent::Uncertain { .. })
+            )
+        );
+        if !stopped && !uncertain {
+            return Err(OperationError::Conflict);
+        }
         let output = task
             .outputs
             .iter_mut()
@@ -372,7 +398,16 @@ impl State {
             return Err(OperationError::Conflict);
         };
         if state == "unavailable" {
-            return Err(OperationError::Conflict);
+            return self.deliver(
+                lease.worker,
+                Envelope::new(ManagerMessage::ArtifactProgress {
+                    execution,
+                    slot,
+                    id,
+                    offset: through,
+                    state: ArtifactTransferState::Unavailable,
+                }),
+            );
         }
         let bytes: Vec<u8> = (0..hex.len())
             .step_by(2)
@@ -384,10 +419,32 @@ impl State {
         if end > content.length || offset > through || (offset < through && end > through) {
             return Err(OperationError::Conflict);
         }
-        let mut file = open(
+        let file = open(
             &path(&self.directory, id, state == "available"),
             state != "available",
-        )?;
+        );
+        let checked = file.and_then(|mut file| {
+            if state == "available" {
+                digest(&mut file, content)?;
+            }
+            Ok(file)
+        });
+        let mut file = match checked {
+            Ok(file) => file,
+            Err(_) => {
+                self.corrupt(id, &offer)?;
+                return self.deliver(
+                    lease.worker,
+                    Envelope::new(ManagerMessage::ArtifactProgress {
+                        execution,
+                        slot,
+                        id,
+                        offset: through,
+                        state: ArtifactTransferState::Unavailable,
+                    }),
+                );
+            }
+        };
         if offset < through || state == "available" {
             file.seek(SeekFrom::Start(offset)).map_err(storage_error)?;
             let mut prior = vec![0; bytes.len()];
@@ -406,21 +463,23 @@ impl State {
             )?;
         }
         let through = through.max(end);
+        let mut receipt = if through == content.length {
+            ArtifactTransferState::Stored
+        } else {
+            ArtifactTransferState::Receiving
+        };
         if through == content.length && state != "available" {
             if digest(&mut file, content).is_err() {
                 self.corrupt(id, &offer)?;
-                return Err(OperationError::Conflict);
-            }
-            fs::rename(
-                path(&self.directory, id, false),
-                path(&self.directory, id, true),
-            )
-            .map_err(storage_error)?;
-            fs::File::open(directory(&self.directory))
-                .map_err(storage_error)?
-                .sync_all()
+                receipt = ArtifactTransferState::Unavailable;
+            } else {
+                fs::rename(
+                    path(&self.directory, id, false),
+                    path(&self.directory, id, true),
+                )
                 .map_err(storage_error)?;
-            self.promote(id, &offer, content)?;
+                self.promote(id, &offer, content)?;
+            }
         }
         self.deliver(
             lease.worker,
@@ -429,11 +488,7 @@ impl State {
                 slot,
                 id,
                 offset: through,
-                state: if through == content.length {
-                    ArtifactTransferState::Stored
-                } else {
-                    ArtifactTransferState::Receiving
-                },
+                state: receipt,
             }),
         )
     }

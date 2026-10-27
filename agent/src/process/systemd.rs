@@ -71,12 +71,18 @@ fn cgroup(scope: &ProcessScope) -> PathBuf {
     Path::new("/sys/fs/cgroup").join(scope.cgroup.trim_start_matches('/'))
 }
 
-async fn discard_probe(directory: &Path) -> io::Result<()> {
-    if directory.join("release.json").try_exists()? {
-        return Err(io::Error::other("probe unexpectedly released"));
-    }
+pub(crate) async fn discard_probe(directory: &Path) -> io::Result<()> {
+    let released = directory.join("release.json").try_exists()?;
     if directory.join("manifest.json").try_exists()? {
         let manifest: Manifest = read(&directory.join("manifest.json"))?;
+        if released
+            && !manifest
+                .computer
+                .as_ref()
+                .is_some_and(|launch| launch.probe)
+        {
+            return Err(io::Error::other("probe unexpectedly released"));
+        }
         let name = manifest.unit();
         let unit = show(&name).await?;
         match unit.get("LoadState").map(String::as_str) {
@@ -115,6 +121,8 @@ async fn discard_probe(directory: &Path) -> io::Result<()> {
             }
             _ => return Err(io::Error::other("probe service state unavailable")),
         }
+    } else if released {
+        return Err(io::Error::other("released probe manifest missing"));
     }
     fs::remove_dir_all(directory)
 }

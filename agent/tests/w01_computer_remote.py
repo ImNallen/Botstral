@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Remote operations for fresh Computer acceptance fixtures."""
 import os
 os.umask(0o077)
 import hashlib
@@ -52,8 +51,10 @@ def dispatch(r):
         return True
     if op=='move':
         Path(r['source']).rename(r['destination']);return True
-    if op=='corrupt':
-        path=Path(r['root'],'state','artifacts',r['id']+'.blob')
+    if op in ('corrupt','corrupt_partial'):
+        import uuid
+        identity=str(uuid.UUID(r['id']))
+        path=Path(r['root'],'state','artifacts',identity+('.part' if op=='corrupt_partial' else '.blob'))
         assert path.is_file()
         with path.open('r+b') as f:f.write(b'corrupt');f.flush();os.fsync(f.fileno())
         return True
