@@ -89,6 +89,8 @@ The implementation keeps local public Manager signatures and admits the private 
 
 Owner wire version 1 is separate from worker wire version 3. Every reply uses the same counted and hashed chunk transfer, including ordinary domain replies. A global permit covers snapshot materialization and serialization. Each viewer releases that permit before sending. The [snapshot bound](m05-snapshot-bound.md) accounts for every collection and the additional recovery allocations.
 
+Owner errors preserve every existing domain error, including conflict, stale input fences, missing records, locked vaults, and inference budget refusal. The remote inference verification path uses the existing provider verifier and rechecks the device lease before committing its result. Worker errors keep their existing wire encoding.
+
 The reusable native client lives in `manager::owner_client` and has an `owner-probe` binary. Its private filesystem storage is a protocol acceptance implementation. Native keychain integration remains C02. Events prompt a complete authoritative M03 image read before the client commits its replacement image and cursor. This is a conservative implementation of the required authoritative-read rule. It avoids presenting event references as replacement entity state.
 
 The old worker listener names remain aliases for the public listener. Public command-line aliases reject duplicate configuration. Worker paths and wire types remain unchanged. Legacy unbound worker invitations expire during migration. Existing worker registrations remain intact.

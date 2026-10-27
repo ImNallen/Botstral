@@ -378,6 +378,7 @@ impl State {
                 Ok(OwnerReply::CodingCalls(self.coding_calls(lease, task)?))
             }
             OwnerOperation::Artifact { .. } => Err(ErrorCode::UnsupportedExecution.into()),
+            OwnerOperation::VerifyInference { .. } => Err(OperationError::InvalidInput),
         }
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
+    manager::devices::owner_error,
     manager::{Manager, devices::DeviceLease},
-    worker_http::protocol_error,
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
 use botstral_link::*;
@@ -38,7 +38,7 @@ pub(crate) async fn connected(mut socket: Socket, manager: Manager) -> io::Resul
             &mut socket,
             OwnerServerMessage::Error {
                 id: None,
-                code: ErrorCode::InvalidMessage,
+                code: OwnerError::InvalidInput,
             },
         )
         .await;
@@ -52,7 +52,7 @@ pub(crate) async fn connected(mut socket: Socket, manager: Manager) -> io::Resul
                 &mut socket,
                 OwnerServerMessage::Error {
                     id: None,
-                    code: protocol_error(error),
+                    code: owner_error(error),
                 },
             )
             .await;
@@ -148,7 +148,7 @@ async fn socket_loop(
                     },
                     OwnerClientMessage::Call {id,operation}=>{
                         if !jobs.is_empty() {
-                            control.try_send(OwnerServerMessage::Error {id:Some(id),code:ErrorCode::QueueFull}.into()).map_err(io::Error::other)?;
+                            control.try_send(OwnerServerMessage::Error {id:Some(id),code:OwnerError::Busy}.into()).map_err(io::Error::other)?;
                         } else {
                             jobs.spawn(transfer(manager.clone(),lease,id,*operation,bulk.clone(),control.clone()));
                         }
@@ -197,7 +197,7 @@ async fn transfer(
                     .send(
                         OwnerServerMessage::Error {
                             id: Some(request),
-                            code: ErrorCode::QueueFull,
+                            code: OwnerError::Busy,
                         }
                         .into(),
                     )
@@ -213,7 +213,7 @@ async fn transfer(
                     .send(
                         OwnerServerMessage::Error {
                             id: Some(request),
-                            code: protocol_error(error),
+                            code: owner_error(error),
                         }
                         .into(),
                     )

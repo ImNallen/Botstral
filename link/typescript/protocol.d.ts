@@ -535,6 +535,10 @@ export type OwnerOperation =
       method: 'configure_inference';
     }
   | {
+      input: VerifyInference;
+      method: 'verify_inference';
+    }
+  | {
       input: SubmitInference;
       method: 'submit_inference';
     }
@@ -785,7 +789,7 @@ export type OwnerServerMessage =
       version: number;
     }
   | {
-      code: ErrorCode;
+      code: OwnerError;
       id?: RequestId | null;
       type: 'error';
     }
@@ -813,6 +817,44 @@ export type OwnerServerMessage =
   | {
       id: TransferId;
       type: 'transfer_complete';
+    };
+export type OwnerError =
+  | {
+      type: 'invalid_input';
+    }
+  | {
+      type: 'unauthorized';
+    }
+  | {
+      type: 'not_found';
+    }
+  | {
+      type: 'conflict';
+    }
+  | {
+      type: 'locked';
+    }
+  | {
+      type: 'unlock_failed';
+    }
+  | {
+      type: 'rate_limited';
+    }
+  | {
+      type: 'busy';
+    }
+  | {
+      type: 'internal';
+    }
+  | {
+      type: 'inference_unverified';
+    }
+  | {
+      type: 'inference_budget';
+    }
+  | {
+      code: ErrorCode;
+      type: 'protocol';
     };
 export type TransferId = string;
 export type WorkerMessage =

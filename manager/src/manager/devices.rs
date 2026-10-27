@@ -36,6 +36,23 @@ pub struct DeviceInvitationGrant {
     pub secret: SecretString,
 }
 
+pub(crate) fn owner_error(error: OperationError) -> OwnerError {
+    match error {
+        OperationError::InvalidInput => OwnerError::InvalidInput,
+        OperationError::Unauthorized => OwnerError::Unauthorized,
+        OperationError::NotFound => OwnerError::NotFound,
+        OperationError::Conflict => OwnerError::Conflict,
+        OperationError::Locked => OwnerError::Locked,
+        OperationError::UnlockFailed => OwnerError::UnlockFailed,
+        OperationError::RateLimited => OwnerError::RateLimited,
+        OperationError::Busy => OwnerError::Busy,
+        OperationError::Internal => OwnerError::Internal,
+        OperationError::InferenceUnverified => OwnerError::InferenceUnverified,
+        OperationError::InferenceBudget => OwnerError::InferenceBudget,
+        OperationError::Protocol(code) => OwnerError::Protocol(code),
+    }
+}
+
 impl Manager {
     pub async fn manager_identity(&self, token: SessionToken) -> Result<ManagerId, OperationError> {
         self.queue
@@ -97,6 +114,32 @@ impl Manager {
         lease: DeviceLease,
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
+        if let OwnerOperation::VerifyInference { input } = operation {
+            let permit = self
+                .queue
+                .call(false, move |s| {
+                    s.prepare_inference_verification(lease, input)
+                })
+                .await?;
+            let _capacity = self
+                .provider
+                .calls
+                .clone()
+                .try_acquire_owned()
+                .map_err(|_| OperationError::Busy)?;
+            let verified = self.provider.verify(&permit).await;
+            let config = permit.configuration;
+            let epoch = permit.epoch;
+            return self
+                .queue
+                .call_wait(move |s| {
+                    s.authorize_owner(&OwnerAuthority::Device(lease))?;
+                    Ok(OwnerReply::Configuration(
+                        s.finish_inference_verification(config, epoch, verified)?,
+                    ))
+                })
+                .await;
+        }
         if let OwnerOperation::Artifact { task, id } = operation {
             let (mut file, declaration, length) = self
                 .queue

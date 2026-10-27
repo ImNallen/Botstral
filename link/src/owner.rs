@@ -27,6 +27,28 @@ pub enum DeviceRole {
     Worker,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(
+    tag = "type",
+    content = "code",
+    rename_all = "snake_case",
+    deny_unknown_fields
+)]
+pub enum OwnerError {
+    InvalidInput,
+    Unauthorized,
+    NotFound,
+    Conflict,
+    Locked,
+    UnlockFailed,
+    RateLimited,
+    Busy,
+    Internal,
+    InferenceUnverified,
+    InferenceBudget,
+    Protocol(ErrorCode),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(try_from = "String", into = "String")]
 pub struct DeviceFingerprint(String);
@@ -147,6 +169,9 @@ pub enum OwnerOperation {
     ConfigureInference {
         input: ConfigureInference,
     },
+    VerifyInference {
+        input: VerifyInference,
+    },
     SubmitInference {
         input: SubmitInference,
     },
@@ -258,7 +283,7 @@ pub enum OwnerServerMessage {
     },
     Error {
         id: Option<RequestId>,
-        code: ErrorCode,
+        code: OwnerError,
     },
     Notification {
         head: u64,

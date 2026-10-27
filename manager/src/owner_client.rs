@@ -28,8 +28,8 @@ use zeroize::{Zeroize, Zeroizing};
 pub enum ClientError {
     Network,
     Trust,
-    Authentication(ErrorCode),
-    Refused(ErrorCode),
+    Authentication(OwnerError),
+    Refused(OwnerError),
     Protocol,
     Storage,
     UnknownOutcome,
@@ -214,7 +214,7 @@ impl OwnerClient {
         )
         .await;
         let mut session = match session {
-            Err(ClientError::Authentication(ErrorCode::Unauthorized))
+            Err(ClientError::Authentication(OwnerError::Unauthorized))
                 if self.credentials.device.is_none() && self.credentials.invitation.is_some() =>
             {
                 OwnerSession::authenticate(
@@ -321,7 +321,7 @@ impl OwnerClient {
             };
             match tokio::time::timeout_at(until, work).await {
                 Err(_) => return Ok(()),
-                Ok(Err(ClientError::Network | ClientError::Refused(ErrorCode::QueueFull))) => {}
+                Ok(Err(ClientError::Network | ClientError::Refused(OwnerError::Busy))) => {}
                 Ok(Err(error)) => return Err(error),
                 Ok(Ok(())) => return Ok(()),
             }
