@@ -1,0 +1,29 @@
+{
+  "unit": "m02-a4b6172e-9969-403b-8b8a-45a83bd2f2d7-production-computer-corrupt-profile.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "60342254046",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "211766",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "60342254046",
+      "ExecMainExitTimestampMonotonic": "60343970471",
+      "ExecMainPID": "211766",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

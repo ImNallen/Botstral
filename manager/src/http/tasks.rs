@@ -5,6 +5,7 @@ pub(super) fn router() -> Router<Manager> {
     Router::new()
         .route("/v1/tasks", post(submit))
         .route("/v1/tasks/{id}", get(task))
+        .route("/v1/tasks/{task}/artifacts/{id}", get(download))
         .route("/v1/tasks/{id}/cancel", post(cancel))
         .route("/v1/tasks/{id}/approval", put(grant).delete(revoke))
         .route("/v1/bots/{id}/permission", put(permission))
@@ -135,4 +136,39 @@ async fn search(
     StrictJson(body): StrictJson<Search>,
 ) -> ApiResult<Json<Vec<Document>>> {
     Ok(Json(m.search_documents(token(&h)?, id, body.query).await?))
+}
+
+async fn download(
+    State(m): State<Manager>,
+    h: HeaderMap,
+    Path((task, id)): Path<(TaskId, ArtifactId)>,
+) -> ApiResult<Response> {
+    let (file, declaration, length) = m.download_artifact(token(&h)?, task, id).await?;
+    use tokio::io::AsyncReadExt;
+    let stream = tokio_util::io::ReaderStream::new(tokio::fs::File::from_std(file).take(length));
+    let mut response = Response::new(axum::body::Body::from_stream(stream));
+    let headers = response.headers_mut();
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_static(match declaration.media_type {
+            MediaType::Png => "image/png",
+            MediaType::TextPlain => "text/plain; charset=utf-8",
+            MediaType::OctetStream => "application/octet-stream",
+        }),
+    );
+    headers.insert(
+        header::CONTENT_DISPOSITION,
+        HeaderValue::from_str(&format!("attachment; filename=\"{}\"", declaration.name))
+            .map_err(|_| OperationError::Internal)?,
+    );
+    headers.insert(
+        header::CONTENT_LENGTH,
+        HeaderValue::from_str(&length.to_string()).map_err(|_| OperationError::Internal)?,
+    );
+    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    headers.insert(
+        "x-content-type-options",
+        HeaderValue::from_static("nosniff"),
+    );
+    Ok(response)
 }

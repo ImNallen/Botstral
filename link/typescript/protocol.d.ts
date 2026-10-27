@@ -17,6 +17,14 @@ export type TaskId = string;
 export type MessageId = string;
 export type ManagerMessage =
   | {
+      execution: ExecutionId;
+      id: ArtifactId;
+      offset: number;
+      slot: string;
+      state: ArtifactTransferState;
+      type: 'artifact_progress';
+    }
+  | {
       offset: number;
       type: 'inventory_request';
     }
@@ -86,10 +94,12 @@ export type ManagerMessage =
   | {
       type: 'pong';
     };
+export type ExecutionId = string;
+export type ArtifactId = string;
+export type ArtifactTransferState = 'receiving' | 'stored' | 'unavailable';
 export type Generation = number;
 export type ApprovalId = string;
 export type ArgumentDigest = string;
-export type ExecutionId = string;
 export type OperationId = string;
 export type OwnerId = string;
 export type CommandId = string;
@@ -110,8 +120,53 @@ export type WorkSpec =
   | {
       spec: ProcessSpec;
       type: 'process';
+    }
+  | {
+      spec: ComputerSpec;
+      type: 'computer';
     };
 export type ProcessProfile = 'linux_systemd_v1';
+export type ComputerOperation =
+  | {
+      type: 'navigate';
+      url: string;
+    }
+  | {
+      selector: string;
+      type: 'click';
+    }
+  | {
+      selector: string;
+      text: string;
+      type: 'fill';
+    }
+  | {
+      output: string;
+      selector: string;
+      type: 'capture_text';
+    }
+  | {
+      output: string;
+      type: 'screenshot';
+    }
+  | {
+      path: string;
+      text: string;
+      type: 'write_file';
+    }
+  | {
+      output: string;
+      path: string;
+      type: 'read_file';
+    }
+  | {
+      output: string;
+      path: string;
+      type: 'export_file';
+    };
+export type MediaType = 'png' | 'text_plain' | 'octet_stream';
+export type ComputerProfile = 'linux_playwright_v1';
+export type CertificateFingerprint = string;
 export type WorkerId = string;
 export type InputOwner = 'bot' | 'owner';
 export type Revision = number;
@@ -138,7 +193,6 @@ export type CommandAction =
       operation_id: OperationId;
       type: 'execute_approved';
     };
-export type CertificateFingerprint = string;
 export type Acknowledgment =
   | {
       type: 'accepted';
@@ -239,6 +293,25 @@ export type StopEvidence =
         scope: ProcessScope;
       };
     };
+export type ArtifactState =
+  | {
+      type: 'pending';
+    }
+  | {
+      content: ArtifactContent;
+      id: ArtifactId;
+      type: 'transferring';
+    }
+  | {
+      content: ArtifactContent;
+      id: ArtifactId;
+      type: 'available';
+    }
+  | {
+      reason: ArtifactUnavailable;
+      type: 'unavailable';
+    };
+export type ArtifactUnavailable = 'missing' | 'rejected' | 'execution_uncertain' | 'corrupt';
 export type TaskState =
   | 'queued'
   | 'running'
@@ -260,6 +333,18 @@ export type EventReplay =
       type: 'snapshot';
     };
 export type WorkerMessage =
+  | {
+      offer: ArtifactOffer;
+      type: 'artifact_failed';
+    }
+  | {
+      offer: ArtifactOffer;
+      type: 'artifact_offer';
+    }
+  | {
+      chunk: ArtifactChunk;
+      type: 'artifact_chunk';
+    }
   | {
       entries: JournalEntry[];
       generation: Generation;
@@ -326,8 +411,17 @@ export type WorkerMessage =
       generation: Generation;
       type: 'heartbeat';
     };
+export type SealedOutput =
+  | {
+      content: ArtifactContent;
+      type: 'content';
+    }
+  | {
+      reason: ArtifactUnavailable;
+      type: 'unavailable';
+    };
 export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved' | 'uncertain' | 'stopped';
-export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1';
+export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1' | 'computer_v1';
 export type ReleaseChannel = 'stable' | 'experimental';
 export type TaskEvent =
   | {
@@ -373,8 +467,6 @@ export type TaskEvent =
       type: 'status';
     };
 export type LogCode = 'started' | 'input_applied' | 'stopped';
-export type ArtifactId = string;
-export type MediaType = 'png' | 'text_plain' | 'octet_stream';
 export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
 
 export interface Protocol {
@@ -440,6 +532,29 @@ export interface ProcessLimits {
   processes: number;
   runtime_seconds: number;
 }
+export interface ComputerSpec {
+  account: ProcessAccount;
+  deadline: number;
+  limits: ProcessLimits;
+  operations: ComputerOperation[];
+  outputs: OutputDeclaration[];
+  profile: ComputerProfile;
+  runtime: ComputerRuntime;
+  viewport: Viewport;
+}
+export interface OutputDeclaration {
+  max_bytes: number;
+  media_type: MediaType;
+  name: string;
+  slot: string;
+}
+export interface ComputerRuntime {
+  sha256: CertificateFingerprint;
+}
+export interface Viewport {
+  height: number;
+  width: number;
+}
 export interface InputFence {
   generation: Generation;
   owner: InputOwner;
@@ -488,6 +603,7 @@ export interface TaskView {
   effect_evidence: ExecutionEvent[];
   id: TaskId;
   outcome?: ExecutionEvent | null;
+  outputs?: OutputView[];
   process?: ProcessEvidence | null;
   progress: number;
   request: SubmitTask;
@@ -523,6 +639,14 @@ export interface ProcessScope {
   journal: JournalId;
   unit: string;
 }
+export interface OutputView {
+  declaration: OutputDeclaration;
+  state: ArtifactState;
+}
+export interface ArtifactContent {
+  length: number;
+  sha256: CertificateFingerprint;
+}
 export interface SubmitTask {
   conversation_id?: ConversationId | null;
   id: TaskId;
@@ -546,6 +670,21 @@ export interface Envelope {
   message: WorkerMessage;
   request_id: RequestId;
   version: number;
+}
+export interface ArtifactOffer {
+  execution: ExecutionId;
+  journal: JournalId;
+  output: SealedOutput;
+  slot: string;
+  task: TaskId;
+}
+export interface ArtifactChunk {
+  execution: ExecutionId;
+  hex: string;
+  id: ArtifactId;
+  journal: JournalId;
+  offset: number;
+  slot: string;
 }
 export interface JournalEntry {
   body: CommandBody;

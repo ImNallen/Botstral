@@ -1,0 +1,29 @@
+{
+  "unit": "m02-ca32709f-ce1d-49af-ae43-b1357ac591ee-production-manager-restarted-ecd4b2be.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "63108093056",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "148105",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "63108093056",
+      "ExecMainExitTimestampMonotonic": "63118669063",
+      "ExecMainPID": "148105",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

@@ -1,0 +1,51 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling version_check v0.9.5
+   Compiling libc v0.2.191
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling serde_json v1.0.154
+   Compiling serde v1.0.229
+   Compiling ref-cast v1.0.27
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling dyn-clone v1.0.20
+   Compiling generic-array v0.14.7
+   Compiling syn v3.0.9
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling serde_derive_internals v0.30.0
+   Compiling ref-cast-impl v1.0.27
+   Compiling serde_derive v1.0.229
+   Compiling uuid v1.29.0
+   Compiling schemars_derive v1.2.3
+   Compiling schemars v1.2.3
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/link)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.14s
+     Running tests/computer.rs (target/debug/deps/computer-362bc34d806669cb)
+
+running 1 test
+test owner_computer_command_is_first_class_and_strict ... FAILED
+
+failures:
+
+---- owner_computer_command_is_first_class_and_strict stdout ----
+
+thread 'owner_computer_command_is_first_class_and_strict' (610711040) panicked at link/tests/computer.rs:15:64:
+owner API must accept typed Computer work: Error("unknown variant `computer`, expected one of `unavailable`, `test_input`, `test_effect`, `process`", line: 0, column: 0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    owner_computer_command_is_first_class_and_strict
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p botstral-link --test computer`

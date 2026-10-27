@@ -1,0 +1,1 @@
+{"name":"botstral-computer-runtime","version":"1.0.0","private":true,"dependencies":{"playwright":"1.64.1"},"engines":{"node":"24.22.1"}}

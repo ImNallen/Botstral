@@ -126,3 +126,7 @@ python3 agent/tests/m02_record.py \
 	--application-commit e4d10c023ccd511c444faebff6b0b8fdf7fc5a06 \
 	--check-controls
 ```
+
+## Enable Computer work
+
+Follow [Run Computer work](w01-computer.md) to install the pinned Linux runtime and opt into typed browser and file operations. The existing process profile and ceilings remain unchanged.

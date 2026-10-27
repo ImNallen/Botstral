@@ -393,7 +393,10 @@ impl State {
         Ok(())
     }
 
-    fn check_lease(&self, lease: ConnectionLease) -> Result<&WorkerConnection, OperationError> {
+    pub(super) fn check_lease(
+        &self,
+        lease: ConnectionLease,
+    ) -> Result<&WorkerConnection, OperationError> {
         let connection = self
             .worker_connections
             .get(&lease.worker)
@@ -411,6 +414,21 @@ impl State {
     ) -> Result<(), OperationError> {
         let connection = self.check_lease(lease)?;
         match report.message {
+            WorkerMessage::ArtifactFailed { offer }
+                if connection.phase == WorkerPhase::Ready && connection.recovered =>
+            {
+                self.artifact_failed(lease, offer)?
+            }
+            WorkerMessage::ArtifactOffer { offer }
+                if connection.phase == WorkerPhase::Ready && connection.recovered =>
+            {
+                self.artifact_offer(lease, offer)?
+            }
+            WorkerMessage::ArtifactChunk { chunk }
+                if connection.phase == WorkerPhase::Ready && connection.recovered =>
+            {
+                self.artifact_chunk(lease, chunk)?
+            }
             WorkerMessage::Inventory {
                 generation,
                 incarnation,

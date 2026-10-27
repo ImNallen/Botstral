@@ -1,0 +1,851 @@
+{
+  "passed": true,
+  "runs": [
+    {
+      "run": 0,
+      "seconds": 0.7402017720014555,
+      "outputs": {
+        "text.out": {
+          "length": 50,
+          "sha256": "bc91b7f34f0e119632a8d93b90548634a0211e07280aec858593a9e80e0733d6"
+        },
+        "png.out": {
+          "length": 10621,
+          "sha256": "9aa7d3503fbb99bac2ad9ebe78148a3c4baf92ce266a8ae29a0738eaedc9d99b"
+        },
+        "file.out": {
+          "length": 18,
+          "sha256": "47ba53424ec57dcdeacb2a4d0937136fb16e1790767a9530005b3f357d2e4a7e"
+        }
+      }
+    },
+    {
+      "run": 1,
+      "seconds": 0.35759493699879386,
+      "outputs": {
+        "text.out": {
+          "length": 50,
+          "sha256": "bc91b7f34f0e119632a8d93b90548634a0211e07280aec858593a9e80e0733d6"
+        },
+        "png.out": {
+          "length": 10624,
+          "sha256": "b6488909e004dffbb1f2151d223ed52d6cd9182ac2cf37c9bb8c08e15c72212f"
+        },
+        "file.out": {
+          "length": 18,
+          "sha256": "47ba53424ec57dcdeacb2a4d0937136fb16e1790767a9530005b3f357d2e4a7e"
+        }
+      }
+    },
+    {
+      "run": 2,
+      "seconds": 0.3596587770007318,
+      "outputs": {
+        "text.out": {
+          "length": 50,
+          "sha256": "bc91b7f34f0e119632a8d93b90548634a0211e07280aec858593a9e80e0733d6"
+        },
+        "png.out": {
+          "length": 10624,
+          "sha256": "b6488909e004dffbb1f2151d223ed52d6cd9182ac2cf37c9bb8c08e15c72212f"
+        },
+        "file.out": {
+          "length": 18,
+          "sha256": "47ba53424ec57dcdeacb2a4d0937136fb16e1790767a9530005b3f357d2e4a7e"
+        }
+      }
+    },
+    {
+      "run": 3,
+      "seconds": 0.34694976700120606,
+      "outputs": {
+        "text.out": {
+          "length": 50,
+          "sha256": "bc91b7f34f0e119632a8d93b90548634a0211e07280aec858593a9e80e0733d6"
+        },
+        "png.out": {
+          "length": 10624,
+          "sha256": "b6488909e004dffbb1f2151d223ed52d6cd9182ac2cf37c9bb8c08e15c72212f"
+        },
+        "file.out": {
+          "length": 18,
+          "sha256": "47ba53424ec57dcdeacb2a4d0937136fb16e1790767a9530005b3f357d2e4a7e"
+        }
+      }
+    },
+    {
+      "run": 4,
+      "seconds": 0.3673906009935308,
+      "outputs": {
+        "text.out": {
+          "length": 50,
+          "sha256": "bc91b7f34f0e119632a8d93b90548634a0211e07280aec858593a9e80e0733d6"
+        },
+        "png.out": {
+          "length": 10624,
+          "sha256": "b6488909e004dffbb1f2151d223ed52d6cd9182ac2cf37c9bb8c08e15c72212f"
+        },
+        "file.out": {
+          "length": 18,
+          "sha256": "47ba53424ec57dcdeacb2a4d0937136fb16e1790767a9530005b3f357d2e4a7e"
+        }
+      }
+    }
+  ],
+  "memory_peak": 196243456,
+  "task_peak_sampled": 87,
+  "memory_max": "1073741824",
+  "tasks_max": "128",
+  "samples": [
+    {
+      "memory": 11341824,
+      "tasks": 2
+    },
+    {
+      "memory": 20946944,
+      "tasks": 7
+    },
+    {
+      "memory": 27566080,
+      "tasks": 8
+    },
+    {
+      "memory": 35246080,
+      "tasks": 8
+    },
+    {
+      "memory": 32702464,
+      "tasks": 8
+    },
+    {
+      "memory": 35049472,
+      "tasks": 8
+    },
+    {
+      "memory": 38195200,
+      "tasks": 8
+    },
+    {
+      "memory": 45535232,
+      "tasks": 8
+    },
+    {
+      "memory": 46321664,
+      "tasks": 8
+    },
+    {
+      "memory": 53923840,
+      "tasks": 8
+    },
+    {
+      "memory": 59691008,
+      "tasks": 8
+    },
+    {
+      "memory": 62574592,
+      "tasks": 8
+    },
+    {
+      "memory": 67555328,
+      "tasks": 8
+    },
+    {
+      "memory": 74108928,
+      "tasks": 8
+    },
+    {
+      "memory": 77778944,
+      "tasks": 8
+    },
+    {
+      "memory": 84856832,
+      "tasks": 8
+    },
+    {
+      "memory": 86691840,
+      "tasks": 8
+    },
+    {
+      "memory": 92196864,
+      "tasks": 8
+    },
+    {
+      "memory": 101109760,
+      "tasks": 12
+    },
+    {
+      "memory": 103206912,
+      "tasks": 12
+    },
+    {
+      "memory": 112517120,
+      "tasks": 14
+    },
+    {
+      "memory": 138665984,
+      "tasks": 24
+    },
+    {
+      "memory": 137441280,
+      "tasks": 24
+    },
+    {
+      "memory": 132575232,
+      "tasks": 24
+    },
+    {
+      "memory": 132665344,
+      "tasks": 24
+    },
+    {
+      "memory": 133484544,
+      "tasks": 29
+    },
+    {
+      "memory": 156598272,
+      "tasks": 75
+    },
+    {
+      "memory": 166076416,
+      "tasks": 84
+    },
+    {
+      "memory": 167088128,
+      "tasks": 84
+    },
+    {
+      "memory": 169402368,
+      "tasks": 84
+    },
+    {
+      "memory": 172052480,
+      "tasks": 85
+    },
+    {
+      "memory": 174551040,
+      "tasks": 85
+    },
+    {
+      "memory": 174862336,
+      "tasks": 85
+    },
+    {
+      "memory": 174862336,
+      "tasks": 85
+    },
+    {
+      "memory": 174858240,
+      "tasks": 85
+    },
+    {
+      "memory": 174858240,
+      "tasks": 85
+    },
+    {
+      "memory": 175644672,
+      "tasks": 85
+    },
+    {
+      "memory": 175640576,
+      "tasks": 85
+    },
+    {
+      "memory": 175898624,
+      "tasks": 85
+    },
+    {
+      "memory": 176414720,
+      "tasks": 86
+    },
+    {
+      "memory": 188731392,
+      "tasks": 87
+    },
+    {
+      "memory": 186482688,
+      "tasks": 87
+    },
+    {
+      "memory": 162193408,
+      "tasks": 77
+    },
+    {
+      "memory": 141824000,
+      "tasks": 16
+    },
+    {
+      "memory": 107077632,
+      "tasks": 12
+    },
+    {
+      "memory": 17244160,
+      "tasks": 2
+    },
+    {
+      "memory": 23482368,
+      "tasks": 7
+    },
+    {
+      "memory": 30265344,
+      "tasks": 8
+    },
+    {
+      "memory": 37425152,
+      "tasks": 8
+    },
+    {
+      "memory": 36192256,
+      "tasks": 8
+    },
+    {
+      "memory": 37490688,
+      "tasks": 8
+    },
+    {
+      "memory": 42209280,
+      "tasks": 8
+    },
+    {
+      "memory": 47452160,
+      "tasks": 8
+    },
+    {
+      "memory": 50335744,
+      "tasks": 8
+    },
+    {
+      "memory": 55840768,
+      "tasks": 8
+    },
+    {
+      "memory": 61870080,
+      "tasks": 8
+    },
+    {
+      "memory": 64479232,
+      "tasks": 8
+    },
+    {
+      "memory": 70246400,
+      "tasks": 8
+    },
+    {
+      "memory": 76800000,
+      "tasks": 8
+    },
+    {
+      "memory": 80470016,
+      "tasks": 8
+    },
+    {
+      "memory": 83091456,
+      "tasks": 8
+    },
+    {
+      "memory": 88072192,
+      "tasks": 8
+    },
+    {
+      "memory": 91217920,
+      "tasks": 8
+    },
+    {
+      "memory": 101703680,
+      "tasks": 8
+    },
+    {
+      "memory": 103792640,
+      "tasks": 12
+    },
+    {
+      "memory": 114122752,
+      "tasks": 13
+    },
+    {
+      "memory": 138960896,
+      "tasks": 40
+    },
+    {
+      "memory": 161730560,
+      "tasks": 82
+    },
+    {
+      "memory": 168914944,
+      "tasks": 82
+    },
+    {
+      "memory": 173789184,
+      "tasks": 83
+    },
+    {
+      "memory": 175693824,
+      "tasks": 84
+    },
+    {
+      "memory": 176218112,
+      "tasks": 84
+    },
+    {
+      "memory": 176209920,
+      "tasks": 84
+    },
+    {
+      "memory": 176467968,
+      "tasks": 84
+    },
+    {
+      "memory": 176062464,
+      "tasks": 84
+    },
+    {
+      "memory": 191844352,
+      "tasks": 85
+    },
+    {
+      "memory": 177287168,
+      "tasks": 85
+    },
+    {
+      "memory": 147644416,
+      "tasks": 62
+    },
+    {
+      "memory": 127479808,
+      "tasks": 14
+    },
+    {
+      "memory": 38641664,
+      "tasks": 3
+    },
+    {
+      "memory": 14434304,
+      "tasks": 2
+    },
+    {
+      "memory": 22196224,
+      "tasks": 7
+    },
+    {
+      "memory": 26980352,
+      "tasks": 8
+    },
+    {
+      "memory": 37457920,
+      "tasks": 8
+    },
+    {
+      "memory": 34959360,
+      "tasks": 8
+    },
+    {
+      "memory": 37044224,
+      "tasks": 8
+    },
+    {
+      "memory": 40976384,
+      "tasks": 8
+    },
+    {
+      "memory": 47267840,
+      "tasks": 8
+    },
+    {
+      "memory": 49627136,
+      "tasks": 8
+    },
+    {
+      "memory": 55918592,
+      "tasks": 8
+    },
+    {
+      "memory": 61485056,
+      "tasks": 8
+    },
+    {
+      "memory": 63045632,
+      "tasks": 8
+    },
+    {
+      "memory": 66355200,
+      "tasks": 8
+    },
+    {
+      "memory": 73052160,
+      "tasks": 8
+    },
+    {
+      "memory": 78462976,
+      "tasks": 8
+    },
+    {
+      "memory": 81072128,
+      "tasks": 8
+    },
+    {
+      "memory": 87400448,
+      "tasks": 8
+    },
+    {
+      "memory": 88936448,
+      "tasks": 8
+    },
+    {
+      "memory": 97611776,
+      "tasks": 8
+    },
+    {
+      "memory": 101974016,
+      "tasks": 12
+    },
+    {
+      "memory": 108371968,
+      "tasks": 13
+    },
+    {
+      "memory": 129818624,
+      "tasks": 30
+    },
+    {
+      "memory": 155213824,
+      "tasks": 69
+    },
+    {
+      "memory": 168058880,
+      "tasks": 82
+    },
+    {
+      "memory": 170504192,
+      "tasks": 82
+    },
+    {
+      "memory": 175251456,
+      "tasks": 83
+    },
+    {
+      "memory": 174641152,
+      "tasks": 84
+    },
+    {
+      "memory": 174858240,
+      "tasks": 84
+    },
+    {
+      "memory": 174858240,
+      "tasks": 84
+    },
+    {
+      "memory": 175226880,
+      "tasks": 84
+    },
+    {
+      "memory": 174858240,
+      "tasks": 84
+    },
+    {
+      "memory": 190406656,
+      "tasks": 85
+    },
+    {
+      "memory": 176910336,
+      "tasks": 85
+    },
+    {
+      "memory": 126763008,
+      "tasks": 16
+    },
+    {
+      "memory": 68354048,
+      "tasks": 12
+    },
+    {
+      "memory": 16281600,
+      "tasks": 2
+    },
+    {
+      "memory": 21442560,
+      "tasks": 7
+    },
+    {
+      "memory": 26554368,
+      "tasks": 8
+    },
+    {
+      "memory": 36691968,
+      "tasks": 8
+    },
+    {
+      "memory": 35192832,
+      "tasks": 8
+    },
+    {
+      "memory": 37015552,
+      "tasks": 8
+    },
+    {
+      "memory": 40710144,
+      "tasks": 8
+    },
+    {
+      "memory": 46739456,
+      "tasks": 8
+    },
+    {
+      "memory": 48836608,
+      "tasks": 8
+    },
+    {
+      "memory": 55128064,
+      "tasks": 8
+    },
+    {
+      "memory": 61157376,
+      "tasks": 8
+    },
+    {
+      "memory": 64303104,
+      "tasks": 8
+    },
+    {
+      "memory": 68497408,
+      "tasks": 8
+    },
+    {
+      "memory": 75575296,
+      "tasks": 8
+    },
+    {
+      "memory": 79769600,
+      "tasks": 8
+    },
+    {
+      "memory": 86847488,
+      "tasks": 8
+    },
+    {
+      "memory": 88682496,
+      "tasks": 8
+    },
+    {
+      "memory": 94711808,
+      "tasks": 8
+    },
+    {
+      "memory": 102838272,
+      "tasks": 12
+    },
+    {
+      "memory": 106373120,
+      "tasks": 13
+    },
+    {
+      "memory": 123944960,
+      "tasks": 24
+    },
+    {
+      "memory": 148369408,
+      "tasks": 64
+    },
+    {
+      "memory": 162230272,
+      "tasks": 83
+    },
+    {
+      "memory": 170061824,
+      "tasks": 83
+    },
+    {
+      "memory": 175714304,
+      "tasks": 84
+    },
+    {
+      "memory": 176328704,
+      "tasks": 85
+    },
+    {
+      "memory": 176328704,
+      "tasks": 85
+    },
+    {
+      "memory": 175849472,
+      "tasks": 85
+    },
+    {
+      "memory": 176898048,
+      "tasks": 85
+    },
+    {
+      "memory": 176242688,
+      "tasks": 85
+    },
+    {
+      "memory": 191238144,
+      "tasks": 86
+    },
+    {
+      "memory": 177184768,
+      "tasks": 86
+    },
+    {
+      "memory": 144224256,
+      "tasks": 35
+    },
+    {
+      "memory": 94191616,
+      "tasks": 12
+    },
+    {
+      "memory": 17379328,
+      "tasks": 2
+    },
+    {
+      "memory": 21032960,
+      "tasks": 7
+    },
+    {
+      "memory": 24563712,
+      "tasks": 8
+    },
+    {
+      "memory": 36143104,
+      "tasks": 8
+    },
+    {
+      "memory": 33464320,
+      "tasks": 8
+    },
+    {
+      "memory": 35540992,
+      "tasks": 8
+    },
+    {
+      "memory": 37113856,
+      "tasks": 8
+    },
+    {
+      "memory": 47075328,
+      "tasks": 8
+    },
+    {
+      "memory": 47075328,
+      "tasks": 8
+    },
+    {
+      "memory": 50769920,
+      "tasks": 8
+    },
+    {
+      "memory": 56549376,
+      "tasks": 9
+    },
+    {
+      "memory": 61792256,
+      "tasks": 8
+    },
+    {
+      "memory": 64937984,
+      "tasks": 8
+    },
+    {
+      "memory": 72015872,
+      "tasks": 8
+    },
+    {
+      "memory": 78045184,
+      "tasks": 8
+    },
+    {
+      "memory": 80666624,
+      "tasks": 8
+    },
+    {
+      "memory": 87482368,
+      "tasks": 8
+    },
+    {
+      "memory": 89055232,
+      "tasks": 8
+    },
+    {
+      "memory": 96919552,
+      "tasks": 8
+    },
+    {
+      "memory": 102948864,
+      "tasks": 12
+    },
+    {
+      "memory": 108277760,
+      "tasks": 13
+    },
+    {
+      "memory": 125444096,
+      "tasks": 24
+    },
+    {
+      "memory": 148557824,
+      "tasks": 62
+    },
+    {
+      "memory": 168181760,
+      "tasks": 83
+    },
+    {
+      "memory": 170377216,
+      "tasks": 83
+    },
+    {
+      "memory": 176730112,
+      "tasks": 85
+    },
+    {
+      "memory": 175247360,
+      "tasks": 85
+    },
+    {
+      "memory": 175767552,
+      "tasks": 85
+    },
+    {
+      "memory": 175767552,
+      "tasks": 85
+    },
+    {
+      "memory": 175767552,
+      "tasks": 85
+    },
+    {
+      "memory": 175104000,
+      "tasks": 85
+    },
+    {
+      "memory": 175620096,
+      "tasks": 85
+    },
+    {
+      "memory": 190877696,
+      "tasks": 86
+    },
+    {
+      "memory": 176762880,
+      "tasks": 86
+    },
+    {
+      "memory": 137248768,
+      "tasks": 16
+    },
+    {
+      "memory": 85184512,
+      "tasks": 12
+    }
+  ],
+  "runtime_identity": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061",
+  "node": "v24.22.1",
+  "machine": [
+    "Linux",
+    "botstral-computer",
+    "6.8.0-147-generic",
+    "#147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026",
+    "x86_64"
+  ],
+  "task_peak": 87
+}

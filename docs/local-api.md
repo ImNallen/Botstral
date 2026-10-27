@@ -170,3 +170,7 @@ The first W01 process unit adds `work.type` equal to `process`, with the immutab
 M03 admits 128 retained tasks and 256 records each for conversations, messages, documents and explicit permissions. Message text and Markdown bodies are limited to 4096 UTF-8 bytes. Documents require one through eight valid task, message or HTTPS source references. Task and message references must belong to that bot. Document paths cannot be supplied by callers.
 
 `POST /v1/worker-commands` now rejects legacy task commands with `unsupported_execution` after checking current fences. Use `/v1/tasks`. Connection-local owner input receipts remain test-only transport diagnostics. Durable task outcomes use `/v1/tasks/{id}`.
+
+## Download a declared output
+
+`GET /v1/tasks/{task}/artifacts/{artifact}` requires the existing owner bearer session and task ownership. The task's `outputs` list reports pending, transferring, available, or unavailable delivery separately from execution completion. Only an available output has a downloadable artifact. Responses use attachment disposition, a fixed declared media type, `nosniff`, and `no-store`. Length and SHA-256 are verified before streaming. Sign in again after a manager restart. Durable artifacts remain retrievable.

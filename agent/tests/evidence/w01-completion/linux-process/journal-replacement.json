@@ -1,0 +1,123 @@
+{
+  "old_pids": [
+    206984,
+    206985
+  ],
+  "replacement_effect": false,
+  "still_live": true,
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "7e7e1012-de8e-4f1e-86c3-1aa6ff41db24",
+        "arguments": "74b44d380aaa2041150e56b750e534befc5b27d6bee142fe8500afa3560795cf",
+        "bot": "7b332395-0d80-4d26-855a-d75cdabcdca9",
+        "execution": "73f1b83f-7655-45e6-803a-427a772e683b",
+        "expires_at": 1793090137,
+        "operation": "1901a526-998a-430f-8fee-49744c364ac6",
+        "owner": "0789cb39-109d-467f-9adc-5162669107cb",
+        "permission_revision": 1,
+        "task": "798bc025-51ce-4a91-ac2d-1af11da4ec8c"
+      },
+      "consumed": true,
+      "id": "7e7e1012-de8e-4f1e-86c3-1aa6ff41db24",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "7b332395-0d80-4d26-855a-d75cdabcdca9",
+      "execution": "73f1b83f-7655-45e6-803a-427a772e683b",
+      "id": "6a3409bb-e962-40f7-aa68-be47127ca505",
+      "operation": "1901a526-998a-430f-8fee-49744c364ac6",
+      "owner": "0789cb39-109d-467f-9adc-5162669107cb",
+      "session": "fb13cd70-a23b-45eb-b5cb-bbf58393622e",
+      "task": "798bc025-51ce-4a91-ac2d-1af11da4ec8c",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpVCtkB3/old-scope.py"
+          ],
+          "cwd": "/tmp/.tmpVCtkB3",
+          "deadline": 1793090167,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      },
+      "worker": "878ea6aa-ba8a-4704-9abe-191cd66ac2d6"
+    },
+    "effect_evidence": [
+      {
+        "reason": "journal_replaced",
+        "type": "uncertain"
+      },
+      {
+        "reason": "execution_missing_from_journal",
+        "type": "uncertain"
+      }
+    ],
+    "id": "798bc025-51ce-4a91-ac2d-1af11da4ec8c",
+    "outcome": {
+      "reason": "execution_missing_from_journal",
+      "type": "uncertain"
+    },
+    "outputs": [],
+    "process": {
+      "effect": "possible",
+      "result": null
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "798bc025-51ce-4a91-ac2d-1af11da4ec8c",
+      "session_id": "fb13cd70-a23b-45eb-b5cb-bbf58393622e",
+      "settings": {
+        "deadline": 1793090167,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "args": [
+            "/tmp/.tmpVCtkB3/old-scope.py"
+          ],
+          "cwd": "/tmp/.tmpVCtkB3",
+          "deadline": 1793090167,
+          "environment": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          },
+          "executable": "/usr/bin/python3",
+          "limits": {
+            "memory_bytes": 268435456,
+            "output_bytes": 1024,
+            "processes": 32,
+            "runtime_seconds": 30
+          },
+          "profile": "linux_systemd_v1"
+        },
+        "type": "process"
+      }
+    },
+    "state": "cancelling"
+  }
+}

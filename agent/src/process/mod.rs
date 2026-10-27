@@ -9,7 +9,7 @@ use std::{
     os::unix::fs::OpenOptionsExt,
     path::{Path, PathBuf},
 };
-pub(crate) use systemd::{Backend, EmptyScopeProof};
+pub(crate) use systemd::{Backend, EmptyScopeProof, discard_probe};
 
 const FILE_LIMIT: usize = 8192;
 
@@ -51,6 +51,8 @@ pub(crate) struct Manifest {
     pub host: CertificateFingerprint,
     pub boot: String,
     pub spec: ProcessSpec,
+    #[serde(default)]
+    pub computer: Option<crate::computer::Launch>,
     pub expires_at: i64,
 }
 impl Manifest {

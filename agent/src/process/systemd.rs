@@ -10,10 +10,16 @@ pub(crate) struct Backend {
     pub probed: bool,
     binary: PathBuf,
 }
-pub(crate) struct EmptyScopeProof(ProcessScope);
+pub(crate) struct EmptyScopeProof {
+    scope: ProcessScope,
+    limited: bool,
+}
 impl EmptyScopeProof {
+    pub fn limited(&self) -> bool {
+        self.limited
+    }
     pub fn scope(&self) -> &ProcessScope {
-        &self.0
+        &self.scope
     }
 }
 
@@ -49,7 +55,7 @@ async fn command(binary: &str, args: &[String], seconds: u64) -> io::Result<Stri
     .map_err(io::Error::other)?
 }
 async fn show(unit: &str) -> io::Result<BTreeMap<String, String>> {
-    let output = command("/usr/bin/systemctl", &["--user".into(), "show".into(), unit.into(), "--property=LoadState,ActiveState,InvocationID,ControlGroup,KillMode,Restart,TimeoutStopUSec,TasksMax,MemoryMax,RuntimeMaxUSec".into()], 3).await?;
+    let output = command("/usr/bin/systemctl", &["--user".into(), "show".into(), unit.into(), "--property=LoadState,ActiveState,Result,InvocationID,ControlGroup,KillMode,Restart,TimeoutStopUSec,TasksMax,MemoryMax,RuntimeMaxUSec".into()], 3).await?;
     Ok(output
         .lines()
         .filter_map(|line| line.split_once('='))
@@ -65,12 +71,18 @@ fn cgroup(scope: &ProcessScope) -> PathBuf {
     Path::new("/sys/fs/cgroup").join(scope.cgroup.trim_start_matches('/'))
 }
 
-async fn discard_probe(directory: &Path) -> io::Result<()> {
-    if directory.join("release.json").try_exists()? {
-        return Err(io::Error::other("probe unexpectedly released"));
-    }
+pub(crate) async fn discard_probe(directory: &Path) -> io::Result<()> {
+    let released = directory.join("release.json").try_exists()?;
     if directory.join("manifest.json").try_exists()? {
         let manifest: Manifest = read(&directory.join("manifest.json"))?;
+        if released
+            && !manifest
+                .computer
+                .as_ref()
+                .is_some_and(|launch| launch.probe)
+        {
+            return Err(io::Error::other("probe unexpectedly released"));
+        }
         let name = manifest.unit();
         let unit = show(&name).await?;
         match unit.get("LoadState").map(String::as_str) {
@@ -109,6 +121,8 @@ async fn discard_probe(directory: &Path) -> io::Result<()> {
             }
             _ => return Err(io::Error::other("probe service state unavailable")),
         }
+    } else if released {
+        return Err(io::Error::other("released probe manifest missing"));
     }
     fs::remove_dir_all(directory)
 }
@@ -167,6 +181,7 @@ impl Backend {
                 deadline: now() + 30,
                 limits: backend.configuration.ceilings.clone(),
             },
+            computer: None,
             expires_at: now() + 30,
         };
         write(&probes.join("manifest.json"), &manifest)?;
@@ -299,7 +314,13 @@ impl Backend {
             return Err(io::Error::other("scope boot changed"));
         }
         let unit = show(&scope.unit).await?;
-        if !same(&unit, scope) {
+        let automatically_stopped = unit.get("LoadState").is_some_and(|v| v == "loaded")
+            && unit.get("InvocationID") == Some(&scope.invocation)
+            && unit.get("ControlGroup").is_some_and(String::is_empty)
+            && unit
+                .get("ActiveState")
+                .is_some_and(|v| matches!(v.as_str(), "inactive" | "failed"));
+        if !same(&unit, scope) && !automatically_stopped {
             return Err(io::Error::other("cannot prove stopped scope identity"));
         }
         command(
@@ -314,6 +335,11 @@ impl Backend {
             Err(e) if e.kind() == io::ErrorKind::NotFound => {}
             _ => return Err(io::Error::other("scope still populated")),
         }
-        Ok(EmptyScopeProof(scope.clone()))
+        Ok(EmptyScopeProof {
+            scope: scope.clone(),
+            limited: unit
+                .get("Result")
+                .is_some_and(|v| matches!(v.as_str(), "timeout" | "oom-kill" | "resources")),
+        })
     }
 }

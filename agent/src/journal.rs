@@ -1,3 +1,4 @@
+mod artifacts;
 mod process;
 use crate::session::Sessions;
 use botstral_link::*;
@@ -35,6 +36,9 @@ pub(crate) struct Journal {
     sent_through: u64,
     claims: std::collections::HashMap<ExecutionId, PendingClaim>,
     backend: Option<crate::process::Backend>,
+    computer: Option<crate::computer::Configuration>,
+    artifact_flight: Option<artifacts::Flight>,
+    artifact_confirmed: Option<(ExecutionId, String)>,
     process_slot: Option<ExecutionId>,
     process_operation: Option<ProcessOperation>,
     #[cfg(feature = "nonproduction-test-worker")]
@@ -189,11 +193,15 @@ impl Journal {
             sent_through: 0,
             claims: Default::default(),
             backend: None,
+            computer: None,
+            artifact_flight: None,
+            artifact_confirmed: None,
             process_slot: None,
             process_operation: None,
             #[cfg(feature = "nonproduction-test-worker")]
             provider: crate::effect_provider::Provider::open(directory)?,
         };
+        result.initialize_artifacts()?;
         result.reconcile()?;
         Ok(result)
     }
@@ -204,6 +212,8 @@ impl Journal {
             .map_err(err)
     }
     pub fn attach(&mut self) {
+        self.artifact_flight = None;
+        self.artifact_confirmed = None;
         self.ready = false;
         self.deliveries.clear();
         self.sent_through = 0;
@@ -300,6 +310,16 @@ impl Journal {
         message: &ManagerMessage,
     ) -> io::Result<Option<Vec<Envelope<WorkerMessage>>>> {
         let out = match message {
+            ManagerMessage::ArtifactProgress {
+                execution,
+                slot,
+                id,
+                offset,
+                state,
+            } => {
+                self.artifact_progress(*execution, slot, *id, *offset, *state)?;
+                vec![]
+            }
             ManagerMessage::InventoryRequest { offset } => {
                 let inventory = self.executions()?;
                 if *offset as usize > inventory.len() {
@@ -404,7 +424,7 @@ impl Journal {
                     e
                 };
                 if delivery.cancel {
-                    if matches!(e.body.work, WorkSpec::Process { .. }) {
+                    if e.body.work.supervised() {
                         self.cancel_process(&mut e)?;
                     } else if e.phase != Phase::Stopped {
                         e.phase = Phase::Stopped;
@@ -471,6 +491,7 @@ impl Journal {
                     let mut e: Execution = decode(body)?;
                     if e.phase == Phase::ClaimPending {
                         if self.process_slot == Some(*execution) {
+                            self.release_output_reservations(*execution)?;
                             self.process_slot = None;
                             let directory = crate::process::directory(&self.directory, *execution);
                             std::fs::remove_file(directory.join("reserved"))?;
@@ -527,7 +548,7 @@ impl Journal {
                 report(&tx, &e, ExecutionEvent::Admitted)?;
                 tx.commit().map_err(err)?;
                 self.fault("permit_admitted");
-                if matches!(e.body.work, WorkSpec::Process { .. }) {
+                if e.body.work.supervised() {
                     self.admit_process(&mut e, binding, *fence)?;
                     return Ok(Some(vec![]));
                 }
@@ -582,9 +603,7 @@ impl Journal {
                 && delivery.fence.owner == InputOwner::Bot
                 && binding.expires_at > now()
             {
-                if let WorkSpec::Process { spec } = &e.body.work
-                    && !self.reserve_process(&e, spec)?
-                {
+                if e.body.work.supervised() && !self.reserve_process(&e)? {
                     continue;
                 }
                 e.phase = Phase::ClaimPending;
@@ -612,6 +631,7 @@ impl Journal {
             messages.extend(self.page(sessions, ack as u64, head)?);
             self.sent_through = head;
         }
+        messages.extend(self.tick_artifacts()?);
         Ok(messages)
     }
     fn execute(

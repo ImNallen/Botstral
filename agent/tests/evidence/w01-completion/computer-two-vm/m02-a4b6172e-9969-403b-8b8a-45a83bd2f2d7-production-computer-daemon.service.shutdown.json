@@ -1,0 +1,29 @@
+{
+  "unit": "m02-a4b6172e-9969-403b-8b8a-45a83bd2f2d7-production-computer-daemon.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "60280905055",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "209066",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "60280905055",
+      "ExecMainExitTimestampMonotonic": "60294244128",
+      "ExecMainPID": "209066",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

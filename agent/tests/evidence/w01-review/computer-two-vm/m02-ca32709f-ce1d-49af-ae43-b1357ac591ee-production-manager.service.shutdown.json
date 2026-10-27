@@ -1,0 +1,29 @@
+{
+  "unit": "m02-ca32709f-ce1d-49af-ae43-b1357ac591ee-production-manager.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "63037039061",
+      "ExecMainExitTimestampMonotonic": "0",
+      "ExecMainPID": "135624",
+      "ExecMainCode": "0",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "63037039061",
+      "ExecMainExitTimestampMonotonic": "63107613350",
+      "ExecMainPID": "135624",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

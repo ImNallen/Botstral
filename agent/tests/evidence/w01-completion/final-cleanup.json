@@ -1,0 +1,14 @@
+{
+  "botstral-manager": {
+    "root": "/home/botstral/w01-76b03bf1",
+    "fixture_units": [],
+    "fixture_processes": [],
+    "clean": true
+  },
+  "botstral-computer": {
+    "root": "/home/botstral/w01-76b03bf1",
+    "fixture_units": [],
+    "fixture_processes": [],
+    "clean": true
+  }
+}

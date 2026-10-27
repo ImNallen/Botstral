@@ -1,0 +1,133 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "a418b013-485a-45fa-8895-133cab17ffa0",
+      "arguments": "c1ed7a8a5edb1f2476253c6a123c5971521142f2f561940d44901c94f3653bdb",
+      "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+      "execution": "3462d7e0-4450-4413-b3c7-5a0b95ab9512",
+      "expires_at": 1793090156,
+      "operation": "4791099c-2ecf-475c-8bac-08382597c685",
+      "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+      "permission_revision": 1,
+      "task": "736fd906-1bac-4539-806e-5997e4ba487a"
+    },
+    "consumed": true,
+    "id": "a418b013-485a-45fa-8895-133cab17ffa0",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "098d8e1d-2676-4738-9ba2-e7059dbe9c78",
+    "execution": "3462d7e0-4450-4413-b3c7-5a0b95ab9512",
+    "id": "24abd424-a590-4c45-8a8d-ab5e550925ca",
+    "operation": "4791099c-2ecf-475c-8bac-08382597c685",
+    "owner": "2a0db4ac-05a3-460f-94dc-8a206ab323db",
+    "session": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "task": "736fd906-1bac-4539-806e-5997e4ba487a",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "import os,time; p=os.fork(); os.setsid() if p==0 else open('orphan.pid','w').write(str(p)); time.sleep(60) if p==0 else None"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090186,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 10
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "83591a58-1537-4ecc-bc34-0a30e10d91a7"
+  },
+  "effect_evidence": [],
+  "id": "736fd906-1bac-4539-806e-5997e4ba487a",
+  "outcome": {
+    "reason": "result",
+    "scope": {
+      "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-3462d7e0-4450-4413-b3c7-5a0b95ab9512.service",
+      "execution": "3462d7e0-4450-4413-b3c7-5a0b95ab9512",
+      "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+      "invocation": "f13e09bedd174f04aee4a687ba7b5da3",
+      "journal": "072b014f-e9e3-4c27-a8a8-1f60d8761dcb",
+      "unit": "botstral-072b014f-e9e3-4c27-a8a8-1f60d8761dcb-3462d7e0-4450-4413-b3c7-5a0b95ab9512.service"
+    },
+    "success": true,
+    "type": "process_finished"
+  },
+  "outputs": [],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "code": 0,
+        "type": "exited"
+      },
+      "stderr": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "736fd906-1bac-4539-806e-5997e4ba487a",
+    "session_id": "0371e8e8-ef16-4fd5-8aaf-66e403f65711",
+    "settings": {
+      "deadline": 1793090186,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "-c",
+          "import os,time; p=os.fork(); os.setsid() if p==0 else open('orphan.pid','w').write(str(p)); time.sleep(60) if p==0 else None"
+        ],
+        "cwd": "/tmp/.tmp6tDHHP",
+        "deadline": 1793090186,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 10
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "completed"
+}

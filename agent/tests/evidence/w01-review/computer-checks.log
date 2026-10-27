@@ -1,0 +1,42 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0583cf15/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.25s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-d5620291564e010f)
+
+running 1 test
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 12.42s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-d5620291564e010f)
+
+running 1 test
+test artifact_acceptance::w01_manager_store_reservation_refuses_authority_at_the_finite_byte_limit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 3.97s
+
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0583cf15/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.90s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-fd38ad643e5b84d4)
+
+running 1 test
+test journal::artifacts::tests::spool_capacity_is_reserved_before_authority_and_released_only_when_not_admitted ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.03s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/computer.rs (target/debug/deps/computer-362bc34d806669cb)
+
+running 3 tests
+test owner_computer_command_is_first_class_and_strict ... ok
+test computer_bounds_and_immutable_inputs_preserve_process_ceilings ... ok
+test bounded_artifact_chunks_fit_the_existing_transport_envelope ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+Run agent/tests/w01_computer_two_vm.py with fresh fixture roots and certificates for actual Linux browser acceptance.

@@ -1,0 +1,28 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+    Finished `release` profile [optimized] target(s) in 0.08s
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-review-0583cf15/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.96s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-289a555b6bbbe884)
+
+running 5 tests
+test process_acceptance::w01_crash_runtime_bound ... ok
+test process_acceptance::w01_journal_replacement ... ok
+test process_acceptance::w01_production_contract ... ok
+test process_acceptance::w01_review_interrupted_probe ... ok
+test process_acceptance::w01_review_reconnect_confirmation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 53.58s
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-e45e3453cfa7232d)
+
+running 1 test
+test process_acceptance::w01_crash_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 27 filtered out; finished in 17.14s
+

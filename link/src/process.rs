@@ -393,6 +393,7 @@ mod tests {
                 4
             ],
             process: Some(evidence),
+            outputs: Vec::new(),
             approval: ApprovalView {
                 id: ApprovalId::new(),
                 binding: None,

@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-289a555b6bbbe884)
+
+running 1 test
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 6.43s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-289a555b6bbbe884)
+
+running 1 test
+test artifact_acceptance::w01_manager_store_reservation_refuses_authority_at_the_finite_byte_limit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 2.59s
+

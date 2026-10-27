@@ -277,7 +277,7 @@ fn launch_fault(binary: &Path, args: &[&str], root: &Path, fault: Option<&str>) 
     Process(command.spawn().unwrap())
 }
 #[cfg(feature = "nonproduction-test-worker")]
-async fn reached(process: &mut Process, state: &Path, point: &str) {
+pub(super) async fn reached(process: &mut Process, state: &Path, point: &str) {
     tokio::time::timeout(Duration::from_secs(12), async {
         loop {
             if let Some(status) = process.0.try_wait().unwrap() {

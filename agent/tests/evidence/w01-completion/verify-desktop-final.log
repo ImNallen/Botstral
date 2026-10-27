@@ -1,0 +1,195 @@
+./scripts/verify-desktop.sh
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> check
+> npm run bindings:check && npm run check --workspaces
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+
+> @botstral/link@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  09:37:18
+   Duration  1.27s (tests 48%, environment 40%, setup 6%, import 4%, transform 1%)
+
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 123 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-DNb6lioO.css   11.88 kB │ gzip:   3.10 kB
+dist/assets/index-D9fsSq8U.js   330.65 kB │ gzip: 100.48 kB
+
+✓ built in 66ms
+   Compiling objc2-exception-helper v0.1.1
+   Compiling mac-notification-sys v0.6.15
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/desktop/src-tauri)
+   Compiling objc2 v0.6.5
+    Checking objc2-core-foundation v0.3.2
+    Checking block2 v0.6.2
+    Checking dispatch2 v0.3.1
+    Checking objc2-foundation v0.3.2
+    Checking objc2-core-graphics v0.3.2
+    Checking objc2-quartz-core v0.3.2
+    Checking notify-rust v4.18.2
+    Checking objc2-app-kit v0.3.2
+    Checking objc2-web-kit v0.3.2
+    Checking tao v0.37.2
+    Checking muda v0.20.0
+    Checking window-vibrancy v0.8.1
+    Checking tray-icon v0.25.1
+    Checking wry v0.57.1
+    Checking tauri-runtime v2.12.2
+    Checking tauri-runtime-wry v2.12.3
+    Checking tauri v2.12.4
+    Checking tauri-plugin-notification v2.7.0
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.58s
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling objc2-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling wry v0.57.1
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling objc2-quartz-core v0.3.2
+   Compiling mac-notification-sys v0.6.15
+   Compiling notify-rust v4.18.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling muda v0.20.0
+   Compiling tao v0.37.2
+   Compiling window-vibrancy v0.8.1
+   Compiling tauri-runtime v2.12.2
+   Compiling tray-icon v0.25.1
+   Compiling tauri-runtime-wry v2.12.3
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-notification v2.7.0
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.99s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-132c61a19f470831)
+
+running 2 tests
+test shell::tests::rejected_callers_receive_no_application_data ... ok
+test shell::tests::native_page_policy_rejects_remote_and_nested_content ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-fc1e3f3d121072ef)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-9344f011c9049e63)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+   Doc-tests botstral_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.89s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-9344f011c9049e63)
+
+running 1 test
+test actual_manager_owner_bot_workers_and_sign_out ... Verified real manager sign-in, owner, idempotent bot creation, status, workers, and local sign-out through the production native service.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 5.78s
+
+
+> desktop
+> npm run tauri --workspace @botstral/desktop -- build --debug --no-bundle
+
+
+> @botstral/desktop@0.1.0 tauri
+> tauri build --debug --no-bundle
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 123 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-DNb6lioO.css   11.88 kB │ gzip:   3.10 kB
+dist/assets/index-D9fsSq8U.js   330.65 kB │ gzip: 100.48 kB
+
+✓ built in 65ms
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling mac-notification-sys v0.6.15
+   Compiling objc2-foundation v0.3.2
+   Compiling wry v0.57.1
+   Compiling objc2-core-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling objc2-quartz-core v0.3.2
+   Compiling notify-rust v4.18.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling muda v0.20.0
+   Compiling tao v0.37.2
+   Compiling window-vibrancy v0.8.1
+   Compiling tauri-runtime v2.12.2
+   Compiling tray-icon v0.25.1
+   Compiling tauri-runtime-wry v2.12.3
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-notification v2.7.0
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.07s
+       Built application at: /Users/nallen/.t3/worktrees/Botstral/t3-76b03bf1/desktop/src-tauri/target/debug/botstral-desktop

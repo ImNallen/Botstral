@@ -117,9 +117,89 @@
     "ArgumentDigest": {
       "type": "string"
     },
+    "ArtifactChunk": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "hex": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "journal": {
+          "$ref": "#/$defs/JournalId"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "slot": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "journal",
+        "execution",
+        "slot",
+        "id",
+        "offset",
+        "hex"
+      ]
+    },
+    "ArtifactContent": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "length"
+      ]
+    },
     "ArtifactId": {
       "type": "string",
       "format": "uuid"
+    },
+    "ArtifactOffer": {
+      "type": "object",
+      "properties": {
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "journal": {
+          "$ref": "#/$defs/JournalId"
+        },
+        "output": {
+          "$ref": "#/$defs/SealedOutput"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "journal",
+        "task",
+        "execution",
+        "slot",
+        "output"
+      ]
     },
     "ArtifactReference": {
       "type": "object",
@@ -145,6 +225,99 @@
         "sha256",
         "length",
         "media_type"
+      ]
+    },
+    "ArtifactState": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "pending"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/ArtifactContent"
+            },
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "type": {
+              "type": "string",
+              "const": "transferring"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/ArtifactContent"
+            },
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "type": {
+              "type": "string",
+              "const": "available"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/ArtifactUnavailable"
+            },
+            "type": {
+              "type": "string",
+              "const": "unavailable"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "ArtifactTransferState": {
+      "type": "string",
+      "enum": [
+        "receiving",
+        "stored",
+        "unavailable"
+      ]
+    },
+    "ArtifactUnavailable": {
+      "type": "string",
+      "enum": [
+        "missing",
+        "rejected",
+        "execution_uncertain",
+        "corrupt"
       ]
     },
     "AuthoritativeEvent": {
@@ -179,7 +352,8 @@
         "logical_sessions",
         "input_fencing",
         "test_input",
-        "process_systemd_v1"
+        "process_systemd_v1",
+        "computer_v1"
       ]
     },
     "CapturedOutput": {
@@ -344,6 +518,184 @@
       "type": "string",
       "format": "uuid"
     },
+    "ComputerOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "navigate"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "url"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "click"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "selector"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "selector": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "fill"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "selector",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string"
+            },
+            "selector": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "capture_text"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "selector",
+            "output"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "screenshot"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "output"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "write_file"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "path",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "read_file"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "path",
+            "output"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "output": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "export_file"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "path",
+            "output"
+          ]
+        }
+      ]
+    },
+    "ComputerProfile": {
+      "type": "string",
+      "enum": [
+        "linux_playwright_v1"
+      ]
+    },
+    "ComputerRuntime": {
+      "type": "object",
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sha256"
+      ]
+    },
     "ComputerSession": {
       "type": "object",
       "properties": {
@@ -379,6 +731,53 @@
     "ComputerSessionId": {
       "type": "string",
       "format": "uuid"
+    },
+    "ComputerSpec": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limits": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComputerOperation"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OutputDeclaration"
+          }
+        },
+        "profile": {
+          "$ref": "#/$defs/ComputerProfile"
+        },
+        "runtime": {
+          "$ref": "#/$defs/ComputerRuntime"
+        },
+        "viewport": {
+          "$ref": "#/$defs/Viewport"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "account",
+        "runtime",
+        "deadline",
+        "limits",
+        "viewport",
+        "operations",
+        "outputs"
+      ]
     },
     "ControlStatus": {
       "type": "string",
@@ -927,6 +1326,41 @@
         {
           "type": "object",
           "properties": {
+            "execution": {
+              "$ref": "#/$defs/ExecutionId"
+            },
+            "id": {
+              "$ref": "#/$defs/ArtifactId"
+            },
+            "offset": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "slot": {
+              "type": "string"
+            },
+            "state": {
+              "$ref": "#/$defs/ArtifactTransferState"
+            },
+            "type": {
+              "type": "string",
+              "const": "artifact_progress"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "execution",
+            "slot",
+            "id",
+            "offset",
+            "state"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "offset": {
               "type": "integer",
               "format": "uint16",
@@ -1255,6 +1689,48 @@
     "OperationId": {
       "type": "string",
       "format": "uuid"
+    },
+    "OutputDeclaration": {
+      "type": "object",
+      "properties": {
+        "max_bytes": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "media_type": {
+          "$ref": "#/$defs/MediaType"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slot": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "name",
+        "media_type",
+        "max_bytes"
+      ]
+    },
+    "OutputView": {
+      "type": "object",
+      "properties": {
+        "declaration": {
+          "$ref": "#/$defs/OutputDeclaration"
+        },
+        "state": {
+          "$ref": "#/$defs/ArtifactState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "declaration",
+        "state"
+      ]
     },
     "OwnerId": {
       "type": "string",
@@ -1617,6 +2093,44 @@
       "type": "integer",
       "format": "uint64",
       "minimum": 0
+    },
+    "SealedOutput": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/ArtifactContent"
+            },
+            "type": {
+              "type": "string",
+              "const": "content"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "content"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/ArtifactUnavailable"
+            },
+            "type": {
+              "type": "string",
+              "const": "unavailable"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
     },
     "SourceReference": {
       "oneOf": [
@@ -2020,6 +2534,13 @@
             }
           ]
         },
+        "outputs": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OutputView"
+          }
+        },
         "process": {
           "anyOf": [
             {
@@ -2052,6 +2573,28 @@
         "progress",
         "effect_evidence",
         "approval"
+      ]
+    },
+    "Viewport": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "width": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
       ]
     },
     "WorkSpec": {
@@ -2127,6 +2670,23 @@
             "type",
             "spec"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "$ref": "#/$defs/ComputerSpec"
+            },
+            "type": {
+              "type": "string",
+              "const": "computer"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "spec"
+          ]
         }
       ]
     },
@@ -2136,6 +2696,57 @@
     },
     "WorkerMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "offer": {
+              "$ref": "#/$defs/ArtifactOffer"
+            },
+            "type": {
+              "type": "string",
+              "const": "artifact_failed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "offer"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "offer": {
+              "$ref": "#/$defs/ArtifactOffer"
+            },
+            "type": {
+              "type": "string",
+              "const": "artifact_offer"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "offer"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "chunk": {
+              "$ref": "#/$defs/ArtifactChunk"
+            },
+            "type": {
+              "type": "string",
+              "const": "artifact_chunk"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "chunk"
+          ]
+        },
         {
           "type": "object",
           "properties": {
