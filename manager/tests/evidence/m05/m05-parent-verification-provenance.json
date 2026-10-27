@@ -1,0 +1,11 @@
+{
+  "collected_at": "2026-10-27T22:00:17.768830+00:00",
+  "source_log": "/Users/nallen/.t3/worktrees/Botstral/t3-79a01e83/.audit/m05-final-verify.log",
+  "sha256": "89ef5206a6a3234ad597f4012800218d9aa7f8ed7c81b6b9f5dc7e2f4a85e284",
+  "command": "scripts/verify.sh",
+  "exit_code": 0,
+  "exit_code_basis": "Parent handoff explicitly reports exit zero; the copied log ends with both production release refusals verified.",
+  "tested_source_head": "3a4aecdea15c1d1294cdff5ee42498cd8da97a4b",
+  "copied_without_modification": true,
+  "scope": "Parent macOS repository verification evidence. This agent did not rerun it in the parent checkout."
+}

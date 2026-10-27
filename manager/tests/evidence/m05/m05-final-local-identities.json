@@ -1,0 +1,14 @@
+{
+  "observed_at": "2026-10-27T22:04:34.544578+00:00",
+  "source_head": "3a4aecdea15c1d1294cdff5ee42498cd8da97a4b",
+  "default_binary_sha256": {
+    "botstral-manager": "e9fe1af3d5e4d8b4a4697ef896ad5324f6ed89ce2c660fcff40a15a46f815368",
+    "owner-probe": "938da41b8a3329dbc6fbaa966dca365edc54c06d0fac70ad138eb512f3f4086b",
+    "botstral-agent": "e2d3977056293d160c9c08d759712729970c84da3d1dd7f26938d0eb22f0f73d"
+  },
+  "contract_sha256": "dc8316db727f4a1ba83acae95fd230f8d5c8a27dd8a5f2a575822fefac8bb513",
+  "default_binaries_copied_before_final_acceptance": true,
+  "post_run_hashes_match_acceptance_summary": true,
+  "native_correction_binaries": ".audit/macos-default-bin",
+  "all_15_local_gates": true
+}

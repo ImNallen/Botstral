@@ -44,4 +44,4 @@ Eight owner connections have at most one ordinary operation or transfer each. On
 
 The client has one transfer staging file and one atomically installed state file. Installation removes the transfer file before writing the replacement state staging file. Old state plus staging consumes at most 160 MiB, plus less than 1 MiB for credentials and metadata. Transfer deadlines and process startup remove interrupted staging files. The server creates no transfer files.
 
-Run `cargo test -p botstral-manager --test m05_bounds -- --nocapture` to check the constants and layout assumptions. Runtime acceptance must still demonstrate complete recovery and oversized ordinary replies. M05 stays unchecked until all required acceptance passes.
+Run `cargo test -p botstral-manager --test m05_bounds -- --nocapture` to check the constants and layout assumptions. [Final corrected-source acceptance](m05-acceptance.md) demonstrated complete recovery and oversized ordinary replies. All required runtime gates passed. Parent evidence review and integration remain pending.

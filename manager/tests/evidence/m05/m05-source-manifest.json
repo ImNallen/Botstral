@@ -1,0 +1,32 @@
+{
+  "production_source_head": "3a4aecdea15c1d1294cdff5ee42498cd8da97a4b",
+  "source_archive_sha256": "ced3fc59593a44572e074f98078a03007bd3a4153ccc0241006413fd72afe33e",
+  "production_objects": {
+    "Cargo.toml": "5a8a887bc9778968286ec9c7a34406d87ec62a21",
+    "Cargo.lock": "bb91e4a56a9097c24b7a441c2b5ccdd9fcc0b23a",
+    "rust-toolchain.toml": "9e8885762b27460577faf9c19708eabb42cc14b8",
+    "manager/Cargo.toml": "42f15c21121a37c613831af2ca83c3f946d7000a",
+    "manager/src": "b283341ebcf47a61013c63606311626c67ddfed6",
+    "manager/migrations": "3f6b5b02a580b44d2cec04429c587a39df480c08",
+    "link/Cargo.toml": "5804bf3d9166b80ccc9985069ba562534651e164",
+    "link/src": "c3022bfa14d4c242c2c177bba19c152a4402d8a6",
+    "link/schema/protocol.json": "bc0e833502f178d3c3d75c7fb330414c7333b1a7",
+    "link/typescript/protocol.d.ts": "3f30dafd54a1dc2180d881377040e0a3bdfa2ed4",
+    "agent/Cargo.toml": "ac3245950f0044427b68b8eb5c0fc813d177777b",
+    "agent/src": "22eb7aa96aa7d988d152e3dda13d63e2b5b384c7"
+  },
+  "binary_sha256": {
+    "botstral-manager": "e6d76bd1e3be3d97cd6730a5a5f1f6c28778e2be2126a2c4d4051360e3f135c0",
+    "owner-probe": "e2d1a23db624ce4e2862833b919166937fc54a0526ef43603a09abf51fa7b9bf",
+    "botstral-agent": "4d97040727389302a7576c1f1d7f4b39f5ebee87f482a1f14bf46cba604069e5",
+    "m04-botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00"
+  },
+  "bore_archive_sha256": "e484d1e3acba77169b773f31a5bfb34192d4b660f44a094a658a2522cd2270f7",
+  "bore_binary_sha256": "60548b7a145ba334981b19fda7cd0210d24a108a3d0dc113919b33fd2eaa90ab",
+  "frozen_production_correction": "ef2b09e291eeef0a02c5639341dd7a426927fbce",
+  "build_host": "botstral-computer at 192.168.1.235",
+  "build_root": "/home/botstral/m05-final-4a0df3ffd5d6",
+  "archive_command": "gzip.compress(subprocess.check_output([\"git\", \"archive\", \"--format=tar\", \"3a4aecdea15c1d1294cdff5ee42498cd8da97a4b\"]), mtime=0)",
+  "binary_profile": "cargo build --workspace --locked; explicit default debug build after scripts/verify.sh",
+  "retained_artifact_provenance": "Retained M04 worker, bore v0.6.0 executable and bore archive were read and hashed against initial/m05-source-manifest.json. Original files were not modified."
+}

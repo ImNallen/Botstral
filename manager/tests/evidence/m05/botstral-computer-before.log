@@ -1,0 +1,25 @@
+Observed 2026-10-27T21:58:15.499456+00:00
+botstral-0c2ca9ca-b846-4162-8fce-adb2108366ee-4bd9aaa6-2b64-4a0d-9cd3-ca926e69616a.service loaded failed   failed  /home/botstral/m04-stop-final.TIi8kJ/bin/production/botstral-agent process-helper /tmp/.tmpuwAv4B/agent/processes/4bd9aaa6-2b64-4a0d-9cd3-ca926e69616a
+botstral-92fbf0cc-0ba0-419b-b06e-9faf27cb5aea-31e294c3-6648-461c-a62d-a2027823dc86.service loaded failed   failed  /home/botstral/m04-run-a5d2ebd.qE60rh/target/debug/botstral-agent process-helper /tmp/.tmp5auU8H/agent/computer-probe
+botstral-9b90bff5-195e-44e9-9be2-205fee760243-4beec381-f682-4895-a69a-30f5afd786a4.service loaded active   exited  /home/botstral/m04-run-a5d2ebd.qE60rh/target/debug/botstral-agent process-helper /tmp/.tmpuzVmZX/agent/computer-probe
+botstral-e33081ea-7988-457f-8550-ff6bd70805fd-d45de883-d0e1-4755-a54a-fd77ee55ca47.service loaded failed   failed  /home/botstral/m04-run-a5d2ebd.qE60rh/target/debug/botstral-agent process-helper /tmp/.tmpR1gwBN/agent/computer-probe
+dbus.service                                                                               loaded active   running D-Bus User Message Bus
+dirmngr.service                                                                            loaded inactive dead    GnuPG network certificate management daemon
+gpg-agent.service                                                                          loaded inactive dead    GnuPG cryptographic agent and passphrase cache
+keyboxd.service                                                                            loaded inactive dead    GnuPG public key management service
+launchpadlib-cache-clean.service                                                           loaded inactive dead    Clean up old files in the Launchpadlib cache
+m04-contract-a8ba1fb0d103478f8b79f6a3bf29af97.service                                      loaded failed   failed  /usr/bin/python3 /home/botstral/m04-contract-61503b0218dd4cc6925566e0e1b68109/agent/tests/m04_vibe_contract.py --vibe /home/botstral/m04-vibe-2.24.2/bin/vibe --report /home/botstral/m04-contract-61503b0218dd4cc6925566e0e1b68109/report.json
+pk-debconf-helper.service                                                                  loaded inactive dead    debconf communication service
+snapd.session-agent.service                                                                loaded inactive dead    snapd user session agent
+w01-measure-2583c264-33d5-47ae-acd6-76b1c2ed112f.service                                   loaded failed   failed  /usr/bin/python3 /home/botstral/w01-runtime-measure-76b03bf1.py --child --runtime /home/botstral/w01-runtime-76b03bf1 --root /home/botstral/w01-measure-76b03bf1 --url http://127.0.0.1:39325/
+   2622 systemd
+   2623 (sd-pam)
+  52153 dbus-daemon
+ 371052 sshd
+ 371053 bash
+ 371080 verify.sh
+ 377779 cargo
+ 378037 rustc
+ 378134 rustc
+ 379232 sshd
+ 379233 ps

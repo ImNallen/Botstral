@@ -1,0 +1,45 @@
+Started 2026-10-27T22:03:23.018161+00:00
+Command python3 .audit/compatibility.py coding
+Remote command
+set -eu
+export PATH="$HOME/.cargo/bin:$PATH"
+umask 077
+cd /home/botstral/m05-final-4a0df3ffd5d6/source
+mkdir -p /home/botstral/m05-final-4a0df3ffd5d6/tmp-coding
+export TMPDIR=/home/botstral/m05-final-4a0df3ffd5d6/tmp-coding
+export BOTSTRAL_RUN_AGENT_BIN=/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent
+export BOTSTRAL_VIBE_RUNTIME=/home/botstral/m04-vibe-2.24.2
+export BOTSTRAL_RUN_RUNTIME=/home/botstral/w01-runtime-76b03bf1
+stat -c "%n %a %s" "$BOTSTRAL_RUN_AGENT_BIN" "$BOTSTRAL_VIBE_RUNTIME" "$BOTSTRAL_RUN_RUNTIME"
+sha256sum "$BOTSTRAL_RUN_AGENT_BIN" "$BOTSTRAL_RUN_RUNTIME/runtime.json"
+cargo test -p botstral-manager --locked --lib m04_coding_production_worker_pinned_vibe -- --ignored --nocapture
+find "$TMPDIR" -mindepth 1 -maxdepth 1 -printf "%f\n"
+
+/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent 700 6968032
+/home/botstral/m04-vibe-2.24.2 775 4096
+/home/botstral/w01-runtime-76b03bf1 700 4096
+a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00  /home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent
+1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061  /home/botstral/w01-runtime-76b03bf1/runtime.json
+   Compiling tokio v1.54.1
+   Compiling hyper v1.12.0
+   Compiling tower v0.5.3
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-util v0.7.20
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tower-http v0.6.11
+   Compiling hyper-util v0.1.21
+   Compiling hyper-rustls v0.27.10
+   Compiling axum v0.8.9
+   Compiling reqwest v0.12.28
+   Compiling botstral-manager v0.1.0 (/home/botstral/m05-final-4a0df3ffd5d6/source/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.72s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-c4f358204e68019f)
+
+running 1 test
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 16.18s
+
+
+Finished 2026-10-27T22:03:52.239449+00:00
+Exit 0

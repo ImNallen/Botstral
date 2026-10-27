@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-10-27T22:05:58.014281+00:00",
+  "failed_spot_check": "actual inventory excluded every basename files.json instead of only the top-level path",
+  "assertion_result": "AssertionError",
+  "wrongly_excluded_existing_files": [
+    "initial/files.json"
+  ],
+  "corrected_check": "f != evidence_root / \"files.json\"",
+  "corrected_inventory_matches": true,
+  "production_or_validator_changes": false
+}

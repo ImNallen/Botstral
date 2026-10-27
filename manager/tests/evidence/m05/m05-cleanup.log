@@ -1,0 +1,74 @@
+Started 2026-10-27T22:04:53.863536+00:00
+Command python3 .audit/remove-fixtures.py
+{
+  "observed_at": "2026-10-27T22:04:53.888072+00:00",
+  "build_root": "/home/botstral/m05-final-4a0df3ffd5d6",
+  "acceptance_root": "/home/botstral/m05-fixture-0d5dd7d84514",
+  "before_removal": {
+    "observed_at": "2026-10-27T22:04:43.274913+00:00",
+    "build_root": "/home/botstral/m05-final-4a0df3ffd5d6",
+    "hosts": {
+      "botstral-manager": {
+        "root": "/home/botstral/m05-final-4a0df3ffd5d6",
+        "owned_units": [],
+        "remaining_botstral_units": [],
+        "owned_processes_remaining": [],
+        "root_exists": false
+      },
+      "botstral-computer": {
+        "root": "/home/botstral/m05-final-4a0df3ffd5d6",
+        "owned_units": [],
+        "remaining_botstral_units": [
+          {
+            "unit": "botstral-0c2ca9ca-b846-4162-8fce-adb2108366ee-4bd9aaa6-2b64-4a0d-9cd3-ca926e69616a.service",
+            "active": "failed",
+            "sub": "failed"
+          },
+          {
+            "unit": "botstral-92fbf0cc-0ba0-419b-b06e-9faf27cb5aea-31e294c3-6648-461c-a62d-a2027823dc86.service",
+            "active": "failed",
+            "sub": "failed"
+          },
+          {
+            "unit": "botstral-9b90bff5-195e-44e9-9be2-205fee760243-4beec381-f682-4895-a69a-30f5afd786a4.service",
+            "active": "active",
+            "sub": "exited"
+          },
+          {
+            "unit": "botstral-e33081ea-7988-457f-8550-ff6bd70805fd-d45de883-d0e1-4755-a54a-fd77ee55ca47.service",
+            "active": "failed",
+            "sub": "failed"
+          }
+        ],
+        "owned_processes_remaining": [],
+        "root_exists": true
+      }
+    }
+  },
+  "hosts": {
+    "botstral-manager": {
+      "build_root_absent": true,
+      "acceptance_fixture_root_absent": true
+    },
+    "botstral-computer": {
+      "build_root_absent": true,
+      "acceptance_fixture_root_absent": true,
+      "installed_paths": {
+        "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": true,
+        "/home/botstral/m04-vibe-2.24.2": true,
+        "/home/botstral/w01-runtime-76b03bf1": true
+      },
+      "installed_worker_sha256": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+      "browser_runtime_manifest_sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+    }
+  },
+  "endpoint_shutdown": {
+    "lan_refuses_tcp": true,
+    "relay_refuses_tcp": true
+  },
+  "local_acceptance_fixture_removed": true,
+  "native_correction_cleanup": "The unchanged runner completed its finally block, stopping the proxy and Manager and deleting its tempfile root. No raw native fixture state was retained."
+}
+
+Finished 2026-10-27T22:04:55.139682+00:00
+Exit 0

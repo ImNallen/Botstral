@@ -1,0 +1,60 @@
+{
+  "observed_at": "2026-10-27T21:59:53.221688+00:00",
+  "local": {
+    "sw_vers": {
+      "code": 0,
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0.1\nBuildVersion:\t\t26A434",
+      "stderr": ""
+    },
+    "uname -a": {
+      "code": 0,
+      "stdout": "Darwin Adams-MBP.localdomain 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041 arm64",
+      "stderr": ""
+    },
+    "rustc --version": {
+      "code": 0,
+      "stdout": "rustc 1.93.0 (254b59607 2026-01-19)",
+      "stderr": ""
+    },
+    "cargo --version": {
+      "code": 0,
+      "stdout": "cargo 1.93.0 (083ac5135 2025-12-15)",
+      "stderr": ""
+    },
+    "python3 --version": {
+      "code": 0,
+      "stdout": "Python 3.9.6",
+      "stderr": ""
+    },
+    "node --version": {
+      "code": 0,
+      "stdout": "v26.12.1",
+      "stderr": ""
+    },
+    "npm --version": {
+      "code": 0,
+      "stdout": "11.20.0",
+      "stderr": ""
+    },
+    "openssl version": {
+      "code": 0,
+      "stdout": "OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)",
+      "stderr": ""
+    },
+    "git --version": {
+      "code": 0,
+      "stdout": "git version 2.54.0 (Apple Git-157)",
+      "stderr": ""
+    }
+  },
+  "botstral-manager": {
+    "code": 0,
+    "stdout": "Linux botstral-manager 6.8.0-147-generic #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux\nPython 3.12.3\nOpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)\ngit version 2.43.0\nsystemd 255 (255.4-1ubuntu8.18)",
+    "stderr": ""
+  },
+  "botstral-computer": {
+    "code": 0,
+    "stdout": "Linux botstral-computer 6.8.0-147-generic #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux\nPython 3.12.3\nOpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)\ngit version 2.43.0\nsystemd 255 (255.4-1ubuntu8.18)\nrustc 1.93.0 (254b59607 2026-01-19)\ncargo 1.93.0 (083ac5135 2025-12-15)\nmistral-vibe 2.24.2",
+    "stderr": ""
+  }
+}

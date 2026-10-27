@@ -1,0 +1,114 @@
+Started 2026-10-27T21:58:13.869559+00:00
+Command cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling libc v0.2.191
+   Compiling stable_deref_trait v1.2.1
+   Compiling futures-core v0.3.34
+   Compiling pin-project-lite v0.2.17
+   Compiling bytes v1.12.1
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling utf8_iter v1.0.4
+   Compiling icu_properties_data v2.4.0
+   Compiling itoa v1.0.18
+   Compiling icu_normalizer_data v2.4.0
+   Compiling smallvec v1.16.4
+   Compiling serde_core v1.0.229
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling httparse v1.10.1
+   Compiling percent-encoding v2.3.2
+   Compiling once_cell v1.21.4
+   Compiling bitflags v2.13.2
+   Compiling futures-util v0.3.34
+   Compiling tower-service v0.3.3
+   Compiling serde v1.0.229
+   Compiling zmij v1.0.23
+   Compiling try-lock v0.2.5
+   Compiling getrandom v0.4.3
+   Compiling tracing-core v0.1.36
+   Compiling form_urlencoded v1.2.2
+   Compiling want v0.3.2
+   Compiling sync_wrapper v1.0.2
+   Compiling tower-layer v0.3.3
+   Compiling atomic-waker v1.1.2
+   Compiling cfg-if v1.0.5
+   Compiling serde_json v1.0.154
+   Compiling futures-channel v0.3.34
+   Compiling ipnet v2.12.2
+   Compiling rustix v1.1.5
+   Compiling base64 v0.23.1
+   Compiling futures-sink v0.3.34
+   Compiling http v1.5.0
+   Compiling tracing v0.1.44
+   Compiling memchr v2.8.3
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-06c17af9/desktop/src-tauri)
+   Compiling log v0.4.34
+   Compiling fastrand v2.5.0
+   Compiling syn v3.0.9
+   Compiling http-body v1.1.0
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling errno v0.3.14
+   Compiling http-body-util v0.1.5
+   Compiling tempfile v3.27.0
+   Compiling uuid v1.29.0
+   Compiling synstructure v0.14.0
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+   Compiling zerovec-derive v0.11.7
+   Compiling displaydoc v0.2.7
+   Compiling tokio-macros v2.7.2
+   Compiling serde_derive v1.0.229
+   Compiling tokio v1.54.1
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.4
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling tinystr v0.8.5
+   Compiling potential_utf v0.1.6
+   Compiling zeroize v1.9.1
+   Compiling icu_collections v2.4.0
+   Compiling icu_locale_core v2.4.0
+   Compiling icu_provider v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling icu_properties v2.4.0
+   Compiling hyper v1.12.0
+   Compiling tower v0.5.3
+   Compiling tokio-util v0.7.20
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling hyper-util v0.1.21
+   Compiling url v2.5.8
+   Compiling tower-http v0.6.11
+   Compiling reqwest v0.13.5
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.69s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-7ab219d2ac291eff)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-92d218d80e0eb5f8)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+   Doc-tests botstral_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Finished 2026-10-27T21:58:24.019276+00:00
+Exit 0

@@ -1,0 +1,11 @@
+Started 2026-10-27T22:05:40.096495+00:00
+Command python3 manager/tests/m05_record.py --check-controls
+PASS retained M05 acceptance, cleanup, hashes, and production source.
+PASS changed_log rejected: Evidence hash changed for verify-final.log.
+PASS failed_acceptance rejected: m05-local-source-final did not pass.
+PASS changed_source rejected: Tested production source changed at manager/src.
+PASS replaced_check rejected: m05-local-source-final is missing required acceptance checks.
+PASS missing_endpoint rejected: A fixture endpoint remained reachable after shutdown.
+
+Finished 2026-10-27T22:05:40.706434+00:00
+Exit 0
