@@ -122,9 +122,10 @@ class WebSocket:
 
 
 class OpaqueProxy:
-    def __init__(self, upstream, delay=.003):
+    def __init__(self, upstream, delay=.003, initial_alert=None):
         self.upstream = upstream
         self.delay=delay
+        self.initial_alert=initial_alert
         self.listener = socket.socket()
         self.listener.bind(('127.0.0.1', 0))
         self.listener.listen()
@@ -150,6 +151,12 @@ class OpaqueProxy:
                 return
             host, port = self.upstream.rsplit(':', 1)
             self.accepted+=1
+            if self.initial_alert is not None:
+                client.recv(65536)
+                client.sendall(self.initial_alert)
+                self.initial_alert = None
+                client.close()
+                continue
             connection_number=self.accepted
             server = socket.create_connection((host, int(port)), timeout=5)
             self.sockets += [client, server]

@@ -206,13 +206,9 @@ async fn transfer(
                 return Ok(());
             }
         };
-        let result = match manager
-            .owner_operation(lease, operation, permit.clone())
-            .await
-        {
+        let result = match manager.owner_operation(lease, operation, permit).await {
             Ok(reply) => reply,
             Err(error) => {
-                drop(permit);
                 control
                     .send(
                         OwnerServerMessage::Error {
@@ -227,11 +223,11 @@ async fn transfer(
             }
         };
         let bytes = tokio::task::spawn_blocking(move || {
-            let _permit = permit;
+            let _permit = result.permit;
             let mut count = CountBytes(0);
-            serde_json::to_writer(&mut count, &result).map_err(io::Error::other)?;
+            serde_json::to_writer(&mut count, &result.reply).map_err(io::Error::other)?;
             let mut bytes = Vec::with_capacity(count.0);
-            serde_json::to_writer(&mut bytes, &result).map_err(io::Error::other)?;
+            serde_json::to_writer(&mut bytes, &result.reply).map_err(io::Error::other)?;
             Ok::<_, io::Error>(bytes)
         })
         .await

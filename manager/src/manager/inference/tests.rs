@@ -44,6 +44,7 @@ struct FixtureState {
     models: AtomicUsize,
     requests: Mutex<Vec<Value>>,
     coding_path: Mutex<Option<String>>,
+    model_gate: Mutex<Option<Arc<Semaphore>>>,
 }
 struct Fixture {
     state: Arc<FixtureState>,
@@ -61,6 +62,7 @@ impl Fixture {
             models: AtomicUsize::new(0),
             requests: Mutex::new(Vec::new()),
             coding_path: Mutex::new(None),
+            model_gate: Mutex::new(None),
         });
         let app = Router::new()
             .route(
@@ -111,6 +113,11 @@ async fn model(
     assert_eq!(headers["authorization"], format!("Bearer {KEY}"));
     assert_eq!(id, "mistral-small-2506");
     state.models.fetch_add(1, Ordering::SeqCst);
+    let gate = state.model_gate.lock().unwrap().clone();
+    let _permit = match gate {
+        Some(gate) => Some(gate.acquire_owned().await.unwrap()),
+        None => None,
+    };
     (
         [("content-type", "application/json")],
         state.model.lock().unwrap().clone(),
@@ -433,6 +440,105 @@ fn no_plaintext(directory: &std::path::Path) {
             );
         }
     }
+}
+
+#[tokio::test]
+async fn m05_provider_verification_keeps_other_owner_operations_available() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let credential = crypto::random_token();
+    let grant = app
+        .manager
+        .invite_device(
+            app.session(),
+            PairingRequest {
+                fingerprint: DeviceFingerprint::from_credential(&credential),
+                label: "Provider control".into(),
+            },
+            600,
+        )
+        .await
+        .unwrap();
+    let (_, first) = app
+        .manager
+        .connect_owner(
+            OwnerHello::Enroll {
+                version: OWNER_VERSION,
+                manager: grant.manager,
+                role: DeviceRole::Owner,
+                credential: credential.clone(),
+                invitation: grant.secret.expose_secret().into(),
+            },
+            watch::channel(false).0,
+        )
+        .await
+        .unwrap();
+    let (_, second) = app
+        .manager
+        .connect_owner(
+            OwnerHello::Authenticate {
+                version: OWNER_VERSION,
+                manager: grant.manager,
+                role: DeviceRole::Owner,
+                credential,
+            },
+            watch::channel(false).0,
+        )
+        .await
+        .unwrap();
+    let gate = Arc::new(Semaphore::new(0));
+    *fixture.state.model_gate.lock().unwrap() = Some(gate.clone());
+    let manager = app.manager.clone();
+    let input = VerifyInference {
+        bot: app.bot,
+        revision: 1,
+    };
+    let pending = tokio::spawn(async move {
+        let permit = Arc::new(manager.snapshots.clone().acquire_owned().await.unwrap());
+        manager
+            .owner_operation(first, OwnerOperation::VerifyInference { input }, permit)
+            .await
+    });
+    tokio::time::timeout(Duration::from_secs(3), async {
+        while fixture.state.models.load(Ordering::SeqCst) < 2 {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .expect("Verification reached the blocked provider");
+    let permit = Arc::new(
+        app.manager
+            .snapshots
+            .clone()
+            .try_acquire_owned()
+            .expect("Provider verification blocked another owner operation"),
+    );
+    let reply = app
+        .manager
+        .owner_operation(
+            second,
+            OwnerOperation::Resume {
+                cursor: 0,
+                limit: 64,
+            },
+            permit,
+        )
+        .await
+        .unwrap();
+    assert!(matches!(reply.reply, OwnerReply::Replay(_)));
+    drop(reply);
+    gate.add_permits(1);
+    let verified = tokio::time::timeout(Duration::from_secs(3), pending)
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert!(matches!(verified.reply, OwnerReply::Configuration(_)));
+    drop(verified);
+    app.shutdown().await;
 }
 
 #[tokio::test]

@@ -95,4 +95,12 @@ The reusable native client lives in `manager::owner_client` and has an `owner-pr
 
 The old worker listener names remain aliases for the public listener. Public command-line aliases reject duplicate configuration. Worker paths and wire types remain unchanged. Legacy unbound worker invitations expire during migration. Existing worker registrations remain intact.
 
-No external route acceptance is claimed until the temporary relay has carried actual pinned owner traffic and cleanup has been verified. Independent implementation review remains the parent's gate.
+A native client admits one live session. The session retains the protected directory lock after its client is dropped. A client cannot install recovery state from another client's session. These ownership rules preserve the single staging-file storage bound.
+
+Failed authentication attempts share a durable response budget. Valid owner credentials and valid worker invitations are checked independently of that exhausted budget, so anonymous failures cannot lock out legitimate reconnects. Public connection and State queue limits still bound admission.
+
+Provider verification releases the materialization permit during network I/O and reacquires it before committing and serializing its bounded reply. Other owners retain control access during that wait.
+
+After a mutation may have been transmitted, a storage, protocol, timeout, or network failure before its validated result is an unknown outcome. Only a correlated explicit refusal establishes rejection. Certificate and pin errors remain terminal. Transient TLS peer alerts follow bounded reconnect without changing trust.
+
+These coordinator corrections address [issue 29](https://github.com/ImNallen/Botstral/issues/29). No final-source external acceptance is claimed until the corrected binaries carry actual pinned owner traffic and cleanup is verified. Independent review of the corrections remains open.

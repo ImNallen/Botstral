@@ -36,6 +36,11 @@ pub struct DeviceInvitationGrant {
     pub secret: SecretString,
 }
 
+pub(crate) struct MaterializedOwnerReply {
+    pub(crate) reply: OwnerReply,
+    pub(crate) permit: Arc<tokio::sync::OwnedSemaphorePermit>,
+}
+
 pub(crate) fn owner_error(error: OperationError) -> OwnerError {
     match error {
         OperationError::InvalidInput => OwnerError::InvalidInput,
@@ -114,8 +119,9 @@ impl Manager {
         lease: DeviceLease,
         operation: OwnerOperation,
         materialization: Arc<tokio::sync::OwnedSemaphorePermit>,
-    ) -> Result<OwnerReply, OperationError> {
+    ) -> Result<MaterializedOwnerReply, OperationError> {
         if let OwnerOperation::VerifyInference { input } = operation {
+            drop(materialization);
             let permit = self
                 .queue
                 .call(false, move |s| {
@@ -129,9 +135,17 @@ impl Manager {
                 .try_acquire_owned()
                 .map_err(|_| OperationError::Busy)?;
             let verified = self.provider.verify(&permit).await;
+            drop(_capacity);
             let config = permit.configuration;
             let epoch = permit.epoch;
-            return self
+            let materialization = Arc::new(
+                self.snapshots
+                    .clone()
+                    .acquire_owned()
+                    .await
+                    .map_err(|_| OperationError::Internal)?,
+            );
+            let reply = self
                 .queue
                 .call_wait(move |s| {
                     s.authorize_owner(&OwnerAuthority::Device(lease))?;
@@ -139,7 +153,11 @@ impl Manager {
                         s.finish_inference_verification(config, epoch, verified)?,
                     ))
                 })
-                .await;
+                .await?;
+            return Ok(MaterializedOwnerReply {
+                reply,
+                permit: materialization,
+            });
         }
         if let OwnerOperation::Artifact { task, id } = operation {
             let (mut file, declaration, length) = self
@@ -147,7 +165,6 @@ impl Manager {
                 .call(false, move |s| s.download_artifact(lease, task, id))
                 .await?;
             return tokio::task::spawn_blocking(move || {
-                let _materialization = materialization;
                 use base64::Engine;
                 use std::io::Read;
                 let mut bytes = Vec::new();
@@ -158,16 +175,21 @@ impl Manager {
                 if bytes.len() as u64 != length || length > MAX_ARTIFACT_BYTES {
                     return Err(OperationError::Conflict);
                 }
-                Ok(OwnerReply::Artifact {
+                let reply = OwnerReply::Artifact {
                     declaration,
                     base64: base64::engine::general_purpose::STANDARD.encode(bytes),
+                };
+                Ok(MaterializedOwnerReply {
+                    reply,
+                    permit: materialization,
                 })
             })
             .await
             .map_err(|_| OperationError::Internal)?;
         }
         let control = self.inference.clone();
-        self.queue
+        let reply = self
+            .queue
             .call(false, move |s| {
                 s.authorize_owner(&OwnerAuthority::Device(lease))?;
                 if matches!(
@@ -182,7 +204,11 @@ impl Manager {
                 control.notify_inference();
                 result
             })
-            .await
+            .await?;
+        Ok(MaterializedOwnerReply {
+            reply,
+            permit: materialization,
+        })
     }
 }
 

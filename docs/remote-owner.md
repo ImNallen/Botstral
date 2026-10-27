@@ -12,7 +12,7 @@ M05 provides the native `owner-probe` and reusable `manager::owner_client` libra
 
 Invitations are long random secrets. There is no short-code flow. A stolen invitation cannot enroll another credential. A stolen device credential can impersonate that device until revocation. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body.
 
-The reference client uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
+The reference client uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. One client admits one live session, and that session retains the directory lock until it ends. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
 
 ## Configure the public listener
 
@@ -31,6 +31,8 @@ Every reply uses `transfer_start`, ordered `transfer_chunk` messages, and `trans
 The server coalesces committed event-head wake hints. Each viewer has independent bounded control and bulk queues. The client subscribes before its first replay. It validates complete transfers in staging storage, fetches current authoritative state for event references, and atomically installs the image with its application cursor. Interrupted recovery preserves the previous cursor. A retention gap produces a complete M03 snapshot. Notifications contain only event-head hints and cannot grant approval authority.
 
 The native driver sends heartbeats, detects dead peers, and reconnects with bounded exponential backoff and jitter. Successful authenticated recovery resets the delay. Capacity and durable rate limits cause bounded retry. Pin failures, invalid credentials, and revocation require explicit action. A lost mutation response is `UnknownOutcome`. Reconcile with authoritative reads and existing stable operation identities. The client never automatically replays arbitrary mutations.
+
+Storage and protocol failures after mutation transmission also produce `UnknownOutcome` until a validated result or explicit refusal is available. Transient TLS peer alerts retry without replacing the pin. Failed anonymous attempts cannot exhaust valid owner authentication or worker enrollment.
 
 ## Replace trust locally
 
@@ -85,3 +87,10 @@ python3 manager/tests/m05_two_vm.py \
 ```
 
 The script uses the configured `botstral-manager` and `botstral-computer` SSH aliases. It creates unique private roots and transient units, verifies deployed binary hashes, compares direct and relayed Manager leaves, and exercises the real native client and production worker. It records cleanup before removing temporary credentials and fixture roots. A failed gate leaves the run incomplete.
+
+Run the native client review regressions after building their contract executable:
+
+```sh
+cargo build -p botstral-manager --locked --bins --example m05-client-contract
+python3 manager/tests/m05_client_regressions.py --output .audit/m05-client-regressions
+```

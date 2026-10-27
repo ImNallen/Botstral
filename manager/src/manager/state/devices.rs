@@ -142,7 +142,17 @@ impl State {
         hello: OwnerHello,
         stop: watch::Sender<bool>,
     ) -> Result<(ManagerId, DeviceLease), OperationError> {
-        self.remote_attempt()?;
+        let result = self.authenticate_owner(hello, stop);
+        if result.is_err() {
+            self.remote_attempt()?;
+        }
+        result
+    }
+    fn authenticate_owner(
+        &mut self,
+        hello: OwnerHello,
+        stop: watch::Sender<bool>,
+    ) -> Result<(ManagerId, DeviceLease), OperationError> {
         if !self.is_configured() {
             return Err(OperationError::Unauthorized);
         }

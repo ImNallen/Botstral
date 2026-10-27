@@ -1,6 +1,8 @@
 use super::*;
+use std::os::unix::fs::PermissionsExt;
 
 fn setup(root: &std::path::Path) -> (State, SessionToken) {
+    fs::set_permissions(root, fs::Permissions::from_mode(0o700)).unwrap();
     let _local = crate::LocalState::open(root).unwrap();
     let (configured, _) = watch::channel(false);
     let mut state = State::open(root.canonicalize().unwrap(), configured).unwrap();
@@ -153,6 +155,49 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
             .unwrap(),
         1
     );
+}
+
+#[test]
+fn rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials() {
+    let root = tempfile::tempdir().unwrap();
+    let (mut state, local) = setup(root.path());
+    state.test_time = Some(state.now());
+    let secret = crypto::random_token();
+    let grant = state
+        .invite_device(
+            token(&local),
+            PairingRequest {
+                fingerprint: DeviceFingerprint::from_credential(&secret),
+                label: "Reconnect".into(),
+            },
+            600,
+        )
+        .unwrap();
+    let (_, lease) = state
+        .connect_owner(
+            enroll(grant.manager, &secret, grant.secret.expose_secret()),
+            stop(),
+        )
+        .unwrap();
+    state.disconnect_owner(lease);
+    for _ in 0..120 {
+        let _ = state.connect_owner(auth(ManagerId::new(), &secret), stop());
+    }
+    assert!(matches!(
+        state.connect_owner(auth(ManagerId::new(), &secret), stop()),
+        Err(OperationError::RateLimited)
+    ));
+    let authenticated = state.connect_owner(auth(grant.manager, &secret), stop());
+    assert!(
+        authenticated.is_ok(),
+        "Valid owner authentication failed with {:?}",
+        authenticated.err()
+    );
+    let peer = crate::worker_http::VerifiedIdentity::for_test(b"valid worker after flood");
+    let worker = state
+        .invite_worker(token(&local), peer.fingerprint().clone(), 600)
+        .unwrap();
+    assert!(state.enroll_worker(peer, worker.secret).is_ok());
 }
 
 #[test]

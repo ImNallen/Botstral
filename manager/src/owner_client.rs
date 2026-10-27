@@ -70,7 +70,8 @@ pub struct InstalledState {
 pub struct OwnerClient {
     root: PathBuf,
     credentials: Credentials,
-    _lock: fs::File,
+    lock: Arc<fs::File>,
+    sessions: Arc<tokio::sync::Semaphore>,
     pub cursor: u64,
 }
 
@@ -169,7 +170,8 @@ impl OwnerClient {
         Ok(Self {
             root,
             credentials,
-            _lock: lock,
+            lock: Arc::new(lock),
+            sessions: Arc::new(tokio::sync::Semaphore::new(1)),
             cursor,
         })
     }
@@ -205,12 +207,21 @@ impl OwnerClient {
         atomic_write(&self.root, "device.json", &self.credentials)
     }
     pub async fn connect(&mut self) -> Result<OwnerSession> {
+        let lease = Arc::new(ClientLease {
+            _lock: self.lock.clone(),
+            _session: self
+                .sessions
+                .clone()
+                .try_acquire_owned()
+                .map_err(|_| ClientError::Refused(OwnerError::Busy))?,
+        });
         let trust = self.credentials.trust.as_ref().ok_or(ClientError::Trust)?;
         let session = OwnerSession::authenticate(
             trust,
             &self.credentials.credential,
             None,
             self.root.clone(),
+            lease.clone(),
         )
         .await;
         let mut session = match session {
@@ -222,6 +233,7 @@ impl OwnerClient {
                     &self.credentials.credential,
                     self.credentials.invitation.as_deref(),
                     self.root.clone(),
+                    lease,
                 )
                 .await?
             }
@@ -240,6 +252,9 @@ impl OwnerClient {
         Ok(session)
     }
     pub async fn recover(&mut self, session: &mut OwnerSession) -> Result<()> {
+        if !Arc::ptr_eq(&self.lock, &session._lease._lock) {
+            return Err(ClientError::Protocol);
+        }
         let reply = session
             .call(OwnerOperation::Resume {
                 cursor: self.cursor,
@@ -342,6 +357,10 @@ impl OwnerClient {
 }
 
 type Socket = WebSocketStream<TlsStream<TcpStream>>;
+struct ClientLease {
+    _lock: Arc<fs::File>,
+    _session: tokio::sync::OwnedSemaphorePermit,
+}
 pub struct OwnerSession {
     socket: Socket,
     root: PathBuf,
@@ -349,6 +368,7 @@ pub struct OwnerSession {
     heartbeat: tokio::time::Instant,
     last_received: tokio::time::Instant,
     notification: Option<u64>,
+    _lease: Arc<ClientLease>,
 }
 struct Staging {
     path: PathBuf,
@@ -366,6 +386,7 @@ impl OwnerSession {
         credential: &str,
         invitation: Option<&str>,
         root: PathBuf,
+        lease: Arc<ClientLease>,
     ) -> Result<Self> {
         let tls = tls::pinned_manager_config(trust).map_err(|_| ClientError::Trust)?;
         let name =
@@ -378,7 +399,15 @@ impl OwnerSession {
                 .connect(name, tcp)
                 .await
                 .map_err(|error| {
-                    if error.get_ref().is_some_and(|e| e.is::<rustls::Error>()) {
+                    if matches!(
+                        error
+                            .get_ref()
+                            .and_then(|e| e.downcast_ref::<rustls::Error>()),
+                        Some(
+                            rustls::Error::InvalidCertificate(_)
+                                | rustls::Error::NoCertificatesPresented
+                        )
+                    ) {
                         ClientError::Trust
                     } else {
                         ClientError::Network
@@ -403,6 +432,7 @@ impl OwnerSession {
             heartbeat: now + Duration::from_secs(10),
             last_received: now,
             notification: None,
+            _lease: lease,
         };
         let hello = match invitation {
             Some(invitation) => OwnerHello::Enroll {
@@ -514,7 +544,9 @@ impl OwnerSession {
             } else {
                 ClientError::UnknownOutcome
             }),
-            Ok(Err(ClientError::Network)) if !read => Err(ClientError::UnknownOutcome),
+            Ok(Err(error)) if !read && !matches!(error, ClientError::Refused(_)) => {
+                Err(ClientError::UnknownOutcome)
+            }
             Ok(result) => result,
         }
     }

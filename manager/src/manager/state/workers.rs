@@ -252,7 +252,18 @@ impl State {
         peer: crate::worker_http::VerifiedIdentity,
         secret: SecretString,
     ) -> Result<WorkerId, OperationError> {
-        self.remote_attempt()?;
+        let result = self.redeem_worker_invitation(peer, secret);
+        if result.is_err() {
+            self.remote_attempt()?;
+        }
+        result
+    }
+
+    fn redeem_worker_invitation(
+        &mut self,
+        peer: crate::worker_http::VerifiedIdentity,
+        secret: SecretString,
+    ) -> Result<WorkerId, OperationError> {
         if secret.expose_secret().len() != 43 {
             return Err(ErrorCode::InvalidInvitation.into());
         }
