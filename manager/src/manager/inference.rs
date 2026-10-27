@@ -29,6 +29,9 @@ pub(super) struct VerificationPermit {
 }
 
 pub(super) enum ProviderOutcome {
+    NotSent {
+        reason: InferenceNotSentReason,
+    },
     Completed {
         usage: InferenceUsage,
         output: String,
@@ -186,18 +189,31 @@ impl Provider {
             .saturating_sub(now)
             .min(Duration::from_secs(MAX_INFERENCE_SECONDS as u64));
         if remaining.is_zero() {
-            return ProviderOutcome::Unknown {
-                reason: InferenceAttentionReason::Interrupted,
-                request_id: None,
+            return ProviderOutcome::NotSent {
+                reason: InferenceNotSentReason::Deadline,
+            };
+        }
+        let deadline = tokio::time::Instant::now() + remaining;
+        let _capacity = match tokio::time::timeout_at(deadline, self.calls.acquire()).await {
+            Ok(Ok(capacity)) => capacity,
+            Ok(Err(_)) => {
+                return ProviderOutcome::NotSent {
+                    reason: InferenceNotSentReason::Shutdown,
+                };
+            }
+            Err(_) => {
+                return ProviderOutcome::NotSent {
+                    reason: InferenceNotSentReason::Deadline,
+                };
+            }
+        };
+        if tokio::time::Instant::now() >= deadline {
+            return ProviderOutcome::NotSent {
+                reason: InferenceNotSentReason::Deadline,
             };
         }
         let mut request_id = None;
         let execution = async {
-            let _capacity = self
-                .calls
-                .acquire()
-                .await
-                .map_err(|_| InferenceAttentionReason::Interrupted)?;
             let response = self.client.post(format!("{}/v1/chat/completions", self.base(policy.endpoint)))
                 .bearer_auth(permit.secret.expose_secret())
                 .json(&serde_json::json!({
@@ -231,7 +247,7 @@ impl Provider {
             }
             Ok(outcome)
         };
-        match tokio::time::timeout(remaining, execution).await {
+        match tokio::time::timeout_at(deadline, execution).await {
             Ok(Ok(outcome)) => outcome,
             Ok(Err(reason)) => ProviderOutcome::Unknown { reason, request_id },
             Err(_) => ProviderOutcome::Unknown {
@@ -275,12 +291,29 @@ fn parse_completion(
         #[serde(default)]
         tool_calls: Option<Vec<serde_json::Value>>,
     }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct ProviderUsage {
+        prompt_tokens: u64,
+        completion_tokens: u64,
+        total_tokens: u64,
+        #[serde(default)]
+        service_tier: Option<String>,
+    }
     let response: Completion = serde_json::from_slice(body).map_err(|_| Reason::InvalidResponse)?;
     if response.model != view.configuration.policy.model_id {
         return Err(Reason::UnexpectedModel);
     }
-    let usage: InferenceUsage =
+    let report: ProviderUsage =
         serde_json::from_value(response.usage).map_err(|_| Reason::InvalidUsage)?;
+    if !matches!(report.service_tier.as_deref(), None | Some("standard")) {
+        return Err(Reason::InvalidUsage);
+    }
+    let usage = InferenceUsage {
+        prompt_tokens: report.prompt_tokens,
+        completion_tokens: report.completion_tokens,
+        total_tokens: report.total_tokens,
+    };
     if usage.prompt_tokens == 0
         || usage.prompt_tokens.checked_add(usage.completion_tokens) != Some(usage.total_tokens)
         || usage.total_tokens > u64::from(view.configuration.policy.context_tokens)
@@ -470,7 +503,6 @@ impl Manager {
                     return Err(OperationError::Busy);
                 }
                 let result = s.submit_inference(token, input);
-                // Wake from the committed operation even if the HTTP caller disconnected.
                 if result.is_ok() {
                     wake.wake.notify_one();
                 }

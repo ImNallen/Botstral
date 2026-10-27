@@ -254,7 +254,6 @@ impl State {
         {
             return Err(OperationError::Conflict);
         }
-        // Locking the vault while verification was in flight cannot grant new authority.
         if !matches!(
             self.installation,
             Installation::Configured {
@@ -353,7 +352,6 @@ impl State {
         {
             return Err(OperationError::InferenceUnverified);
         }
-        // A context ceiling bounds input without guessing how text tokenizes.
         let total_tokens = u64::from(config.policy.context_tokens)
             .checked_add(u64::from(input.max_output_tokens))
             .ok_or(OperationError::InvalidInput)?;
@@ -501,6 +499,10 @@ impl State {
             return Ok(());
         }
         match outcome {
+            ProviderOutcome::NotSent { reason } => {
+                view.phase = InferencePhase::NotSent { reason };
+                view.accounting = InferenceAccounting::Released;
+            }
             ProviderOutcome::Completed {
                 usage,
                 output,

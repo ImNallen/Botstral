@@ -595,6 +595,10 @@ async fn m04_unknown_responses_retain_reservations_without_retry() {
     usage["usage"]["total_tokens"] = json!(999);
     let mut extra_usage = completion.clone();
     extra_usage["usage"]["audio_tokens"] = json!(1);
+    let mut priority_usage = completion.clone();
+    priority_usage["usage"]["service_tier"] = json!("priority");
+    let mut unknown_tier = completion.clone();
+    unknown_tier["usage"]["service_tier"] = json!("unknown");
     let mut mismatch = completion.clone();
     mismatch["model"] = json!("different-model");
     let mut tools = completion.clone();
@@ -627,6 +631,14 @@ async fn m04_unknown_responses_retain_reservations_without_retry() {
         },
         Reply {
             body: extra_usage.to_string(),
+            ..Reply::default()
+        },
+        Reply {
+            body: priority_usage.to_string(),
+            ..Reply::default()
+        },
+        Reply {
+            body: unknown_tier.to_string(),
             ..Reply::default()
         },
         Reply {
@@ -697,6 +709,35 @@ async fn m04_unknown_responses_retain_reservations_without_retry() {
     assert_eq!(fixture.chats(), count);
     app.shutdown().await;
     no_plaintext(local.directory());
+}
+
+#[tokio::test]
+async fn m04_capacity_wait_expires_without_sending() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let capacity = app
+        .manager
+        .provider
+        .calls
+        .clone()
+        .acquire_many_owned(MAX_INFERENCE_CALLS as u32)
+        .await
+        .unwrap();
+    let mut input = app.request(1);
+    input.deadline = now() + 2;
+    app.submit(&input, 200).await;
+    let view = app.settled(input.id).await;
+    assert_eq!(view["phase"]["type"], "not_sent");
+    assert_eq!(view["phase"]["reason"], "deadline");
+    assert_eq!(view["accounting"]["type"], "released");
+    assert_eq!(fixture.chats(), 0);
+    drop(capacity);
+    assert_eq!(app.submit(&input, 200).await, view);
+    assert_eq!(fixture.chats(), 0);
+    app.shutdown().await;
 }
 
 #[tokio::test]
