@@ -22,7 +22,7 @@ use tokio_tungstenite::{
     },
 };
 const DEADLINE: Duration = Duration::from_secs(5);
-const CONNECTIONS: usize = 32;
+const CONNECTIONS: usize = 16;
 pub struct PublicTls {
     pub listen: SocketAddr,
     pub certificate: PathBuf,
