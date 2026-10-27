@@ -688,7 +688,22 @@ while True: time.sleep(.1)
         fs::read_to_string(f.root.path().join("bounded.ledger")).unwrap(),
         "one\n"
     );
-    assert_eq!(uncertain["outcome"]["reason"], "scope_stop_unproved");
+    assert_eq!(uncertain["outcome"]["reason"], "process_interrupted");
+    let db =
+        rusqlite::Connection::open(f.root.path().join("production-agent/agent.sqlite3")).unwrap();
+    let record: String = db
+        .query_row(
+            "SELECT record FROM executions WHERE execution=?1",
+            [original["command"]["execution"].as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let record: Value = serde_json::from_str(&record).unwrap();
+    assert_eq!(record["process"]["lifecycle"]["type"], "stopped");
+    assert_eq!(
+        record["process"]["lifecycle"]["scope"]["execution"],
+        original["command"]["execution"]
+    );
     evidence(
         "independent-runtime",
         &json!({"pids":pids,"all_dead":true,"task":uncertain}),
@@ -719,7 +734,46 @@ async fn w01_unsupported_host() {
             .unwrap(),
         0
     );
-    evidence("unsupported-host", &unchanged);
+    let computer = ComputerSpec {
+        profile: ComputerProfile::LinuxPlaywrightV1,
+        account: ProcessAccount {
+            uid: unsafe { libc::geteuid() },
+            gid: unsafe { libc::getegid() },
+        },
+        runtime: ComputerRuntime {
+            sha256: CertificateFingerprint::from_der(b"unavailable runtime"),
+        },
+        deadline: unchanged["request"]["settings"]["deadline"]
+            .as_i64()
+            .unwrap(),
+        limits: ProcessLimits {
+            runtime_seconds: 60,
+            output_bytes: 1024,
+            processes: 128,
+            memory_bytes: 1073741824,
+        },
+        viewport: Viewport {
+            width: 800,
+            height: 600,
+        },
+        operations: vec![ComputerOperation::Navigate {
+            url: "https://example.org/".into(),
+        }],
+        outputs: vec![],
+    };
+    let mut computer_request = unchanged["request"].clone();
+    computer_request["id"] = TaskId::new().to_string().into();
+    computer_request["work"] = serde_json::to_value(WorkSpec::Computer {
+        spec: Box::new(computer),
+    })
+    .unwrap();
+    let refused = f.owner("POST", "/v1/tasks", computer_request).await;
+    assert_eq!(refused.0, 409);
+    assert_eq!(refused.1["error"], "unsupported_execution");
+    evidence(
+        "unsupported-host",
+        &json!({"process":unchanged,"computer":refused.1}),
+    );
     daemon.stop().await;
     f.manager.stop().await;
 }

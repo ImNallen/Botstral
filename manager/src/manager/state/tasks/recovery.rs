@@ -343,7 +343,7 @@ impl State {
             if task.command.execution != report.execution {
                 return Err(ErrorCode::Conflict.into());
             }
-            let process_work = matches!(task.command.work, WorkSpec::Process { .. });
+            let process_work = task.command.work.supervised();
             match &report.event {
                 ExecutionEvent::ProcessResult { evidence } => {
                     if !process_work {
@@ -429,6 +429,20 @@ impl State {
             {
                 task.outcome = Some(report.event.clone());
             }
+            if matches!(
+                report.event,
+                ExecutionEvent::Stopped {
+                    evidence: StopEvidence::NotLaunched,
+                    ..
+                }
+            ) {
+                for output in &mut task.outputs {
+                    output.state = ArtifactState::Unavailable {
+                        reason: ArtifactUnavailable::ExecutionUncertain,
+                    };
+                }
+                tx.execute("UPDATE artifacts SET reserved=0,state='unavailable' WHERE execution=?1 AND offer IS NULL",[task.command.execution.to_string()])?;
+            }
             save(&tx, &task)?;
             tx.execute(
                 "INSERT INTO report_receipts VALUES(?1,?2,?3,?4)",
@@ -506,7 +520,35 @@ impl State {
             .collect::<Result<Vec<_>, OperationError>>()?
             .into_iter()
             .any(|missing| missing);
+        let occupied = self
+            .connection
+            .prepare("SELECT view FROM tasks")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|row| {
+                parse::<TaskView>(row?).map(|t| {
+                    t.command.work.supervised() && t.approval.consumed && !t.state.terminal()
+                })
+            })
+            .collect::<Result<Vec<_>, OperationError>>()?
+            .into_iter()
+            .any(|v| v);
+        let requested_bytes: u64 = task
+            .command
+            .work
+            .outputs()
+            .iter()
+            .map(|o| o.max_bytes)
+            .sum();
+        let (reserved, records): (i64, i64) = self.connection.query_row(
+            "SELECT coalesce(sum(reserved),0),count(*) FROM artifacts",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )?;
+        let capacity = requested_bytes + reserved as u64 <= MAX_STORE_BYTES
+            && records as usize + task.command.work.outputs().len() <= MAX_ARTIFACT_RECORDS;
         let valid = allowed
+            && (!task.command.work.supervised() || !occupied)
+            && capacity
             && !missing_scope
             && capable(
                 &self
@@ -552,6 +594,9 @@ impl State {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         save(&tx, &task)?;
+        for output in task.command.work.outputs() {
+            tx.execute("INSERT INTO artifacts(id,task,worker,journal,execution,slot,reserved) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![ArtifactId::new().to_string(),task.id.to_string(),lease.worker.to_string(),incarnation.to_string(),task.command.execution.to_string(),output.slot,output.max_bytes as i64])?;
+        }
         event(&tx, "execution_claimed", task.id)?;
         tx.commit()?;
         self.fault("claim_committed");
@@ -573,13 +618,14 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
             capabilities.contains(&Capability::TestInput)
         }
         WorkSpec::Process { .. } => capabilities.contains(&Capability::ProcessSystemdV1),
+        WorkSpec::Computer { .. } => capabilities.contains(&Capability::ComputerV1),
     }
 }
 
 pub(super) fn missing_process_scope(task: &TaskView) -> bool {
     !task.state.terminal()
         && task.approval.consumed
-        && matches!(task.command.work, WorkSpec::Process { .. })
+        && task.command.work.supervised()
         && task.effect_evidence.iter().any(|event| {
             matches!(event,
             ExecutionEvent::Uncertain { reason } if matches!(reason.as_str(),

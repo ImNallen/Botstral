@@ -67,6 +67,10 @@ macro_rules! counters {
 counters!(Generation, Revision);
 mod durable;
 pub use durable::*;
+mod artifact;
+pub use artifact::*;
+mod computer;
+pub use computer::*;
 mod process;
 pub use process::*;
 
@@ -162,6 +166,7 @@ pub enum Capability {
     InputFencing,
     TestInput,
     ProcessSystemdV1,
+    ComputerV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -283,6 +288,7 @@ pub enum WorkSpec {
     TestInput { steps: u32 },
     TestEffect { value: u32, observable: bool },
     Process { spec: Box<ProcessSpec> },
+    Computer { spec: Box<ComputerSpec> },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -393,6 +399,15 @@ pub enum TaskEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum WorkerMessage {
+    ArtifactFailed {
+        offer: ArtifactOffer,
+    },
+    ArtifactOffer {
+        offer: ArtifactOffer,
+    },
+    ArtifactChunk {
+        chunk: ArtifactChunk,
+    },
     Inventory {
         generation: Generation,
         incarnation: JournalId,
@@ -448,6 +463,13 @@ pub enum WorkerMessage {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ManagerMessage {
+    ArtifactProgress {
+        execution: ExecutionId,
+        slot: String,
+        id: ArtifactId,
+        offset: u64,
+        state: ArtifactTransferState,
+    },
     InventoryRequest {
         offset: u16,
     },

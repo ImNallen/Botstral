@@ -24,7 +24,14 @@ impl LocalState {
         let directory = directory.canonicalize()?;
         check_metadata(&fs::symlink_metadata(&directory)?, true)?;
         for entry in fs::read_dir(&directory)? {
-            check_metadata(&fs::symlink_metadata(entry?.path())?, false)?;
+            let entry = entry?;
+            let artifacts = entry.file_name() == "artifacts";
+            check_metadata(&fs::symlink_metadata(entry.path())?, artifacts)?;
+            if artifacts {
+                for blob in fs::read_dir(entry.path())? {
+                    check_metadata(&fs::symlink_metadata(blob?.path())?, false)?;
+                }
+            }
         }
         let lock = private_file(&directory.join("manager.lock"))?;
         lock.try_lock().map_err(io::Error::other)?;

@@ -81,12 +81,12 @@ while True: time.sleep(.1)
     return original, pids, path, before
 
 
-def restart_manager(f):
+def restart_manager(f, name="manager-restarted"):
     old = next(p for p in f.processes if p.remote is f.manager and not p.stopped)
     f.stop(old)
     f.manager.call("remove_listeners", root=f.manager.root)
     certs = f.manager.root + "/certs/"
-    f.launch(f.manager, "manager-restarted", [m02.BASE + "/bin/production/botstral-manager",
+    f.launch(f.manager, name, [m02.BASE + "/bin/production/botstral-manager",
         "--state-dir", f.manager.root + "/state", "--listen", f.listen, "--setup-listen", "127.0.0.1:0",
         "--worker-listen", f.address, "--worker-tls-cert", certs + "manager.pem",
         "--worker-tls-key", certs + "manager.key", "--worker-client-ca", certs + "ca.pem"])

@@ -243,6 +243,8 @@ pub struct TaskView {
     pub effect_evidence: Vec<ExecutionEvent>,
     #[serde(default)]
     pub process: Option<ProcessEvidence>,
+    #[serde(default)]
+    pub outputs: Vec<OutputView>,
     pub approval: ApprovalView,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

@@ -10,10 +10,16 @@ pub(crate) struct Backend {
     pub probed: bool,
     binary: PathBuf,
 }
-pub(crate) struct EmptyScopeProof(ProcessScope);
+pub(crate) struct EmptyScopeProof {
+    scope: ProcessScope,
+    limited: bool,
+}
 impl EmptyScopeProof {
+    pub fn limited(&self) -> bool {
+        self.limited
+    }
     pub fn scope(&self) -> &ProcessScope {
-        &self.0
+        &self.scope
     }
 }
 
@@ -49,7 +55,7 @@ async fn command(binary: &str, args: &[String], seconds: u64) -> io::Result<Stri
     .map_err(io::Error::other)?
 }
 async fn show(unit: &str) -> io::Result<BTreeMap<String, String>> {
-    let output = command("/usr/bin/systemctl", &["--user".into(), "show".into(), unit.into(), "--property=LoadState,ActiveState,InvocationID,ControlGroup,KillMode,Restart,TimeoutStopUSec,TasksMax,MemoryMax,RuntimeMaxUSec".into()], 3).await?;
+    let output = command("/usr/bin/systemctl", &["--user".into(), "show".into(), unit.into(), "--property=LoadState,ActiveState,Result,InvocationID,ControlGroup,KillMode,Restart,TimeoutStopUSec,TasksMax,MemoryMax,RuntimeMaxUSec".into()], 3).await?;
     Ok(output
         .lines()
         .filter_map(|line| line.split_once('='))
@@ -167,6 +173,7 @@ impl Backend {
                 deadline: now() + 30,
                 limits: backend.configuration.ceilings.clone(),
             },
+            computer: None,
             expires_at: now() + 30,
         };
         write(&probes.join("manifest.json"), &manifest)?;
@@ -299,7 +306,13 @@ impl Backend {
             return Err(io::Error::other("scope boot changed"));
         }
         let unit = show(&scope.unit).await?;
-        if !same(&unit, scope) {
+        let automatically_stopped = unit.get("LoadState").is_some_and(|v| v == "loaded")
+            && unit.get("InvocationID") == Some(&scope.invocation)
+            && unit.get("ControlGroup").is_some_and(String::is_empty)
+            && unit
+                .get("ActiveState")
+                .is_some_and(|v| matches!(v.as_str(), "inactive" | "failed"));
+        if !same(&unit, scope) && !automatically_stopped {
             return Err(io::Error::other("cannot prove stopped scope identity"));
         }
         command(
@@ -314,6 +327,11 @@ impl Backend {
             Err(e) if e.kind() == io::ErrorKind::NotFound => {}
             _ => return Err(io::Error::other("scope still populated")),
         }
-        Ok(EmptyScopeProof(scope.clone()))
+        Ok(EmptyScopeProof {
+            scope: scope.clone(),
+            limited: unit
+                .get("Result")
+                .is_some_and(|v| matches!(v.as_str(), "timeout" | "oom-kill" | "resources")),
+        })
     }
 }

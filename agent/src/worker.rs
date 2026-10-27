@@ -24,6 +24,9 @@ impl Worker {
         if self.journal.process_capable() {
             hello.capabilities.push(Capability::ProcessSystemdV1);
         }
+        if self.journal.computer_capable() {
+            hello.capabilities.push(Capability::ComputerV1);
+        }
         hello
     }
     pub fn attach(

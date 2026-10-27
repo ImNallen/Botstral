@@ -40,7 +40,7 @@ fn count_bound(db: &Connection, table: &str, bound: usize) -> Result<(), Operati
     }
     Ok(())
 }
-fn save(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
+pub(super) fn save(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
     let body = json(task)?;
     if body.len() > 24 * 1024 {
         return Err(OperationError::InvalidInput);
@@ -64,10 +64,7 @@ impl State {
         let rows = statement.query_map([worker.to_string()], |row| row.get::<_, String>(0))?;
         for row in rows {
             let task: TaskView = parse(row?)?;
-            if task.state.terminal()
-                || !task.approval.consumed
-                || !matches!(task.command.work, WorkSpec::Process { .. })
-            {
+            if task.state.terminal() || !task.approval.consumed || !task.command.work.supervised() {
                 continue;
             }
             if recovery::missing_process_scope(&task) {
@@ -101,7 +98,7 @@ impl State {
         self.authorize(&token)?;
         self.load_task(id)
     }
-    fn principal(&self) -> Result<OwnerId, OperationError> {
+    pub(super) fn principal(&self) -> Result<OwnerId, OperationError> {
         let id: String = self.connection.query_row(
             "SELECT principal FROM owner_identity WHERE id = 1",
             [],
@@ -170,6 +167,21 @@ impl State {
             WorkSpec::TestEffect { value, .. } if *value > 10000 => {
                 return Err(OperationError::InvalidInput);
             }
+            WorkSpec::Computer { spec } => {
+                spec.validate()?;
+                if !self
+                    .worker_connections
+                    .get(&session.worker_id)
+                    .is_some_and(|c| {
+                        c.recovered && c.capabilities.contains(&Capability::ComputerV1)
+                    })
+                {
+                    return Err(ErrorCode::UnsupportedExecution.into());
+                }
+                if spec.deadline != input.settings.deadline {
+                    return Err(OperationError::InvalidInput);
+                }
+            }
             WorkSpec::Process { spec } => {
                 spec.validate()?;
                 if spec.deadline != input.settings.deadline {
@@ -206,6 +218,16 @@ impl State {
             outcome: None,
             effect_evidence: Vec::new(),
             process: None,
+            outputs: body
+                .work
+                .outputs()
+                .iter()
+                .cloned()
+                .map(|declaration| OutputView {
+                    declaration,
+                    state: ArtifactState::Pending,
+                })
+                .collect(),
             approval: ApprovalView {
                 id: ApprovalId::new(),
                 binding: None,
@@ -313,9 +335,8 @@ impl State {
         self.authorize(&token)?;
         let mut task = self.load_task(id)?;
         task.approval.revoked = true;
-        let stop = task.approval.consumed
-            && matches!(task.command.work, WorkSpec::Process { .. })
-            && !task.state.terminal();
+        let stop =
+            task.approval.consumed && task.command.work.supervised() && !task.state.terminal();
         if stop {
             task.state = TaskState::Cancelling;
         }
@@ -331,7 +352,7 @@ impl State {
         save(&tx, &task)?;
         event(&tx, "approval_revoked", id)?;
         tx.commit()?;
-        if matches!(task.command.work, WorkSpec::Process { .. }) {
+        if task.command.work.supervised() {
             self.pump_tasks(task.command.worker)?;
         }
         Ok(task)
@@ -377,12 +398,12 @@ impl State {
             if task.state.terminal() {
                 continue;
             }
-            if matches!(task.command.work, WorkSpec::Process { .. }) {
+            if task.command.work.supervised() {
                 workers.insert(task.command.worker);
             }
             if !task.approval.consumed {
                 task.approval.revoked = true;
-            } else if !allow && matches!(task.command.work, WorkSpec::Process { .. }) {
+            } else if !allow && task.command.work.supervised() {
                 task.state = TaskState::Cancelling;
                 tx.execute(
                     "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
@@ -698,7 +719,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            3
+            4
         );
     }
 }

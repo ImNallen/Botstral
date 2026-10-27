@@ -65,6 +65,17 @@ impl Journal {
                 Err(_) => eprintln!("process capability unavailable"),
             }
         }
+        if let Some(configuration) = crate::computer::Configuration::read(&self.directory)?
+            && let Some(backend) = &self.backend
+        {
+            match configuration
+                .probe(backend, &self.directory, self.incarnation)
+                .await
+            {
+                Ok(()) => self.computer = Some(configuration),
+                Err(error) => eprintln!("computer capability unavailable: {error}"),
+            }
+        }
         for mut e in self.executions()? {
             if let Some(process) = e.process.clone()
                 && !matches!(process.lifecycle, Lifecycle::Stopped { .. })
@@ -94,20 +105,41 @@ impl Journal {
                     == Some(&backend.configuration)
         })
     }
-    pub(super) fn reserve_process(
-        &mut self,
-        e: &Execution,
-        spec: &ProcessSpec,
-    ) -> io::Result<bool> {
-        if self.process_slot.is_some()
-            || !self.process_capable()
-            || spec.validate().is_err()
-            || !self
-                .backend
-                .as_ref()
-                .is_some_and(|b| b.configuration.permits(spec))
-            || spec.deadline <= now()
-        {
+    pub fn computer_capable(&self) -> bool {
+        self.process_capable()
+            && self.computer.as_ref().is_some_and(|config| {
+                crate::computer::Configuration::read(&self.directory)
+                    .ok()
+                    .flatten()
+                    .as_ref()
+                    == Some(config)
+            })
+    }
+    fn permits_work(&self, work: &WorkSpec) -> bool {
+        match work {
+            WorkSpec::Process { spec } => {
+                self.process_capable()
+                    && spec.validate().is_ok()
+                    && self
+                        .backend
+                        .as_ref()
+                        .is_some_and(|b| b.configuration.permits(spec))
+                    && spec.deadline > now()
+            }
+            WorkSpec::Computer { spec } => {
+                self.computer_capable()
+                    && spec.validate().is_ok()
+                    && self.computer.as_ref().is_some_and(|c| c.permits(spec))
+                    && spec.deadline > now()
+            }
+            _ => false,
+        }
+    }
+    pub(super) fn reserve_process(&mut self, e: &Execution) -> io::Result<bool> {
+        if self.process_slot.is_some() || !self.permits_work(&e.body.work) {
+            return Ok(false);
+        }
+        if !self.reserve_outputs(e)? {
             return Ok(false);
         }
         let head = self.high_water()?;
@@ -168,22 +200,34 @@ impl Journal {
         binding: &ExecutionBinding,
         fence: InputFence,
     ) -> io::Result<()> {
-        let WorkSpec::Process { spec } = &e.body.work else {
-            unreachable!()
-        };
-        if self.process_slot != Some(e.body.execution) || !self.process_capable() {
+        if self.process_slot != Some(e.body.execution) || !self.permits_work(&e.body.work) {
             return self.reconcile_execution(e);
         }
         let backend = self.backend.as_ref().unwrap().clone();
+        let directory = process::directory(&self.directory, e.body.execution);
+        let (spec, computer) = match &e.body.work {
+            WorkSpec::Process { spec } => (*spec.clone(), None),
+            WorkSpec::Computer { spec } => {
+                let launch = self.computer.as_ref().unwrap().launch(
+                    spec,
+                    &self.directory,
+                    &directory,
+                    false,
+                );
+                launch.prepare()?;
+                (launch.lower(), Some(launch))
+            }
+            _ => unreachable!(),
+        };
         let manifest = Manifest {
             journal: self.incarnation,
             execution: e.body.execution,
             host: backend.host.clone(),
             boot: backend.boot.clone(),
-            spec: *spec.clone(),
+            spec,
+            computer,
             expires_at: binding.expires_at,
         };
-        let directory = process::directory(&self.directory, e.body.execution);
         std::fs::remove_file(directory.join("reserved"))?;
         process::write(&directory.join("manifest.json"), &manifest)?;
         e.process = Some(ProcessExecution {
@@ -210,6 +254,7 @@ impl Journal {
         if e.phase == Phase::Stopped {
             return Ok(());
         }
+        self.release_output_reservations(e.body.execution)?;
         self.claims.remove(&e.body.execution);
         if self.process_slot == Some(e.body.execution) {
             self.process_slot = None;
@@ -292,10 +337,10 @@ impl Journal {
         Ok(())
     }
     pub fn needs_process_confirmation(&self, session: ComputerSessionId) -> io::Result<bool> {
-        Ok(self.executions()?.iter().any(|execution| {
-            execution.body.session == session
-                && matches!(execution.body.work, WorkSpec::Process { .. })
-        }))
+        Ok(self
+            .executions()?
+            .iter()
+            .any(|execution| execution.body.session == session && execution.body.work.supervised()))
     }
     pub fn can_confirm_session(&self, session: ComputerSessionId) -> io::Result<bool> {
         Ok(self.ready
@@ -393,8 +438,11 @@ impl Journal {
                     && p.fence.owner == InputOwner::Bot
                     && p.manifest.expires_at > now()
                     && p.manifest.spec.deadline > now()
-                    && self.process_capable()
-                    && backend.configuration.permits(&p.manifest.spec);
+                    && self.permits_work(&e.body.work)
+                    && p.manifest
+                        .computer
+                        .as_ref()
+                        .is_none_or(|c| c.verify(&p.manifest.spec).is_ok());
                 if !authorized {
                     self.request_stop(&mut e, StopReason::Control)?;
                     return Ok(());
@@ -494,7 +542,11 @@ impl Journal {
         else {
             return Err(err("stop proof without intent"));
         };
-        let reason = *reason;
+        let reason = if *reason == StopReason::Completed && proof.limited() {
+            StopReason::Deadline
+        } else {
+            *reason
+        };
         let ready = ready.clone();
         self.import_result(e, &self.backend.clone().unwrap(), &ready)?;
         let p = e.process.as_mut().unwrap();
@@ -564,4 +616,10 @@ impl Journal {
         self.process_slot = None;
         Ok(())
     }
+}
+
+pub(super) fn stopped(e: &Execution) -> bool {
+    e.process
+        .as_ref()
+        .is_some_and(|p| matches!(p.lifecycle, Lifecycle::Stopped { .. }))
 }

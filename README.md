@@ -30,7 +30,7 @@ Stop the manager with Control-C. Its SQLite database and encrypted credentials r
 
 See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) for later milestones. Use [the worker deployment guide](docs/worker-deployment.md) to provision certificates and enroll a worker. [The M02 architecture](docs/m02-architecture.md) records verification and remaining gaps. [Two-VM acceptance](docs/m02-two-vm-acceptance.md) passed with isolated production and synthetic test fixtures. [M03 recovery acceptance](docs/m03-acceptance.md) records durable task verification and exact synthetic limits.
 
-The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. Browser execution, model integration, owner-device pairing, and remote access remain later work.
+The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor. Model integration, owner-device pairing, and remote access remain later work.
 
 ## Run the desktop
 

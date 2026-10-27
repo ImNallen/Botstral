@@ -441,3 +441,6 @@ mod fencing;
 
 #[path = "w01_process/mod.rs"]
 mod process_acceptance;
+
+#[path = "w01_artifacts/mod.rs"]
+mod artifact_acceptance;

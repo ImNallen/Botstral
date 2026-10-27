@@ -84,7 +84,11 @@ pub(super) fn run(directory: &Path) -> io::Result<()> {
         libc::signal(libc::SIGINT, stop as *const () as libc::sighandler_t);
     }
     let manifest: Manifest = read(&directory.join("manifest.json"))?;
-    manifest.spec.validate().map_err(io::Error::other)?;
+    if let Some(computer) = &manifest.computer {
+        computer.verify(&manifest.spec)?;
+    } else {
+        manifest.spec.validate().map_err(io::Error::other)?;
+    }
     if manifest.spec.account.uid != unsafe { libc::geteuid() }
         || manifest.spec.account.gid != unsafe { libc::getegid() }
     {

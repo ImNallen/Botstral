@@ -9,6 +9,7 @@ macro_rules! owner_method {
     };
 }
 impl Manager {
+    owner_method!(download_artifact(task: TaskId, id: ArtifactId) -> (std::fs::File, OutputDeclaration, u64));
     owner_method!(submit_task(input: SubmitTask) -> TaskView);
     owner_method!(task(id: TaskId) -> TaskView);
     owner_method!(cancel_task(id: TaskId) -> TaskView);

@@ -51,6 +51,8 @@ pub(crate) struct Manifest {
     pub host: CertificateFingerprint,
     pub boot: String,
     pub spec: ProcessSpec,
+    #[serde(default)]
+    pub computer: Option<crate::computer::Launch>,
     pub expires_at: i64,
 }
 impl Manifest {
