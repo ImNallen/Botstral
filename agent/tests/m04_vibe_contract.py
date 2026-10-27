@@ -22,12 +22,13 @@ def exercise(binary, report, wire_report=None):
     calls = []
     with tempfile.TemporaryDirectory(prefix='botstral-m04-vibe-') as directory:
         root = Path(directory).resolve()
-        workspace = root / 'workspace'
+        workspace = root / 'workspace[12]'
         workspace.mkdir()
         home = root / 'home'
         target = workspace / 'answer.py'
         target.write_text('def answer():\n    return 0\n')
-        forbidden = root / 'not-approved.txt'
+        forbidden = root / 'workspace1' / 'not-approved.txt'
+        forbidden.parent.mkdir()
         phase = ['edit']
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *_):

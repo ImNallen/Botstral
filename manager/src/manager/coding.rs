@@ -177,7 +177,7 @@ impl Manager {
             .clone()
             .try_acquire_owned()
             .map_err(|_| OperationError::Busy)?;
-        let mut jobs = self.inference.coding_calls.lock().await;
+        let mut registered_calls = self.inference.coding_calls.lock().await;
         if self
             .inference
             .stopping
@@ -185,15 +185,14 @@ impl Manager {
         {
             return Err(OperationError::Busy);
         }
-        while let Some(result) = jobs.try_join_next() {
+        while let Some(result) = registered_calls.try_join_next() {
             result.map_err(|_| OperationError::Internal)?;
         }
         let queue = self.queue.clone();
         let provider = self.provider.clone();
         let mut stopped = self.inference.stop.subscribe();
         let (reply, receive) = tokio::sync::oneshot::channel();
-        // Register before admission: an abandoned HTTP request must not orphan its reservation.
-        jobs.spawn(async move {
+        registered_calls.spawn(async move {
             let result = async {
                 let admission = queue
                     .call_wait(move |s| s.admit_coding(peer, task, execution, id, request))
@@ -243,7 +242,7 @@ impl Manager {
             .await;
             let _ = reply.send(result);
         });
-        drop(jobs);
+        drop(registered_calls);
         receive.await.map_err(|_| OperationError::Internal)?
     }
 }

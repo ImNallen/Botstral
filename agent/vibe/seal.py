@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Record an installed Vibe runtime without modifying it."""
 import argparse
 import hashlib
 import json

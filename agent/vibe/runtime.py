@@ -1,5 +1,5 @@
-"""Pinned Vibe CLI configuration and bounded worker-mTLS transport."""
 import fcntl
+import glob
 import http.client
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -55,7 +55,7 @@ provider = "manager"
     (home / 'config.toml').write_text(text)
     profile = 'display_name = "Managed file edits"\nsafety = "destructive"\nenabled_tools = ' + json.dumps(TOOLS) + '\nbypass_tool_permissions = false\n'
     for tool in TOOLS:
-        profile += f'[tools.{tool}]\npermission = "ask"\nallowlist = {json.dumps([str(workspace) + "/*"])}\n'
+        profile += f'[tools.{tool}]\npermission = "ask"\nallowlist = {json.dumps([glob.escape(str(workspace)) + "/*"])}\n'
     (agents / 'managed.toml').write_text(profile)
     (home / 'hooks.toml').write_text('')
     for path in (home / 'config.toml', agents / 'managed.toml', home / 'hooks.toml'):

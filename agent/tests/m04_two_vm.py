@@ -118,7 +118,7 @@ def exercise(f, certificates, args):
         challenge = str(secrets.randbelow(900000) + 100000)
         page = f.worker.root+'/challenge.html'
         shared = f.worker.root+'/shared.txt'
-        html = '<html><body style="font: bold 90px monospace;background:white;color:black"><input id="value"><button id="save" onclick="document.getElementById(\'result\').textContent=document.getElementById(\'value\').value">Save</button><div id="result"></div><canvas id="challenge" width="600" height="120"></canvas><script>let c=document.getElementById("challenge").getContext("2d");c.font="bold 90px monospace";c.fillText("'+challenge+'",5,95)</script></body></html>'
+        html = '<html><body style="font: bold 90px monospace;background:white;color:black"><p id="proof" style="font:16px monospace">M04 reasoning browser proof</p><input id="value"><button id="save" onclick="document.getElementById(\'result\').textContent=document.getElementById(\'value\').value">Save</button><div id="result"></div><canvas id="challenge" width="600" height="120"></canvas><script>let c=document.getElementById("challenge").getContext("2d");c.font="bold 90px monospace";c.fillText("'+challenge+'",5,95)</script></body></html>'
         f.worker.call('write',files={page:html})
         web = f.worker.root + '/web.py'
         f.worker.call('write',files={web:'import http.server,os,signal,sys\nsignal.signal(signal.SIGTERM,lambda *_:sys.exit(0))\nos.chdir('+repr(f.worker.root)+')\nhttp.server.ThreadingHTTPServer(("127.0.0.1",'+str(args.page_port)+'),http.server.SimpleHTTPRequestHandler).serve_forever()\n'})
@@ -131,8 +131,10 @@ def exercise(f, certificates, args):
         second=computer.submit(f,computer.computer(f,b,[{'type':'read_file','path':shared,'output':'file'}],[computer.output('file')]))
         second=computer.ready(f,process.task(f,second,'completed'));computer.download(f,second,'file',b'M04 shared file\n')
         policy={'computer':{'profile':'linux_playwright_v1','account':{'uid':1000,'gid':1000},'runtime':{'sha256':f.runtime},'limits':{'runtime_seconds':60,'output_bytes':1024,'processes':128,'memory_bytes':1073741824},'viewport':{'width':800,'height':600},'outputs':[computer.output('text')]},'process':None}
-        reasoning=run(f,a,'Use the computer tool once to navigate to '+origin+' and capture #result into text. Then answer briefly.',CALL_PLAN['reasoning'],policy)
+        reasoning=run(f,a,'Use the computer tool once to navigate to '+origin+' and capture #proof into text. Then answer briefly.',CALL_PLAN['reasoning'],policy)
         m02.require(reasoning['summary']['phase']['type']=='completed' and any(t['intent'] for t in reasoning['turns']),'live reasoning did not execute a browser child')
+        results = [json.loads(t['intent']['result']) for t in reasoning['turns'] if t['intent'] and t['intent']['result']]
+        m02.require(any(a.get('untrusted_text') == 'M04 reasoning browser proof' for r in results for a in r['untrusted_tool_result']['artifacts']), 'reasoning did not receive the observed browser text')
         details.update(first=first['id'],second=second['id'],shared=shared,image=image_download,reasoning=reasoning)
     with f.check('actual_vision') as details:
         image=next(o for o in first['outputs'] if o['declaration']['slot']=='screen')['state']
@@ -150,7 +152,7 @@ def exercise(f, certificates, args):
         edited,native,calls=finished_coding(f,coding_request(f,a,workspace,'Use edit to change return 0 to return 42 in answer.py. Do not run tests. Then finish.','edit'))
         test=process.request(f,a,['-c','import runpy; assert runpy.run_path('+repr(workspace['path']+'/answer.py')+')["answer"]() == 42'])
         tested=process.task(f,computer.submit(f,test),'completed')
-        resumed,native2,calls2=finished_coding(f,coding_request(f,a,workspace,'Report the change you made earlier. Do not modify files. Then finish.','resume',{'type':'resume','task':edited['id'],'native_session':native['native_session']}))
+        resumed,native2,calls2=finished_coding(f,coding_request(f,a,workspace,'Reply with exactly resumed. Do not call any tool or modify files.','resume',{'type':'resume','task':edited['id'],'native_session':native['native_session']}))
         m02.require(native2['native_session']==native['native_session'],'resume changed native identity')
         f.stop(f.daemon)
         computer.download(f,edited,'answer',b'def answer():\n    return 42\n')
@@ -161,15 +163,25 @@ def exercise(f, certificates, args):
         f.worker.call('mkdir',path=workspace['path'])
         request=coding_request(f,a,workspace,'Create answer.py with a carefully documented implementation of a parser. Work until complete.','cancel')
         pending=computer.submit(f,request)
-        scopes=f.poll(lambda:f.worker.call('scopes',root=f.worker.root),lambda rows:any(v['scope']['execution']==pending['command']['execution'] and len((v['values']['cgroup.procs'] or '').split())>=3 for v in rows),'coding process scope')
-        scope=next(v for v in scopes if v['scope']['execution']==pending['command']['execution'])
+        def native_scope():
+            for candidate in f.worker.call('scopes',root=f.worker.root):
+                if candidate['scope']['execution'] != pending['command']['execution']:
+                    continue
+                pids = [int(v) for v in (candidate['values']['cgroup.procs'] or '').split()]
+                observed = f.worker.call('vibe_processes', pids=pids, binary=args.vibe_runtime + '/bin/vibe')
+                if any(p['vibe_cli'] for p in observed):
+                    return {'scope': candidate, 'processes': observed}
+            return None
+        observed=f.poll(native_scope,lambda value:value is not None,'actual Vibe CLI in coding scope')
+        scope=observed['scope']
         cancelled=process.cancel(f,pending)
         pids=[int(v) for v in scope['values']['cgroup.procs'].split()]
         m02.require(not any(v['live'] for v in f.worker.call('liveness',pids=pids)),'coding descendants survived cancellation')
         refused=coding_request(f,a,{'id':str(uuid.uuid4()),'path':f.worker.root+'/refused'},'Do not run.','edit')
         refused['work']['spec']['limits']['max_cost_microusd']=1
-        f.owner('POST','/v1/tasks',refused,status=409)
-        details.update(cancelled=cancelled,provider_calls=f.owner('GET','/v1/tasks/'+pending['id']+'/coding-calls'),budget_refused=True)
+        rejection=f.owner('POST','/v1/tasks',refused,status=409)
+        m02.require(rejection['error'] == 'inference_budget', 'unexpected coding budget refusal')
+        details.update(cancelled=cancelled,native_processes=observed['processes'],provider_calls=f.owner('GET','/v1/tasks/'+pending['id']+'/coding-calls'),budget_refused=True)
     with f.check('manager_restart_keeps_results_and_never_reexecutes') as details:
         before=f.owner('GET','/v1/tasks/'+edited['id']+'/coding-calls')
         process.restart_manager(f,'m04-manager-restarted')

@@ -48,6 +48,14 @@ fn image(f: &mut Fixture) -> (ImageReference, Vec<u8>) {
     .unwrap();
     f.state.connection.execute("INSERT INTO artifacts(id,task,worker,journal,execution,slot,reserved,state) VALUES(?1,?2,?3,?4,?5,'screen',0,'available')",
         params![id.to_string(),task.id.to_string(),task.command.worker.to_string(),f.journal.to_string(),task.command.execution.to_string()]).unwrap();
+    assert_eq!(
+        f.state
+            .cancel_run(token(), f.input.id)
+            .unwrap()
+            .summary
+            .phase,
+        RunPhase::Cancelled
+    );
     let mut config = f
         .state
         .load_inference_configuration(f.input.bot, 1)
@@ -107,8 +115,6 @@ async fn vision_sends_exact_authorized_png_bytes_and_retains_artifact_identity()
     f.input.execution_policy.computer = None;
     f.input.execution_policy.process = None;
     f.state.submit_run(token(), f.input.clone()).unwrap();
-    // Finish the previous run's tool collection so the new run is the next claim.
-    f.state.connection.execute("UPDATE runs SET summary=json_set(summary,'$.phase',json('{\"type\":\"completed\"}')) WHERE id<>?1",[f.input.id.to_string()]).unwrap();
     let permit = claim(&mut f.state);
     let encoded: String = f
         .state

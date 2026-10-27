@@ -55,6 +55,20 @@ def acceptance_budget(r):
 
 
 def dispatch(r):
+    if r['op'] == 'vibe_processes':
+        binary = r['binary'].encode()
+        if not Path(r['binary']).is_absolute():
+            raise ValueError('absolute Vibe executable required')
+        observations = []
+        for pid in r['pids']:
+            if not isinstance(pid, int) or not 0 < pid < 2 ** 31:
+                raise ValueError('invalid process identity')
+            try:
+                arguments = Path('/proc', str(pid), 'cmdline').read_bytes().split(b'\0')
+            except FileNotFoundError:
+                arguments = []
+            observations.append({'pid': pid, 'vibe_cli': binary in arguments})
+        return observations
     if r['op'] == 'acceptance_budget':
         return acceptance_budget(r)
     if r['op'] == 'provision_provider':
