@@ -38,6 +38,8 @@ Inference strings total at most 40,464 bytes before escaping. Twice that storage
 
 The serializer first counts bytes through a capped writer, then allocates exactly that count and serializes the immutable reply. It never grows a partially filled maximum-size vector. The image and head remain one State result throughout both passes. Serialization scratch is bounded by one record. The State readers parse one database row at a time. Document reconciliation holds at most one extra encoded document or SQLite index row at a time.
 
+Blocking artifact reads retain the same materialization permit until their work finishes, even if the requesting socket is cancelled. Rejected operations release the permit before waiting on a control queue. Cancellation cannot accumulate detached materializations.
+
 Eight owner connections have at most one ordinary operation or transfer each. One global permit covers materialization and both serializer passes. Slow sends release it. Allow nine maximum transfer buffers to cover cancellation while a blocking serialization job finishes, the decoded image, and another 32 MiB for database rows, serializer scratch, socket frames, control queues, and document-index work. Additional owner recovery allocation stays below 1 GiB. This is an upper bound on recovery's allocations, not a claim about total process resident memory or measured performance.
 
 The client has one transfer staging file and one atomically installed state file. Installation removes the transfer file before writing the replacement state staging file. Old state plus staging consumes at most 160 MiB, plus less than 1 MiB for credentials and metadata. Transfer deadlines and process startup remove interrupted staging files. The server creates no transfer files.

@@ -191,7 +191,7 @@ async fn transfer(
 ) -> io::Result<()> {
     tokio::time::timeout(Duration::from_secs(OWNER_TRANSFER_SECONDS), async move {
         let permit = match manager.snapshots.clone().try_acquire_owned() {
-            Ok(permit) => permit,
+            Ok(permit) => std::sync::Arc::new(permit),
             Err(_) => {
                 control
                     .send(
@@ -206,9 +206,13 @@ async fn transfer(
                 return Ok(());
             }
         };
-        let result = match manager.owner_operation(lease, operation).await {
+        let result = match manager
+            .owner_operation(lease, operation, permit.clone())
+            .await
+        {
             Ok(reply) => reply,
             Err(error) => {
+                drop(permit);
                 control
                     .send(
                         OwnerServerMessage::Error {

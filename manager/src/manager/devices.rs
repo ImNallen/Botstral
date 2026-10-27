@@ -113,6 +113,7 @@ impl Manager {
         &self,
         lease: DeviceLease,
         operation: OwnerOperation,
+        materialization: Arc<tokio::sync::OwnedSemaphorePermit>,
     ) -> Result<OwnerReply, OperationError> {
         if let OwnerOperation::VerifyInference { input } = operation {
             let permit = self
@@ -146,6 +147,7 @@ impl Manager {
                 .call(false, move |s| s.download_artifact(lease, task, id))
                 .await?;
             return tokio::task::spawn_blocking(move || {
+                let _materialization = materialization;
                 use base64::Engine;
                 use std::io::Read;
                 let mut bytes = Vec::new();
@@ -168,11 +170,129 @@ impl Manager {
         self.queue
             .call(false, move |s| {
                 s.authorize_owner(&OwnerAuthority::Device(lease))?;
+                if matches!(
+                    &operation,
+                    OwnerOperation::SubmitRun { .. } | OwnerOperation::SubmitInference { .. }
+                ) && control.stopping.load(std::sync::atomic::Ordering::Acquire)
+                {
+                    return Err(OperationError::Busy);
+                }
                 let result = s.owner_operation(lease, operation);
                 control.run_wake.notify_one();
                 control.notify_inference();
                 result
             })
             .await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn remote_model_admission_preserves_shutdown_and_revocation_fences() {
+        let root = tempfile::tempdir().unwrap();
+        let local = crate::LocalState::open(&root.path().join("state")).unwrap();
+        let Runtime {
+            manager,
+            setup,
+            thread,
+            inference,
+        } = Manager::start(local.directory().into()).unwrap();
+        let setup = setup.unwrap();
+        let proof = BootstrapToken::new(
+            std::fs::read_to_string(local.directory().join("bootstrap.token")).unwrap(),
+        )
+        .unwrap();
+        setup
+            .create_owner(
+                proof,
+                OwnerSetup {
+                    name: OwnerName::new("Synthetic owner".into()).unwrap(),
+                    login_password: LoginPassword::new("synthetic login password".into()).unwrap(),
+                    vault_passphrase: VaultPassphrase::new("synthetic vault passphrase".into())
+                        .unwrap(),
+                    recovery: RecoveryAcknowledgment::OfflinePassphraseCopy,
+                },
+            )
+            .await
+            .unwrap();
+        let grant = manager
+            .sign_in(LoginPassword::new("synthetic login password".into()).unwrap())
+            .await
+            .unwrap();
+        let token = || SessionToken::new(grant.token.0.expose_secret().into()).unwrap();
+        let credential = crypto::random_token();
+        let invitation = manager
+            .invite_device(
+                token(),
+                PairingRequest {
+                    fingerprint: DeviceFingerprint::from_credential(&credential),
+                    label: "Shutdown fixture".into(),
+                },
+                600,
+            )
+            .await
+            .unwrap();
+        let (_, lease) = manager
+            .connect_owner(
+                OwnerHello::Enroll {
+                    version: OWNER_VERSION,
+                    manager: invitation.manager,
+                    role: DeviceRole::Owner,
+                    credential,
+                    invitation: invitation.secret.expose_secret().into(),
+                },
+                watch::channel(false).0,
+            )
+            .await
+            .unwrap();
+        manager
+            .inference
+            .stopping
+            .store(true, std::sync::atomic::Ordering::Release);
+        let operation = || OwnerOperation::SubmitInference {
+            input: SubmitInference {
+                id: InferenceId::new(),
+                bot: BotId::new(),
+                configuration_revision: 1,
+                prompt: "Never admitted".into(),
+                deadline: 1,
+                max_output_tokens: 1,
+                max_total_tokens: 1,
+                max_cost_microusd: 0,
+            },
+        };
+        assert!(matches!(
+            manager
+                .owner_operation(
+                    lease,
+                    operation(),
+                    Arc::new(manager.snapshots.clone().acquire_owned().await.unwrap())
+                )
+                .await,
+            Err(OperationError::Busy)
+        ));
+        manager
+            .revoke_device(token(), lease.device())
+            .await
+            .unwrap();
+        assert!(matches!(
+            manager
+                .owner_operation(
+                    lease,
+                    operation(),
+                    Arc::new(manager.snapshots.clone().acquire_owned().await.unwrap())
+                )
+                .await,
+            Err(OperationError::Unauthorized)
+        ));
+        drop(manager);
+        drop(setup);
+        inference.shutdown().await.unwrap();
+        tokio::task::spawn_blocking(move || thread.join().unwrap())
+            .await
+            .unwrap();
     }
 }

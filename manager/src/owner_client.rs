@@ -321,7 +321,11 @@ impl OwnerClient {
             };
             match tokio::time::timeout_at(until, work).await {
                 Err(_) => return Ok(()),
-                Ok(Err(ClientError::Network | ClientError::Refused(OwnerError::Busy))) => {}
+                Ok(Err(
+                    ClientError::Network
+                    | ClientError::Refused(OwnerError::Busy)
+                    | ClientError::Authentication(OwnerError::Busy | OwnerError::RateLimited),
+                )) => {}
                 Ok(Err(error)) => return Err(error),
                 Ok(Ok(())) => return Ok(()),
             }

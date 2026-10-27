@@ -316,3 +316,32 @@ pub struct OwnerDevice {
     pub revoked: bool,
     pub created_at: i64,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn notification_and_local_administration_cannot_become_remote_authority() {
+        for value in [
+            serde_json::json!({"type":"notification","head":1,"approve":true}),
+            serde_json::json!({"type":"applied","cursor":1,"grant_approval":true}),
+        ] {
+            assert!(serde_json::from_value::<OwnerClientMessage>(value).is_err());
+        }
+        for method in [
+            "create_owner",
+            "sign_in",
+            "unlock_vault",
+            "replace_provider_key",
+            "invite_device",
+            "revoke_device",
+            "invite_worker",
+            "revoke_worker",
+        ] {
+            assert!(
+                serde_json::from_value::<OwnerOperation>(serde_json::json!({"method":method}))
+                    .is_err()
+            );
+        }
+    }
+}
