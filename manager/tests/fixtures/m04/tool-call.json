@@ -1,0 +1,17 @@
+{
+  "id":"cmpl-fixture-tool",
+  "model":"mistral-small-2506",
+  "choices":[{
+    "index":0,
+    "finish_reason":"tool_calls",
+    "message":{
+      "role":"assistant",
+      "content":"Read the page and a shared guest file.",
+      "tool_calls":[{"id":"tool00001","type":"function","function":{
+        "name":"computer",
+        "arguments":"{\"operations\":[{\"type\":\"navigate\",\"url\":\"https://example.com\"},{\"type\":\"capture_text\",\"selector\":\"body\",\"output\":\"page\"},{\"type\":\"write_file\",\"path\":\"/srv/shared/m04-note.txt\",\"text\":\"durable shared guest file\"},{\"type\":\"read_file\",\"path\":\"/srv/shared/m04-note.txt\",\"output\":\"file\"}],\"outputs\":[\"page\",\"file\"]}"
+      }}]
+    }
+  }],
+  "usage":{"prompt_tokens":12,"completion_tokens":8,"total_tokens":20,"service_tier":"standard"}
+}

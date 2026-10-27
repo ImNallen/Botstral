@@ -205,3 +205,9 @@ Unknown responses retain the entire reservation without replacement calls. These
 Restart marks sending attempts `awaiting_attention` and retains accounting. Admitted but unsent runs become `not_sent` and release their reservations. Shutdown interrupts HTTP and persists uncertainty before closing the State queue. There is no generic retry, attention acknowledgment, or reservation-release API. Replay snapshots include all inference records and configuration revisions. Configuration and lifecycle events commit with their authoritative records.
 
 `409` adds `inference_unverified` and `inference_budget`. The first also covers stale configuration authority. `503 busy` covers concurrency and retained-ledger limits. The [architecture](m04-inference.md) describes execution ownership and acceptance limits.
+
+## Durable reasoning runs
+
+`POST /v1/runs` admits an authenticated `SubmitRun`. `GET /v1/runs/{id}` returns its request, accounting, ordered turns, and child task identities. `POST /v1/runs/{id}/cancel` accepts an empty JSON body and records cancellation. Child operations use the existing exact task approval and artifact download methods.
+
+The [run contract](m04-tool-loop.md) describes execution policy, cumulative limits, tool results, and recovery. Shared request and response types are generated from `link/src/run.rs`. The [acceptance record](m04-tool-loop-acceptance.md) distinguishes synthetic worker outcomes from the observed production Linux lane. Both use recorded provider responses.

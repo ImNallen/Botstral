@@ -2,11 +2,11 @@ use super::{
     tasks::{event, json, parse},
     *,
 };
-use crate::manager::inference::{CallPermit, ProviderOutcome, VerificationPermit};
+use crate::manager::provider::{CallPermit, ProviderOutcome, VerificationPermit};
 use botstral_link::*;
 
 #[cfg(test)]
-mod tests;
+pub(super) mod tests;
 
 fn sql_revision(revision: u64) -> Result<i64, OperationError> {
     i64::try_from(revision).map_err(|_| OperationError::InvalidInput)
@@ -104,7 +104,7 @@ impl State {
         )?)
     }
 
-    fn provider_secret(&self) -> Result<SecretString, OperationError> {
+    pub(super) fn provider_secret(&self) -> Result<SecretString, OperationError> {
         let Installation::Configured {
             vault: VaultState::Unlocked { identity },
         } = &self.installation
@@ -133,7 +133,7 @@ impl State {
         )? as u64)
     }
 
-    fn load_inference_configuration(
+    pub(super) fn load_inference_configuration(
         &self,
         bot: BotId,
         revision: u64,
@@ -233,7 +233,7 @@ impl State {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute("UPDATE inference_configurations SET verified_at=NULL,verified_until=NULL,provider_epoch=NULL WHERE bot=?1 AND revision=?2", params![input.bot.to_string(), sql_revision(input.revision)?])?;
+        tx.execute("UPDATE inference_configurations SET verified_at=NULL,verified_until=NULL,provider_epoch=NULL,verified_tools=0 WHERE bot=?1 AND revision=?2", params![input.bot.to_string(), sql_revision(input.revision)?])?;
         event(&tx, "inference_verification_started", input.bot)?;
         tx.commit()?;
         Ok(VerificationPermit {
@@ -247,7 +247,7 @@ impl State {
         &mut self,
         config: InferenceConfiguration,
         epoch: i64,
-        verified: bool,
+        verified: Option<bool>,
     ) -> Result<InferenceConfiguration, OperationError> {
         if self.latest_inference_revision(config.bot)? != config.revision
             || self.provider_epoch()? != epoch
@@ -264,20 +264,20 @@ impl State {
         }
         let now = self.now();
         validate_policy(&config.policy, now)?;
-        if !verified {
+        if verified.is_none() {
             return Err(OperationError::InferenceUnverified);
         }
         let until = (now + 3600).min(config.policy.prices.expires_at);
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute("UPDATE inference_configurations SET verified_at=?1,verified_until=?2,provider_epoch=?3 WHERE bot=?4 AND revision=?5", params![now, until, epoch, config.bot.to_string(), sql_revision(config.revision)?])?;
+        tx.execute("UPDATE inference_configurations SET verified_at=?1,verified_until=?2,provider_epoch=?3,verified_tools=?6 WHERE bot=?4 AND revision=?5", params![now, until, epoch, config.bot.to_string(), sql_revision(config.revision)?, verified == Some(true)])?;
         event(&tx, "inference_verified", config.bot)?;
         tx.commit()?;
         self.load_inference_configuration(config.bot, config.revision)
     }
 
-    fn configuration_authorized(
+    pub(super) fn configuration_authorized(
         &self,
         config: &InferenceConfiguration,
     ) -> Result<bool, OperationError> {

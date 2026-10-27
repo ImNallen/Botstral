@@ -51,6 +51,27 @@ pub(super) fn save(db: &Connection, task: &TaskView) -> Result<(), OperationErro
     )?;
     Ok(())
 }
+pub(super) fn insert_task(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
+    let body = &task.command;
+    if json(task)?.len() > 24 * 1024 {
+        return Err(OperationError::InvalidInput);
+    }
+    db.execute(
+        "INSERT INTO tasks VALUES(?1,?2,?3,?4,?5)",
+        params![
+            task.id.to_string(),
+            body.bot.to_string(),
+            body.worker.to_string(),
+            json(&task.request)?,
+            json(task)?
+        ],
+    )?;
+    db.execute(
+        "INSERT INTO commands(id,task,body) VALUES(?1,?2,?3)",
+        params![body.id.to_string(), task.id.to_string(), json(body)?],
+    )?;
+    event(db, "task_submitted", task.id)
+}
 impl State {
     pub(in crate::manager) fn process_control_status(
         &self,
@@ -106,7 +127,7 @@ impl State {
         )?;
         id.parse().map_err(|_| OperationError::Internal)
     }
-    fn permission(&self, bot: BotId) -> Result<Permission, OperationError> {
+    pub(super) fn permission(&self, bot: BotId) -> Result<Permission, OperationError> {
         Ok(self
             .connection
             .query_row(
@@ -145,6 +166,19 @@ impl State {
             Err(OperationError::NotFound) => {}
             Err(e) => return Err(e),
         }
+        let task = self.prepare_task(input)?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        insert_task(&tx, &task)?;
+        tx.commit()?;
+        self.fault("task_committed");
+        self.pump_tasks(task.command.worker)?;
+        self.load_task(task.id)
+    }
+
+    pub(super) fn prepare_task(&self, input: SubmitTask) -> Result<TaskView, OperationError> {
+        input.settings.validate()?;
         count_bound(&self.connection, "tasks", MAX_TASKS)?;
         let session = self.find_computer_session(input.session_id)?;
         if let Some(conversation) = input.conversation_id {
@@ -236,28 +270,7 @@ impl State {
                 consumed: false,
             },
         };
-        let tx = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute(
-            "INSERT INTO tasks VALUES(?1, ?2, ?3, ?4, ?5)",
-            params![
-                task.id.to_string(),
-                body.bot.to_string(),
-                body.worker.to_string(),
-                json(&task.request)?,
-                json(&task)?
-            ],
-        )?;
-        tx.execute(
-            "INSERT INTO commands(id, task, body) VALUES(?1, ?2, ?3)",
-            params![body.id.to_string(), task.id.to_string(), json(&body)?],
-        )?;
-        event(&tx, "task_submitted", task.id)?;
-        tx.commit()?;
-        self.fault("task_committed");
-        self.pump_tasks(body.worker)?;
-        self.load_task(task.id)
+        Ok(task)
     }
     pub(in crate::manager) fn cancel_task(
         &mut self,
@@ -563,6 +576,7 @@ impl State {
                 state: OwnerSnapshot {
                     tasks,
                     inferences: self.inference_views(None)?,
+                    runs: self.run_summaries()?,
                     inference_configurations: self.inference_configurations()?,
                     conversations,
                     messages,
@@ -721,7 +735,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            5
+            6
         );
     }
 }

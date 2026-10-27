@@ -61,6 +61,12 @@ impl Fixture {
             requests: Mutex::new(Vec::new()),
         });
         let app = Router::new()
+            .route(
+                "/page",
+                get(|| async {
+                    axum::response::Html("<html><body>Recorded browser page</body></html>")
+                }),
+            )
             .route("/v1/models/{model}", get(model))
             .route("/v1/chat/completions", post(chat))
             .with_state(state.clone());
@@ -116,13 +122,17 @@ async fn chat(
 ) -> Response {
     assert_eq!(headers["authorization"], format!("Bearer {KEY}"));
     assert_eq!(body["model"], "mistral-small-2506");
-    assert_eq!(body["messages"].as_array().unwrap().len(), 1);
     assert_eq!(body["messages"][0]["role"], "user");
-    assert_eq!(body["tool_choice"], "none");
     assert_eq!(body["service_tier"], "standard_only");
     assert_eq!(body["stream"], false);
     assert_eq!(body["n"], 1);
-    assert!(body.get("tools").is_none());
+    if body.get("tools").is_some() {
+        assert_eq!(body["tool_choice"], "auto");
+        assert_eq!(body["parallel_tool_calls"], false);
+    } else {
+        assert_eq!(body["messages"].as_array().unwrap().len(), 1);
+        assert_eq!(body["tool_choice"], "none");
+    }
     state.requests.lock().unwrap().push(body);
     let reply = state.reply.lock().unwrap().clone();
     state.chats.fetch_add(1, Ordering::SeqCst);
@@ -346,6 +356,10 @@ impl App {
             .unwrap();
     }
     async fn crash(mut self) {
+        if let Some(task) = self.runtime.inference.run_task.take() {
+            task.abort();
+            let _ = task.await;
+        }
         self.stop.send_replace(true);
         self.server.await.unwrap().unwrap();
         if let Some(task) = self.runtime.inference.task.take() {
@@ -940,9 +954,8 @@ async fn m04_completion_waits_for_state_queue_capacity() {
             .await
     });
     entered_rx.await.unwrap();
-    for _ in 0..32 {
-        assert!(app.manager.queue.sender.try_send(Box::new(|_| {})).is_ok());
-    }
+    while app.manager.queue.sender.try_send(Box::new(|_| {})).is_ok() {}
+    assert_eq!(app.manager.queue.sender.capacity(), 0);
     gate.add_permits(1);
     tokio::time::sleep(Duration::from_millis(30)).await;
     assert_eq!(app.manager.queue.sender.capacity(), 0);
@@ -952,6 +965,7 @@ async fn m04_completion_waits_for_state_queue_capacity() {
     );
     release_tx.send(()).unwrap();
     blocker.await.unwrap().unwrap();
+    app.manager.queue.call_wait(|_| Ok(())).await.unwrap();
     let view = app.settled(input.id).await;
     assert_eq!(view["phase"]["type"], "completed");
     assert_eq!(view["accounting"]["charged_microusd"], 28);
@@ -1002,3 +1016,6 @@ async fn m04_crash_marks_sending_uncertain_and_never_replaces_call() {
     app.shutdown().await;
     no_plaintext(local.directory());
 }
+
+#[path = "run_tests.rs"]
+mod run_tests;

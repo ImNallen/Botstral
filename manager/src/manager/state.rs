@@ -1,6 +1,7 @@
 mod artifacts;
 mod inference;
 mod memory;
+mod runs;
 mod tasks;
 mod workers;
 
@@ -46,6 +47,7 @@ impl Attempts {
 
 pub(super) struct State {
     connection: Connection,
+    inference_control: Option<Arc<super::inference::InferenceControl>>,
     installation: Installation,
     directory: PathBuf,
     configured: watch::Sender<bool>,
@@ -66,7 +68,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 5 {
+    if version > 6 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -92,6 +94,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 5 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0005.sql"))?;
+        tx.commit()?;
+    }
+    if version < 6 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0006.sql"))?;
         tx.commit()?;
     }
     Ok(())
@@ -151,6 +158,7 @@ impl State {
         )?;
         let mut state = Self {
             connection,
+            inference_control: None,
             directory,
             installation,
             configured,
@@ -164,6 +172,7 @@ impl State {
         state.reconcile_documents()?;
         state.reconcile_artifacts()?;
         state.recover_inferences(false)?;
+        state.recover_runs(false)?;
         Ok(state)
     }
 
@@ -190,6 +199,19 @@ impl State {
             .duration_since(UNIX_EPOCH)
             .expect("system clock after epoch")
             .as_secs() as i64
+    }
+
+    pub(super) fn set_inference_control(
+        &mut self,
+        control: Arc<super::inference::InferenceControl>,
+    ) {
+        self.inference_control = Some(control);
+    }
+
+    pub(super) fn change_sequence(&self) -> Option<i64> {
+        self.connection
+            .query_row("SELECT sequence FROM event_head", [], |r| r.get(0))
+            .ok()
     }
 
     pub(super) fn is_configured(&self) -> bool {
@@ -487,7 +509,7 @@ impl State {
             "UPDATE inference_authority SET provider_epoch = provider_epoch + 1",
             [],
         )?;
-        tx.execute("UPDATE inference_configurations SET verified_at=NULL, verified_until=NULL, provider_epoch=NULL", [])?;
+        tx.execute("UPDATE inference_configurations SET verified_at=NULL, verified_until=NULL, provider_epoch=NULL, verified_tools=0", [])?;
         tasks::event(&tx, "inference_verification_invalidated", "mistral")?;
         tx.commit()?;
         Ok(metadata)
@@ -556,12 +578,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 6).unwrap();
+        db.pragma_update(None, "user_version", 7).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            6
+            7
         );
     }
 

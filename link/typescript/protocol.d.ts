@@ -294,6 +294,53 @@ export type InferenceAttentionReason =
   | 'response_too_large'
   | 'shutdown'
   | 'restart';
+export type RunId = string;
+export type RunPhase =
+  | {
+      type: 'ready';
+    }
+  | {
+      turn: RunTurnId;
+      type: 'calling';
+    }
+  | {
+      task: TaskId;
+      turn: RunTurnId;
+      type: 'waiting_for_tool';
+    }
+  | {
+      type: 'completed';
+    }
+  | {
+      type: 'cancelling';
+    }
+  | {
+      type: 'cancelled';
+    }
+  | {
+      reason: RunStopReason;
+      type: 'stopped';
+    }
+  | {
+      reason: RunAttentionReason;
+      type: 'awaiting_attention';
+    };
+export type RunTurnId = string;
+export type RunStopReason =
+  | 'turn_limit'
+  | 'output_limit'
+  | 'token_limit'
+  | 'cost_limit'
+  | 'operation_limit'
+  | 'deadline'
+  | 'configuration_changed'
+  | 'vault_locked'
+  | 'unsupported_proposal'
+  | 'transcript_limit'
+  | 'child_unavailable'
+  | 'shutdown'
+  | 'restart';
+export type RunAttentionReason = 'provider' | 'worker' | 'result_invalid' | 'restart' | 'shutdown';
 export type ExecutionEvent =
   | {
       evidence: ProcessEvidence;
@@ -400,6 +447,46 @@ export type EventReplay =
       cursor: number;
       state: OwnerSnapshot;
       type: 'snapshot';
+    };
+export type RunAttemptId = string;
+export type ToolProposal =
+  | {
+      arguments: ComputerProposal;
+      tool: 'computer';
+    }
+  | {
+      arguments: ProcessProposal;
+      tool: 'process';
+    };
+export type RunMessage =
+  | {
+      content: string;
+      role: 'user';
+    }
+  | {
+      content: string;
+      role: 'assistant';
+      tool_call?: RunToolCall | null;
+    }
+  | {
+      content: string;
+      role: 'tool';
+      tool_call_id: string;
+    };
+export type RunTurnPhase =
+  | {
+      type: 'sending';
+    }
+  | {
+      type: 'responded';
+    }
+  | {
+      reason: InferenceNotSentReason;
+      type: 'not_sent';
+    }
+  | {
+      reason: InferenceAttentionReason;
+      type: 'awaiting_attention';
     };
 export type WorkerMessage =
   | {
@@ -546,6 +633,8 @@ export interface Protocol {
   manager: Envelope2;
   owner: OwnerSnapshot;
   replay: EventReplay;
+  run: SubmitRun;
+  run_view: RunView;
   worker: Envelope;
 }
 export interface WriteDocument {
@@ -688,6 +777,7 @@ export interface OwnerSnapshot {
   inferences: InferenceView[];
   messages: ConversationMessage[];
   permissions: Permission[];
+  runs: RunSummary[];
   tasks: TaskView[];
 }
 export interface Conversation {
@@ -738,6 +828,23 @@ export interface Permission {
   allow: boolean;
   bot: BotId;
   revision: number;
+}
+export interface RunSummary {
+  accounting: RunAccounting;
+  bot: BotId;
+  cancellation_requested_at?: number | null;
+  created_at: number;
+  id: RunId;
+  phase: RunPhase;
+  updated_at: number;
+}
+export interface RunAccounting {
+  admitted_operations: number;
+  admitted_turns: number;
+  held_cost_microusd: number;
+  held_tokens: number;
+  settled_cost_microusd: number;
+  settled_tokens: number;
 }
 export interface TaskView {
   approval: ApprovalView;
@@ -807,6 +914,86 @@ export interface AuthoritativeEvent {
   entity: string;
   kind: string;
   sequence: number;
+}
+export interface SubmitRun {
+  bot: BotId;
+  configuration_revision: number;
+  execution_policy: RunExecutionPolicy;
+  id: RunId;
+  limits: RunLimits;
+  prompt: string;
+  session: ComputerSessionId;
+}
+export interface RunExecutionPolicy {
+  computer?: ComputerToolPolicy | null;
+  process?: ProcessToolPolicy | null;
+}
+export interface ComputerToolPolicy {
+  account: ProcessAccount;
+  limits: ProcessLimits;
+  outputs: OutputDeclaration[];
+  profile: ComputerProfile;
+  runtime: ComputerRuntime;
+  viewport: Viewport;
+}
+export interface ProcessToolPolicy {
+  account: ProcessAccount;
+  environment: {
+    [k: string]: string;
+  };
+  limits: ProcessLimits;
+  profile: ProcessProfile;
+}
+export interface RunLimits {
+  deadline: number;
+  max_concurrent_operations: number;
+  max_cost_microusd: number;
+  max_operations: number;
+  max_output_tokens: number;
+  max_total_tokens: number;
+  max_turns: number;
+}
+export interface RunView {
+  configuration: InferenceConfiguration;
+  request: SubmitRun;
+  summary: RunSummary;
+  turns: RunTurn[];
+}
+export interface RunTurn {
+  accounting: InferenceAccounting;
+  attempt: RunAttemptId;
+  finish_reason?: InferenceFinishReason | null;
+  id: RunTurnId;
+  intent?: RunToolIntent | null;
+  messages: RunMessage[];
+  ordinal: number;
+  phase: RunTurnPhase;
+  provider_request_id?: string | null;
+  reservation: InferenceReservation;
+  response?: RunMessage | null;
+  usage?: InferenceUsage | null;
+}
+export interface RunToolIntent {
+  call: RunToolCall;
+  command: CommandId;
+  execution: ExecutionId;
+  operation: OperationId;
+  result?: string | null;
+  task: TaskId;
+  work: WorkSpec;
+}
+export interface RunToolCall {
+  id: string;
+  proposal: ToolProposal;
+}
+export interface ComputerProposal {
+  operations: ComputerOperation[];
+  outputs: string[];
+}
+export interface ProcessProposal {
+  args: string[];
+  cwd: string;
+  executable: string;
 }
 export interface Envelope {
   message: WorkerMessage;

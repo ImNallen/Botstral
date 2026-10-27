@@ -1,6 +1,6 @@
 # Botstral plan
 
-Botstral has a local manager, the M02 worker protocol, a first approved production process runner, and a desktop implementation for local owner sessions and bots. Browser and file execution are implemented under W01. Model integration, owner-device pairing, and remote access remain planned.
+Botstral has a local manager, durable tasks, a production worker, and a desktop implementation for local owner sessions and bots. M04 adds a durable model and tool loop with recorded-response acceptance. Live provider acceptance, Vibe, owner-device pairing, and remote access remain planned.
 
 M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM transport and synthetic session acceptance passed. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
@@ -136,19 +136,19 @@ Local actual-binary acceptance passed. [M03 acceptance](docs/m03-acceptance.md) 
 
 Depends on M03 and W01 for live execution.
 
-The first bounded slice adds manager-owned single-turn text inference with explicit configuration, model verification, encrypted vault access, durable accounting, and HTTP fixture acceptance. [The inference architecture](docs/m04-inference.md) records its limits. M04 remains open. Tool loops, Vibe, vision, automatic worker operations, and live two-VM acceptance remain future work. No whole milestone item below is closed by this slice.
+The first slice provides manager-owned single-turn text inference. The second adds a durable reasoning and tool loop with exact child approvals, cumulative run limits, artifact results, cancellation, and recovery. [Tool-loop acceptance](docs/m04-tool-loop-acceptance.md) covers recorded model responses with synthetic outcomes and a real production worker on the Linux Computer VM. The production lane runs the manager and worker on one host. M04 remains open for Vibe, vision, live provider checks, and live two-VM acceptance.
 
-- [ ] Add the manager's Mistral reasoning and tool loop.
-- [ ] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
+- [x] Add the manager's Mistral reasoning and tool loop.
+- [x] Keep orchestration and durable state in Botstral rather than relying on a hosted agent platform.
 - [ ] Record model usage, deadlines, budgets, tool requests, and results. Enforce turn, token, time, spending, and concurrency limits before admitting each operation.
-- [ ] Add Playwright browser execution through the supported runtime selected in W01. Treat screenshots and page content as untrusted inputs.
-- [ ] Add real worker tools for file operations, shell commands, and processes across the guest computer.
+- [x] Add Playwright browser execution through the supported runtime selected in W01. Treat screenshots and page content as untrusted inputs.
+- [x] Add real worker tools for file operations, shell commands, and processes across the guest computer.
 - [ ] Run Vibe coding jobs with explicit task ownership, resumable sessions, cancellation, separate working directories, and captured output.
 - [ ] Verify the selected Vibe interface before promising command-level approval controls. Keep unsupported approval operations blocked instead of enabling blanket auto-approval.
 - [ ] Prefer manager-mediated Vibe inference where compatible. Identify any provider credentials supplied to guest processes and document their exposure.
 - [ ] Enforce manager permissions before browser, file, shell, connector, and coding operations. Model moderation cannot grant authority.
 - [ ] Record where unrestricted guest execution prevents enforcing a semantic action rule, including complete send or purchase prevention.
-- [ ] Copy completed deliverables to manager storage for retrieval from clients.
+- [x] Copy completed deliverables to manager storage for retrieval from clients.
 - [ ] Keep provider credentials out of prompts, ordinary logs, and client applications.
 - [ ] Use recorded model responses for repeatable checks and a privately configured, capped credential for live checks.
 

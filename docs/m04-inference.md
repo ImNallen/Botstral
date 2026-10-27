@@ -1,6 +1,6 @@
 # M04 single-turn inference
 
-This first slice lets an authenticated owner configure, verify, submit, retrieve, and cancel one manager-owned text inference. It does not execute model-selected worker operations. M04 remains open. Tool loops, Vibe, vision, live provider checks, and live two-VM acceptance remain future work.
+This first slice lets an authenticated owner configure, verify, submit, retrieve, and cancel one manager-owned text inference. It does not execute model-selected worker operations. M04 remains open. The [durable tool loop](m04-tool-loop.md) extends M04 separately. Vibe, vision, live provider checks, and live two-VM acceptance remain future work.
 
 ## Separate authority and execution
 

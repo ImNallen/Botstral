@@ -43,7 +43,10 @@ identifiers!(
     OperationId,
     ArtifactId,
     InferenceId,
-    InferenceAttemptId
+    InferenceAttemptId,
+    RunId,
+    RunTurnId,
+    RunAttemptId
 );
 
 macro_rules! counters {
@@ -69,6 +72,8 @@ macro_rules! counters {
 counters!(Generation, Revision);
 mod durable;
 pub use durable::*;
+mod run;
+pub use run::*;
 mod inference;
 pub use inference::*;
 mod artifact;
@@ -543,6 +548,8 @@ pub fn schema() -> String {
         replay: EventReplay,
         document: WriteDocument,
         inference: SubmitInference,
+        run: SubmitRun,
+        run_view: RunView,
         inference_configuration: ConfigureInference,
         inference_verification: VerifyInference,
     }

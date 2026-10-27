@@ -1,9 +1,9 @@
 use super::*;
 
-fn token() -> SessionToken {
+pub(in crate::manager::state) fn token() -> SessionToken {
     SessionToken::new("x".repeat(43)).unwrap()
 }
-fn fixture() -> (tempfile::TempDir, State, SubmitInference) {
+pub(in crate::manager::state) fn fixture() -> (tempfile::TempDir, State, SubmitInference) {
     let root = tempfile::tempdir().unwrap();
     let mut db = Connection::open_in_memory().unwrap();
     migrate(&mut db).unwrap();
@@ -66,7 +66,7 @@ fn fixture() -> (tempfile::TempDir, State, SubmitInference) {
         .prepare_inference_verification(token(), VerifyInference { bot, revision: 1 })
         .unwrap();
     state
-        .finish_inference_verification(permit.configuration, permit.epoch, true)
+        .finish_inference_verification(permit.configuration, permit.epoch, Some(true))
         .unwrap();
     let request = SubmitInference {
         id: InferenceId::new(),
@@ -217,7 +217,7 @@ fn m04_price_rounding_overflow_and_verification_authority() {
         )
         .unwrap();
     assert_eq!(
-        state.finish_inference_verification(permit.configuration, permit.epoch, true),
+        state.finish_inference_verification(permit.configuration, permit.epoch, Some(true)),
         Err(OperationError::Conflict)
     );
     assert_eq!(
@@ -235,7 +235,7 @@ fn m04_price_rounding_overflow_and_verification_authority() {
         .unwrap();
     state.lock_vault(token()).unwrap();
     assert_eq!(
-        state.finish_inference_verification(permit.configuration, permit.epoch, true),
+        state.finish_inference_verification(permit.configuration, permit.epoch, Some(true)),
         Err(OperationError::Locked)
     );
 }
