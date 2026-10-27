@@ -1,0 +1,214 @@
+{
+  "corrupt_chunks_receive_terminal_progress": true,
+  "early_unavailable_refused": true,
+  "lost_chunk_ack": true,
+  "lost_final_receipt": true,
+  "offset": 16401,
+  "passed": true,
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "c01794cc-ee96-434a-b634-4bf8d1164b04",
+        "arguments": "88f83290a252f80aa4a9e90d744154db1bf86e99bb71348b1be5ebe64d6ac2cc",
+        "bot": "a23f3b8e-81f1-43e2-b798-165bc160cca5",
+        "execution": "e0631050-a797-45a5-92d8-b4efe80a8948",
+        "expires_at": 1793092873,
+        "operation": "f4e2661e-7307-4cef-9564-3acf985013d4",
+        "owner": "984cc6ae-b067-492e-a6c1-7bcae5e5bb93",
+        "permission_revision": 1,
+        "task": "936a1062-3d31-4a1b-8521-b28345cf52f4"
+      },
+      "consumed": true,
+      "id": "c01794cc-ee96-434a-b634-4bf8d1164b04",
+      "permission_revision": 1,
+      "revoked": false
+    },
+    "command": {
+      "bot": "a23f3b8e-81f1-43e2-b798-165bc160cca5",
+      "execution": "e0631050-a797-45a5-92d8-b4efe80a8948",
+      "id": "75286701-5643-4abe-829f-3800d74a7ee4",
+      "operation": "f4e2661e-7307-4cef-9564-3acf985013d4",
+      "owner": "984cc6ae-b067-492e-a6c1-7bcae5e5bb93",
+      "session": "6430f391-6f21-4e1d-9e40-6eaf6240da7e",
+      "task": "936a1062-3d31-4a1b-8521-b28345cf52f4",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793093170,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 60
+          },
+          "operations": [
+            {
+              "output": "file",
+              "path": "/approved/file",
+              "type": "export_file"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "file"
+            },
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "checksum"
+            },
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "partial"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      },
+      "worker": "d90a9c9f-41df-4bcc-896d-39e5e6d6ca39"
+    },
+    "effect_evidence": [],
+    "id": "936a1062-3d31-4a1b-8521-b28345cf52f4",
+    "outcome": {
+      "reason": "result",
+      "scope": {
+        "boot": "7a9f55c1-6712-4a96-8109-e2cc2b199a16",
+        "cgroup": "/fixture/botstral-1e3870d9-da28-41d1-af39-1e42a2cbfff8-e0631050-a797-45a5-92d8-b4efe80a8948.service",
+        "execution": "e0631050-a797-45a5-92d8-b4efe80a8948",
+        "host": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d",
+        "invocation": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "journal": "1e3870d9-da28-41d1-af39-1e42a2cbfff8",
+        "unit": "botstral-1e3870d9-da28-41d1-af39-1e42a2cbfff8-e0631050-a797-45a5-92d8-b4efe80a8948.service"
+      },
+      "success": true,
+      "type": "process_finished"
+    },
+    "outputs": [
+      {
+        "declaration": {
+          "max_bytes": 65536,
+          "media_type": "text_plain",
+          "name": "file.txt",
+          "slot": "file"
+        },
+        "state": {
+          "content": {
+            "length": 16401,
+            "sha256": "d4b11392927653e43ccb15dd841a7eb990399314423efdb1defaf7cca4a47990"
+          },
+          "id": "ed27502f-e884-413b-b0cb-cad6fad8202d",
+          "type": "available"
+        }
+      },
+      {
+        "declaration": {
+          "max_bytes": 65536,
+          "media_type": "text_plain",
+          "name": "file.txt",
+          "slot": "checksum"
+        },
+        "state": {
+          "type": "pending"
+        }
+      },
+      {
+        "declaration": {
+          "max_bytes": 65536,
+          "media_type": "text_plain",
+          "name": "file.txt",
+          "slot": "partial"
+        },
+        "state": {
+          "type": "pending"
+        }
+      }
+    ],
+    "process": {
+      "effect": "observed",
+      "result": null
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "936a1062-3d31-4a1b-8521-b28345cf52f4",
+      "session_id": "6430f391-6f21-4e1d-9e40-6eaf6240da7e",
+      "settings": {
+        "deadline": 1793093170,
+        "max_cost_micros": 0,
+        "max_tokens": 1,
+        "max_turns": 1,
+        "model": "unavailable"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793093170,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 60
+          },
+          "operations": [
+            {
+              "output": "file",
+              "path": "/approved/file",
+              "type": "export_file"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "file"
+            },
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "checksum"
+            },
+            {
+              "max_bytes": 65536,
+              "media_type": "text_plain",
+              "name": "file.txt",
+              "slot": "partial"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      }
+    },
+    "state": "completed"
+  },
+  "wrong_worker_refused": true
+}

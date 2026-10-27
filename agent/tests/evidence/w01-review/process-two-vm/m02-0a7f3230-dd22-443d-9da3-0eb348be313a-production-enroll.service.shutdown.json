@@ -1,0 +1,18 @@
+{
+  "unit": "m02-0a7f3230-dd22-443d-9da3-0eb348be313a-production-enroll.service",
+  "clean": true,
+  "states": [
+    {
+      "Result": "success",
+      "ExecMainStartTimestampMonotonic": "62952534108",
+      "ExecMainExitTimestampMonotonic": "62952542071",
+      "ExecMainPID": "239788",
+      "ExecMainCode": "1",
+      "ExecMainStatus": "0",
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited"
+    }
+  ],
+  "cleanup_errors": []
+}

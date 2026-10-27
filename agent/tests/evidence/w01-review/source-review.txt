@@ -1,0 +1,12 @@
+Reviewed production code: 418d5610f203cddcc095a07632bf07f2f4198148
+Reviewer: gpt-6-astra
+
+VERIFIED by independent source review. No remaining concrete blockers found in commit 418d561.
+
+Corrupt transfers now terminate with durable unavailable receipts. Lease, journal, execution, slot, artifact identity, and encoding checks still precede those receipts.
+Reconnection resets offer confirmation. Each output must receive confirmation before chunks resume.
+Manager promotion and reused worker snapshots now synchronize their directories before durable availability or offers.
+Initial offers require stopped evidence, or an unavailable ExecutionUncertain offer paired with a durable uncertain outcome.
+Probe cleanup has only the two disposable probe callers. Released cleanup requires probe=true; admitted execution recovery remains separate.
+
+Review-time limits: The reviewer ran no builds or virtual machine tests. Corrected acceptance was still pending at the source verdict. The synchronization fixes were source-traced, without a real power-cut test. The coordinator subsequently refreshed runtime evidence separately.

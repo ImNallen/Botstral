@@ -431,7 +431,7 @@ The manager can develop against the test worker while this track proves actual c
 
 Depends on M02. Integrate the durable worker journal through M03 before M04 live acceptance.
 
-The first process unit runs one explicitly approved guest command with bounded capture, descendant cancellation, and conservative crash recovery. [The verification record](docs/w01-verification.md) includes production acceptance across both VMs. Execution is opt-in and requires systemd 255. [The Computer guide](docs/w01-computer.md) adds the pinned browser runtime, typed file operations, and durable artifacts. [Completion acceptance](docs/w01-completion-acceptance.md) records verification and the remaining review gate.
+The first process unit runs one explicitly approved guest command with bounded capture, descendant cancellation, and conservative crash recovery. [The verification record](docs/w01-verification.md) includes production acceptance across both VMs. Execution is opt-in and requires systemd 255. [The Computer guide](docs/w01-computer.md) adds the pinned browser runtime, typed file operations, and durable artifacts. [Completion acceptance](docs/w01-completion-acceptance.md) and [independent review](docs/w01-completion-review.md) record the completed milestone and tested limits.
 
 - [x] Implement the Rust Linux daemon on the separate Computer VM with persistent guest storage and its outbound WSS connection.
 - [x] Select and package a supported Playwright runtime and its Rust integration or subprocess interface. Drive Chromium through that runtime.

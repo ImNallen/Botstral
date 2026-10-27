@@ -1,6 +1,8 @@
 # W01 completion acceptance
 
-All W01 implementation checks passed on code commit `5316dad327af10ee164eb177c63ef43153dd0f23`. The coordinator still owns independent correctness, comment, and decision-trail review. No external acceptance prerequisite remains missing.
+W01 acceptance and independent review are complete. [The final review record](w01-completion-review.md) covers the corrected production source at `418d561` and the final fixture correction at `62954fb`. Its refreshed evidence supersedes the initial implementation run below.
+
+The initial implementation checks passed on `5316dad327af10ee164eb177c63ef43153dd0f23`. Independent review then found and corrected recovery gaps. No external acceptance prerequisite remains missing.
 
 The [evidence manifest](../agent/tests/evidence/w01-completion/manifest.json) hashes every retained artifact. [Source and binary evidence](../agent/tests/evidence/w01-completion/source-runtime-binaries.json) confirms 106 source files match the Linux build tree. The tested agent SHA-256 is `a2bebbfde469c265979aee851c64e75cc52490f2c299d276640252c4b654be17`. The tested manager SHA-256 is `5769960e95ee83816cccbd6a29d5bc68a31a68d251f0f6c0bea766942682eda9`. The sealed runtime identity is `1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061`.
 

@@ -1,0 +1,29 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0583cf15/agent)
+warning: value assigned to `generation` is never read
+   --> agent/tests/w01_artifacts/mod.rs:264:22
+    |
+264 |     let (mut socket, mut generation) = connection(&f, journal, vec![], 0).await;
+    |                      ^^^^^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: `botstral-agent` (test "m02_transport") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-d5620291564e010f)
+
+running 1 test
+
+thread 'artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes' (610947758) panicked at agent/tests/w01_artifacts/mod.rs:613:9:
+expected durable unavailable progress, received Error { code: InvalidMessage }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... FAILED
+
+failures:
+
+failures:
+    artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 9.24s
+
+error: test failed, to rerun pass `-p botstral-agent --test m02_transport`
