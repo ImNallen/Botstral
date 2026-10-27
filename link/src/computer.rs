@@ -154,11 +154,15 @@ impl ComputerSpec {
 }
 impl WorkSpec {
     pub fn supervised(&self) -> bool {
-        matches!(self, Self::Process { .. } | Self::Computer { .. })
+        matches!(
+            self,
+            Self::Process { .. } | Self::Computer { .. } | Self::Vibe { .. }
+        )
     }
     pub fn outputs(&self) -> &[OutputDeclaration] {
         match self {
             Self::Computer { spec } => &spec.outputs,
+            Self::Vibe { spec } => &spec.policy.outputs,
             _ => &[],
         }
     }

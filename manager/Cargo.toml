@@ -22,6 +22,7 @@ botstral-link = { path = "../link", features = ["tls"] }
 age = "=0.12.1"
 argon2 = "0.5.3"
 axum = "0.8.8"
+png = "=0.17.16"
 base64 = "0.22.1"
 hyper = { version = "1", features = ["server", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio", "service"] }

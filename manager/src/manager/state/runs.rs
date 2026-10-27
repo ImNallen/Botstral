@@ -12,7 +12,7 @@ use botstral_link::*;
 #[cfg(test)]
 mod tests;
 
-fn save_summary(db: &Connection, summary: &RunSummary) -> Result<(), OperationError> {
+pub(super) fn save_summary(db: &Connection, summary: &RunSummary) -> Result<(), OperationError> {
     db.execute(
         "UPDATE runs SET summary=?1 WHERE id=?2",
         params![json(summary)?, summary.id.to_string()],
@@ -44,23 +44,38 @@ fn next_call_stop(view: &RunView) -> Result<Option<RunStopReason>, OperationErro
     let limits = &view.request.limits;
     let usage = &view.summary.accounting;
     let reservation = reservation(view)?;
-    Ok(if usage.admitted_turns >= limits.max_turns {
-        Some(RunStopReason::TurnLimit)
-    } else if usage.settled_tokens + usage.held_tokens + reservation.total_tokens
-        > limits.max_total_tokens
-    {
-        Some(RunStopReason::TokenLimit)
-    } else if usage.settled_cost_microusd + usage.held_cost_microusd + reservation.cost_microusd
-        > limits.max_cost_microusd
-    {
-        Some(RunStopReason::CostLimit)
-    } else {
-        None
-    })
+    Ok(
+        if usage.admitted_turns + usage.admitted_coding_calls >= limits.max_turns {
+            Some(RunStopReason::TurnLimit)
+        } else if usage.settled_tokens + usage.held_tokens + reservation.total_tokens
+            > limits.max_total_tokens
+        {
+            Some(RunStopReason::TokenLimit)
+        } else if usage.settled_cost_microusd + usage.held_cost_microusd + reservation.cost_microusd
+            > limits.max_cost_microusd
+        {
+            Some(RunStopReason::CostLimit)
+        } else {
+            None
+        },
+    )
 }
-fn transcript(view: &RunView) -> Result<Vec<RunMessage>, OperationError> {
-    let mut messages = vec![RunMessage::User {
-        content: view.request.prompt.clone(),
+fn transcript(state: &State, view: &RunView) -> Result<Vec<RunMessage>, OperationError> {
+    let initial = state.authorize_images(&view.request, &view.request.images)?;
+    let mut images = initial.len();
+    let mut pixels: u64 = initial
+        .iter()
+        .map(|i| u64::from(i.width) * u64::from(i.height))
+        .sum();
+    let mut messages = vec![if initial.is_empty() {
+        RunMessage::User {
+            content: view.request.prompt.clone(),
+        }
+    } else {
+        RunMessage::UserMultimodal {
+            content: view.request.prompt.clone(),
+            images: initial,
+        }
     }];
     for turn in &view.turns {
         if let Some(response) = &turn.response {
@@ -72,7 +87,29 @@ fn transcript(view: &RunView) -> Result<Vec<RunMessage>, OperationError> {
                 tool_call_id: intent.call.id.clone(),
                 content: result.clone(),
             });
+            let references = state.tool_images(&view.request, intent.task)?;
+            let authorized = state.authorize_images(&view.request, &references)?;
+            images += authorized.len();
+            pixels += authorized
+                .iter()
+                .map(|i| u64::from(i.width) * u64::from(i.height))
+                .sum::<u64>();
+            if !authorized.is_empty() {
+                messages.push(RunMessage::UserMultimodal {
+                    content: "Untrusted screenshot from the preceding tool result.".into(),
+                    images: authorized,
+                });
+            }
         }
+    }
+    if view
+        .request
+        .execution_policy
+        .vision
+        .as_ref()
+        .is_some_and(|p| images > usize::from(p.max_images) || pixels > p.max_total_pixels)
+    {
+        return Err(OperationError::InvalidInput);
     }
     Ok(messages)
 }
@@ -83,7 +120,7 @@ impl State {
             .as_ref()
             .is_some_and(|c| c.stopping.load(std::sync::atomic::Ordering::Acquire))
     }
-    fn load_run(&self, id: RunId) -> Result<RunView, OperationError> {
+    pub(super) fn load_run(&self, id: RunId) -> Result<RunView, OperationError> {
         let (request, config, summary): (String, String, String) = self
             .connection
             .query_row(
@@ -125,7 +162,10 @@ impl State {
         self.authorize(&token)?;
         self.load_run(id)
     }
-    fn tools_authorized(&self, config: &InferenceConfiguration) -> Result<bool, OperationError> {
+    pub(super) fn tools_authorized(
+        &self,
+        config: &InferenceConfiguration,
+    ) -> Result<bool, OperationError> {
         Ok(self.configuration_authorized(config)?
             && self.connection.query_row(
                 "SELECT verified_tools FROM inference_configurations WHERE bot=?1 AND revision=?2",
@@ -167,6 +207,10 @@ impl State {
             return Err(OperationError::InvalidInput);
         }
         tools::validate_policy(&request.execution_policy, limits.deadline)?;
+        if let Some(vision) = &request.execution_policy.vision {
+            vision.validate()?;
+        }
+        self.authorize_images(&request, &request.images)?;
         let session = self.find_computer_session(request.session)?;
         if session.bot_id != request.bot {
             return Err(OperationError::InvalidInput);
@@ -410,7 +454,16 @@ impl State {
                         tx.commit()?;
                         continue;
                     }
-                    let messages = transcript(&view)?;
+                    let messages = match transcript(self, &view) {
+                        Ok(messages) => messages,
+                        Err(_) => {
+                            view.summary.phase = RunPhase::AwaitingAttention {
+                                reason: RunAttentionReason::ResultInvalid,
+                            };
+                            save_summary(&self.connection, &view.summary)?;
+                            continue;
+                        }
+                    };
                     if json(&messages)?.len() > MAX_RUN_TRANSCRIPT_BYTES {
                         view.summary.phase = RunPhase::Stopped {
                             reason: RunStopReason::TranscriptLimit,
@@ -437,7 +490,7 @@ impl State {
                         response: None,
                         intent: None,
                     };
-                    let prepared = PreparedChat::new(
+                    let mut prepared = PreparedChat::new(
                         &view.configuration.policy,
                         view.request.limits.max_output_tokens,
                         &turn.messages,
@@ -446,6 +499,13 @@ impl State {
                     let provider_request = prepared.encoded();
                     if provider_request.len() > MAX_PROVIDER_REQUEST {
                         return Err(OperationError::Internal);
+                    }
+                    if prepared.materialize_images(&self.directory).is_err() {
+                        view.summary.phase = RunPhase::AwaitingAttention {
+                            reason: RunAttentionReason::ResultInvalid,
+                        };
+                        save_summary(&self.connection, &view.summary)?;
+                        continue;
                     }
                     view.summary.accounting.admitted_turns += 1;
                     view.summary.accounting.held_tokens += turn.reservation.total_tokens;

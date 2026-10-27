@@ -138,9 +138,9 @@ impl State {
         bot: BotId,
         revision: u64,
     ) -> Result<InferenceConfiguration, OperationError> {
-        let (policy, checked, until): (String, Option<i64>, Option<i64>) = self.connection.query_row(
-            "SELECT policy, verified_at, verified_until FROM inference_configurations WHERE bot=?1 AND revision=?2",
-            params![bot.to_string(), sql_revision(revision)?], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))
+        let (policy, checked, until, vision): (String, Option<i64>, Option<i64>, bool) = self.connection.query_row(
+            "SELECT policy, verified_at, verified_until, verified_vision FROM inference_configurations WHERE bot=?1 AND revision=?2",
+            params![bot.to_string(), sql_revision(revision)?], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))
             .optional()?.ok_or(OperationError::NotFound)?;
         Ok(InferenceConfiguration {
             bot,
@@ -150,6 +150,7 @@ impl State {
                 (Some(checked_at), Some(expires_at)) => InferenceVerification::Verified {
                     checked_at,
                     expires_at,
+                    vision,
                 },
                 _ => InferenceVerification::Unverified,
             },
@@ -233,7 +234,7 @@ impl State {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute("UPDATE inference_configurations SET verified_at=NULL,verified_until=NULL,provider_epoch=NULL,verified_tools=0 WHERE bot=?1 AND revision=?2", params![input.bot.to_string(), sql_revision(input.revision)?])?;
+        tx.execute("UPDATE inference_configurations SET verified_at=NULL,verified_until=NULL,provider_epoch=NULL,verified_tools=0,verified_vision=0 WHERE bot=?1 AND revision=?2", params![input.bot.to_string(), sql_revision(input.revision)?])?;
         event(&tx, "inference_verification_started", input.bot)?;
         tx.commit()?;
         Ok(VerificationPermit {
@@ -247,7 +248,7 @@ impl State {
         &mut self,
         config: InferenceConfiguration,
         epoch: i64,
-        verified: Option<bool>,
+        verified: Option<(bool, bool)>,
     ) -> Result<InferenceConfiguration, OperationError> {
         if self.latest_inference_revision(config.bot)? != config.revision
             || self.provider_epoch()? != epoch
@@ -271,7 +272,7 @@ impl State {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute("UPDATE inference_configurations SET verified_at=?1,verified_until=?2,provider_epoch=?3,verified_tools=?6 WHERE bot=?4 AND revision=?5", params![now, until, epoch, config.bot.to_string(), sql_revision(config.revision)?, verified == Some(true)])?;
+        tx.execute("UPDATE inference_configurations SET verified_at=?1,verified_until=?2,provider_epoch=?3,verified_tools=?6,verified_vision=?7 WHERE bot=?4 AND revision=?5", params![now, until, epoch, config.bot.to_string(), sql_revision(config.revision)?, verified.unwrap().0, verified.unwrap().1])?;
         event(&tx, "inference_verified", config.bot)?;
         tx.commit()?;
         self.load_inference_configuration(config.bot, config.revision)

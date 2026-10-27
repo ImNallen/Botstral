@@ -116,6 +116,7 @@ impl Configuration {
             boot: backend.boot.clone(),
             spec: launch.lower(),
             computer: Some(launch),
+            vibe: None,
             expires_at: process::now() + 30,
         };
         process::write(&directory.join("manifest.json"), &manifest)?;

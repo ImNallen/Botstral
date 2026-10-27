@@ -93,6 +93,7 @@ impl WorkerListener {
                     let Ok(permit) = permits.clone().try_acquire_owned() else { continue };
                     let acceptor = self.acceptor.clone();
                     let gateway = manager.worker_gateway();
+                    let manager = manager.clone();
                     let mut stop = stopped.clone();
                     tasks.spawn(async move {
                         let _permit = permit;
@@ -103,9 +104,10 @@ impl WorkerListener {
                             let (upgrade_tx, upgrade_rx) = oneshot::channel();
                             let upgrade_tx = Arc::new(std::sync::Mutex::new(Some(upgrade_tx)));
                             let service_gateway = gateway.clone();
+                            let service_manager = manager.clone();
                             let service_peer = peer.clone();
-                            let service = service_fn(move |request| worker_request(request, service_peer.clone(), service_gateway.clone(), upgrade_tx.clone()));
-                            tokio::time::timeout(DEADLINE, http1::Builder::new().timer(TokioTimer::new()).header_read_timeout(DEADLINE)
+                            let service = service_fn(move |request| worker_request(request, service_peer.clone(), service_gateway.clone(), service_manager.clone(), upgrade_tx.clone()));
+                            tokio::time::timeout(Duration::from_secs(125), http1::Builder::new().timer(TokioTimer::new()).header_read_timeout(DEADLINE)
                                 .max_headers(32).max_buf_size(16384).serve_connection(TokioIo::new(stream), service).with_upgrades()).await.map_err(io::Error::other)?.map_err(io::Error::other)?;
                             if let Ok(upgrade) = upgrade_rx.await {
                                 let stream = tokio::time::timeout(DEADLINE, upgrade).await.map_err(io::Error::other)?.map_err(io::Error::other)?;
@@ -138,6 +140,7 @@ async fn worker_request(
     mut request: Request<Incoming>,
     peer: VerifiedIdentity,
     gateway: WorkerGateway,
+    manager: Manager,
     upgrade: UpgradeSender,
 ) -> Result<Response<Body>, Infallible> {
     let response = if request.headers().contains_key("origin")
@@ -176,6 +179,52 @@ async fn worker_request(
                 serde_json::json!({"worker_id": worker_id}),
             ),
             Err(error) => error_response(StatusCode::FORBIDDEN, protocol_error(error)),
+        }
+    } else if request.method() == "POST" && request.uri().path().starts_with("/worker/v1/coding/") {
+        let result = async {
+            if request.uri().query().is_some()
+                || request
+                    .headers()
+                    .get("content-type")
+                    .and_then(|h| h.to_str().ok())
+                    != Some("application/json")
+            {
+                return Err(OperationError::InvalidInput);
+            }
+            let parts = request
+                .uri()
+                .path()
+                .trim_start_matches("/worker/v1/coding/")
+                .split('/')
+                .collect::<Vec<_>>();
+            if parts.len() != 3 {
+                return Err(OperationError::InvalidInput);
+            }
+            let task = parts[0].parse().map_err(|_| OperationError::InvalidInput)?;
+            let execution = parts[1].parse().map_err(|_| OperationError::InvalidInput)?;
+            let attempt = parts[2].parse().map_err(|_| OperationError::InvalidInput)?;
+            let body = tokio::time::timeout(
+                DEADLINE,
+                to_bytes(Body::new(request.into_body()), MAX_CODING_REQUEST),
+            )
+            .await
+            .map_err(|_| OperationError::InvalidInput)?
+            .map_err(|_| OperationError::InvalidInput)?;
+            manager
+                .coding_chat(peer, task, execution, attempt, body.to_vec())
+                .await
+        }
+        .await;
+        match result {
+            Ok((false, value)) => json_response(StatusCode::OK, value),
+            Ok((true, value)) => Response::builder()
+                .status(StatusCode::OK)
+                .header("content-type", "text/event-stream")
+                .header("connection", "close")
+                .header("cache-control", "no-store")
+                .body(Body::from(crate::manager::coding::sse(value)))
+                .unwrap(),
+            Err(error) => error_response(StatusCode::CONFLICT, protocol_error(error)),
         }
     } else if request.method() == "GET"
         && request.uri().path() == "/worker/v1/connect"

@@ -1,9 +1,11 @@
+pub(crate) mod coding;
 mod crypto;
 mod inference;
 mod provider;
 mod runs;
 mod state;
 mod tasks;
+mod vision;
 mod workers;
 pub use workers::*;
 

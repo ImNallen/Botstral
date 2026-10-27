@@ -43,6 +43,7 @@ struct FixtureState {
     chats: AtomicUsize,
     models: AtomicUsize,
     requests: Mutex<Vec<Value>>,
+    coding_path: Mutex<Option<String>>,
 }
 struct Fixture {
     state: Arc<FixtureState>,
@@ -59,6 +60,7 @@ impl Fixture {
             chats: AtomicUsize::new(0),
             models: AtomicUsize::new(0),
             requests: Mutex::new(Vec::new()),
+            coding_path: Mutex::new(None),
         });
         let app = Router::new()
             .route(
@@ -122,7 +124,10 @@ async fn chat(
 ) -> Response {
     assert_eq!(headers["authorization"], format!("Bearer {KEY}"));
     assert_eq!(body["model"], "mistral-small-2506");
-    assert_eq!(body["messages"][0]["role"], "user");
+    assert!(matches!(
+        body["messages"][0]["role"].as_str(),
+        Some("user" | "system")
+    ));
     assert_eq!(body["service_tier"], "standard_only");
     assert_eq!(body["stream"], false);
     assert_eq!(body["n"], 1);
@@ -133,8 +138,22 @@ async fn chat(
         assert_eq!(body["messages"].as_array().unwrap().len(), 1);
         assert_eq!(body["tool_choice"], "none");
     }
+    let coding_path = state.coding_path.lock().unwrap().clone();
+    let mut reply = state.reply.lock().unwrap().clone();
+    if let Some(path) = coding_path {
+        let edited = body["messages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|m| m["role"] == "tool");
+        let mut value: Value = serde_json::from_str(COMPLETION).unwrap();
+        if !edited {
+            value["choices"][0]["finish_reason"] = json!("tool_calls");
+            value["choices"][0]["message"] = json!({"role":"assistant","content":null,"tool_calls":[{"id":"recorded-vibe-edit","type":"function","function":{"name":"edit","arguments":json!({"file_path":path,"old_string":"return 0","new_string":"return 42"}).to_string()}}]});
+        }
+        reply.body = value.to_string();
+    }
     state.requests.lock().unwrap().push(body);
-    let reply = state.reply.lock().unwrap().clone();
     state.chats.fetch_add(1, Ordering::SeqCst);
     if let Some(gate) = reply.gate {
         let _ = gate.acquire().await.unwrap();
@@ -1074,3 +1093,6 @@ async fn m04_crash_marks_sending_uncertain_and_never_replaces_call() {
 
 #[path = "run_tests.rs"]
 mod run_tests;
+
+#[path = "coding_production.rs"]
+mod coding_production;

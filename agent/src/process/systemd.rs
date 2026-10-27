@@ -182,6 +182,7 @@ impl Backend {
                 limits: backend.configuration.ceilings.clone(),
             },
             computer: None,
+            vibe: None,
             expires_at: now() + 30,
         };
         write(&probes.join("manifest.json"), &manifest)?;

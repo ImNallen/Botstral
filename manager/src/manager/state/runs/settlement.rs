@@ -90,7 +90,7 @@ impl State {
                             let duplicate = view.turns.iter().any(|turn| matches!(&turn.response,Some(RunMessage::Assistant { tool_call: Some(prior), .. }) if prior.id == call.id));
                             let operations = match &call.proposal {
                                 ToolProposal::Computer(args) => args.operations.len() as u32,
-                                ToolProposal::Process(_) => 1,
+                                ToolProposal::Process(_) | ToolProposal::Vibe(_) => 1,
                             };
                             let reason = if duplicate {
                                 Some(RunStopReason::UnsupportedProposal)

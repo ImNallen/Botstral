@@ -598,6 +598,16 @@ impl State {
         for output in task.command.work.outputs() {
             tx.execute("INSERT INTO artifacts(id,task,worker,journal,execution,slot,reserved) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![ArtifactId::new().to_string(),task.id.to_string(),lease.worker.to_string(),incarnation.to_string(),task.command.execution.to_string(),output.slot,output.max_bytes as i64])?;
         }
+        if matches!(task.command.work, WorkSpec::Vibe { .. }) {
+            tx.execute(
+                "INSERT INTO coding_leases(task,execution,generation) VALUES(?1,?2,?3)",
+                params![
+                    task.id.to_string(),
+                    task.command.execution.to_string(),
+                    lease.generation.get() as i64
+                ],
+            )?;
+        }
         event(&tx, "execution_claimed", task.id)?;
         tx.commit()?;
         self.fault("claim_committed");
@@ -620,6 +630,7 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
         }
         WorkSpec::Process { .. } => capabilities.contains(&Capability::ProcessSystemdV1),
         WorkSpec::Computer { .. } => capabilities.contains(&Capability::ComputerV1),
+        WorkSpec::Vibe { .. } => capabilities.contains(&Capability::VibeV1),
     }
 }
 

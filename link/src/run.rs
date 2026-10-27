@@ -30,6 +30,10 @@ pub struct ProcessToolPolicy {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RunExecutionPolicy {
+    #[serde(default)]
+    pub vision: Option<VisionPolicy>,
+    #[serde(default)]
+    pub vibe: Option<VibeToolPolicy>,
     pub computer: Option<ComputerToolPolicy>,
     pub process: Option<ProcessToolPolicy>,
 }
@@ -47,6 +51,8 @@ pub struct RunLimits {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct SubmitRun {
+    #[serde(default)]
+    pub images: Vec<ImageReference>,
     pub id: RunId,
     pub bot: BotId,
     pub session: ComputerSessionId,
@@ -78,6 +84,7 @@ pub struct ProcessProposal {
 pub enum ToolProposal {
     Computer(ComputerProposal),
     Process(ProcessProposal),
+    Vibe(VibeProposal),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -88,6 +95,10 @@ pub struct RunToolCall {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "role", rename_all = "snake_case", deny_unknown_fields)]
 pub enum RunMessage {
+    UserMultimodal {
+        content: String,
+        images: Vec<AuthorizedImage>,
+    },
     User {
         content: String,
     },
@@ -152,6 +163,8 @@ impl RunPhase {
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RunAccounting {
+    #[serde(default)]
+    pub admitted_coding_calls: u32,
     pub admitted_turns: u32,
     pub admitted_operations: u32,
     pub settled_tokens: u64,

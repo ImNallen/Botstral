@@ -3,6 +3,7 @@ use botstral_link::*;
 
 pub(super) fn router() -> Router<Manager> {
     Router::new()
+        .route("/v1/tasks/{id}/coding-calls", get(coding_calls))
         .route("/v1/tasks", post(submit))
         .route("/v1/tasks/{id}", get(task))
         .route("/v1/tasks/{task}/artifacts/{id}", get(download))
@@ -171,4 +172,12 @@ async fn download(
         HeaderValue::from_static("nosniff"),
     );
     Ok(response)
+}
+
+async fn coding_calls(
+    State(m): State<Manager>,
+    h: HeaderMap,
+    Path(id): Path<TaskId>,
+) -> ApiResult<Json<Vec<CodingCallView>>> {
+    Ok(Json(m.coding_calls(token(&h)?, id).await?))
 }

@@ -46,6 +46,7 @@ fn fixture() -> Fixture {
         .reconcile_inventory(lease, journal, 0, 0, vec![])
         .unwrap();
     let input = SubmitRun {
+        images: Vec::new(),
         id: RunId::new(),
         bot: inference.bot,
         session: session.id,
@@ -61,6 +62,8 @@ fn fixture() -> Fixture {
             max_concurrent_operations: 1,
         },
         execution_policy: RunExecutionPolicy {
+            vision: None,
+            vibe: None,
             process: Some(ProcessToolPolicy {
                 profile: ProcessProfile::LinuxSystemdV1,
                 account: ProcessAccount {
@@ -596,7 +599,11 @@ fn registry_preserves_owner_policy_and_rejects_persistent_tab_assumptions() {
 
 #[path = "artifact_tests.rs"]
 mod artifact_tests;
+#[path = "coding_tests.rs"]
+mod coding_tests;
 #[path = "recovery_tests.rs"]
 mod recovery_tests;
 #[path = "restart_tests.rs"]
 mod restart_tests;
+#[path = "vision_tests.rs"]
+mod vision_tests;

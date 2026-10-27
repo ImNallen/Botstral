@@ -66,7 +66,7 @@ pub(in crate::manager::state) fn fixture() -> (tempfile::TempDir, State, SubmitI
         .prepare_inference_verification(token(), VerifyInference { bot, revision: 1 })
         .unwrap();
     state
-        .finish_inference_verification(permit.configuration, permit.epoch, Some(true))
+        .finish_inference_verification(permit.configuration, permit.epoch, Some((true, false)))
         .unwrap();
     let request = SubmitInference {
         id: InferenceId::new(),
@@ -217,7 +217,11 @@ fn m04_price_rounding_overflow_and_verification_authority() {
         )
         .unwrap();
     assert_eq!(
-        state.finish_inference_verification(permit.configuration, permit.epoch, Some(true)),
+        state.finish_inference_verification(
+            permit.configuration,
+            permit.epoch,
+            Some((true, false))
+        ),
         Err(OperationError::Conflict)
     );
     assert_eq!(
@@ -235,7 +239,11 @@ fn m04_price_rounding_overflow_and_verification_authority() {
         .unwrap();
     state.lock_vault(token()).unwrap();
     assert_eq!(
-        state.finish_inference_verification(permit.configuration, permit.epoch, Some(true)),
+        state.finish_inference_verification(
+            permit.configuration,
+            permit.epoch,
+            Some((true, false))
+        ),
         Err(OperationError::Locked)
     );
 }

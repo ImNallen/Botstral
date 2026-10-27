@@ -1,3 +1,18 @@
+export type InferenceAccounting =
+  | {
+      type: 'held';
+    }
+  | {
+      charged_microusd: number;
+      type: 'settled';
+    }
+  | {
+      type: 'released';
+    };
+export type InferenceAttemptId = string;
+export type CodingCallPhase = 'reserved' | 'sent' | 'settled' | 'unknown' | 'not_sent';
+export type TaskId = string;
+export type RequestId = string;
 export type BotId = string;
 export type DocumentKind = 'instructions' | 'memory';
 export type SourceReference =
@@ -13,7 +28,6 @@ export type SourceReference =
       reference: string;
       type: 'external';
     };
-export type TaskId = string;
 export type MessageId = string;
 export type InferenceId = string;
 export type ModelReleaseAcknowledgment =
@@ -25,7 +39,8 @@ export type ModelReleaseAcknowledgment =
       type: 'preview';
     };
 export type InferenceEndpoint = 'global' | 'eu' | 'us';
-export type InferenceBilling = 'text_tokens_only_at_acknowledged_ceilings';
+export type InferenceBilling =
+  'text_tokens_only_at_acknowledged_ceilings' | 'context_tokens_including_images_at_acknowledged_ceilings';
 export type ManagerMessage =
   | {
       execution: ExecutionId;
@@ -133,10 +148,27 @@ export type WorkSpec =
       type: 'process';
     }
   | {
+      spec: VibeSpec;
+      type: 'vibe';
+    }
+  | {
       spec: ComputerSpec;
       type: 'computer';
     };
 export type ProcessProfile = 'linux_systemd_v1';
+export type VibeAccess = 'edit_files_as_guest_account';
+export type MediaType = 'png' | 'text_plain' | 'octet_stream';
+export type CertificateFingerprint = string;
+export type CodingWorkspaceId = string;
+export type VibeSession =
+  | {
+      type: 'new';
+    }
+  | {
+      native_session: RequestId;
+      task: TaskId;
+      type: 'resume';
+    };
 export type ComputerOperation =
   | {
       type: 'navigate';
@@ -175,9 +207,7 @@ export type ComputerOperation =
       path: string;
       type: 'export_file';
     };
-export type MediaType = 'png' | 'text_plain' | 'octet_stream';
 export type ComputerProfile = 'linux_playwright_v1';
-export type CertificateFingerprint = string;
 export type WorkerId = string;
 export type InputOwner = 'bot' | 'owner';
 export type Revision = number;
@@ -234,7 +264,6 @@ export type ErrorCode =
   | 'queue_full'
   | 'disconnected'
   | 'conflict';
-export type RequestId = string;
 export type ConversationId = string;
 export type InferenceVerification =
   | {
@@ -244,17 +273,7 @@ export type InferenceVerification =
       checked_at: number;
       expires_at: number;
       type: 'verified';
-    };
-export type InferenceAccounting =
-  | {
-      type: 'held';
-    }
-  | {
-      charged_microusd: number;
-      type: 'settled';
-    }
-  | {
-      type: 'released';
+      vision?: boolean;
     };
 export type InferencePhase =
   | {
@@ -282,7 +301,6 @@ export type InferencePhase =
       reason: InferenceAttentionReason;
       type: 'awaiting_attention';
     };
-export type InferenceAttemptId = string;
 export type InferenceFinishReason = 'stop' | 'length';
 export type InferenceNotSentReason = 'deadline' | 'configuration_changed' | 'vault_locked' | 'shutdown' | 'restart';
 export type InferenceAttentionReason =
@@ -457,8 +475,17 @@ export type ToolProposal =
   | {
       arguments: ProcessProposal;
       tool: 'process';
+    }
+  | {
+      arguments: VibeProposal;
+      tool: 'vibe';
     };
 export type RunMessage =
+  | {
+      content: string;
+      images: AuthorizedImage[];
+      role: 'user_multimodal';
+    }
   | {
       content: string;
       role: 'user';
@@ -577,7 +604,8 @@ export type SealedOutput =
       type: 'unavailable';
     };
 export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved' | 'uncertain' | 'stopped';
-export type Capability = 'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1' | 'computer_v1';
+export type Capability =
+  'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1' | 'vibe_v1' | 'computer_v1';
 export type ReleaseChannel = 'stable' | 'experimental';
 export type TaskEvent =
   | {
@@ -626,6 +654,8 @@ export type LogCode = 'started' | 'input_applied' | 'stopped';
 export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
 
 export interface Protocol {
+  coding_calls: CodingCallView[];
+  coding_result: VibeResult;
   document: WriteDocument;
   inference: SubmitInference;
   inference_configuration: ConfigureInference;
@@ -636,6 +666,31 @@ export interface Protocol {
   run: SubmitRun;
   run_view: RunView;
   worker: Envelope;
+}
+export interface CodingCallView {
+  accounting: InferenceAccounting;
+  id: InferenceAttemptId;
+  phase: CodingCallPhase;
+  provider_request_id?: string | null;
+  reservation: InferenceReservation;
+  task: TaskId;
+  usage?: InferenceUsage | null;
+}
+export interface InferenceReservation {
+  cost_microusd: number;
+  total_tokens: number;
+}
+export interface InferenceUsage {
+  completion_tokens: number;
+  prompt_tokens: number;
+  total_tokens: number;
+}
+export interface VibeResult {
+  approval_denied: number;
+  calls: number;
+  exit_code: number;
+  native_session: RequestId;
+  tool_errors: number;
 }
 export interface WriteDocument {
   bot: BotId;
@@ -733,6 +788,41 @@ export interface ProcessLimits {
   processes: number;
   runtime_seconds: number;
 }
+export interface VibeSpec {
+  limits: RunLimits;
+  policy: VibePolicy;
+  prompt: string;
+  session: VibeSession;
+}
+export interface RunLimits {
+  deadline: number;
+  max_concurrent_operations: number;
+  max_cost_microusd: number;
+  max_operations: number;
+  max_output_tokens: number;
+  max_total_tokens: number;
+  max_turns: number;
+}
+export interface VibePolicy {
+  access: VibeAccess;
+  account: ProcessAccount;
+  configuration_revision: number;
+  model_id: string;
+  outputs: OutputDeclaration[];
+  resources: ProcessLimits;
+  runtime: CertificateFingerprint;
+  workspace: CodingWorkspace;
+}
+export interface OutputDeclaration {
+  max_bytes: number;
+  media_type: MediaType;
+  name: string;
+  slot: string;
+}
+export interface CodingWorkspace {
+  id: CodingWorkspaceId;
+  path: string;
+}
 export interface ComputerSpec {
   account: ProcessAccount;
   deadline: number;
@@ -742,12 +832,6 @@ export interface ComputerSpec {
   profile: ComputerProfile;
   runtime: ComputerRuntime;
   viewport: Viewport;
-}
-export interface OutputDeclaration {
-  max_bytes: number;
-  media_type: MediaType;
-  name: string;
-  slot: string;
 }
 export interface ComputerRuntime {
   sha256: CertificateFingerprint;
@@ -810,15 +894,6 @@ export interface InferenceView {
   updated_at: number;
   usage?: InferenceUsage | null;
 }
-export interface InferenceReservation {
-  cost_microusd: number;
-  total_tokens: number;
-}
-export interface InferenceUsage {
-  completion_tokens: number;
-  prompt_tokens: number;
-  total_tokens: number;
-}
 export interface ConversationMessage {
   conversation: ConversationId;
   id: MessageId;
@@ -839,6 +914,7 @@ export interface RunSummary {
   updated_at: number;
 }
 export interface RunAccounting {
+  admitted_coding_calls?: number;
   admitted_operations: number;
   admitted_turns: number;
   held_cost_microusd: number;
@@ -920,6 +996,7 @@ export interface SubmitRun {
   configuration_revision: number;
   execution_policy: RunExecutionPolicy;
   id: RunId;
+  images?: ImageReference[];
   limits: RunLimits;
   prompt: string;
   session: ComputerSessionId;
@@ -927,6 +1004,8 @@ export interface SubmitRun {
 export interface RunExecutionPolicy {
   computer?: ComputerToolPolicy | null;
   process?: ProcessToolPolicy | null;
+  vibe?: VibeToolPolicy | null;
+  vision?: VisionPolicy | null;
 }
 export interface ComputerToolPolicy {
   account: ProcessAccount;
@@ -944,14 +1023,21 @@ export interface ProcessToolPolicy {
   limits: ProcessLimits;
   profile: ProcessProfile;
 }
-export interface RunLimits {
-  deadline: number;
-  max_concurrent_operations: number;
-  max_cost_microusd: number;
-  max_operations: number;
-  max_output_tokens: number;
-  max_total_tokens: number;
-  max_turns: number;
+export interface VibeToolPolicy {
+  limits: RunLimits;
+  policy: VibePolicy;
+}
+export interface VisionPolicy {
+  allowed_slots: string[];
+  max_image_bytes: number;
+  max_images: number;
+  max_total_pixels: number;
+}
+export interface ImageReference {
+  artifact: ArtifactId;
+  sha256: CertificateFingerprint;
+  slot: string;
+  task: TaskId;
 }
 export interface RunView {
   configuration: InferenceConfiguration;
@@ -994,6 +1080,16 @@ export interface ProcessProposal {
   args: string[];
   cwd: string;
   executable: string;
+}
+export interface VibeProposal {
+  prompt: string;
+  session: VibeSession;
+}
+export interface AuthorizedImage {
+  height: number;
+  length: number;
+  reference: ImageReference;
+  width: number;
 }
 export interface Envelope {
   message: WorkerMessage;

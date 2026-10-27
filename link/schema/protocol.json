@@ -3,6 +3,15 @@
   "title": "Protocol",
   "type": "object",
   "properties": {
+    "coding_calls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CodingCallView"
+      }
+    },
+    "coding_result": {
+      "$ref": "#/$defs/VibeResult"
+    },
     "document": {
       "$ref": "#/$defs/WriteDocument"
     },
@@ -43,6 +52,8 @@
     "inference",
     "run",
     "run_view",
+    "coding_calls",
+    "coding_result",
     "inference_configuration",
     "inference_verification"
   ],
@@ -362,6 +373,36 @@
         "entity"
       ]
     },
+    "AuthorizedImage": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "length": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "reference": {
+          "$ref": "#/$defs/ImageReference"
+        },
+        "width": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "reference",
+        "length",
+        "width",
+        "height"
+      ]
+    },
     "BotId": {
       "type": "string",
       "format": "uuid"
@@ -373,6 +414,7 @@
         "input_fencing",
         "test_input",
         "process_systemd_v1",
+        "vibe_v1",
         "computer_v1"
       ]
     },
@@ -398,6 +440,80 @@
     },
     "CertificateFingerprint": {
       "type": "string"
+    },
+    "CodingCallPhase": {
+      "type": "string",
+      "enum": [
+        "reserved",
+        "sent",
+        "settled",
+        "unknown",
+        "not_sent"
+      ]
+    },
+    "CodingCallView": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/InferenceAccounting"
+        },
+        "id": {
+          "$ref": "#/$defs/InferenceAttemptId"
+        },
+        "phase": {
+          "$ref": "#/$defs/CodingCallPhase"
+        },
+        "provider_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reservation": {
+          "$ref": "#/$defs/InferenceReservation"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "task",
+        "phase",
+        "reservation",
+        "accounting"
+      ]
+    },
+    "CodingWorkspace": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/CodingWorkspaceId"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path"
+      ]
+    },
+    "CodingWorkspaceId": {
+      "type": "string",
+      "format": "uuid"
     },
     "CommandAction": {
       "oneOf": [
@@ -1350,6 +1466,30 @@
       "format": "uint64",
       "minimum": 0
     },
+    "ImageReference": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "sha256": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "task",
+        "artifact",
+        "slot",
+        "sha256"
+      ]
+    },
     "InferenceAccounting": {
       "oneOf": [
         {
@@ -1448,7 +1588,8 @@
     "InferenceBilling": {
       "type": "string",
       "enum": [
-        "text_tokens_only_at_acknowledged_ceilings"
+        "text_tokens_only_at_acknowledged_ceilings",
+        "context_tokens_including_images_at_acknowledged_ceilings"
       ]
     },
     "InferenceConfiguration": {
@@ -1756,6 +1897,10 @@
             "type": {
               "type": "string",
               "const": "verified"
+            },
+            "vision": {
+              "type": "boolean",
+              "default": false
             }
           },
           "additionalProperties": false,
@@ -2785,6 +2930,12 @@
     "RunAccounting": {
       "type": "object",
       "properties": {
+        "admitted_coding_calls": {
+          "type": "integer",
+          "format": "uint32",
+          "default": 0,
+          "minimum": 0
+        },
         "admitted_operations": {
           "type": "integer",
           "format": "uint32",
@@ -2862,6 +3013,28 @@
               "type": "null"
             }
           ]
+        },
+        "vibe": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VibeToolPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "vision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VisionPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "additionalProperties": false
@@ -2921,6 +3094,30 @@
     },
     "RunMessage": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AuthorizedImage"
+              }
+            },
+            "role": {
+              "type": "string",
+              "const": "user_multimodal"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "content",
+            "images"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -3601,6 +3798,13 @@
         "id": {
           "$ref": "#/$defs/RunId"
         },
+        "images": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ImageReference"
+          }
+        },
         "limits": {
           "$ref": "#/$defs/RunLimits"
         },
@@ -4014,6 +4218,23 @@
             "tool",
             "arguments"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/VibeProposal"
+            },
+            "tool": {
+              "type": "string",
+              "const": "vibe"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
         }
       ]
     },
@@ -4033,6 +4254,186 @@
       "required": [
         "bot",
         "revision"
+      ]
+    },
+    "VibeAccess": {
+      "type": "string",
+      "enum": [
+        "edit_files_as_guest_account"
+      ]
+    },
+    "VibePolicy": {
+      "type": "object",
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/VibeAccess"
+        },
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "configuration_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OutputDeclaration"
+          }
+        },
+        "resources": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        },
+        "workspace": {
+          "$ref": "#/$defs/CodingWorkspace"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "workspace",
+        "runtime",
+        "account",
+        "resources",
+        "configuration_revision",
+        "model_id",
+        "access",
+        "outputs"
+      ]
+    },
+    "VibeProposal": {
+      "type": "object",
+      "properties": {
+        "prompt": {
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/VibeSession"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "prompt",
+        "session"
+      ]
+    },
+    "VibeResult": {
+      "type": "object",
+      "properties": {
+        "approval_denied": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "calls": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "exit_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "native_session": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "tool_errors": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "native_session",
+        "exit_code",
+        "calls",
+        "approval_denied",
+        "tool_errors"
+      ]
+    },
+    "VibeSession": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "new"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "native_session": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "task": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "type": {
+              "type": "string",
+              "const": "resume"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "task",
+            "native_session"
+          ]
+        }
+      ]
+    },
+    "VibeSpec": {
+      "type": "object",
+      "properties": {
+        "limits": {
+          "$ref": "#/$defs/RunLimits"
+        },
+        "policy": {
+          "$ref": "#/$defs/VibePolicy"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/VibeSession"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "session",
+        "prompt",
+        "limits"
+      ]
+    },
+    "VibeToolPolicy": {
+      "type": "object",
+      "properties": {
+        "limits": {
+          "$ref": "#/$defs/RunLimits"
+        },
+        "policy": {
+          "$ref": "#/$defs/VibePolicy"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "limits"
       ]
     },
     "Viewport": {
@@ -4055,6 +4456,40 @@
       "required": [
         "width",
         "height"
+      ]
+    },
+    "VisionPolicy": {
+      "type": "object",
+      "properties": {
+        "allowed_slots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_image_bytes": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_images": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "max_total_pixels": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "allowed_slots",
+        "max_images",
+        "max_image_bytes",
+        "max_total_pixels"
       ]
     },
     "WorkSpec": {
@@ -4123,6 +4558,23 @@
             "type": {
               "type": "string",
               "const": "process"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "spec"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "$ref": "#/$defs/VibeSpec"
+            },
+            "type": {
+              "type": "string",
+              "const": "vibe"
             }
           },
           "additionalProperties": false,
