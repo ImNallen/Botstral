@@ -1,0 +1,8 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.41s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-1cca2fdbd54debbc)
+
+running 1 test
+test process_acceptance::w01_unsupported_host ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 2.55s

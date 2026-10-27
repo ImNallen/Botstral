@@ -1,0 +1,883 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "production.separate_hosts_and_binary_hashes",
+      "status": "passed",
+      "details": {
+        "manager": {
+          "hostname": "botstral-manager",
+          "machine_id_sha256": "ca094c14f8c5c29e98154ddc4bb7d768377360ee4cc8039e4819ab7e495ba274",
+          "kernel": "6.8.0-147-generic",
+          "addresses": [
+            "192.168.1.40"
+          ],
+          "binaries": {
+            "/home/botstral/w01-570e76c4/bin/production/botstral-manager": "e8cf1a8be8badc8a0b6bd509cf3cbfa9b165afde1a3b5b7fa4fb92a721f13d8a"
+          }
+        },
+        "worker": {
+          "hostname": "botstral-computer",
+          "machine_id_sha256": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+          "kernel": "6.8.0-147-generic",
+          "addresses": [
+            "192.168.1.235"
+          ],
+          "binaries": {
+            "/home/botstral/w01-570e76c4/bin/production/botstral-agent": "4f784c3be6eb296161b633298780f039780bc3406a07a6a709b42aaf2139a50a"
+          }
+        }
+      }
+    },
+    {
+      "name": "production.private_fixture_and_manager",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "manager.versions",
+      "status": "passed",
+      "details": {
+        "kernel": "6.8.0-147-generic",
+        "systemd": "systemd 255 (255.4-1ubuntu8.18)\n+PAM +AUDIT +SELINUX +APPARMOR +IMA +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBFDISK +PCRE2 -PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -XKBCOMMON +UTMP +SYSVINIT default-hierarchy=unified\n",
+        "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      }
+    },
+    {
+      "name": "computer.versions",
+      "status": "passed",
+      "details": {
+        "kernel": "6.8.0-147-generic",
+        "systemd": "systemd 255 (255.4-1ubuntu8.18)\n+PAM +AUDIT +SELINUX +APPARMOR +IMA +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBFDISK +PCRE2 -PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -XKBCOMMON +UTMP +SYSVINIT default-hierarchy=unified\n",
+        "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      }
+    },
+    {
+      "name": "production.production_enrollment",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.approved_exact_effect_and_duplicate",
+      "status": "passed",
+      "details": {
+        "task": {
+          "id": "37436a06-bbed-4f75-8e23-0261f46bf09a",
+          "request": {
+            "id": "37436a06-bbed-4f75-8e23-0261f46bf09a",
+            "session_id": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "conversation_id": null,
+            "settings": {
+              "model": "unavailable",
+              "max_turns": 1,
+              "max_tokens": 1,
+              "deadline": 1793056873,
+              "max_cost_micros": 0
+            },
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/success.py",
+                  "$HOME",
+                  "%n",
+                  "a b"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056873,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "command": {
+            "id": "591f02a7-72d5-49f0-85c5-1c8cc9a66bb2",
+            "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+            "task": "37436a06-bbed-4f75-8e23-0261f46bf09a",
+            "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+            "worker": "e5e7ba0b-4b83-49dc-8824-2558c3257f74",
+            "session": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "operation": "edd893da-9c21-454a-9194-33f40a17ffcc",
+            "execution": "0043949e-80cc-4ccf-b3de-c887b9fed920",
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/success.py",
+                  "$HOME",
+                  "%n",
+                  "a b"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056873,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "state": "completed",
+          "progress": 0,
+          "outcome": {
+            "type": "process_finished",
+            "reason": "result",
+            "success": true,
+            "scope": {
+              "journal": "dafca777-cd21-488c-a7d6-c304891e0dca",
+              "execution": "0043949e-80cc-4ccf-b3de-c887b9fed920",
+              "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+              "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+              "invocation": "602cfddf94464247abe84840d46ffb1b",
+              "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-0043949e-80cc-4ccf-b3de-c887b9fed920.service",
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-dafca777-cd21-488c-a7d6-c304891e0dca-0043949e-80cc-4ccf-b3de-c887b9fed920.service"
+            }
+          },
+          "effect_evidence": [],
+          "process": {
+            "effect": "observed",
+            "result": {
+              "exit": {
+                "type": "exited",
+                "code": 0
+              },
+              "stdout": {
+                "hex": "7374646f757400ff",
+                "truncated": false,
+                "complete": true
+              },
+              "stderr": {
+                "hex": "737464657272",
+                "truncated": false,
+                "complete": true
+              }
+            }
+          },
+          "approval": {
+            "id": "6e6840e0-df1a-46e0-976e-ff730d6c18d1",
+            "binding": {
+              "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+              "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+              "task": "37436a06-bbed-4f75-8e23-0261f46bf09a",
+              "operation": "edd893da-9c21-454a-9194-33f40a17ffcc",
+              "arguments": "395d109b471e6f4cfb6dc8e2696a4dc032e24447b45584c4a7adf4e6b3565aeb",
+              "permission_revision": 1,
+              "approval": "6e6840e0-df1a-46e0-976e-ff730d6c18d1",
+              "execution": "0043949e-80cc-4ccf-b3de-c887b9fed920",
+              "expires_at": 1793056844
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": true
+          }
+        },
+        "effect": {
+          "args": [
+            "$HOME",
+            "%n",
+            "a b"
+          ],
+          "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+          "env": {
+            "LC_ALL": "C",
+            "LITERAL": "$HOME %n"
+          }
+        },
+        "invocation_count": 1
+      }
+    },
+    {
+      "name": "production.responsive_descendant_cancellation",
+      "status": "passed",
+      "details": {
+        "before": [
+          {
+            "pid": 124428,
+            "live": true,
+            "stat": "124428 (python3) S 124426 124426 124426 0 -1 4194304 1275 0 0 0 0 0 0 0 20 0 1 0 2691080 15458304 2656 18446744073709551615 4325376 7352253 140736678066848 0 0 0 0 16797696 2 1 0 0 17 3 0 0 0 0 0 10653128 12216448 610893824 140736678072172 140736678072269 140736678072269 140736678072295 0\n"
+          },
+          {
+            "pid": 124429,
+            "live": true,
+            "stat": "124429 (python3) S 124428 124429 124429 0 -1 4194368 186 0 0 0 0 0 0 0 20 0 1 0 2691081 15458304 1906 18446744073709551615 4325376 7352253 140736678066848 0 0 0 0 16797696 2 1 0 0 17 6 0 0 0 0 0 10653128 12216448 610893824 140736678072172 140736678072269 140736678072269 140736678072295 0\n"
+          }
+        ],
+        "after": [
+          {
+            "pid": 124428,
+            "live": false,
+            "stat": null
+          },
+          {
+            "pid": 124429,
+            "live": false,
+            "stat": null
+          }
+        ],
+        "request_seconds": 0.1725764999999999,
+        "task": {
+          "id": "99cfbdd2-678a-4087-b475-26b96ce9e81f",
+          "request": {
+            "id": "99cfbdd2-678a-4087-b475-26b96ce9e81f",
+            "session_id": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "conversation_id": null,
+            "settings": {
+              "model": "unavailable",
+              "max_turns": 1,
+              "max_tokens": 1,
+              "deadline": 1793056875,
+              "max_cost_micros": 0
+            },
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/cancel.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056875,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "command": {
+            "id": "bee28618-8186-4039-a035-82c0b9ed497f",
+            "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+            "task": "99cfbdd2-678a-4087-b475-26b96ce9e81f",
+            "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+            "worker": "e5e7ba0b-4b83-49dc-8824-2558c3257f74",
+            "session": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "operation": "67086274-e66e-43b0-80a0-9f6a45963829",
+            "execution": "9d18d616-2495-4116-9c45-a198a748c7ae",
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/cancel.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056875,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "state": "cancelled",
+          "progress": 0,
+          "outcome": {
+            "type": "stopped",
+            "applied": 0,
+            "evidence": {
+              "systemd_scope_empty": {
+                "scope": {
+                  "journal": "dafca777-cd21-488c-a7d6-c304891e0dca",
+                  "execution": "9d18d616-2495-4116-9c45-a198a748c7ae",
+                  "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+                  "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+                  "invocation": "fe56b1a1dcae4324833b71de9b6f1338",
+                  "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-9d18d616-2495-4116-9c45-a198a748c7ae.service",
+                  "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-dafca777-cd21-488c-a7d6-c304891e0dca-9d18d616-2495-4116-9c45-a198a748c7ae.service"
+                }
+              }
+            }
+          },
+          "effect_evidence": [],
+          "process": {
+            "effect": "observed",
+            "result": {
+              "exit": {
+                "type": "unobserved"
+              },
+              "stdout": {
+                "hex": "6f62736572766564206566666563740a",
+                "truncated": false,
+                "complete": false
+              },
+              "stderr": {
+                "hex": "",
+                "truncated": false,
+                "complete": false
+              }
+            }
+          },
+          "approval": {
+            "id": "e2550738-7f57-422a-9004-65d738a02ad3",
+            "binding": {
+              "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+              "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+              "task": "99cfbdd2-678a-4087-b475-26b96ce9e81f",
+              "operation": "67086274-e66e-43b0-80a0-9f6a45963829",
+              "arguments": "b6358f0ac49a089198934eb57fd5698c408e40b067e2f286ca90cba5b6f2ad39",
+              "permission_revision": 1,
+              "approval": "e2550738-7f57-422a-9004-65d738a02ad3",
+              "execution": "9d18d616-2495-4116-9c45-a198a748c7ae",
+              "expires_at": 1793056845
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "name": "production.manager-restart",
+      "status": "passed",
+      "details": {
+        "before": [
+          {
+            "pid": 124705,
+            "live": true,
+            "stat": "124705 (python3) S 124702 124702 124702 0 -1 4194304 1277 0 0 0 0 0 0 0 20 0 1 0 2692530 15458304 2624 18446744073709551615 4325376 7352253 140725818678976 0 0 0 0 16797696 2 1 0 0 17 5 0 0 0 0 0 10653128 12216448 895500288 140725818683235 140725818683341 140725818683341 140725818683367 0\n"
+          },
+          {
+            "pid": 124706,
+            "live": true,
+            "stat": "124706 (python3) S 124705 124706 124706 0 -1 4194368 185 0 0 0 0 0 0 0 20 0 1 0 2692531 15458304 1925 18446744073709551615 4325376 7352253 140725818678976 0 0 0 0 16797696 2 1 0 0 17 4 0 0 0 0 0 10653128 12216448 895500288 140725818683235 140725818683341 140725818683341 140725818683367 0\n"
+          }
+        ],
+        "after": [
+          {
+            "pid": 124705,
+            "live": false,
+            "stat": null
+          },
+          {
+            "pid": 124706,
+            "live": false,
+            "stat": null
+          }
+        ],
+        "task": {
+          "id": "843a50f7-a4e6-4df0-b5f7-b5772722e4b1",
+          "request": {
+            "id": "843a50f7-a4e6-4df0-b5f7-b5772722e4b1",
+            "session_id": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "conversation_id": null,
+            "settings": {
+              "model": "unavailable",
+              "max_turns": 1,
+              "max_tokens": 1,
+              "deadline": 1793056889,
+              "max_cost_micros": 0
+            },
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/manager-restart.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056889,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "command": {
+            "id": "703a78b6-2e2e-4144-a3af-e03d6e05fd6e",
+            "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+            "task": "843a50f7-a4e6-4df0-b5f7-b5772722e4b1",
+            "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+            "worker": "e5e7ba0b-4b83-49dc-8824-2558c3257f74",
+            "session": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "operation": "9fb46aec-0f85-4578-b852-bdfeee5c195b",
+            "execution": "88c9c46f-572f-4c3b-9425-e741349c34b3",
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/manager-restart.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056889,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "state": "cancelled",
+          "progress": 0,
+          "outcome": {
+            "type": "stopped",
+            "applied": 0,
+            "evidence": {
+              "systemd_scope_empty": {
+                "scope": {
+                  "journal": "dafca777-cd21-488c-a7d6-c304891e0dca",
+                  "execution": "88c9c46f-572f-4c3b-9425-e741349c34b3",
+                  "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+                  "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+                  "invocation": "0769afa7c96c4f7690544469f817c268",
+                  "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-88c9c46f-572f-4c3b-9425-e741349c34b3.service",
+                  "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-dafca777-cd21-488c-a7d6-c304891e0dca-88c9c46f-572f-4c3b-9425-e741349c34b3.service"
+                }
+              }
+            }
+          },
+          "effect_evidence": [
+            {
+              "type": "uncertain",
+              "reason": "process_interrupted"
+            }
+          ],
+          "process": {
+            "effect": "observed",
+            "result": {
+              "exit": {
+                "type": "unobserved"
+              },
+              "stdout": {
+                "hex": "6f62736572766564206566666563740a",
+                "truncated": false,
+                "complete": false
+              },
+              "stderr": {
+                "hex": "",
+                "truncated": false,
+                "complete": false
+              }
+            }
+          },
+          "approval": {
+            "id": "e419d9cb-3bfd-4d90-807a-ae425c3513c5",
+            "binding": {
+              "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+              "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+              "task": "843a50f7-a4e6-4df0-b5f7-b5772722e4b1",
+              "operation": "9fb46aec-0f85-4578-b852-bdfeee5c195b",
+              "arguments": "bdff144cd094ba214419ab7a798117d1e316fe09181187d10fb05c21c7bf0d54",
+              "permission_revision": 1,
+              "approval": "e419d9cb-3bfd-4d90-807a-ae425c3513c5",
+              "execution": "88c9c46f-572f-4c3b-9425-e741349c34b3",
+              "expires_at": 1793056860
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": true
+          }
+        },
+        "invocation_count": 1
+      }
+    },
+    {
+      "name": "production.daemon-crash",
+      "status": "passed",
+      "details": {
+        "before": [
+          {
+            "pid": 124962,
+            "live": true,
+            "stat": "124962 (python3) S 124958 124958 124958 0 -1 4194304 1279 0 0 0 0 0 0 0 20 0 1 0 2692940 15458304 2656 18446744073709551615 4325376 7352253 140726625907376 0 0 0 0 16797696 2 1 0 0 17 7 0 0 0 0 0 10653128 12216448 254033920 140726625914726 140726625914829 140726625914829 140726625914855 0\n"
+          },
+          {
+            "pid": 124963,
+            "live": true,
+            "stat": "124963 (python3) S 124962 124963 124963 0 -1 4194368 186 0 0 0 0 0 0 0 20 0 1 0 2692941 15458304 1906 18446744073709551615 4325376 7352253 140726625907376 0 0 0 0 16797696 2 1 0 0 17 3 0 0 0 0 0 10653128 12216448 254033920 140726625914726 140726625914829 140726625914829 140726625914855 0\n"
+          }
+        ],
+        "after": [
+          {
+            "pid": 124962,
+            "live": false,
+            "stat": null
+          },
+          {
+            "pid": 124963,
+            "live": false,
+            "stat": null
+          }
+        ],
+        "task": {
+          "id": "81984c87-4a14-438c-acd9-404dee137cd6",
+          "request": {
+            "id": "81984c87-4a14-438c-acd9-404dee137cd6",
+            "session_id": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "conversation_id": null,
+            "settings": {
+              "model": "unavailable",
+              "max_turns": 1,
+              "max_tokens": 1,
+              "deadline": 1793056893,
+              "max_cost_micros": 0
+            },
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/daemon-crash.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056893,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "command": {
+            "id": "48d74e62-77d9-45e3-8f93-a9d4f49fdd70",
+            "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+            "task": "81984c87-4a14-438c-acd9-404dee137cd6",
+            "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+            "worker": "e5e7ba0b-4b83-49dc-8824-2558c3257f74",
+            "session": "c88ef191-ce2a-4f12-98f4-9fae47e35ad1",
+            "operation": "811a9620-0244-4117-81b7-2d51587f74a8",
+            "execution": "8f55132d-f084-443b-a087-bba8474f5d86",
+            "work": {
+              "type": "process",
+              "spec": {
+                "profile": "linux_systemd_v1",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "executable": "/usr/bin/python3",
+                "args": [
+                  "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482/daemon-crash.py"
+                ],
+                "environment": {
+                  "LC_ALL": "C",
+                  "LITERAL": "$HOME %n"
+                },
+                "cwd": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482",
+                "deadline": 1793056893,
+                "limits": {
+                  "runtime_seconds": 60,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              }
+            }
+          },
+          "state": "cancelled",
+          "progress": 0,
+          "outcome": {
+            "type": "stopped",
+            "applied": 0,
+            "evidence": {
+              "systemd_scope_empty": {
+                "scope": {
+                  "journal": "dafca777-cd21-488c-a7d6-c304891e0dca",
+                  "execution": "8f55132d-f084-443b-a087-bba8474f5d86",
+                  "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+                  "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+                  "invocation": "46633fbff9bc4b9ca6b7a2a6061ce87e",
+                  "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-8f55132d-f084-443b-a087-bba8474f5d86.service",
+                  "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-dafca777-cd21-488c-a7d6-c304891e0dca-8f55132d-f084-443b-a087-bba8474f5d86.service"
+                }
+              }
+            }
+          },
+          "effect_evidence": [
+            {
+              "type": "uncertain",
+              "reason": "process_interrupted"
+            }
+          ],
+          "process": {
+            "effect": "observed",
+            "result": {
+              "exit": {
+                "type": "unobserved"
+              },
+              "stdout": {
+                "hex": "6f62736572766564206566666563740a",
+                "truncated": false,
+                "complete": false
+              },
+              "stderr": {
+                "hex": "",
+                "truncated": false,
+                "complete": false
+              }
+            }
+          },
+          "approval": {
+            "id": "bb2a1254-f8af-434f-914d-efa6ec141b17",
+            "binding": {
+              "owner": "f4dadb66-dff1-4d02-ba09-46d09d028e3d",
+              "bot": "12edef1b-1844-4a53-a6d7-1ed110c26f04",
+              "task": "81984c87-4a14-438c-acd9-404dee137cd6",
+              "operation": "811a9620-0244-4117-81b7-2d51587f74a8",
+              "arguments": "d5dbae8c59b85fa011c7163f1523f6f55d59856e53a6938080739b31ea2750e0",
+              "permission_revision": 1,
+              "approval": "bb2a1254-f8af-434f-914d-efa6ec141b17",
+              "execution": "8f55132d-f084-443b-a087-bba8474f5d86",
+              "expires_at": 1793056864
+            },
+            "permission_revision": 1,
+            "revoked": false,
+            "consumed": true
+          }
+        },
+        "invocation_count": 1
+      }
+    },
+    {
+      "name": "production.shutdown.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.shutdown.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.permissions.manager",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.permissions.worker",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.state_redaction.manager",
+      "status": "passed",
+      "details": {
+        "files": [
+          "manager.sqlite3",
+          "manager.lock",
+          "memory-index.sqlite3"
+        ]
+      }
+    },
+    {
+      "name": "production.state_redaction.worker",
+      "status": "passed",
+      "details": {
+        "files": [
+          "agent.sqlite3",
+          "agent.lock",
+          "process.json",
+          "config.json",
+          "processes/0043949e-80cc-4ccf-b3de-c887b9fed920/capture.json",
+          "processes/0043949e-80cc-4ccf-b3de-c887b9fed920/manifest.json",
+          "processes/0043949e-80cc-4ccf-b3de-c887b9fed920/release.json",
+          "processes/0043949e-80cc-4ccf-b3de-c887b9fed920/ready.json",
+          "processes/0043949e-80cc-4ccf-b3de-c887b9fed920/result.json",
+          "processes/8f55132d-f084-443b-a087-bba8474f5d86/capture.json",
+          "processes/8f55132d-f084-443b-a087-bba8474f5d86/manifest.json",
+          "processes/8f55132d-f084-443b-a087-bba8474f5d86/release.json",
+          "processes/8f55132d-f084-443b-a087-bba8474f5d86/ready.json",
+          "processes/88c9c46f-572f-4c3b-9425-e741349c34b3/capture.json",
+          "processes/88c9c46f-572f-4c3b-9425-e741349c34b3/manifest.json",
+          "processes/88c9c46f-572f-4c3b-9425-e741349c34b3/release.json",
+          "processes/88c9c46f-572f-4c3b-9425-e741349c34b3/ready.json",
+          "processes/9d18d616-2495-4116-9c45-a198a748c7ae/capture.json",
+          "processes/9d18d616-2495-4116-9c45-a198a748c7ae/manifest.json",
+          "processes/9d18d616-2495-4116-9c45-a198a748c7ae/release.json",
+          "processes/9d18d616-2495-4116-9c45-a198a748c7ae/ready.json"
+        ]
+      }
+    },
+    {
+      "name": "production.logs.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-enroll.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-manager-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "production.logs.m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon-restarted.service",
+      "status": "passed",
+      "details": "Contract assertions satisfied."
+    },
+    {
+      "name": "process_cleanup",
+      "status": "passed",
+      "details": [
+        {
+          "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-0043949e-80cc-4ccf-b3de-c887b9fed920.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-88c9c46f-572f-4c3b-9425-e741349c34b3.service",
+          "scope": "absent",
+          "before": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "0769afa7c96c4f7690544469f817c268"
+          },
+          "after": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "0769afa7c96c4f7690544469f817c268"
+          }
+        },
+        {
+          "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-8f55132d-f084-443b-a087-bba8474f5d86.service",
+          "scope": "absent",
+          "before": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "46633fbff9bc4b9ca6b7a2a6061ce87e"
+          },
+          "after": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "46633fbff9bc4b9ca6b7a2a6061ce87e"
+          }
+        },
+        {
+          "unit": "botstral-dafca777-cd21-488c-a7d6-c304891e0dca-9d18d616-2495-4116-9c45-a198a748c7ae.service",
+          "scope": "absent",
+          "before": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "fe56b1a1dcae4324833b71de9b6f1338"
+          },
+          "after": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "fe56b1a1dcae4324833b71de9b6f1338"
+          }
+        },
+        {
+          "unit": "m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon-restarted.service",
+          "scope": "absent"
+        },
+        {
+          "unit": "m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-daemon.service",
+          "scope": "absent",
+          "before": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "8050e71d9c4540dba9661a375b7bef40"
+          },
+          "after": {
+            "ControlGroup": "",
+            "LoadState": "loaded",
+            "ActiveState": "failed",
+            "InvocationID": "8050e71d9c4540dba9661a375b7bef40"
+          }
+        },
+        {
+          "unit": "m02-1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482-production-enroll.service",
+          "scope": "absent"
+        }
+      ]
+    }
+  ],
+  "root": "/home/botstral/w01-570e76c4/runs/1acc7c2c-fa6b-4fee-b3a5-eec9ee41b482"
+}

@@ -24,15 +24,15 @@ These methods use the existing ordinary loopback listener and operation-time own
 | `POST /v1/worker-input` | Accepts `id`, `fence`, and numeric test `value`. The fence must name `owner`. Returns a receipt. |
 | `GET /v1/workers/{worker}/receipts/{command}` | Returns connection-local owner input acknowledgment. Durable tasks use `/v1/tasks/{id}`. |
 
-A fence contains `generation`, `session_id`, `revision`, and `owner`. Owner input receipts distinguish accepted intent from applied input. Durable task reports are separately journaled and acknowledged after manager commit. Production refuses execution, including legacy approved-operation requests.
+A fence contains `generation`, `session_id`, `revision`, and `owner`. Owner input receipts distinguish accepted intent from applied input. Durable task reports are separately journaled and acknowledged after manager commit. Production refuses legacy approved-operation requests. Opt-in [W01 process work](w01-process.md) uses the durable task path.
 
 The M01 `/v1/status` worker marker remains unchanged for compatibility. Read `/v1/workers` for M02 worker status.
 
 ## Negotiation and authority
 
-Every envelope contains `version`, UUID `request_id`, and a typed `message`. Version 2 uses the `stable` channel. The first worker frame must be `hello`. Both sides require `logical_sessions` and `input_fencing`. Required unsupported capabilities, incompatible versions, and incompatible channels fail before a generation is allocated. `test_input` is advertised only by the test worker. Production manager builds refuse test-work admission.
+Every envelope contains `version`, UUID `request_id`, and a typed `message`. Version 3 uses the `stable` channel. The first worker frame must be `hello`. Both sides require `logical_sessions` and `input_fencing`. Required unsupported capabilities, incompatible versions, and incompatible channels fail before a generation is allocated. `test_input` is advertised only by the test worker. Production manager builds refuse test-work admission. A supported, configured worker advertises `process_systemd_v1` after probing its backend.
 
-On connection, the manager increments the persisted worker generation and all its session revisions. `welcome` contains the authoritative snapshot. The worker replaces its registry and sends `snapshot_applied`. The manager confirms exactly that snapshot. Sessions added or changed meanwhile require their own `control_applied`. An old-generation event or disconnect cannot affect the replacement connection.
+On connection, the manager increments the persisted worker generation and all its session revisions. `welcome` contains the authoritative snapshot. The worker replaces its registry and sends `snapshot_applied`. Sessions with admitted unfinished process work remain pending until an explicit `control_applied` follows recovery and verified stopping. Other snapshot sessions retain their existing confirmation behavior. Sessions added or changed meanwhile require their own `control_applied`. An old-generation event or disconnect cannot affect the replacement connection.
 
 An owner change compares the expected revision, increments only the selected session's revision, and blocks its input. The worker stops that session's old producer, discards queued stale input, and sends `control_applied`. Only that acknowledgment confirms ownership. Repeating the same desired owner at the current revision is idempotent. An outdated expected revision conflicts.
 
@@ -48,7 +48,7 @@ The manager requests ordered `recover` pages. The daemon sends at most 16 report
 
 A complete paged journal inventory follows report replay. The manager checks command bodies and consumed executions. `recovery_ready` admits fresh delivery only after all pages reconcile. Missing consumed execution evidence requires attention. Report and inventory queues have count and byte bounds. The journal accepts at most 128 semantic commands and 16384 lifetime report records. Capacity exhaustion fails closed without evicting duplicate protection.
 
-The worker journals prepared acceptance before reporting. It requests `claim` immediately before execution. The manager verifies the complete owner approval binding, permission revision, current session control and cancellation, then atomically consumes authority. `permit` is specific to the connection and execution. It is never an outbox command. The worker journals admission, rechecks local expiry and fencing, and invokes the synchronous adapter without another execution queue.
+The worker journals prepared acceptance before reporting. It requests `claim` immediately before execution. The manager verifies the complete owner approval binding, permission revision, current session control and cancellation, then atomically consumes authority. `permit` is specific to the connection and execution. It is never an outbox command. The worker journals admission and rechecks local expiry and fencing. Synthetic work invokes its synchronous adapter. Process work records a one-shot launch intent and rechecks authority before releasing its supervised helper.
 
 The independent debug provider ledger records actual synthetic invocations before the journal result. On restart, a reliable observation recovers the outcome. An unavailable observation or a lost permit requires attention and never invokes replacement work. Cancellation remains sticky until a journaled stopped confirmation. `no_process_group` is scoped evidence for this adapter, which has no external process group.
 
@@ -58,4 +58,4 @@ Both peers reject invalid versions, unknown fields and variants, binary applicat
 
 There are at most 64 logical sessions and 128 owner-input correlations per worker connection. Full transport queues close the connection while durable commands remain stored for recovery.
 
-The historical M02 evidence records protocol version one. Current Rust acceptance fixtures exercise version two. M02 remote Python runners remain historical version-one reproduction tools and must use the recorded binaries. M03 recovery is reproduced by the commands in [M03 acceptance](m03-acceptance.md).
+The historical M02 evidence records protocol version one, and the historical M03 record uses version two. Current Rust fixtures and the W01 two-machine runner exercise version three. M02 remote Python runners remain historical version-one reproduction tools and must use the recorded binaries. M03 recovery is reproduced by the commands in [M03 acceptance](m03-acceptance.md).

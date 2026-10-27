@@ -1,0 +1,10 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-ebba3d94/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.09s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-515a7026b4fd9cf7)
+
+running 3 tests
+test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
+test fencing::actual_daemon_rejects_stale_frames_and_queued_receipts ... ok
+test enrollment::enrollment_tls_negotiation_and_lifecycle_use_actual_binaries ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 12.23s

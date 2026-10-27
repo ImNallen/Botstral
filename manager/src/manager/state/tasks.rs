@@ -2,6 +2,12 @@ mod recovery;
 use super::*;
 use botstral_link::*;
 
+#[derive(PartialEq)]
+pub(in crate::manager) enum ProcessControlStatus {
+    AwaitingStop,
+    Unproved,
+}
+
 pub(super) fn json<T: serde::Serialize>(value: &T) -> Result<String, OperationError> {
     serde_json::to_string(value).map_err(|_| OperationError::Internal)
 }
@@ -35,13 +41,46 @@ fn count_bound(db: &Connection, table: &str, bound: usize) -> Result<(), Operati
     Ok(())
 }
 fn save(db: &Connection, task: &TaskView) -> Result<(), OperationError> {
+    let body = json(task)?;
+    if body.len() > 24 * 1024 {
+        return Err(OperationError::InvalidInput);
+    }
     db.execute(
         "UPDATE tasks SET view = ?1 WHERE id = ?2",
-        params![json(task)?, task.id.to_string()],
+        params![body, task.id.to_string()],
     )?;
     Ok(())
 }
 impl State {
+    pub(in crate::manager) fn process_control_status(
+        &self,
+        worker: WorkerId,
+    ) -> Result<std::collections::HashMap<ComputerSessionId, ProcessControlStatus>, OperationError>
+    {
+        let mut status = std::collections::HashMap::new();
+        let mut statement = self
+            .connection
+            .prepare("SELECT view FROM tasks WHERE worker=?1")?;
+        let rows = statement.query_map([worker.to_string()], |row| row.get::<_, String>(0))?;
+        for row in rows {
+            let task: TaskView = parse(row?)?;
+            if task.state.terminal()
+                || !task.approval.consumed
+                || !matches!(task.command.work, WorkSpec::Process { .. })
+            {
+                continue;
+            }
+            if recovery::missing_process_scope(&task) {
+                status.insert(task.command.session, ProcessControlStatus::Unproved);
+            } else {
+                status
+                    .entry(task.command.session)
+                    .or_insert(ProcessControlStatus::AwaitingStop);
+            }
+        }
+        Ok(status)
+    }
+
     pub(in crate::manager) fn load_task(&self, id: TaskId) -> Result<TaskView, OperationError> {
         parse(
             self.connection
@@ -124,17 +163,25 @@ impl State {
                 return Err(OperationError::InvalidInput);
             }
         }
-        match input.work {
-            WorkSpec::TestInput { steps } if !(1..=10000).contains(&steps) => {
+        match &input.work {
+            WorkSpec::TestInput { steps } if !(1..=10000).contains(steps) => {
                 return Err(OperationError::InvalidInput);
             }
-            WorkSpec::TestEffect { value, .. } if value > 10000 => {
+            WorkSpec::TestEffect { value, .. } if *value > 10000 => {
                 return Err(OperationError::InvalidInput);
+            }
+            WorkSpec::Process { spec } => {
+                spec.validate()?;
+                if spec.deadline != input.settings.deadline {
+                    return Err(OperationError::InvalidInput);
+                }
             }
             _ => {}
         }
-        if !matches!(input.work, WorkSpec::Unavailable)
-            && !cfg!(feature = "nonproduction-test-worker")
+        if matches!(
+            input.work,
+            WorkSpec::TestInput { .. } | WorkSpec::TestEffect { .. }
+        ) && !cfg!(feature = "nonproduction-test-worker")
         {
             return Err(ErrorCode::UnsupportedExecution.into());
         }
@@ -158,6 +205,7 @@ impl State {
             progress: 0,
             outcome: None,
             effect_evidence: Vec::new(),
+            process: None,
             approval: ApprovalView {
                 id: ApprovalId::new(),
                 binding: None,
@@ -265,12 +313,27 @@ impl State {
         self.authorize(&token)?;
         let mut task = self.load_task(id)?;
         task.approval.revoked = true;
+        let stop = task.approval.consumed
+            && matches!(task.command.work, WorkSpec::Process { .. })
+            && !task.state.terminal();
+        if stop {
+            task.state = TaskState::Cancelling;
+        }
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        if stop {
+            tx.execute(
+                "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
+                params![id.to_string(), CommandId::new().to_string()],
+            )?;
+        }
         save(&tx, &task)?;
         event(&tx, "approval_revoked", id)?;
         tx.commit()?;
+        if matches!(task.command.work, WorkSpec::Process { .. }) {
+            self.pump_tasks(task.command.worker)?;
+        }
         Ok(task)
     }
     pub(in crate::manager) fn set_permission(
@@ -308,15 +371,31 @@ impl State {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute("INSERT INTO permissions VALUES(?1, ?2, ?3) ON CONFLICT(bot) DO UPDATE SET revision=excluded.revision, allow=excluded.allow", params![bot.to_string(), policy.revision as i64, allow])?;
+        let mut workers = std::collections::HashSet::new();
         for view in views {
             let mut task: TaskView = parse(view)?;
-            if !task.approval.consumed && !task.state.terminal() {
-                task.approval.revoked = true;
-                save(&tx, &task)?;
+            if task.state.terminal() {
+                continue;
             }
+            if matches!(task.command.work, WorkSpec::Process { .. }) {
+                workers.insert(task.command.worker);
+            }
+            if !task.approval.consumed {
+                task.approval.revoked = true;
+            } else if !allow && matches!(task.command.work, WorkSpec::Process { .. }) {
+                task.state = TaskState::Cancelling;
+                tx.execute(
+                    "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
+                    params![task.id.to_string(), CommandId::new().to_string()],
+                )?;
+            }
+            save(&tx, &task)?;
         }
         event(&tx, "permission_changed", bot)?;
         tx.commit()?;
+        for worker in workers {
+            self.pump_tasks(worker)?;
+        }
         Ok(policy)
     }
     pub(in crate::manager) fn conversation(

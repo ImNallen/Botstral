@@ -438,3 +438,6 @@ mod sessions;
 #[cfg(feature = "nonproduction-test-worker")]
 #[path = "m02_transport/fencing.rs"]
 mod fencing;
+
+#[path = "w01_process/mod.rs"]
+mod process_acceptance;

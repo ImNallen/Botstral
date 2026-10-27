@@ -1,0 +1,12 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-4033b9f472e9bbea)
+
+running 5 tests
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
+test journal::tests::journal_opens_and_preserves_incarnation ... ok
+test journal::process_storage_tests::reserved_terminal_report_survives_unrelated_report_exhaustion ... ok
+test journal::process_storage_tests::populated_v1_journal_migrates_without_replacing_records ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

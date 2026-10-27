@@ -27,7 +27,7 @@ impl State {
             return Ok(());
         }
         let generation = connection.generation;
-        let test_capable = connection.capabilities.contains(&Capability::TestInput);
+        let capabilities = connection.capabilities.clone();
         let capacity = connection.outbound.capacity().min(REPORT_PAGE);
         let ids = self
             .connection
@@ -43,7 +43,7 @@ impl State {
             if sent >= capacity {
                 break;
             }
-            if !test_capable && !matches!(task.command.work, WorkSpec::Unavailable) {
+            if !capable(&capabilities, &task.command.work) && task.state != TaskState::Cancelling {
                 continue;
             }
             let session = self.find_computer_session(task.command.session)?;
@@ -327,11 +327,7 @@ impl State {
                 return Err(ErrorCode::InvalidMessage.into());
             }
             let body = json(&report)?;
-            if body.len() > 1024
-                || matches!(&report.event,ExecutionEvent::Uncertain {reason} if reason.len()>256)
-            {
-                return Err(ErrorCode::InvalidMessage.into());
-            }
+            report.validate()?;
             let prior: Option<String> = tx.query_row("SELECT body FROM report_receipts WHERE worker=?1 AND incarnation=?2 AND sequence=?3", params![lease.worker.to_string(),current, report.sequence as i64], |r| r.get(0)).optional()?;
             if let Some(prior) = prior {
                 if prior != body {
@@ -346,6 +342,51 @@ impl State {
             let mut task: TaskView = parse(view)?;
             if task.command.execution != report.execution {
                 return Err(ErrorCode::Conflict.into());
+            }
+            let process_work = matches!(task.command.work, WorkSpec::Process { .. });
+            match &report.event {
+                ExecutionEvent::ProcessResult { evidence } => {
+                    if !process_work {
+                        return Err(ErrorCode::InvalidMessage.into());
+                    }
+                    if let Some(previous) = &task.process {
+                        if previous.result.is_some() && previous != evidence {
+                            return Err(ErrorCode::Conflict.into());
+                        }
+                        if previous.effect != ProcessEffect::NotReleased
+                            && evidence.effect == ProcessEffect::NotReleased
+                        {
+                            return Err(ErrorCode::Conflict.into());
+                        }
+                    }
+                    task.process = Some(evidence.clone());
+                }
+                ExecutionEvent::ProcessFinished { scope, .. }
+                | ExecutionEvent::Stopped {
+                    evidence: StopEvidence::SystemdScopeEmpty { scope },
+                    ..
+                } => {
+                    if !process_work
+                        || scope.execution != report.execution
+                        || scope.journal != incarnation
+                    {
+                        return Err(ErrorCode::InvalidMessage.into());
+                    }
+                }
+                ExecutionEvent::Stopped {
+                    evidence: StopEvidence::NotLaunched,
+                    ..
+                } if missing_process_scope(&task) => {
+                    return Err(ErrorCode::Conflict.into());
+                }
+                ExecutionEvent::Completed { .. }
+                | ExecutionEvent::Stopped {
+                    evidence: StopEvidence::NoProcessGroup,
+                    ..
+                } if process_work => {
+                    return Err(ErrorCode::InvalidMessage.into());
+                }
+                _ => {}
             }
             let was_terminal = task.state.terminal();
             if !was_terminal
@@ -383,6 +424,7 @@ impl State {
                         | ExecutionEvent::Failed { .. }
                         | ExecutionEvent::Uncertain { .. }
                         | ExecutionEvent::Stopped { .. }
+                        | ExecutionEvent::ProcessFinished { .. }
                 )
             {
                 task.outcome = Some(report.event.clone());
@@ -456,7 +498,25 @@ impl State {
             params![task.command.id.to_string(), current],
             |r| r.get(0),
         )?;
+        let missing_scope = self
+            .connection
+            .prepare("SELECT view FROM tasks WHERE worker=?1")?
+            .query_map([lease.worker.to_string()], |r| r.get::<_, String>(0))?
+            .map(|row| parse::<TaskView>(row?).map(|task| missing_process_scope(&task)))
+            .collect::<Result<Vec<_>, OperationError>>()?
+            .into_iter()
+            .any(|missing| missing);
         let valid = allowed
+            && !missing_scope
+            && capable(
+                &self
+                    .worker_connections
+                    .get(&lease.worker)
+                    .unwrap()
+                    .capabilities,
+                &task.command.work,
+            )
+            && task.command.matches_authority(&binding)
             && delivered
             && current == incarnation.to_string()
             && task.command.worker == lease.worker
@@ -504,4 +564,25 @@ impl State {
             }),
         )
     }
+}
+
+fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
+    match work {
+        WorkSpec::Unavailable => true,
+        WorkSpec::TestInput { .. } | WorkSpec::TestEffect { .. } => {
+            capabilities.contains(&Capability::TestInput)
+        }
+        WorkSpec::Process { .. } => capabilities.contains(&Capability::ProcessSystemdV1),
+    }
+}
+
+pub(super) fn missing_process_scope(task: &TaskView) -> bool {
+    !task.state.terminal()
+        && task.approval.consumed
+        && matches!(task.command.work, WorkSpec::Process { .. })
+        && task.effect_evidence.iter().any(|event| {
+            matches!(event,
+            ExecutionEvent::Uncertain { reason } if matches!(reason.as_str(),
+                "journal_replaced" | "execution_missing_from_journal" | "consumed_permit_missing"))
+        })
 }

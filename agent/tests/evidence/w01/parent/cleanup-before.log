@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_cleanup_reports_an_unavailable_service_manager (test_w01_remote.CleanupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-ebba3d94/agent/tests/test_w01_remote.py", line 20, in test_cleanup_reports_an_unavailable_service_manager
+    w01_remote.dispatch({"op": "cleanup_processes", "root": directory, "units": [unit]})
+AssertionError: RuntimeError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

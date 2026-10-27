@@ -1,0 +1,124 @@
+{
+  "approval": {
+    "binding": {
+      "approval": "72c4a2fc-2e75-433b-adad-e57b3200708e",
+      "arguments": "42dd69ddd9fb1f18455221a4a289849c66511335552f3c6c5b685308587d5af4",
+      "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+      "execution": "8709d5f1-1f42-4b79-9330-f20e4c575a89",
+      "expires_at": 1793054758,
+      "operation": "d707a43c-bfd8-4060-aa35-7dd514e99c18",
+      "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+      "permission_revision": 1,
+      "task": "b742a534-ebff-4c8e-b07c-2cf376837ac2"
+    },
+    "consumed": true,
+    "id": "72c4a2fc-2e75-433b-adad-e57b3200708e",
+    "permission_revision": 1,
+    "revoked": false
+  },
+  "command": {
+    "bot": "983e7929-fc5b-493d-8a78-301e0b9a8841",
+    "execution": "8709d5f1-1f42-4b79-9330-f20e4c575a89",
+    "id": "33b3256c-a073-4339-81dc-d13330f6a69f",
+    "operation": "d707a43c-bfd8-4060-aa35-7dd514e99c18",
+    "owner": "ed80985c-6680-4d8a-8596-fb366ee22f21",
+    "session": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+    "task": "b742a534-ebff-4c8e-b07c-2cf376837ac2",
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmpeoua4S/daemon-crash.py"
+        ],
+        "cwd": "/tmp/.tmpeoua4S",
+        "deadline": 1793054788,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    },
+    "worker": "d13f65d4-66e0-41a9-92b0-cdb9a2ab2e14"
+  },
+  "effect_evidence": [
+    {
+      "reason": "process_interrupted",
+      "type": "uncertain"
+    }
+  ],
+  "id": "b742a534-ebff-4c8e-b07c-2cf376837ac2",
+  "outcome": {
+    "reason": "process_interrupted",
+    "type": "uncertain"
+  },
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "type": "unobserved"
+      },
+      "stderr": {
+        "complete": false,
+        "hex": "",
+        "truncated": false
+      },
+      "stdout": {
+        "complete": false,
+        "hex": "656666656374206265666f72652073746f7070696e670a",
+        "truncated": false
+      }
+    }
+  },
+  "progress": 0,
+  "request": {
+    "conversation_id": null,
+    "id": "b742a534-ebff-4c8e-b07c-2cf376837ac2",
+    "session_id": "460dcfc6-8653-46bb-9366-3a83ad7dac1e",
+    "settings": {
+      "deadline": 1793054788,
+      "max_cost_micros": 0,
+      "max_tokens": 1,
+      "max_turns": 1,
+      "model": "unavailable"
+    },
+    "work": {
+      "spec": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "args": [
+          "/tmp/.tmpeoua4S/daemon-crash.py"
+        ],
+        "cwd": "/tmp/.tmpeoua4S",
+        "deadline": 1793054788,
+        "environment": {
+          "LC_ALL": "C",
+          "LITERAL": "$HOME %n"
+        },
+        "executable": "/usr/bin/python3",
+        "limits": {
+          "memory_bytes": 268435456,
+          "output_bytes": 1024,
+          "processes": 32,
+          "runtime_seconds": 30
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "type": "process"
+    }
+  },
+  "state": "awaiting_attention"
+}

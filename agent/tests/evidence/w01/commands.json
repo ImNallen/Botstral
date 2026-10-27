@@ -1,0 +1,64 @@
+[
+  {
+    "surface": "macOS",
+    "command": "make verify",
+    "exit_code": 0,
+    "log": "verify-macos.log"
+  },
+  {
+    "surface": "macOS",
+    "command": "make verify-desktop",
+    "exit_code": 0,
+    "log": "verify-desktop.log"
+  },
+  {
+    "surface": "macOS",
+    "command": "npm run bindings:check",
+    "exit_code": 0,
+    "log": "bindings.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "command": "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes botstral-computer 'cd /home/botstral/w01-570e76c4/source && PATH=/home/botstral/.cargo/bin:$PATH make verify'",
+    "exit_code": 0,
+    "log": "verify-linux.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "cwd": "/home/botstral/w01-570e76c4/source",
+    "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+    "exit_code": 0,
+    "log": "final-linux.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "cwd": "/home/botstral/w01-570e76c4/source",
+    "command": "cargo test -p botstral-agent --locked --lib",
+    "exit_code": 0,
+    "passed": 5,
+    "log": "final-linux.log"
+  },
+  {
+    "surface": "Linux, botstral-computer",
+    "cwd": "/home/botstral/w01-570e76c4/source",
+    "command": "PATH=/home/botstral/.cargo/bin:$PATH ./scripts/verify-w01.sh /home/botstral/w01-570e76c4/final-evidence",
+    "exit_code": 0,
+    "production_tests_passed": 3,
+    "debug_crash_test_passed": 1,
+    "log": "final-linux.log"
+  },
+  {
+    "surface": "two separate Ubuntu VMs",
+    "command": "python3 agent/tests/w01_two_vm.py --base /home/botstral/w01-570e76c4 --cert-dir .audit/w01-tls/certificates --output-dir .audit/two-vm-current",
+    "exit_code": 0,
+    "checks_passed": 21,
+    "result": "two-vm/results.json"
+  },
+  {
+    "surface": "macOS",
+    "command": "BOTSTRAL_MANAGER_BIN=\"$PWD/target/release/botstral-manager\" BOTSTRAL_PROCESS_AGENT_BIN=\"$PWD/target/release/botstral-agent\" cargo test -p botstral-agent --locked --test m02_transport w01_unsupported_host -- --ignored --nocapture",
+    "exit_code": 0,
+    "passed": 1,
+    "log": "unsupported-host.log"
+  }
+]

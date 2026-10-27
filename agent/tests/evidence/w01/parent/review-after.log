@@ -1,0 +1,14 @@
+   Compiling botstral-link v0.1.0 (/home/botstral/w01-570e76c4/source/link)
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+   Compiling botstral-manager v0.1.0 (/home/botstral/w01-570e76c4/source/manager)
+    Finished `release` profile [optimized] target(s) in 9.13s
+   Compiling botstral-link v0.1.0 (/home/botstral/w01-570e76c4/source/link)
+   Compiling botstral-agent v0.1.0 (/home/botstral/w01-570e76c4/source/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.87s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-c6327eef9aba7d53)
+
+running 2 tests
+test process_acceptance::w01_review_interrupted_probe ... ok
+test process_acceptance::w01_review_reconnect_confirmation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 8.42s

@@ -449,9 +449,13 @@ impl State {
                 if generation == lease.generation
                     && connection.phase == WorkerPhase::Synchronizing =>
             {
+                let pending = self.process_control_status(lease.worker)?;
                 let connection = self.worker_connections.get_mut(&lease.worker).unwrap();
                 connection.phase = WorkerPhase::Ready;
-                connection.confirmed = std::mem::take(&mut connection.snapshot);
+                connection.confirmed = std::mem::take(&mut connection.snapshot)
+                    .into_iter()
+                    .filter(|(session, _)| !pending.contains_key(session))
+                    .collect();
             }
             WorkerMessage::ControlApplied { fence } if connection.phase == WorkerPhase::Ready => {
                 if fence.generation != lease.generation {
@@ -463,6 +467,13 @@ impl State {
                 }
                 if session.worker_id != lease.worker || session.fence(lease.generation) != fence {
                     return Err(ErrorCode::StaleRevision.into());
+                }
+                if self
+                    .process_control_status(lease.worker)?
+                    .get(&fence.session_id)
+                    == Some(&super::tasks::ProcessControlStatus::Unproved)
+                {
+                    return Ok(());
                 }
                 self.worker_connections
                     .get_mut(&lease.worker)

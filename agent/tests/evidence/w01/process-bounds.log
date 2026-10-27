@@ -1,0 +1,27 @@
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-570e76c4/link)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
+     Running unittests src/lib.rs (target/debug/deps/botstral_link-d3d2b07856f4ae2e)
+
+running 7 tests
+test durable::tests::cancellation_and_terminal_states_do_not_regress ... ok
+test durable::binding_tests::authority_binds_the_actual_adapter_arguments ... ok
+test durable::tests::typed_argument_normalization_rejects_unknown_fields ... ok
+test tests::negotiation_and_strict_messages ... ok
+test process::tests::process_inputs_are_bounded_and_every_field_is_bound ... ok
+test tests::schema_has_no_drift ... ok
+maximum retained output report=4459 task=10959 task_snapshot=1402881
+test process::tests::maximum_process_encoding_fits_pages_and_snapshots ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/bin/export-schema.rs (target/debug/deps/export_schema-aeadd6837db2a5b6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_link
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
