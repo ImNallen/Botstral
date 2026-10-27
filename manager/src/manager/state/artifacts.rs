@@ -95,9 +95,18 @@ impl State {
                     .map_err(storage_error)?;
                 let file = path(&self.directory, id, false);
                 match open(&file, true) {
-                    Ok(f) if f.metadata().map_err(storage_error)?.len() >= offset => {
+                    Ok(mut f) if f.metadata().map_err(storage_error)?.len() >= offset => {
                         f.set_len(offset).map_err(storage_error)?;
                         f.sync_all().map_err(storage_error)?;
+                        if offset == content.length {
+                            if digest(&mut f, content).is_ok() {
+                                fs::rename(&file, path(&self.directory, id, true))
+                                    .map_err(storage_error)?;
+                                self.promote(id, &offer, content)?;
+                            } else {
+                                self.corrupt(id, &offer)?;
+                            }
+                        }
                     }
                     _ if offset == 0 => {
                         self.create_partial(id)?;

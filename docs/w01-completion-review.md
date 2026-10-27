@@ -41,6 +41,16 @@ Comment review found three redundant fixture comments and no code-shape or corre
 
 A final gpt-6-astra audit checked all 61 refreshed evidence hashes and 133 source hashes against the coordinator activity. It found no acceptance blocker or fabricated run. Its minor request to record the failed fixture replacement attempt is now an appended row in [the coordinator trail](../agent/tests/evidence/w01-review/coordinator-decisions.tsv). The manifest hash was refreshed after that addition.
 
+## Final-offset crash recovery
+
+The initial push check failed when the manager stopped after committing the final artifact offset but before verification and rename. Startup retained the complete `.part` file as transferring. A normal worker could finish publication by retrying, but startup alone did not restore availability.
+
+Recovery now verifies complete partial files, renames valid content, and uses the existing synchronized promotion. Invalid content becomes unavailable. Incomplete transfers remain resumable.
+
+The protocol test now uses the existing debug-only fault injector to stop at that exact boundary. It verifies the complete partial file and committed offset, then requires stored progress after restart before sending more bytes. Before the fix, the 16,401-byte transfer returned receiving instead of stored. The same test passed after the fix. A fresh gpt-6-astra source review found no blockers.
+
+Run `cargo build -p botstral-manager --features nonproduction-test-worker`, then `cargo test -p botstral-agent --features nonproduction-test-worker --test m02_transport artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes -- --exact --nocapture`.
+
 ## Scope limits
 
 Execution remains serial. Artifact bytes and records have finite retention budgets without automatic pruning. Supported browser state requires clean context closure. Open tabs, session storage, and unflushed crash-time state remain unsupported. Hostile same-account isolation, real power-cut durability testing, and W02 independent screens are not claimed.
