@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Two-VM acceptance helpers. Provider key handling runs on Manager only."""
 import fcntl
 import json
 import os

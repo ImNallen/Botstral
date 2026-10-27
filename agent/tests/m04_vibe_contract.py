@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""No-spend contract against the installed, unmodified Vibe 2.24.2 CLI."""
 import argparse
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

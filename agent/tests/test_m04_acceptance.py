@@ -1,4 +1,3 @@
-"""No-spend checks for the live runner's persistent aggregate allowance."""
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import tempfile
