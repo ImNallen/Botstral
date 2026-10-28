@@ -45,7 +45,7 @@ cargo test --locked -p botstral-manager offline_restore_reopens -- --nocapture
 
 The Rust test creates a real configured owner state, history, authoritative memory, encrypted provider credentials, and a ledger-backed artifact. It invokes the maintenance CLI, reopens through manager state initialization, proves locked startup and expired old sessions, unlocks with the original passphrase, decrypts the saved credential, and retrieves the artifact through the manager download path. Python tests cover WAL content, service-lock refusal, corruption, unsafe links, malicious manifests, selected guest roots, executable tool restoration, retained worker incarnation, and unproved process refusal.
 
-Worker root tests isolate filesystem recovery with a substituted quiescence check. They do not prove a live systemd host. Actual connector credential recovery, independent review, remote installation, and supported container supervisor evidence remain separate acceptance gates.
+Worker root tests isolate filesystem recovery with a substituted quiescence check. They do not prove a live systemd host. [Recovery acceptance](m06-recovery-acceptance.md) records independent review corrections, native Proxmox staging, and Docker production-supervisor checks. Connector credential usability remains an integrated acceptance gate.
 
 ## Install separate native services
 

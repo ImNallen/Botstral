@@ -8,7 +8,7 @@ Botstral is a self-hosted bot manager built around Mistral-developed models. It 
 
 ## Run the manager
 
-Use Rust 1.93.0 on Linux or macOS with a C compiler for bundled SQLite.
+Use Rust 1.93.0 on Linux or macOS with Python 3.9 or newer, OpenSSL, and a C compiler for bundled SQLite.
 
 ```sh
 make verify

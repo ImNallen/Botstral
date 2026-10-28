@@ -1,0 +1,1 @@
+{"component": "manager", "binary_sha256": "a7622a4a2eb254057c731384da88b0c0a5d2faa12f2e2c2e0198de8e20ddb790", "version": "0.1.0", "services_enabled": false, "runtime": {"python": "3.9 or newer", "sqlite": "3.37 or newer", "systemd": "255 for worker", "rust_build": "1.93.0", "dependencies": "Cargo.lock"}}

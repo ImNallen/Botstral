@@ -1,0 +1,1 @@
+{"component": "agent", "binary_sha256": "d1c9902516d8d92472bf55998c861bba7fb9f82adbb741725073b78a434d8837", "version": "0.1.0", "services_enabled": false, "runtime": {"python": "3.9 or newer", "sqlite": "3.37 or newer", "systemd": "255 for worker", "rust_build": "1.93.0", "dependencies": "Cargo.lock"}}

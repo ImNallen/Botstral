@@ -7,7 +7,6 @@ from pathlib import Path
 import re
 import shlex
 import subprocess
-import tempfile
 
 
 def ssh(host, arguments, **options):

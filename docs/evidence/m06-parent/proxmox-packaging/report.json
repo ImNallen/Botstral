@@ -1,0 +1,19 @@
+{
+  "archive_sha256": "a456dd333b9f4e0f09452fe66b3de5a3696c39801ce63a2aeead1ca3ce2e0a43",
+  "fixtures_retained": true,
+  "hosts": {
+    "agent": {
+      "alias": "botstral-computer",
+      "machine_sha256": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+      "root": "/home/botstral/botstral-m06-packaging-xo_g498v"
+    },
+    "manager": {
+      "alias": "botstral-manager",
+      "machine_sha256": "ca094c14f8c5c29e98154ddc4bb7d768377360ee4cc8039e4819ab7e495ba274",
+      "root": "/home/botstral/botstral-m06-packaging-ukztylrv"
+    }
+  },
+  "manager_binary_sha256": "a7622a4a2eb254057c731384da88b0c0a5d2faa12f2e2c2e0198de8e20ddb790",
+  "ok": true,
+  "source": "bcf96860712bc586c2cb02fed415068e5532a2fc"
+}

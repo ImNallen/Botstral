@@ -17,7 +17,8 @@ FIXTURE = r'''
 import json, os, pathlib, sqlite3, subprocess
 os.umask(0o077)
 home = pathlib.Path('/home/botstral-agent')
-state = home / '.local/share/botstral-agent'
+state = home / 'fixture-state'
+state.mkdir(mode=0o700)
 certs = home / 'fixture-certs'
 certs.mkdir(mode=0o700)
 (certs / 'fixture.pem').write_text('isolated invalid TLS fixture; no network authentication')
