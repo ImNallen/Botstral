@@ -16,6 +16,17 @@ fn admitted_snapshot_and_temporary_storage_fit_recovery_budgets() {
                 < 1024 * 1024 * 1024
         );
     }
+    const {
+        assert!(OWNER_WORKSPACE_SERIALIZED_BOUND < OWNER_TRANSFER_BYTES);
+    }
+    const {
+        assert!(
+            (MAX_OWNER_CONNECTIONS + 1) * OWNER_TRANSFER_BYTES
+                + OWNER_WORKSPACE_ALLOCATION_BOUND
+                + 32 * 1024 * 1024
+                < 1024 * 1024 * 1024
+        );
+    }
     assert!(size_of::<TaskView>() <= 4096);
     assert!(size_of::<ExecutionEvent>() <= 1024);
     assert!(size_of::<OutputView>() <= 256);

@@ -124,6 +124,14 @@ pub enum OwnerHello {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    Workspace,
+    GrantReviewedApproval {
+        id: TaskId,
+        command: Box<CommandBody>,
+        permission_revision: u64,
+        approval: ApprovalId,
+        expires_at: i64,
+    },
     Resume {
         cursor: u64,
         limit: u16,
@@ -254,6 +262,7 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    Workspace(Box<OwnerWorkspace>),
     Replay(Box<EventReplay>),
     Task(Box<TaskView>),
     Permission(Permission),
@@ -315,6 +324,49 @@ pub struct OwnerDevice {
     pub role: DeviceRole,
     pub revoked: bool,
     pub created_at: i64,
+}
+
+pub const MAX_WORKSPACE_BOTS: usize = 1024;
+pub const MAX_WORKSPACE_WORKERS: usize = 128;
+pub const OWNER_WORKSPACE_SERIALIZED_BOUND: usize = OWNER_SNAPSHOT_SERIALIZED_BOUND
+    + MAX_RUNS * MAX_RUN_VIEW_BYTES
+    + MAX_WORKSPACE_BOTS * 1024
+    + MAX_WORKSPACE_WORKERS * 256
+    + MAX_WORKSPACE_BOTS * 512
+    + 4096;
+pub const OWNER_WORKSPACE_ALLOCATION_BOUND: usize = OWNER_SNAPSHOT_ALLOCATION_BOUND
+    + MAX_RUNS * 2 * MAX_RUN_VIEW_BYTES
+    + MAX_WORKSPACE_BOTS * 1024
+    + MAX_WORKSPACE_WORKERS * 256
+    + MAX_WORKSPACE_BOTS * 512;
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct WorkspaceBot {
+    pub id: BotId,
+    pub name: String,
+    pub created_at: i64,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct WorkspaceWorker {
+    pub id: WorkerId,
+    pub revoked: bool,
+    pub phase: String,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct OwnerWorkspace {
+    pub manager: ManagerId,
+    pub cursor: u64,
+    pub owner: String,
+    pub bots: Vec<WorkspaceBot>,
+    pub workers: Vec<WorkspaceWorker>,
+    pub sessions: Vec<ComputerSession>,
+    pub runs: Vec<RunView>,
+    pub run_ready_bots: Vec<BotId>,
+    pub vault_unlocked: bool,
+    pub state: OwnerSnapshot,
 }
 
 #[cfg(test)]

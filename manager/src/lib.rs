@@ -4,7 +4,6 @@ compile_error!("nonproduction-test-worker is forbidden in release builds");
 mod http;
 mod local_state;
 pub mod manager;
-pub mod owner_client;
 mod owner_http;
 mod public_http;
 mod worker_http;

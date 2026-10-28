@@ -84,6 +84,7 @@ impl State {
         {
             return Err(OperationError::NotFound);
         }
+        super::tasks::event(&self.connection, "worker_revoked", id)?;
         if let Some(connection) = self.worker_connections.remove(&id) {
             connection.stop.send_replace(true);
         }
@@ -156,6 +157,7 @@ impl State {
                     }),
                 )?;
             }
+            super::tasks::event(&self.connection, "session_changed", session.id)?;
             return self.find_computer_session(session.id);
         }
         let count: i64 = self.connection.query_row(
@@ -178,6 +180,7 @@ impl State {
                 }),
             )?;
         }
+        super::tasks::event(&self.connection, "session_changed", id)?;
         self.find_computer_session(id)
     }
 
@@ -237,7 +240,7 @@ pub(super) struct WorkerConnection {
     pub(super) inventory: Vec<CommandId>,
     pub(super) inventory_total: Option<u16>,
     pub(super) deliveries: std::collections::HashMap<CommandId, botstral_link::Delivery>,
-    phase: WorkerPhase,
+    pub(super) phase: WorkerPhase,
     confirmed: std::collections::HashMap<ComputerSessionId, Revision>,
     snapshot: std::collections::HashMap<ComputerSessionId, Revision>,
     commands: std::collections::HashMap<CommandId, PendingCommand>,
@@ -301,6 +304,7 @@ impl State {
             "UPDATE worker_invitations SET consumed_at = ?1 WHERE token_hash = ?2",
             params![now, hash.as_slice()],
         )?;
+        super::tasks::event(&tx, "worker_enrolled", id)?;
         tx.commit()?;
         Ok(id)
     }
@@ -345,6 +349,7 @@ impl State {
             "UPDATE computer_sessions SET revision = revision + 1 WHERE worker_id = ?1",
             [worker.to_string()],
         )?;
+        super::tasks::event(&tx, "worker_connected", worker)?;
         tx.commit()?;
         if let Some(old) = self.worker_connections.remove(&worker) {
             old.stop.send_replace(true);
@@ -481,6 +486,7 @@ impl State {
             {
                 let pending = self.process_control_status(lease.worker)?;
                 let connection = self.worker_connections.get_mut(&lease.worker).unwrap();
+                super::tasks::event(&self.connection, "worker_ready", lease.worker)?;
                 connection.phase = WorkerPhase::Ready;
                 connection.confirmed = std::mem::take(&mut connection.snapshot)
                     .into_iter()
@@ -510,6 +516,7 @@ impl State {
                     .unwrap()
                     .confirmed
                     .insert(session.id, session.revision);
+                super::tasks::event(&self.connection, "session_confirmed", session.id)?;
                 self.pump_tasks(lease.worker)?;
             }
             WorkerMessage::Acknowledgment {
@@ -644,6 +651,7 @@ impl State {
             .is_some_and(|c| c.generation == lease.generation)
         {
             self.worker_connections.remove(&lease.worker);
+            let _ = super::tasks::event(&self.connection, "worker_disconnected", lease.worker);
         }
     }
 }

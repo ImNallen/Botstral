@@ -1,7 +1,7 @@
 use botstral_link::{
     ConversationMessage, EventReplay, MessageId, OwnerError, OwnerOperation, OwnerReply,
 };
-use botstral_manager::owner_client::{ClientError, OwnerClient};
+use botstral_owner_client::{ClientError, OwnerClient};
 use std::path::PathBuf;
 
 #[tokio::main]

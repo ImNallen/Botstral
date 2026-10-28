@@ -40,6 +40,7 @@ impl State {
                 }),
             )?;
         }
+        super::super::tasks::event(&self.connection, "session_changed", id)?;
         self.find_computer_session(id)
     }
 
