@@ -506,7 +506,7 @@ Every listed capability starts as planned. Mark it verified only after its state
 | Persistent conversations and editable bot memory | M03 and P01 | Planned |
 | Shared computer, files, logins, and independent screens | M02, M04, W01, and W02 | Planned |
 | Skills, reuse, and teaching by demonstration | P02 | Planned |
-| Schedules, event triggers, and proactive follow-ups | P03 | Planned |
+| Schedules, event triggers, and proactive follow-ups | P03 | Implemented with [acceptance limits](docs/p03-acceptance.md#verification-limits) |
 | Group conversations, delegation, and bot handoffs | P04 | Planned |
 | Attachments, documents, interactive artifacts, and search | P05 | Planned |
 | Protected credentials, approval rules, and human takeover | M03, M05, and P06 | Planned |

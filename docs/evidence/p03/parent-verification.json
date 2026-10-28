@@ -1,0 +1,98 @@
+{
+  "recorded_at": "2026-10-28T19:02:09.097363+00:00",
+  "tested_code_commit": "aeecf7a62e54b29effe9c1712453d8bbcc81877f",
+  "tested_code_tree": "a1ebeb19672554734d97528d3201601bf055da1a",
+  "scope": "Corrected code after independent review. Subsequent changes update documentation and evidence only.",
+  "checks": [
+    {
+      "command": "cargo test -p botstral-manager --locked --lib p03_",
+      "exit_code": 0,
+      "log": ".audit/p03-parent-focused.log",
+      "log_sha256": "a1f85baa3ab2fbb15e3ac3d1c8324107e637d772b2c359d7d8e14dfbe3ccd966",
+      "test_results": [
+        "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 91 filtered out; finished in 8.17s"
+      ]
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --locked -- -D warnings",
+      "exit_code": 0,
+      "log": ".audit/p03-parent-clippy.log",
+      "log_sha256": "0bb7f0f57d424b9d598400e48a30c2e64c9e9d0c60aff437b165a64689bfb538",
+      "test_results": []
+    },
+    {
+      "command": "cargo test --workspace --locked",
+      "exit_code": 0,
+      "log": ".audit/p03-parent-workspace.log",
+      "log_sha256": "ff3a28ad048f2f13f7bd22e507fdfe649644aa26100603a9bdfbfc2a6275d77b",
+      "test_results": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 8 passed; 0 failed; 6 ignored; 0 measured; 0 filtered out; finished in 77.61s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 100 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 28.15s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 40.91s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked",
+      "exit_code": 0,
+      "log": ".audit/p03-parent-native.log",
+      "log_sha256": "32456b94084ee88939304ead6318030f4e93f4ee5af64f3e94cef560867cf580",
+      "test_results": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 0 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s",
+        "test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.17s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ]
+    }
+  ],
+  "frontend_rechecks": {
+    "commands": [
+      "npm run bindings:generate",
+      "npm run check",
+      "npm test",
+      "npm run build"
+    ],
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "result": "27 frontend tests passed, 1 skipped. Bindings, type checks and build passed.",
+    "evidence": "Observed parent tool output. No separate frontend log was captured."
+  },
+  "independent_recheck": {
+    "model": "gpt-6-astra",
+    "commit": "aeecf7a",
+    "verdict": "pass",
+    "executed_regressions": [
+      "p03_atomic_admission_restart_identity_and_more_than_sixteen_completions",
+      "p03_archived_owner_run_preserves_ordered_text_and_preview"
+    ]
+  },
+  "before_fix_failure": {
+    "test": "p03_atomic_admission_restart_identity_and_more_than_sixteen_completions",
+    "difference": {
+      "left": [],
+      "right": [
+        "Recorded response"
+      ]
+    }
+  },
+  "limitations": "Original full-script and video evidence applies to its recorded initial tree. Production limitations remain in docs/p03-acceptance.md. Parent rechecks used the implementation checkout build caches through CARGO_TARGET_DIR."
+}

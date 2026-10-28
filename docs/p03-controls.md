@@ -40,6 +40,8 @@ Send `POST /events/v1/publishers/<publisher-id>` to the manager's public TLS add
 
 Subscribe a routine to an allowed named topic. Matching uses at most eight exact scalar equality conditions. Payloads contain at most sixteen scalar fields. Body size is limited to 8192 bytes. A publisher can send sixty authenticated requests per minute. Events must be no more than twenty-four hours old or five minutes in the future.
 
+The creation form offers one optional string condition. To create a subscription with multiple, integer, or boolean conditions, use `/routine create` with a complete definition. The app's definition editor also supports these conditions.
+
 A successful response follows the SQLite receipt commit. Repeating identical bytes with the same publisher and event identifier returns that receipt. Changed bytes conflict. Receipts remain durable; freshness limits reject old replay attempts. Paused subscriptions do not backfill acknowledged deliveries. Revoking a publisher fences admission and future dispatch. A locked vault returns a retryable service-unavailable response.
 
 ## Inbox and lifecycle

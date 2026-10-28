@@ -33,3 +33,5 @@ The durable inbox exposes outcomes and decision requests after reconnect. Decisi
 Shared types, authority, and atomic storage precede clients. One implementation owner changes coupled schemas in its isolated worktree. Storage and admission, event and lifecycle behavior, and app integration form ordered verified commits. The parent supplies independent review.
 
 The controlling design is Sol with the judge-approved Astra grafts for reusable templates, shared atomic admission, manager-local results, and concrete publisher topic subscriptions.
+
+Authenticated run reads expose compacted turns separately as `archived_turns`. Workspace projection merges their saved responses with live turns in ordinal order. Archived receipts never enter active inference transcripts. The client marks compacted details and applies the same text preview bound to archived responses.

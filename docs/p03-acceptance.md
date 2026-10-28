@@ -4,7 +4,7 @@ P03 runs scheduled and event-triggered work in the manager while owner clients a
 
 ## Behavioral checks
 
-The focused suite contains thirteen `p03_` checks, plus the IANA calendar check.
+The focused suite contains fourteen `p03_` checks, plus the IANA calendar check. Parent review added the archived owner-run check.
 
 | Requirement | Evidence |
 | --- | --- |
@@ -22,6 +22,7 @@ The focused suite contains thirteen `p03_` checks, plus the IANA calendar check.
 | Deletion and duplication | `p03_owner_commands_replay_tombstone_and_paused_copies` checks paused fresh copies, deletion during active work, blocked new permits, and delivery of the cancellation under the existing worker and session fence. |
 | Decisions after acknowledgment | `p03_each_exact_approval_has_a_new_durable_inbox_decision` verifies that acknowledging one task approval does not hide the next approval in the same run. |
 | Workspace bounds | `p03_compact_workspace_preview_keeps_full_text_available_and_fits_bound` and `m05_bounds` check marked previews, full-text projection, the existing 80 MiB transfer limit, and the one-GiB recovery budget. |
+| Archived result reads | `p03_archived_owner_run_preserves_ordered_text_and_preview` checks ordinary owner results after compaction, retained provider receipts, ordered projection, and Unicode previews. The twenty-routine check also reads the oldest saved response through the owner interface. |
 | Publisher binding after edits | `p03_authenticated_event_receipt_conflict_and_owner_conversation` verifies that revoking the original publisher still fences its admitted run after the definition changes to another trigger. |
 | Native recovery and existing caches | The native P03 journal case checks replay before send, replay after commit, changed-body refusal, protected legacy full-run cache reads, and restored workspace reconciliation. |
 
@@ -37,17 +38,19 @@ The baseline manager library run passed 85 tests with five ignored. The baseline
 
 ## Recorded verification
 
-Both `scripts/verify.sh` and `scripts/verify-desktop.sh` exited zero against the final implementation on Darwin 27.0.0 arm64. The host used Cargo 1.93.0, Node 26.12.1, and npm 11.20.0.
+Both `scripts/verify.sh` and `scripts/verify-desktop.sh` exited zero against the initial implementation tree recorded in `verification.json`, before independent review. The host used Darwin 27.0.0 arm64, Cargo 1.93.0, Node 26.12.1, and npm 11.20.0.
 
 The workspace script passed formatting, workspace Clippy, builds, tests, packaging checks, connector contracts, nonproduction worker checks, production release compilation, and both required release-feature refusals. The manager library passed 99 tests with five opt-in cases ignored.
 
 The desktop script passed formatting, generated bindings, TypeScript checks, 27 frontend tests with one skipped, frontend build, native Clippy and tests, actual-manager local controls, all seven journal cases, browser cleanup, and the native application build. The OS keychain acceptance case remained opt-in.
 
-The focused thirteen P03 checks and calendar check passed. The final native recording, fixture TypeScript check, recorded-response contract test, and component driver also exited zero. The video lasts 15.2 seconds and reports no browser errors.
+Before review, thirteen focused P03 checks and the calendar check passed. The final native recording, fixture TypeScript check, recorded-response contract test, and component driver also exited zero. The video lasts 15.2 seconds and reports no browser errors.
 
 One extra native recording attempt timed out during sign-in while other checks ran concurrently. The complete desktop script and the later standalone recording passed. No unresolved check failure remains.
 
 [The verification record](evidence/p03/verification.json) contains command results, log hashes, environment details, and the video checksum. Full logs remain under `.audit/p03/` for the parent review.
+
+[Parent review](p03-review.md) records the independently reproduced archive-read defect, its correction, and the review verdict. [Parent verification](evidence/p03/parent-verification.json) identifies the corrected code commit and subsequent checks. The original video remains a component interaction proof. It does not demonstrate archived-result rendering.
 
 ## Reproduce the checks
 
@@ -84,4 +87,4 @@ State restart fixtures restore a synthetic unlocked identity to isolate admissio
 
 Linux systemd, pinned Vibe runtime, and isolated multi-VM production acceptance cases remain opt-in and were not available on this macOS host. The native P03 journal fixture uses a memory-backed secret store. It does not claim an OS keychain round trip or OS push delivery while the app is closed.
 
-The guarantee is one admitted ordinary run per stable trigger identity. Existing uncertain-effect reconciliation remains authoritative for providers without idempotency support. Independent review and publication belong to the parent.
+The guarantee is one admitted ordinary run per stable trigger identity. Existing uncertain-effect reconciliation remains authoritative for providers without idempotency support.

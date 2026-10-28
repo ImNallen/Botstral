@@ -1,6 +1,8 @@
 {
   "recorded_at": "2026-10-28T18:50:26.910573+00:00",
   "base_commit": "899772e075ad4d0576f96048361b90e7eccd127b",
+  "tested_git_tree": "d54ddd47c37c3c8c9e3d799d4d58ffc5d4c35130",
+  "scope": "Initial implementation before independent review. Parent verification records the archive-read correction separately.",
   "environment": {
     "system": "Darwin 27.0.0 arm64",
     "cargo": "1.93.0",
