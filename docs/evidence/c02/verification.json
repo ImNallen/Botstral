@@ -1,5 +1,5 @@
 {
-  "recorded_at": "2026-10-28T10:05:41.696172+00:00",
+  "recorded_at": "2026-10-28T10:29:02.502990+00:00",
   "source_head": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
@@ -62,6 +62,21 @@
       "exit_code": 0,
       "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
       "evidence": "../c02-production-parent/production-bundle-final.log"
+    },
+    {
+      "command": "make verify",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "final-core.log"
+    },
+    {
+      "command": "make verify-desktop",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "frontend_tests": 25,
+      "journal_contracts": 4,
+      "deterministic_lifecycle_tests": 7,
+      "evidence": "final-desktop.log"
     }
   ],
   "packaged_walkthrough": {
