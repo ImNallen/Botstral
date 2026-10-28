@@ -244,6 +244,9 @@ impl State {
                     .map(|r| parse::<TaskView>(r?))
                     .collect::<Result<Vec<_>, _>>()?;
                 for mut task in tasks {
+                    if !tasks::execution_pending(&task) {
+                        continue;
+                    }
                     task.state = TaskState::Cancelling;
                     tx.execute(
                         "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
