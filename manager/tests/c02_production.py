@@ -46,7 +46,8 @@ class Remote(LegacyRemote):
 
 class Native:
     def __init__(self, binary, root):
-        self.process = subprocess.Popen([str(binary), str(root)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=(root/'native.log').open('w'), text=True, bufsize=1)
+        with (root/'native.log').open('w') as log:
+            self.process = subprocess.Popen([str(binary), str(root)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log, text=True, bufsize=1)
 
     def call(self, op, allow_error=False, **values):
         self.process.stdin.write(json.dumps(dict(op=op, **values))+'\n')

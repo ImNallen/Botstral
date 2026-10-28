@@ -61,14 +61,24 @@ def main():
         m.require((args.output/'browser.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n'), 'actual browser PNG')
         m.require(computer.call('read', path='browser.txt') == 'C02 production file proof\n', 'actual guest file')
         record.update(status='PASS', artifacts={name: hashlib.sha256((args.output/name).read_bytes()).hexdigest() for name in ['browser-export.txt', 'browser.png']})
-        native.close()
-        native = None
     except Exception as error:
         record.update(status='ISSUES', error=str(error))
     finally:
         if native:
-            native.close()
-        shutil.rmtree(local)
+            try:
+                native.close()
+            except Exception as error:
+                record.update(status='ISSUES', native_shutdown_error=str(error))
+                try:
+                    if native.process.poll() is None:
+                        native.process.kill()
+                    native.process.wait(timeout=15)
+                except Exception as error:
+                    record['native_process_cleanup_error'] = str(error)
+        try:
+            shutil.rmtree(local)
+        except Exception as error:
+            record.update(status='ISSUES', local_cleanup_error=str(error))
         private(args.output/'results.json', record)
     print(record['status']+' native composer browser, actual DOM/file effects and verified exports'+(': '+record['error'] if 'error' in record else ''))
     return 0 if record['status'] == 'PASS' else 1
