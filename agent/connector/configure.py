@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Print connector configuration for the exact helper and Python executable."""
 import argparse
 import hashlib
 import json

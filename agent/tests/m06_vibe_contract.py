@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Exercise pinned Vibe with dynamic MCP tools and real denial callbacks."""
 import argparse
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

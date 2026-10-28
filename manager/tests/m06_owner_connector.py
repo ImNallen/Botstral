@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Exercise connector ownership and encrypted persistence through the manager binary."""
 import argparse
 import hashlib
 import http.client

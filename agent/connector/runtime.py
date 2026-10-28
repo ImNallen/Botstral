@@ -1,4 +1,3 @@
-"""Task-bound connector gateway and bounded ephemeral MCP stdio client."""
 import hashlib
 import http.client
 import json

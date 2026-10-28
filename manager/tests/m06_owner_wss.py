@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Exercise connector administration over the actual owner WSS transport."""
 import argparse
 import hashlib
 import json

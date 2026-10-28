@@ -383,7 +383,6 @@ impl From<ConnectionView> for ConnectionSummary {
 }
 
 /// Hash JSON values with explicit types, lengths, sorted keys and IEEE-754 floats.
-/// The worker helper implements the same encoding independently of JSON formatting.
 pub fn connector_digest(value: &Value) -> CertificateFingerprint {
     fn length(hash: &mut Sha256, n: usize) {
         hash.update((n as u64).to_be_bytes());

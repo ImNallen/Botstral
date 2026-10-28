@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Run the installed official filesystem MCP server in an isolated directory."""
 import argparse
 import hashlib
 import importlib.util

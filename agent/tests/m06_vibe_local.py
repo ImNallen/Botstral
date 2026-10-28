@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Run pinned Vibe through the production relay and a real ephemeral stdio child."""
 import argparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
