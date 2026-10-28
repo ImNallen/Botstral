@@ -487,3 +487,47 @@ async fn p03_duplicate_authenticated_event_restart_has_one_external_connector_ef
     assert!(inbox[0].message.contains("counted"));
     server.abort();
 }
+
+#[test]
+fn parent_cancel_keeps_stopped_unknown_child() {
+    let mut f = fixture();
+    let c = f.ready(true);
+    let binding = f.grant(&c, f.bot, &["read"]).tools.remove(0);
+    f.state
+        .submit_run(token(), input(&f, binding.clone()))
+        .unwrap();
+    let permit = claim(&mut f);
+    let task = child(&mut f, &permit, response(binding, "unknown"));
+    let task = f.approve(task.id);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    f.state.dispatch_connector(id).unwrap().unwrap();
+    f.state
+        .finish_connector(
+            id,
+            ConnectorOutcome::Unknown {
+                reason: ConnectorFailure::Transport,
+            },
+        )
+        .unwrap();
+    let reports = stop_reports(&f, &task);
+    f.state
+        .durable_reports(f.lease, f.journal, 2, reports)
+        .unwrap();
+    let stopped = f.state.load_task(task.id).unwrap();
+    assert_eq!(stopped.state, TaskState::AwaitingAttention);
+    f.state.cancel_run(token(), permit.run).unwrap();
+    f.state.reconcile_run_stops().unwrap();
+    assert_eq!(f.state.load_task(task.id).unwrap(), stopped);
+    assert!(matches!(
+        f.state.load_run(permit.run).unwrap().summary.phase,
+        RunPhase::AwaitingAttention { .. }
+    ));
+    assert!(
+        f.state
+            .claim_run_work(&HashSet::new(), true)
+            .unwrap()
+            .is_none()
+    );
+    assert!(f.state.dispatch_connector(id).unwrap().is_none());
+}
