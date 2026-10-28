@@ -1,7 +1,7 @@
 use super::*;
 use std::{fs, os::unix::fs::PermissionsExt};
 
-fn reopen(fixture: &mut Fixture) {
+pub(super) fn reopen(fixture: &mut Fixture) {
     let path = fixture.state.directory.join("manager.sqlite3");
     fixture
         .state

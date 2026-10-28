@@ -2302,6 +2302,9 @@
         "id": {
           "$ref": "#/$defs/InboxId"
         },
+        "message": {
+          "type": "string"
+        },
         "occurrence": {
           "$ref": "#/$defs/OccurrenceId"
         },
@@ -2324,6 +2327,7 @@
       },
       "additionalProperties": false,
       "required": [
+        "message",
         "id",
         "occurrence",
         "bot",
@@ -3273,6 +3277,22 @@
         }
       ]
     },
+    "ManagerToolResult": {
+      "type": "object",
+      "properties": {
+        "call": {
+          "$ref": "#/$defs/RunToolCall"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "call",
+        "result"
+      ]
+    },
     "ManagerTrust": {
       "type": "object",
       "properties": {
@@ -3896,6 +3916,23 @@
         {
           "type": "object",
           "properties": {
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_status"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "input": {
               "$ref": "#/$defs/RoutineCommand"
             },
@@ -3939,11 +3976,14 @@
           "type": "object",
           "properties": {
             "before": {
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "int64"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/OccurrenceId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "id": {
               "$ref": "#/$defs/RoutineId"
@@ -4844,6 +4884,30 @@
     },
     "OwnerReply": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "routine_status"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RoutineControlResult"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -6047,6 +6111,23 @@
     "RequestId": {
       "type": "string",
       "format": "uuid"
+    },
+    "RequestWakeup": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "prompt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "prompt"
+      ]
     },
     "Revision": {
       "type": "integer",
@@ -7277,6 +7358,17 @@
             }
           ]
         },
+        "manager_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManagerToolResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "messages": {
           "type": "array",
           "items": {
@@ -8095,6 +8187,23 @@
             "tool": {
               "type": "string",
               "const": "connector"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/RequestWakeup"
+            },
+            "tool": {
+              "type": "string",
+              "const": "request_wakeup"
             }
           },
           "additionalProperties": false,

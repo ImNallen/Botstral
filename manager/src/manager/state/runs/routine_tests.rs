@@ -377,3 +377,197 @@ fn p03_authenticated_event_receipt_conflict_and_owner_conversation() {
         Err(OperationError::Unauthorized)
     );
 }
+#[test]
+fn p03_wakeup_atomic_result_replay_and_chain_share_one_budget() {
+    let mut f = fixture();
+    let id = create(&mut f, RoutineTrigger::Once { at: 1000 });
+    let mut def = f.state.routine_views().unwrap()[0].definition.clone();
+    def.wakeups = Some(WakeupGrant {
+        horizon_seconds: 3600,
+        minimum_spacing_seconds: 60,
+        max_pending: 2,
+        max_total: 2,
+    });
+    command(
+        &mut f.state,
+        RoutineAction::Replace {
+            id,
+            expected_revision: 1,
+            definition: Box::new(def),
+        },
+    )
+    .unwrap();
+    command(
+        &mut f.state,
+        RoutineAction::Test {
+            id,
+            expected_revision: 2,
+        },
+    )
+    .unwrap();
+    let run = history(&f, id)[0].run.unwrap();
+    let p = claim(&mut f.state);
+    assert!(p.prepared.encoded().contains("request_wakeup"));
+    let outcome = || {
+        response(Some(RunToolCall {
+            id: "wake-1".into(),
+            proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                at: 1060,
+                prompt: "Follow up".into(),
+            }),
+        }))
+    };
+    f.state.connection.execute_batch("CREATE TRIGGER fail_wakeup BEFORE INSERT ON routine_wakeups BEGIN SELECT RAISE(ABORT,'atomic local result'); END").unwrap();
+    assert_eq!(
+        f.state
+            .finish_run_call(run, p.turn.id, p.turn.attempt, outcome()),
+        Err(OperationError::Internal)
+    );
+    assert!(
+        f.state.load_run(run).unwrap().turns[0]
+            .manager_result
+            .is_none()
+    );
+    assert_eq!(history(&f, id).len(), 1);
+    f.state
+        .connection
+        .execute_batch("DROP TRIGGER fail_wakeup")
+        .unwrap();
+    f.state
+        .finish_run_call(run, p.turn.id, p.turn.attempt, outcome())
+        .unwrap();
+    f.state
+        .finish_run_call(run, p.turn.id, p.turn.attempt, outcome())
+        .unwrap();
+    assert_eq!(history(&f, id).len(), 2);
+    let view = f.state.load_run(run).unwrap();
+    assert!(view.turns[0].intent.is_none());
+    assert!(view.turns[0].manager_result.is_some());
+    finish(&mut f, run);
+    f.state.test_time = Some(1060);
+    f.state.reconcile_routines().unwrap();
+    let child = history(&f, id)[0].run.unwrap();
+    let p = claim(&mut f.state);
+    assert!(
+        matches!(p.turn.messages.first(),Some(RunMessage::User {content}) if content=="Follow up")
+    );
+    f.state
+        .finish_run_call(
+            child,
+            p.turn.id,
+            p.turn.attempt,
+            response(Some(RunToolCall {
+                id: "wake-2".into(),
+                proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                    at: 1120,
+                    prompt: "Second".into(),
+                }),
+            })),
+        )
+        .unwrap();
+    finish(&mut f, child);
+    f.state.test_time = Some(1120);
+    f.state.reconcile_routines().unwrap();
+    let child2 = history(&f, id)[0].run.unwrap();
+    let p = claim(&mut f.state);
+    f.state
+        .finish_run_call(
+            child2,
+            p.turn.id,
+            p.turn.attempt,
+            response(Some(RunToolCall {
+                id: "wake-3".into(),
+                proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                    at: 1180,
+                    prompt: "Cannot replenish".into(),
+                }),
+            })),
+        )
+        .unwrap();
+    let view = f.state.load_run(child2).unwrap();
+    assert!(
+        view.turns[0]
+            .manager_result
+            .as_ref()
+            .unwrap()
+            .result
+            .contains("blocked")
+    );
+    assert_eq!(history(&f, id).len(), 3);
+}
+#[test]
+fn p03_sqlite_restart_before_and_after_admission_and_inbox_ack() {
+    for boundary in ["before", "after", "completed"] {
+        let mut f = fixture();
+        let id = create(&mut f, RoutineTrigger::Once { at: 1000 });
+        if boundary != "before" {
+            f.state.reconcile_routines().unwrap();
+        }
+        let original = history(&f, id).first().and_then(|o| o.run);
+        if boundary == "completed" {
+            finish(&mut f, original.unwrap());
+        }
+        super::restart_tests::reopen(&mut f);
+        f.state.reconcile_routines().unwrap();
+        let rows = history(&f, id);
+        assert_eq!(rows.len(), 1);
+        if let Some(original) = original {
+            assert_eq!(rows[0].run, Some(original));
+        }
+        if boundary == "completed" {
+            let inbox = f.state.inbox().unwrap();
+            assert_eq!(inbox.len(), 1);
+            command(
+                &mut f.state,
+                RoutineAction::AcknowledgeInbox { id: inbox[0].id },
+            )
+            .unwrap();
+            assert!(f.state.inbox().unwrap().is_empty());
+        }
+    }
+}
+#[test]
+fn p03_current_configuration_and_shared_aggregate_reservations_block_admission() {
+    let mut f = fixture();
+    let a = create(&mut f, RoutineTrigger::Once { at: 1000 });
+    let b = RoutineId::new();
+    let definition = Box::new(definition(&f, RoutineTrigger::Once { at: 1000 }));
+    command(&mut f.state, RoutineAction::Create { id: b, definition }).unwrap();
+    command(
+        &mut f.state,
+        RoutineAction::SetBudget {
+            budget: RoutineBudget {
+                max_runs: 10,
+                max_tokens: 200_000,
+                max_cost_microusd: 200_000,
+            },
+        },
+    )
+    .unwrap();
+    f.state.reconcile_routines().unwrap();
+    assert!(history(&f, a)[0].run.is_some());
+    assert!(matches!(
+        history(&f, b)[0].status,
+        OccurrenceStatus::Blocked { .. }
+    ));
+    let mut f = fixture();
+    let id = create(&mut f, RoutineTrigger::Once { at: 1000 });
+    let config = f
+        .state
+        .load_inference_configuration(f.input.bot, 1)
+        .unwrap();
+    f.state
+        .configure_inference(
+            token(),
+            ConfigureInference {
+                bot: f.input.bot,
+                expected_revision: 1,
+                policy: config.policy,
+            },
+        )
+        .unwrap();
+    f.state.reconcile_routines().unwrap();
+    assert!(
+        matches!(&history(&f,id)[0].status,OccurrenceStatus::Blocked {reason} if reason=="InferenceUnverified")
+    );
+}

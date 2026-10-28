@@ -78,6 +78,16 @@ fn transcript(state: &State, view: &RunView) -> Result<Vec<RunMessage>, Operatio
         }
     }];
     for turn in &view.turns {
+        if let Some(result) = &turn.manager_result {
+            if let Some(response) = &turn.response {
+                messages.push(response.clone());
+            }
+            messages.push(RunMessage::Tool {
+                tool_call_id: result.call.id.clone(),
+                content: result.result.clone(),
+            });
+            continue;
+        }
         if let Some(response) = &turn.response {
             messages.push(response.clone());
         }
@@ -505,6 +515,7 @@ impl State {
                     let secret = self.provider_secret()?;
                     let reservation = reservation(&view)?;
                     let turn = RunTurn {
+                        manager_result: None,
                         id: RunTurnId::new(),
                         ordinal: view.summary.accounting.admitted_turns + 1,
                         attempt: RunAttemptId::new(),
@@ -535,6 +546,9 @@ impl State {
                                 continue;
                             }
                         }
+                    }
+                    if self.run_wakeup_enabled(view.request.id)? {
+                        prepared.wakeup_tool();
                     }
                     let provider_request = prepared.encoded();
                     if provider_request.len() > MAX_PROVIDER_REQUEST {

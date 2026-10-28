@@ -297,6 +297,9 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::RoutineStatus { id } => {
+                Ok(OwnerReply::RoutineStatus(self.routine_status(lease, id)?))
+            }
             OwnerOperation::RoutineCommand { input } => Ok(OwnerReply::RoutineControl(
                 self.routine_command(lease, input)?,
             )),

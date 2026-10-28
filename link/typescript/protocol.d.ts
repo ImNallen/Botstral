@@ -544,6 +544,10 @@ export type OwnerClientMessage =
     };
 export type OwnerOperation =
   | {
+      id: RequestId;
+      method: 'routine_status';
+    }
+  | {
       input: RoutineCommand;
       method: 'routine_command';
     }
@@ -554,7 +558,7 @@ export type OwnerOperation =
       text: string;
     }
   | {
-      before?: number | null;
+      before?: OccurrenceId | null;
       id: RoutineId;
       limit: number;
       method: 'routine_history';
@@ -862,6 +866,10 @@ export type OwnerHello =
     };
 export type OwnerReply =
   | {
+      type: 'routine_status';
+      value: RoutineControlResult | null;
+    }
+  | {
       type: 'routine_control';
       value: RoutineControlResult;
     }
@@ -1021,6 +1029,10 @@ export type ToolProposal =
   | {
       arguments: ConnectorProposal;
       tool: 'connector';
+    }
+  | {
+      arguments: RequestWakeup;
+      tool: 'request_wakeup';
     };
 export type RunMessage =
   | {
@@ -1614,6 +1626,7 @@ export interface InboxEntry {
   bot: BotId;
   created_at: number;
   id: InboxId;
+  message: string;
   occurrence: OccurrenceId;
   routine: RoutineId;
   run?: RunId | null;
@@ -1925,6 +1938,7 @@ export interface RunTurn {
   finish_reason?: InferenceFinishReason | null;
   id: RunTurnId;
   intent?: RunToolIntent | null;
+  manager_result?: ManagerToolResult | null;
   messages: RunMessage[];
   ordinal: number;
   phase: RunTurnPhase;
@@ -1958,6 +1972,14 @@ export interface ProcessProposal {
 export interface VibeProposal {
   prompt: string;
   session: VibeSession;
+}
+export interface RequestWakeup {
+  at: number;
+  prompt: string;
+}
+export interface ManagerToolResult {
+  call: RunToolCall;
+  result: string;
 }
 export interface AuthorizedImage {
   height: number;

@@ -88,6 +88,7 @@ pub enum ToolProposal {
     Process(ProcessProposal),
     Vibe(VibeProposal),
     Connector(ConnectorProposal),
+    RequestWakeup(RequestWakeup),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -208,6 +209,8 @@ pub struct RunToolIntent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RunTurn {
+    #[serde(default)]
+    pub manager_result: Option<ManagerToolResult>,
     pub id: RunTurnId,
     pub ordinal: u32,
     pub attempt: RunAttemptId,

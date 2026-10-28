@@ -148,6 +148,7 @@ pub struct EventReceipt {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct InboxEntry {
+    pub message: String,
     pub id: InboxId,
     pub occurrence: OccurrenceId,
     pub bot: BotId,

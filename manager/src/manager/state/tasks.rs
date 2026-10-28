@@ -184,7 +184,10 @@ impl State {
 
     pub(super) fn prepare_task(&self, input: SubmitTask) -> Result<TaskView, OperationError> {
         input.settings.validate()?;
-        count_bound(&self.connection, "tasks", MAX_TASKS)?;
+        let active:i64=self.connection.query_row("SELECT count(*) FROM tasks WHERE json_extract(view,'$.state') NOT IN ('completed','failed','cancelled')",[],|r|r.get(0))?;
+        if active >= MAX_TASKS as i64 {
+            return Err(OperationError::Busy);
+        }
         let session = self.find_computer_session(input.session_id)?;
         self.require_live_bot(session.bot_id)?;
         if let Some(conversation) = input.conversation_id {
@@ -651,7 +654,7 @@ impl State {
             let mut tasks = Vec::new();
             for row in self
                 .connection
-                .prepare("SELECT view FROM tasks ORDER BY id")?
+                .prepare("SELECT view FROM tasks WHERE json_extract(view,'$.state') NOT IN ('completed','failed','cancelled') OR id IN (SELECT id FROM tasks WHERE json_extract(view,'$.state') IN ('completed','failed','cancelled') ORDER BY rowid DESC LIMIT 128) OR id IN (SELECT task FROM run_children WHERE run IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') NOT IN ('completed','cancelled','stopped') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT 16))) ORDER BY rowid")?
                 .query_map([], |r| r.get::<_, String>(0))?
             {
                 tasks.push(parse(row?)?);

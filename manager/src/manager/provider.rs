@@ -406,6 +406,15 @@ impl PreparedChat {
             connectors: vec![],
         }
     }
+    pub(super) fn wakeup_tool(&mut self) {
+        if !self.body["tools"].is_array() {
+            self.body["tools"] = serde_json::json!([]);
+        }
+        self.body["tools"].as_array_mut().unwrap().push(serde_json::json!({"type":"function","function":{"name":"request_wakeup","description":"Request one future wakeup within the explicit owner grant. Owner budgets, horizon, spacing, and cumulative limits remain enforced. This cannot edit routines or approve effects.","parameters":schemars::schema_for!(RequestWakeup)}}));
+        self.tools = true;
+        self.body["tool_choice"] = "auto".into();
+        self.body["parallel_tool_calls"] = false.into();
+    }
     pub(super) fn connector_tools(&mut self, definitions: Vec<ConnectorToolDefinition>) {
         if !definitions.is_empty() {
             if !self.body["tools"].is_array() {

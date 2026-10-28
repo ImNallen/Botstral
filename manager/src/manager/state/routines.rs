@@ -1,6 +1,7 @@
 mod calendar;
 #[cfg(test)]
 mod tests;
+mod wakeups;
 
 use super::{
     tasks::{event, json, parse},
@@ -46,7 +47,13 @@ fn notify(
     routine: &RoutineView,
     occurrence: &RoutineOccurrence,
 ) -> Result<(), OperationError> {
+    let message = if let Some(run) = occurrence.run {
+        db.query_row("SELECT json_extract(view,'$.response.content') FROM run_turns WHERE run=?1 AND json_extract(view,'$.response.content') IS NOT NULL ORDER BY ordinal DESC LIMIT 1",[run.to_string()],|r|r.get::<_,String>(0)).optional()?.unwrap_or_default()
+    } else {
+        String::new()
+    };
     let entry = InboxEntry {
+        message: message.chars().take(MAX_RUN_TEXT_BYTES).collect(),
         id: InboxId::new(),
         occurrence: occurrence.id,
         bot: routine.definition.bot,
@@ -144,14 +151,14 @@ impl State {
             .map(|r| parse(r?))
             .collect()
     }
-    pub(super) fn inbox(&self) -> Result<Vec<InboxEntry>, OperationError> {
+    pub(in crate::manager) fn inbox(&self) -> Result<Vec<InboxEntry>, OperationError> {
         self.connection.prepare("SELECT view,acknowledged FROM routine_inbox WHERE acknowledged=0 ORDER BY sequence LIMIT 64")?.query_map([],|r|Ok((r.get::<_,String>(0)?,r.get::<_,bool>(1)?)))?.map(|r| {let (v,a)=r?;let mut v:InboxEntry=parse(v)?;v.acknowledged=a;Ok(v)}).collect()
     }
     pub(in crate::manager) fn routine_history(
         &self,
         token: impl Into<OwnerAuthority>,
         id: RoutineId,
-        before: Option<i64>,
+        before: Option<OccurrenceId>,
         limit: u16,
     ) -> Result<Vec<RoutineOccurrence>, OperationError> {
         self.authorize_owner(&token.into())?;
@@ -159,7 +166,7 @@ impl State {
         if !(1..=MAX_ROUTINE_PAGE as u16).contains(&limit) {
             return Err(OperationError::InvalidInput);
         }
-        self.connection.prepare("SELECT view FROM routine_occurrences WHERE routine=?1 AND rowid < ?2 ORDER BY rowid DESC LIMIT ?3")?.query_map(params![id.to_string(),before.unwrap_or(i64::MAX),limit],|r|r.get::<_,String>(0))?.map(|r|parse(r?)).collect()
+        self.connection.prepare("SELECT view FROM routine_occurrences WHERE routine=?1 AND rowid < coalesce((SELECT rowid FROM routine_occurrences WHERE id=?2),9223372036854775807) ORDER BY rowid DESC LIMIT ?3")?.query_map(params![id.to_string(),before.map(|id|id.to_string()),limit],|r|r.get::<_,String>(0))?.map(|r|parse(r?)).collect()
     }
     pub(in crate::manager) fn routine_preview(
         &self,
@@ -745,6 +752,7 @@ impl State {
     pub(in crate::manager) fn reconcile_routines(&mut self) -> Result<(), OperationError> {
         self.fence_deleted_bots()?;
         self.reconcile_occurrence_results()?;
+        self.compact_run_transcripts()?;
         let due=self.connection.prepare("SELECT view FROM routines WHERE state='enabled' AND next_at<=?1 ORDER BY next_at LIMIT 16")?.query_map([self.now()],|r|r.get::<_,String>(0))?.map(|r|parse(r?)).collect::<Result<Vec<RoutineView>,_>>()?;
         for mut r in due {
             let (at, skipped) = calendar::latest(
@@ -786,6 +794,10 @@ impl State {
             Self::commit_occurrence(&tx, owner, &r, &o, run.as_ref())?;
             tx.commit()?;
         }
+        Ok(())
+    }
+    fn compact_run_transcripts(&self) -> Result<(), OperationError> {
+        self.connection.execute("DELETE FROM run_turns WHERE run IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') AND id NOT IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT 16) AND id IN (SELECT run FROM run_turns) ORDER BY rowid LIMIT 16) AND run NOT IN (SELECT run FROM run_children) AND run NOT IN (SELECT parent_run FROM routine_wakeups) AND run NOT IN (SELECT run FROM routine_occurrences WHERE status IN ('running','decision'))",[])?;
         Ok(())
     }
     fn reconcile_occurrence_results(&mut self) -> Result<(), OperationError> {
@@ -858,100 +870,144 @@ impl State {
         {
             return Err(OperationError::Unauthorized);
         }
-        self.provider_secret()?;
-        let now = self.now();
-        let count = if now - start >= 60 { 0 } else { count };
-        if count >= 60 {
-            return Err(OperationError::RateLimited);
-        }
-        self.connection.execute(
-            "UPDATE routine_publishers SET window_start=?1,received=?2 WHERE id=?3",
-            params![
-                if count == 0 { now } else { start },
-                count + 1,
-                publisher.to_string()
-            ],
-        )?;
-        let event: PublisherEvent =
-            serde_json::from_slice(&bytes).map_err(|_| OperationError::InvalidInput)?;
-        if !calendar::name(&event.id)
-            || event.fields.len() > 16
-            || event.fields.iter().any(|(k, v)| {
-                !calendar::name(k) || json(v).is_err() || json(v).is_ok_and(|b| b.len() > 512)
-            })
-            || !source.topics.contains(&event.topic)
-            || event.timestamp < now - EVENT_REPLAY_SECONDS
-            || event.timestamp > now + 300
-        {
-            return Err(OperationError::InvalidInput);
-        }
-        let digest = Sha256::digest(&bytes).to_vec();
-        let existing:Option<(Vec<u8>,String)>=self.connection.query_row("SELECT digest,receipt FROM routine_event_receipts WHERE publisher=?1 AND event_id=?2",params![publisher.to_string(),event.id],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
-        if let Some((old, receipt)) = existing {
-            return if old == digest {
-                parse(receipt)
-            } else {
-                Err(OperationError::Conflict)
-            };
-        }
-        let owner = self.principal()?;
-        let tx = self.connection.unchecked_transaction()?;
-        let mut matched = 0;
-        for r in self
-            .routine_views()?
-            .into_iter()
-            .filter(|r| r.state == RoutineState::Enabled)
-        {
-            let RoutineTrigger::Event {
-                publisher: p,
-                topic,
-                equals,
-            } = &r.definition.trigger
-            else {
-                continue;
-            };
-            if *p != publisher
-                || topic != &event.topic
-                || !equals.iter().all(|(k, v)| event.fields.get(k) == Some(v))
-            {
-                continue;
+        let result = (|| {
+            self.provider_secret()?;
+            let now = self.now();
+            let count = if now - start >= 60 { 0 } else { count };
+            if count >= 60 {
+                return Err(OperationError::RateLimited);
             }
-            let key = format!("event:{publisher}:{}", event.id);
-            let (o, run) = self.prepare_occurrence(&r, key, now, 0, None, None)?;
-            Self::commit_occurrence(&tx, owner, &r, &o, run.as_ref())?;
-            matched += 1;
+            self.connection.execute(
+                "UPDATE routine_publishers SET window_start=?1,received=?2 WHERE id=?3",
+                params![
+                    if count == 0 { now } else { start },
+                    count + 1,
+                    publisher.to_string()
+                ],
+            )?;
+            let event: PublisherEvent =
+                serde_json::from_slice(&bytes).map_err(|_| OperationError::InvalidInput)?;
+            if !calendar::name(&event.id)
+                || event.fields.len() > 16
+                || event.fields.iter().any(|(k, v)| {
+                    !calendar::name(k) || json(v).is_err() || json(v).is_ok_and(|b| b.len() > 512)
+                })
+                || !source.topics.contains(&event.topic)
+                || event.timestamp < now - EVENT_REPLAY_SECONDS
+                || event.timestamp > now + 300
+            {
+                return Err(OperationError::InvalidInput);
+            }
+            let digest = Sha256::digest(&bytes).to_vec();
+            let existing:Option<(Vec<u8>,String)>=self.connection.query_row("SELECT digest,receipt FROM routine_event_receipts WHERE publisher=?1 AND event_id=?2",params![publisher.to_string(),event.id],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
+            if let Some((old, receipt)) = existing {
+                return if old == digest {
+                    parse(receipt)
+                } else {
+                    Err(OperationError::Conflict)
+                };
+            }
+            let owner = self.principal()?;
+            let tx = self.connection.unchecked_transaction()?;
+            let mut matched = 0;
+            for r in self
+                .routine_views()?
+                .into_iter()
+                .filter(|r| r.state == RoutineState::Enabled)
+            {
+                let RoutineTrigger::Event {
+                    publisher: p,
+                    topic,
+                    equals,
+                } = &r.definition.trigger
+                else {
+                    continue;
+                };
+                if *p != publisher
+                    || topic != &event.topic
+                    || !equals.iter().all(|(k, v)| event.fields.get(k) == Some(v))
+                {
+                    continue;
+                }
+                let key = format!("event:{publisher}:{}", event.id);
+                let (o, run) = self.prepare_occurrence(&r, key, now, 0, None, None)?;
+                Self::commit_occurrence(&tx, owner, &r, &o, run.as_ref())?;
+                matched += 1;
+            }
+            let receipt = EventReceipt {
+                publisher,
+                event_id: event.id,
+                matched,
+            };
+            tx.execute(
+                "INSERT INTO routine_event_receipts VALUES(?1,?2,?3,?4,?5)",
+                params![
+                    publisher.to_string(),
+                    receipt.event_id,
+                    digest,
+                    event.timestamp,
+                    json(&receipt)?
+                ],
+            )?;
+            source.last_received_at = Some(now);
+            source.last_error = None;
+            tx.execute(
+                "UPDATE routine_publishers SET view=?1 WHERE id=?2",
+                params![json(&source)?, publisher.to_string()],
+            )?;
+            event_fn(&tx, publisher)?;
+            tx.commit()?;
+            self.fault("routine_event_committed");
+            Ok(receipt)
+        })();
+        if let Err(error) = &result {
+            self.record_source_failure(&mut source, error)?;
         }
-        let receipt = EventReceipt {
-            publisher,
-            event_id: event.id,
-            matched,
-        };
-        tx.execute(
-            "INSERT INTO routine_event_receipts VALUES(?1,?2,?3,?4,?5)",
-            params![
-                publisher.to_string(),
-                receipt.event_id,
-                digest,
-                event.timestamp,
-                json(&receipt)?
-            ],
-        )?;
-        source.last_received_at = Some(now);
-        source.last_error = None;
+        result
+    }
+    fn record_source_failure(
+        &self,
+        source: &mut PublisherView,
+        error: &OperationError,
+    ) -> Result<(), OperationError> {
+        source.last_error = Some(format!("{error:?}"));
+        let tx = self.connection.unchecked_transaction()?;
         tx.execute(
             "UPDATE routine_publishers SET view=?1 WHERE id=?2",
-            params![json(&source)?, publisher.to_string()],
+            params![json(source)?, source.id.to_string()],
         )?;
-        event_fn(&tx, publisher)?;
+        let key = format!("source-health:{}:{}", source.id, self.now() / 60);
+        for r in self.routine_views()?.into_iter().filter(|r|r.state==RoutineState::Enabled && matches!(&r.definition.trigger,RoutineTrigger::Event {publisher,..} if *publisher==source.id)) {
+            let exists:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM routine_occurrences WHERE routine=?1 AND trigger_key=?2)",params![r.id.to_string(),key],|row|row.get(0))?;
+            if exists {continue;}
+            let o=RoutineOccurrence {id:OccurrenceId::new(),routine:r.id,revision:r.revision,trigger_key:key.clone(),scheduled_at:self.now(),run:None,status:OccurrenceStatus::Blocked {reason:format!("Publisher ingress failed: {error:?}")},skipped_count:0,updated_at:self.now()};
+            save_occurrence(&tx,&o)?;notify(&tx,&r,&o)?;
+        }
+        event(&tx, "routine_publisher", source.id)?;
         tx.commit()?;
-        self.fault("routine_event_committed");
-        Ok(receipt)
+        Ok(())
     }
 }
 fn event_fn(db: &Connection, id: PublisherId) -> Result<(), OperationError> {
     event(db, "routine_event", id)
 }
 impl State {
+    pub(in crate::manager) fn routine_status(
+        &self,
+        authority: impl Into<OwnerAuthority>,
+        id: RequestId,
+    ) -> Result<Option<RoutineControlResult>, OperationError> {
+        self.authorize_owner(&authority.into())?;
+        self.connection
+            .query_row(
+                "SELECT result FROM routine_commands WHERE id=?1",
+                [id.to_string()],
+                |r| r.get::<_, String>(0),
+            )
+            .optional()?
+            .map(parse)
+            .transpose()
+    }
     pub(in crate::manager) fn routine_conversation(
         &mut self,
         token: impl Into<OwnerAuthority>,

@@ -9,10 +9,10 @@ pub const MAX_OWNER_DEVICES: usize = 128;
 pub const MAX_OWNER_CONNECTIONS: usize = 8;
 pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_ROUTINES * 32768
     + MAX_ROUTINE_PAGE * 4096
-    + MAX_INBOX_PAGE * 4096
+    + MAX_INBOX_PAGE * 32768
     + MAX_PUBLISHERS * 4096
     + MAX_CONNECTIONS * 1024
-    + MAX_TASKS * 24 * 1024
+    + MAX_PROJECTED_TASKS * 24 * 1024
     + (MAX_RUNS + 16) * 4096
     + MAX_INFERENCES
         * (6 * (MAX_INFERENCE_PROMPT_BYTES + MAX_INFERENCE_OUTPUT_BYTES + 200) + 32768 + 4096)
@@ -21,10 +21,10 @@ pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_ROUTINES * 32768
     + 4096;
 pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_ROUTINES * 65536
     + MAX_ROUTINE_PAGE * 8192
-    + MAX_INBOX_PAGE * 8192
+    + MAX_INBOX_PAGE * 32768
     + MAX_PUBLISHERS * 8192
     + MAX_CONNECTIONS * 2048
-    + MAX_TASKS * 256 * 1024
+    + MAX_PROJECTED_TASKS * 256 * 1024
     + (MAX_RUNS + 16) * 4096
     + MAX_INFERENCES * 128 * 1024
     + MAX_INFERENCE_CONFIGURATIONS * 16 * 1024
@@ -134,6 +134,9 @@ pub enum OwnerHello {
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    RoutineStatus {
+        id: RequestId,
+    },
     RoutineCommand {
         input: RoutineCommand,
     },
@@ -144,7 +147,7 @@ pub enum OwnerOperation {
     },
     RoutineHistory {
         id: RoutineId,
-        before: Option<i64>,
+        before: Option<OccurrenceId>,
         limit: u16,
     },
     RoutinePreview {
@@ -330,6 +333,7 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    RoutineStatus(Option<RoutineControlResult>),
     RoutineControl(RoutineControlResult),
     RoutineHistory(Vec<RoutineOccurrence>),
     RoutinePreview(Vec<i64>),
@@ -403,6 +407,7 @@ pub struct OwnerDevice {
     pub created_at: i64,
 }
 
+pub const MAX_PROJECTED_TASKS: usize = MAX_TASKS * 2 + (MAX_RUNS + 16) * MAX_RUN_TURNS as usize;
 pub const MAX_WORKSPACE_BOTS: usize = 1024;
 pub const MAX_WORKSPACE_WORKERS: usize = 128;
 pub const OWNER_WORKSPACE_SERIALIZED_BOUND: usize = OWNER_SNAPSHOT_SERIALIZED_BOUND

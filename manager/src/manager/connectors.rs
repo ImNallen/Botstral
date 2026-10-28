@@ -382,3 +382,13 @@ pub(super) fn secret_bytes(
     }
     Ok(bytes)
 }
+
+#[cfg(test)]
+pub(in crate::manager) async fn execute_fixture(dispatch: &ConnectorDispatch) -> ConnectorOutcome {
+    http::execute_with_client(
+        dispatch,
+        reqwest::Client::builder().no_proxy().build().unwrap(),
+        async { true },
+    )
+    .await
+}

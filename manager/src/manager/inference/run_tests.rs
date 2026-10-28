@@ -831,3 +831,103 @@ async fn m04_run_deadlines_reconcile_while_provider_slots_are_full() {
 
 mod desktop_fixture;
 pub(super) mod production_fixture;
+
+#[tokio::test]
+async fn p03_manager_loop_executes_without_owner_clients_and_recovers_inbox() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let worker = SyntheticWorker::start(&app).await;
+    let request = request(&app, worker.session.id);
+    let routine = RoutineId::new();
+    let bot = app.bot;
+    let session = app.session();
+    let session_revision = worker.session.revision;
+    app.manager
+        .queue
+        .call(false, move |s| {
+            s.routine_command(
+                session,
+                RoutineCommand {
+                    id: RequestId::new(),
+                    action: RoutineAction::SetBudget {
+                        budget: RoutineBudget {
+                            max_runs: 4,
+                            max_tokens: 2_000_000,
+                            max_cost_microusd: 2_000_000,
+                        },
+                    },
+                },
+            )?;
+            Ok(())
+        })
+        .await
+        .unwrap();
+    let session = app.session();
+    app.manager
+        .queue
+        .call(false, move |s| {
+            s.routine_command(
+                session,
+                RoutineCommand {
+                    id: RequestId::new(),
+                    action: RoutineAction::Create {
+                        id: routine,
+                        definition: Box::new(RoutineDefinition {
+                            bot,
+                            name: "Clients closed".into(),
+                            trigger: RoutineTrigger::Once { at: now() + 1 },
+                            catchup_seconds: 60,
+                            wakeups: None,
+                            template: RunTemplate {
+                                session: request.session,
+                                session_revision,
+                                configuration_revision: 1,
+                                permission_revision: 1,
+                                prompt: "Complete one scheduled turn.".into(),
+                                execution_policy: request.execution_policy,
+                                duration_seconds: 60,
+                                max_turns: 4,
+                                max_total_tokens: 200_000,
+                                max_cost_microusd: 200_000,
+                                max_output_tokens: 64,
+                                max_operations: 4,
+                            },
+                        }),
+                    },
+                },
+            )?;
+            Ok(())
+        })
+        .await
+        .unwrap();
+    // Remove every owner session before the due instant. Only the manager and worker remain.
+    app.manager.sign_out(app.session()).await.unwrap();
+    let result = tokio::time::timeout(Duration::from_secs(8), async {
+        loop {
+            let inbox = app.manager.queue.call(false, |s| s.inbox()).await.unwrap();
+            if let Some(entry) = inbox.into_iter().find(|e| e.routine == routine) {
+                break entry;
+            }
+            tokio::time::sleep(Duration::from_millis(25)).await;
+        }
+    })
+    .await
+    .expect("manager-only schedule completed");
+    assert!(matches!(
+        result.status,
+        OccurrenceStatus::Finished {
+            phase: RunPhase::Completed
+        }
+    ));
+    assert_eq!(fixture.chats(), 1);
+    drop(worker);
+    app.shutdown().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    let inbox = app.manager.queue.call(false, |s| s.inbox()).await.unwrap();
+    assert_eq!(inbox[0].id, result.id);
+    assert_eq!(inbox[0].run, result.run);
+    app.shutdown().await;
+}

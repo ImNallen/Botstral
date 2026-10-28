@@ -240,7 +240,7 @@ pub(super) async fn execute(
     };
     execute_with_client(dispatch, client, before_call).await
 }
-async fn execute_with_client(
+pub(super) async fn execute_with_client(
     dispatch: &ConnectorDispatch,
     client: Client,
     before_call: impl std::future::Future<Output = bool>,

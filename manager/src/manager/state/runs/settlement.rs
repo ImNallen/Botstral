@@ -19,6 +19,7 @@ impl State {
         }
         let mut turn = view.turns[index].clone();
         let mut child = None;
+        let mut wakeup = None;
         match outcome {
             ModelOutcome::Unknown { reason, request_id } => {
                 turn.phase = RunTurnPhase::AwaitingAttention { reason };
@@ -92,7 +93,8 @@ impl State {
                                 ToolProposal::Computer(args) => args.operations.len() as u32,
                                 ToolProposal::Process(_)
                                 | ToolProposal::Vibe(_)
-                                | ToolProposal::Connector(_) => 1,
+                                | ToolProposal::Connector(_)
+                                | ToolProposal::RequestWakeup(_) => 1,
                             };
                             let connector_limit =
                                 if matches!(call.proposal, ToolProposal::Connector(_)) {
@@ -129,6 +131,28 @@ impl State {
                             };
                             if let Some(reason) = reason {
                                 view.summary.phase = RunPhase::Stopped { reason };
+                            } else if let ToolProposal::RequestWakeup(request) = &call.proposal {
+                                let result = match self
+                                    .prepare_wakeup(id, turn.id, &call.id, request)
+                                {
+                                    Ok(plan) => {
+                                        let result = format!(
+                                            "Wakeup {} recorded for {}. Shared owner budgets remain in force.",
+                                            plan.occurrence.id, request.at
+                                        );
+                                        wakeup = Some(plan);
+                                        result
+                                    }
+                                    Err(OperationError::Internal) => {
+                                        return Err(OperationError::Internal);
+                                    }
+                                    Err(error) => format!(
+                                        "Wakeup blocked: {error:?}. No wakeup was admitted."
+                                    ),
+                                };
+                                view.summary.accounting.admitted_operations += 1;
+                                view.summary.phase = RunPhase::Ready;
+                                turn.manager_result = Some(ManagerToolResult { call, result });
                             } else if let Ok(work) = tools::translate(
                                 &view.request.execution_policy,
                                 &call.proposal,
@@ -211,6 +235,9 @@ impl State {
                     task.id.to_string()
                 ],
             )?;
+        }
+        if let Some(plan) = wakeup {
+            Self::commit_wakeup(&tx, plan)?;
         }
         save_turn(&tx, &turn)?;
         save_summary(&tx, &view.summary)?;
