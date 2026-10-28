@@ -223,6 +223,8 @@ export const remoteIssues: Record<string, string> = {
     'Manager trust failed. Import an authenticated local trust export. The saved pin has not changed.',
   revoked:
     'This device was revoked. Protected activity has been cleared. Authorize a new pairing locally.',
+  revocation_storage_failed:
+    'This device was revoked. Protected activity is blocked, but local revocation cleanup failed. Retry cleanup before restarting.',
   keychain_or_storage:
     'Native credential storage is locked or unavailable. Unlock the system keychain and try again.',
   incompatible_manager:

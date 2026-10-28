@@ -50,6 +50,10 @@ async fn c02_desktop_fixture() {
     let mut started = std::collections::HashMap::new();
     let mut finished = std::collections::HashSet::new();
     while !root.join("stop").exists() {
+        if root.join("pause-worker").exists() {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+            continue;
+        }
         for message in worker.drain() {
             match message {
                 ManagerMessage::Delivery(delivery)

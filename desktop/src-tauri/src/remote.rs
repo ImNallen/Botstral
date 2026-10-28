@@ -147,6 +147,7 @@ struct Actor {
     candidate: Option<Candidate>,
     intents: Vec<Intent>,
     suspended: bool,
+    revoked: bool,
     reconnect_attempt: u32,
 }
 pub struct VerifiedArtifact {
@@ -317,6 +318,7 @@ impl RemoteService {
             candidate: None,
             intents: vec![],
             suspended: false,
+            revoked: false,
             reconnect_attempt: 0,
         };
         *control = Some(Control {
@@ -499,6 +501,10 @@ impl Actor {
             });
             return Ok(());
         }
+        if self.root.join("revoked.json").exists() {
+            self.revoked = true;
+            return Err("revoked".into());
+        }
         if self.store.read().map_err(error_code)?.is_none() {
             return Ok(());
         }
@@ -538,6 +544,26 @@ impl Actor {
     fn failed(&mut self, error: String) {
         self.reconnect_attempt = self.reconnect_attempt.saturating_add(1);
         self.session = None;
+        let error = if error == "revoked" {
+            self.revoked = true;
+            self.client = None;
+            self.candidate = None;
+            if !self.root.join("revoked.json").exists()
+                && storage(&self.root, "revoked.json", &true).is_err()
+            {
+                let deleted = self.store.delete();
+                let cleared = fs::remove_file(self.root.join("workspace.json"));
+                if deleted.is_err() && cleared.is_err() {
+                    "revocation_storage_failed".into()
+                } else {
+                    error
+                }
+            } else {
+                error
+            }
+        } else {
+            error
+        };
         self.publish(|v| {
             v.status = if error == "offline" || error == "unknown_outcome" {
                 "offline"
@@ -545,9 +571,12 @@ impl Actor {
                 "blocked"
             }
             .into();
-            if error == "revoked" {
+            if self.revoked {
                 v.workspace = None;
                 v.review = None;
+                v.pairing = None;
+                v.candidate = None;
+                v.intents.clear();
             }
             v.issue = Some(error);
         });
@@ -555,6 +584,9 @@ impl Actor {
     async fn recover(&mut self) -> Result<(), String> {
         if self.view.borrow().generation != self.generation {
             return Err("stale".into());
+        }
+        if self.revoked {
+            return Err("revoked".into());
         }
         if self.suspended {
             return Err("suspended".into());
@@ -609,13 +641,16 @@ impl Actor {
                     command,
                     approval,
                     permission_revision,
-                    ..
+                    expires_at,
                 } => image.state.tasks.iter().any(|t| {
                     t.id == *id
                         && t.command == **command
                         && t.approval.id == approval.id
+                        && !t.approval.revoked
                         && t.approval.binding.as_ref().is_some_and(|b| {
                             b.permission_revision == *permission_revision
+                                && b.approval == approval.id
+                                && b.expires_at == *expires_at
                                 && t.command.matches_authority(b)
                         })
                 }),
@@ -799,7 +834,7 @@ impl Actor {
                 }
                 self.session = None;
                 self.client = None;
-                let revoked = self.view.borrow().issue.as_deref() == Some("revoked");
+                let revoked = self.revoked || self.root.join("revoked.json").exists();
                 let signed_out = self.root.join("signed-out.json").exists();
                 let intents = if revoked || signed_out {
                     self.store.delete().map_err(error_code)?;
@@ -828,6 +863,10 @@ impl Actor {
                 if signed_out {
                     fs::remove_file(self.root.join("signed-out.json")).map_err(|_| "storage")?;
                 }
+                if self.root.join("revoked.json").exists() {
+                    fs::remove_file(self.root.join("revoked.json")).map_err(|_| "storage")?;
+                }
+                self.revoked = false;
                 self.client = Some(client);
                 self.intents = intents;
                 if revoked {

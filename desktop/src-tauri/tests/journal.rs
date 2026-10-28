@@ -3,7 +3,7 @@ use botstral_desktop::{
     remote::{Intent, IntentCommand, RemoteService, SendInput},
 };
 use botstral_link::*;
-use botstral_owner_client::{ClientError, SecretStore};
+use botstral_owner_client::{ClientError, OwnerClient, SecretStore};
 use std::{
     os::unix::fs::PermissionsExt,
     path::{Path, PathBuf},
@@ -67,6 +67,228 @@ async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::
     );
     local.sign_out();
     (service, store, fixture)
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn observed_revocation_blocks_cached_activity_after_offline_restart() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    assert!(service.inspect().workspace.is_some());
+    let local = LocalManager::new().unwrap();
+    local
+        .sign_in(
+            fixture["local"].as_str().unwrap().into(),
+            Zeroizing::new(fixture["password"].as_str().unwrap().into()),
+        )
+        .await
+        .unwrap();
+    let device = local.devices().await.unwrap().remove(0);
+    local.revoke_device(device.id).await.unwrap();
+    assert!(service.restore().await.is_err());
+    assert!(service.inspect().workspace.is_none());
+    service.shutdown().await;
+    let mut client = OwnerClient::open_with(&root, store.clone()).unwrap();
+    let mut trust = client.trust().unwrap().clone();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    trust.endpoint = listener.local_addr().unwrap().to_string();
+    drop(listener);
+    client.import_trust(trust).unwrap();
+    drop(client);
+    let restarted = RemoteService::new(root.clone(), store);
+    let result = restarted.restore().await;
+    println!(
+        "REVOKED_OFFLINE_RESTART result={:?} cached_activity={}",
+        result.as_ref().map(|v| v.status.as_str()),
+        restarted.inspect().workspace.is_some()
+    );
+    assert!(
+        restarted.inspect().workspace.is_none(),
+        "A known-revoked profile exposed cached activity after offline restart"
+    );
+    assert_eq!(restarted.inspect().issue.as_deref(), Some("revoked"));
+    assert!(root.join("revoked.json").exists());
+    let request = restarted
+        .command(IntentCommand::Begin {
+            label: "Explicit replacement after revocation".into(),
+        })
+        .await
+        .unwrap()
+        .pairing
+        .unwrap();
+    assert_ne!(request.fingerprint, device.fingerprint);
+    assert!(!root.join("revoked.json").exists());
+    let trust = serde_json::from_slice(
+        &std::fs::read(
+            PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap())
+                .join("trust.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let bundle = local.invite_device(request, trust).await.unwrap();
+    let candidate = restarted
+        .command(IntentCommand::Stage(bundle))
+        .await
+        .unwrap()
+        .candidate
+        .unwrap();
+    assert_eq!(
+        restarted
+            .command(IntentCommand::Confirm(candidate.id))
+            .await
+            .unwrap()
+            .status,
+        "online"
+    );
+    restarted.sign_out().await.unwrap();
+    local.sign_out();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn historical_approval_cannot_confirm_an_unknown_regrant() {
+    let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
+    let pause = fixture_root.join("pause-worker");
+    std::fs::write(&pause, b"").unwrap();
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot = fixture["bot"].as_str().unwrap().parse().unwrap();
+    service
+        .command(IntentCommand::Send(SendInput {
+            bot,
+            session: fixture["session"].as_str().unwrap().parse().unwrap(),
+            text: "Create a file".into(),
+            account: ProcessAccount {
+                uid: 1000,
+                gid: 1000,
+            },
+            runtime: Some(
+                fixture["runtime"]
+                    .as_str()
+                    .unwrap()
+                    .to_owned()
+                    .try_into()
+                    .unwrap(),
+            ),
+            process: true,
+            seconds: 120,
+            turns: 4,
+            tokens: 200_000,
+            cost_microusd: 200_000,
+            output_tokens: 1024,
+        }))
+        .await
+        .unwrap();
+    let mut changes = service.observe();
+    let task = tokio::time::timeout(std::time::Duration::from_secs(10), async {
+        loop {
+            if let Some(task) = changes
+                .borrow()
+                .workspace
+                .as_ref()
+                .and_then(|w| w.state.tasks.first())
+                .cloned()
+            {
+                break task;
+            }
+            changes.changed().await.unwrap();
+        }
+    })
+    .await
+    .unwrap();
+    let review = service
+        .command(IntentCommand::Review(task.id))
+        .await
+        .unwrap()
+        .review
+        .unwrap();
+    service
+        .command(IntentCommand::Approve(review.id))
+        .await
+        .unwrap();
+    let prior = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .tasks
+        .into_iter()
+        .find(|t| t.id == task.id)
+        .unwrap();
+    assert!(!prior.approval.consumed);
+    service
+        .command(IntentCommand::RevokeApproval(task.id))
+        .await
+        .unwrap();
+    let revoked = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .tasks
+        .into_iter()
+        .find(|t| t.id == task.id)
+        .unwrap();
+    assert!(revoked.approval.revoked);
+    let expires_at = prior.approval.binding.as_ref().unwrap().expires_at + 1;
+    let intent = Intent {
+        id: uuid::Uuid::new_v4(),
+        status: "unknown".into(),
+        operation: OwnerOperation::GrantReviewedApproval {
+            id: task.id,
+            command: Box::new(revoked.command),
+            permission_revision: revoked.approval.permission_revision,
+            approval: revoked.approval,
+            expires_at,
+        },
+    };
+    service.shutdown().await;
+    std::fs::write(
+        root.join("intents.json"),
+        serde_json::to_vec(&vec![intent]).unwrap(),
+    )
+    .unwrap();
+    let restored = RemoteService::new(root, store);
+    let current = restored.restore().await.unwrap();
+    println!(
+        "UNKNOWN_REGRANT historical_revoked_status={}",
+        current.intents[0].status
+    );
+    assert_eq!(
+        current.intents[0].status, "unknown",
+        "A historical revoked binding falsely confirmed an uncommitted regrant"
+    );
+    let http = reqwest::Client::new();
+    let endpoint = format!("http://{}", fixture["local"].as_str().unwrap());
+    let auth: serde_json::Value = http
+        .post(format!("{endpoint}/v1/sessions"))
+        .json(&serde_json::json!({"password":fixture["password"]}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    let token = auth["token"].as_str().unwrap();
+    for (expiry, expected) in [(expires_at - 1, "unknown"), (expires_at, "confirmed")] {
+        http.put(format!("{endpoint}/v1/tasks/{}/approval", task.id))
+            .bearer_auth(token)
+            .json(&serde_json::json!({"expires_at":expiry}))
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap();
+        let current = restored.restore().await.unwrap();
+        assert_eq!(current.intents[0].status, expected);
+    }
+    restored.sign_out().await.unwrap();
+    std::fs::remove_file(pause).unwrap();
 }
 #[tokio::test]
 #[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
