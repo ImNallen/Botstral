@@ -568,21 +568,54 @@ impl State {
         self.fault("connector_settled");
         Ok(call)
     }
+    pub(in crate::manager) fn connector_stop_requires_attention(
+        db: &Connection,
+        task: &TaskView,
+    ) -> Result<bool, OperationError> {
+        if !matches!(task.outcome, Some(ExecutionEvent::Stopped { .. })) {
+            return Ok(false);
+        }
+        let mut statement = db.prepare("SELECT view FROM connector_calls WHERE task=?1")?;
+        let calls = statement.query_map([task.id.to_string()], |r| r.get::<_, String>(0))?;
+        for call in calls {
+            if unknown(&parse(call?)?) {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
     fn stop_connector_task(&mut self, id: TaskId) -> Result<(), OperationError> {
         let mut task = self.load_task(id)?;
-        if task.state.terminal() || task.state == TaskState::Cancelling {
+        let attention = Self::connector_stop_requires_attention(&self.connection, &task)?;
+        if attention {
+            if task.state == TaskState::AwaitingAttention {
+                return Ok(());
+            }
+            task.state = TaskState::AwaitingAttention;
+        } else if task.state.terminal() || task.state == TaskState::Cancelling {
             return Ok(());
+        } else {
+            task.state = TaskState::Cancelling;
         }
-        task.state = TaskState::Cancelling;
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute(
-            "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
-            params![id.to_string(), CommandId::new().to_string()],
-        )?;
+        if !attention {
+            tx.execute(
+                "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
+                params![id.to_string(), CommandId::new().to_string()],
+            )?;
+        }
         tasks::save(&tx, &task)?;
-        event(&tx, "connector_stop_requested", id)?;
+        event(
+            &tx,
+            if attention {
+                "connector_attention"
+            } else {
+                "connector_stop_requested"
+            },
+            id,
+        )?;
         tx.commit()?;
         self.pump_tasks(task.command.worker)
     }
@@ -674,6 +707,9 @@ impl State {
                         },
                     )?;
                 }
+                ConnectorCallState::Resolved {
+                    outcome: ConnectorOutcome::Unknown { .. },
+                } => self.stop_connector_task(call.task)?,
                 _ => {}
             }
         }

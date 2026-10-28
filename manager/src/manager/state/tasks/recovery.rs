@@ -388,7 +388,8 @@ impl State {
                 }
                 _ => {}
             }
-            let was_terminal = task.state.terminal();
+            let stopped_unknown = Self::connector_stop_requires_attention(&tx, &task)?;
+            let was_terminal = task.state.terminal() || stopped_unknown;
             if !was_terminal
                 && matches!(
                     report.event,
@@ -442,6 +443,9 @@ impl State {
                     };
                 }
                 tx.execute("UPDATE artifacts SET reserved=0,state='unavailable' WHERE execution=?1 AND offer IS NULL",[task.command.execution.to_string()])?;
+            }
+            if stopped_unknown || Self::connector_stop_requires_attention(&tx, &task)? {
+                task.state = TaskState::AwaitingAttention;
             }
             save(&tx, &task)?;
             tx.execute(
