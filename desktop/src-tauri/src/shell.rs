@@ -558,7 +558,7 @@ pub fn run() {
                 while changes.changed().await.is_ok() {
                     let view = changes.borrow_and_update().clone();
                     if let Some(window) = handle.get_webview_window("main").filter(|w| w.url().is_ok_and(|u| allowed_page(&u))) {
-                        let _ = window.emit("workspace-changed", &view);
+                        let _ = window.emit_to(tauri::EventTarget::webview_window("main"), "workspace-changed", &view);
                     }
                     if let Some(image) = &view.workspace {
                         if cursor.is_some_and(|old| image.cursor > old) && view.status == "online" {

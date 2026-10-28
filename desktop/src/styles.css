@@ -813,6 +813,14 @@ dd {
     transition: none;
   }
 }
+.paired-workspace > .main-panel,
+.paired-workspace > .roster {
+  min-height: 0;
+}
+.paired-workspace .roster-footer {
+  flex-direction: column;
+  align-items: stretch;
+}
 .paired-conversation {
   padding: 20px clamp(24px, 7vw, 100px);
 }

@@ -402,7 +402,6 @@ impl Actor {
             } else if let Some(session) = self.session.as_mut() {
                 tokio::select! {
                     message = rx.recv() => {
-                        // Dropping an idle wait also drops its socket before any reuse.
                         self.session = None;
                         message
                     },
@@ -703,7 +702,6 @@ impl Actor {
         }
         self.intents.last_mut().ok_or("storage")?.status = "pending".into();
         self.save_intents().map_err(|_| "unknown_outcome")?;
-        // Acknowledged cancellation remains pending until authoritative terminal evidence.
         self.recover().await.map_err(|_| "unknown_outcome".into())
     }
     async fn fetch(
@@ -1197,6 +1195,62 @@ struct ReviewView {
     expires_at: i64,
     permission_revision: u64,
 }
+fn describe_action(command: &CommandBody) -> String {
+    let summary = match &command.work {
+        WorkSpec::Computer { spec } => spec
+            .operations
+            .iter()
+            .enumerate()
+            .map(|(index, operation)| {
+                let step = match operation {
+                    ComputerOperation::Navigate { url } => format!("Navigate to {url:?}"),
+                    ComputerOperation::Click { selector } => format!("Click {selector:?}"),
+                    ComputerOperation::Fill { selector, text } => {
+                        format!("Fill {selector:?} with {text:?}")
+                    }
+                    ComputerOperation::CaptureText { selector, output } => {
+                        format!("Capture text from {selector:?} into output {output:?}")
+                    }
+                    ComputerOperation::Screenshot { output } => {
+                        format!("Save a screenshot into output {output:?}")
+                    }
+                    ComputerOperation::WriteFile { path, text } => {
+                        format!("Write file {path:?}\n   Exact contents: {text:?}")
+                    }
+                    ComputerOperation::ReadFile { path, output } => {
+                        format!("Read file {path:?} into output {output:?}")
+                    }
+                    ComputerOperation::ExportFile { path, output } => {
+                        format!("Export file {path:?} into output {output:?}")
+                    }
+                };
+                format!("{}. {step}", index + 1)
+            })
+            .collect::<Vec<_>>()
+            .join("\n\n"),
+        WorkSpec::Process { spec } => format!(
+            "Run program {:?}\nExact arguments: {}\nWorking directory: {:?}",
+            spec.executable,
+            serde_json::to_string(&spec.args).expect("typed arguments serialize"),
+            spec.cwd,
+        ),
+        WorkSpec::Vibe { spec } => format!(
+            "Edit files in {:?}\nExact instruction: {:?}",
+            spec.policy.workspace.path, spec.prompt,
+        ),
+        WorkSpec::TestInput { steps } => format!("Synthetic input fixture with {steps} steps"),
+        WorkSpec::TestEffect { value, observable } => {
+            format!("Synthetic effect fixture with value {value}, observable {observable}")
+        }
+        WorkSpec::Unavailable => "Execution is unavailable".into(),
+    };
+    format!(
+        "{summary}\n\nExecution target\nWorker {}\nSession {}\n\nComplete execution details\n{}",
+        command.worker,
+        command.session,
+        serde_json::to_string_pretty(command).expect("typed command serializes"),
+    )
+}
 fn serialize_review<S: serde::Serializer>(
     value: &Option<ActionReview>,
     serializer: S,
@@ -1206,7 +1260,7 @@ fn serialize_review<S: serde::Serializer>(
         .map(|r| ReviewView {
             id: r.id,
             task: r.task,
-            action: serde_json::to_string_pretty(&r.command).expect("typed command serializes"),
+            action: describe_action(&r.command),
             expires_at: r.expires_at,
             permission_revision: r.permission_revision,
         })
@@ -1289,8 +1343,7 @@ fn serialize_workspace<S: serde::Serializer>(
                     bot: t.command.bot,
                     state: t.state,
                     progress: t.progress,
-                    action: serde_json::to_string_pretty(&t.command)
-                        .expect("typed command serializes"),
+                    action: describe_action(&t.command),
                     approval_revoked: t.approval.revoked,
                     approval_consumed: t.approval.consumed,
                     outputs: &t.outputs,

@@ -372,9 +372,13 @@ function ExecutionSettings({
             ['seconds', 'Deadline in seconds', 10, 300],
             ['turns', 'Maximum model turns', 1, 8],
             ['tokens', 'Total token budget', 1, 1000000],
-            ['cost', 'Cost ceiling in microdollars', 1, 10000000],
             ['output', 'Output tokens per turn', 1, 8192],
-          ] satisfies [keyof Omit<Settings, 'runtime' | 'process'>, string, number, number][]
+          ] satisfies [
+            keyof Omit<Settings, 'runtime' | 'process' | 'cost'>,
+            string,
+            number,
+            number,
+          ][]
         ).map(([key, name, min, max]) => (
           <label key={key}>
             {name}
@@ -388,6 +392,20 @@ function ExecutionSettings({
             />
           </label>
         ))}
+        <label>
+          Cost limit in US dollars
+          <input
+            type="number"
+            required
+            min={0.000001}
+            max={10}
+            step={0.000001}
+            value={settings.cost / 1_000_000}
+            onChange={(event) =>
+              change({ ...settings, cost: Math.round(Number(event.target.value) * 1_000_000) })
+            }
+          />
+        </label>
       </div>
       <label className="checkbox-label">
         <input
@@ -484,7 +502,7 @@ export function PairedWorkspace({
   const runs = workspace?.runs.filter((r) => r.bot === bot?.id) ?? [];
   const linked = new Set(runs.flatMap((r) => r.turns.flatMap((t) => (t.task ? [t.task] : []))));
   return (
-    <div className={`workspace${details ? ' with-details' : ''}`}>
+    <div className={`workspace paired-workspace${details ? ' with-details' : ''}`}>
       <aside className="roster" aria-label="Paired bot roster">
         <header className="roster-header" data-tauri-drag-region>
           <button
@@ -544,7 +562,9 @@ export function PairedWorkspace({
             {bot && <Avatar seed={bot.id} primary />}
             <span>{bot?.name ?? 'Connect your workspace'}</span>
           </div>
-          <span className="connection-label">{snapshot?.status ?? 'Starting'}</span>
+          <span className="connection-label">
+            {snapshot?.status.replaceAll('_', ' ') ?? 'Starting'}
+          </span>
         </header>
         <div className="conversation paired-conversation">
           {issue && (

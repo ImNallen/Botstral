@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PairedController } from './paired-application';
 import { PairedWorkspace } from './PairedWorkspace';
@@ -92,6 +93,33 @@ function application(initial = snapshot()) {
   } satisfies PairedApplication;
 }
 describe('paired presentation boundary', () => {
+  it('submits the dollar limit selected by the owner in the protocol currency unit', async () => {
+    const value = snapshot();
+    const ready = remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        workers: [{ id, revoked: false, phase: 'ready' }],
+        sessions: [
+          { id, bot_id: id, worker_id: id, owner: 'bot', revision: 1, status: 'confirmed' },
+        ],
+        permissions: [{ bot: id, revision: 2, allow: true }],
+        configurations: [{ bot: id, model: 'mistral-fixture', ready: true, context_tokens: 4096 }],
+      },
+    });
+    const send = vi.fn<PairedApplication['send']>().mockResolvedValue(ready);
+    const controller = new PairedController({ ...application(ready), send });
+    controller.accept(ready);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText('Execution settings and prerequisites'));
+    const limit = screen.getByLabelText('Cost limit in US dollars');
+    await user.clear(limit);
+    await user.type(limit, '0.25');
+    await user.type(screen.getByLabelText('Message'), 'Explain this file');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    expect(send.mock.calls[0]?.[0].cost_microusd).toBe(250000);
+  });
   it('renders durable turns and linked tasks as inert text', () => {
     const controller = new PairedController(application());
     controller.accept(snapshot());

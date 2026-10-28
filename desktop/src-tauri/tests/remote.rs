@@ -111,15 +111,19 @@ async fn wait(
     service: &RemoteService,
     predicate: impl Fn(&OwnerWorkspace) -> bool,
 ) -> OwnerWorkspace {
+    let mut changes = service.observe();
     tokio::time::timeout(Duration::from_secs(20), async {
         loop {
-            let state = service.command(IntentCommand::Refresh).await.unwrap();
+            let state = changes.borrow_and_update().clone();
             if let Some(workspace) = state.workspace
                 && predicate(&workspace)
             {
                 return workspace;
             }
-            tokio::time::sleep(Duration::from_millis(100)).await;
+            changes
+                .changed()
+                .await
+                .expect("native activity channel remains open");
         }
     })
     .await
@@ -239,7 +243,12 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap()
         .review
         .unwrap();
-    public_views.push(serde_json::to_value(service.inspect()).unwrap());
+    let public_review = serde_json::to_value(service.inspect()).unwrap();
+    let action = public_review["review"]["action"].as_str().unwrap();
+    assert!(action.starts_with("1. Write file "));
+    assert!(action.find("Exact contents:").unwrap() < action.find("Execution target").unwrap());
+    assert!(action.contains(&serde_json::to_string_pretty(&review.command).unwrap()));
+    public_views.push(public_review);
     service
         .command(IntentCommand::Approve(review.id))
         .await
