@@ -19,7 +19,7 @@ Each composer submission is a separate durable M04 run. The renderer receives pr
 Native and graphical acceptance boundaries are recorded in [c02-acceptance.md](c02-acceptance.md). Full milestone completion requires the parent's independent review and packaged remote-route walkthrough.
 
 
-The native journal has a separate 1 MiB reader and at most 128 admitted records. It does not use the 64 KiB secret-file reader. Staging opens reject symlinks, hard links, wrong ownership, and wrong permissions before truncation. Complete workspace images retain their installed cursor across process restart.
+The native journal has matching 1 MiB reader and writer limits and at most 128 admitted records. Admission reserves status-growth space and compacts only confirmed or refused operations. Restoration validates the complete journal before installing client authority. Missing or invalid journals block recovery and pairing without changing their bytes. Concurrent sign-out callers serialize before changing lifecycle state and wait for credential deletion. It does not use the 64 KiB secret-file reader. Staging opens reject symlinks, hard links, wrong ownership, and wrong permissions before truncation. Complete workspace images retain their installed cursor across process restart.
 
 The first unit's approval operation compared the approval identity. Implementation tightened this to the complete prior `ApprovalView` after tracing a revoke-between-review-and-grant race. The actual-manager contract proves changed arguments, changed permission revision, and intervening approval revocation all refuse the stale grant.
 

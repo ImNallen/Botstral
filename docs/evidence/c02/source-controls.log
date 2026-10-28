@@ -1,4 +1,4 @@
-C02 source manifest matches 214 files.
+C02 source manifest matches 215 files.
 PASS rejects changed_hash
 PASS rejects missing_file
 PASS rejects extra_file

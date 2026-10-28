@@ -1,6 +1,6 @@
 {
-  "recorded_at": "2026-10-28T09:20:18.243851+00:00",
-  "source_head": "0ea4de9de7337f532ecb7647b305f04c6fa1bc3f",
+  "recorded_at": "2026-10-28T10:05:41.696172+00:00",
+  "source_head": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
   "parent_checks": [
@@ -35,6 +35,21 @@
       "exit_code": 0,
       "negative_controls": 3,
       "evidence": "source-controls.log"
+    },
+    {
+      "command": "make verify-desktop",
+      "exit_code": 0,
+      "frontend_tests": 25,
+      "journal_contracts": 4,
+      "deterministic_lifecycle_tests": 7,
+      "evidence": "desktop-security-final.log",
+      "source": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b"
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-native",
+      "exit_code": 0,
+      "evidence": "native-security-final.log",
+      "source": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b"
     }
   ],
   "packaged_walkthrough": {
@@ -50,11 +65,16 @@
     "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
-    "independent review of sign-out correction",
-    "security review",
+    "fresh independent review of concurrent sign-out and journal corrections",
     "production two-VM acceptance and packaged remote route",
     "final layout capture and video",
     "platform checks outside macOS remain unverified"
   ],
-  "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained."
+  "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",
+  "review_corrections": {
+    "missing_profile_signout": "Independent recheck passed at 7dc6935.",
+    "concurrent_signout": "Reproduced before correction. Seven deterministic lifecycle tests now pass. Fresh independent review pending.",
+    "journal_validation": "Reproduced erasure and unintended mutation. Actual-manager contracts now preserve bytes and block mutations. Fresh independent review pending.",
+    "journal_size": "Reproduced writes exceeding reader limit. Actual-manager restart contract now passes with bounded compaction retaining attention records. Fresh independent review pending."
+  }
 }

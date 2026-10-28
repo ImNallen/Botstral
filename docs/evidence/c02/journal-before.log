@@ -1,0 +1,34 @@
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.00s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-1225872ef5add004)
+
+running 3 tests
+test admitted_journal_must_remain_readable_after_restart ... JOURNAL_OVERFLOW generated_bytes=1138141 admitted_records=45 restore_status=Ok("online") retained_records=0
+
+thread 'admitted_journal_must_remain_readable_after_restart' (614010571) panicked at tests/journal.rs:193:5:
+Native writer exceeded its own reader bound and restart erased admitted records
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... JOURNAL_READ_FAILURE restored_status=Ok("online") restored_disk_records=0 pairing_ok=true mutation_ok=true permission_before=2 permission_after=3 unknown_visible=0
+
+thread 'journal_read_failure_must_preserve_unknown_and_block_mutation' (614011486) panicked at tests/journal.rs:140:5:
+Required storage failure to retain unknown intent and block mutation; actual recovery erased journal and admitted mutation
+FAILED
+test readable_unknown_journal_blocks_mutation_without_replay ... PASS readable unknown journal remains durable, blocks mutations, and leaves manager permission unchanged
+ok
+
+failures:
+
+failures:
+    admitted_journal_must_remain_readable_after_restart
+    journal_read_failure_must_preserve_unknown_and_block_mutation
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.94s
+
+error: test failed, to rerun pass `--test journal`
