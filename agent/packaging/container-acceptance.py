@@ -74,6 +74,8 @@ with sqlite3.connect(restored / 'agent.sqlite3') as db:
     assert db.execute('SELECT incarnation FROM metadata').fetchone()[0] == identity
 assert (certs / 'fixture.pem').read_text() == 'isolated invalid TLS fixture; no network authentication'
 assert interpreter.read_bytes() == original
+result = subprocess.run(['/usr/bin/botstral-agent', 'check', '--state-dir', str(state)], capture_output=True)
+assert result.returncode == 1 and b'InvalidMessage' not in result.stderr and b'connector runtime changed' not in result.stderr, result.stderr
 assert json.loads(subprocess.check_output(diagnostic))['runtime_hashes'] == ['connector.json']
 print(json.dumps({'production_journal_identity_preserved': True, 'selected_certificate_bytes_restored': True, 'connector_interpreter_restored': True, 'connector_tampering_refused': True, 'omitted_connector_runtime_refused': True}))
 '''
