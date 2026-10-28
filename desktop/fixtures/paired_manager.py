@@ -19,8 +19,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path)
     parser.add_argument('--duration', type=int, default=3600)
-    parser.add_argument('--verify-native', action='store_true', help='Run the actual-manager contract with the real OS keychain, then clean up.')
+    verification = parser.add_mutually_exclusive_group()
+    verification.add_argument('--verify-native', action='store_true', help='Run the actual-manager contract with the real OS keychain, then clean up.')
+    verification.add_argument('--verify-journal', action='store_true', help='Run actual-manager journal recovery contracts without an OS keychain.')
+    parser.add_argument('--journal-case', help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.journal_case and not args.verify_journal:
+        parser.error('--journal-case requires --verify-journal')
+    if args.verify_journal and args.journal_case is None:
+        discovery = subprocess.run(['cargo', 'test', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--no-default-features', '--locked', '--test', 'journal', '--', '--list', '--ignored'], cwd=ROOT, capture_output=True, text=True)
+        if discovery.returncode:
+            raise RuntimeError('Journal contract discovery failed.\n'+discovery.stderr)
+        cases = [line[:-6] for line in discovery.stdout.splitlines() if line.endswith(': test')]
+        if not cases:
+            raise RuntimeError('No journal contracts were discovered.')
+        for case in cases:
+            command = [sys.executable, __file__, '--verify-journal', '--journal-case', case]
+            if args.root:
+                command += ['--root', str(args.root/case)]
+            subprocess.run(command, cwd=ROOT, check=True)
+        return
     os.umask(0o077)
     temporary = tempfile.TemporaryDirectory(prefix='botstral-c02-native-') if args.root is None else None
     root = Path(temporary.name) if temporary else args.root.resolve()
@@ -58,6 +76,11 @@ def main():
                 boundary = subprocess.run(['npm', 'test', '--', 'src/paired-contract.test.ts'], cwd=ROOT, env=env)
                 if boundary.returncode:
                     raise RuntimeError('The native renderer boundary contract failed.')
+                return
+            if args.verify_journal:
+                journal = subprocess.run(['cargo', 'test', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--no-default-features', '--locked', '--test', 'journal', args.journal_case, '--', '--ignored', '--exact', '--nocapture'], cwd=ROOT, env=env)
+                if journal.returncode:
+                    raise RuntimeError('The native journal contract failed.')
                 return
             until = time.monotonic()+args.duration
             while process.poll() is None and time.monotonic() < until and not (root/'stop').exists():

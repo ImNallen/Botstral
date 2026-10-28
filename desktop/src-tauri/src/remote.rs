@@ -17,6 +17,9 @@ use std::{
 use tokio::sync::{mpsc, oneshot, watch};
 use uuid::Uuid;
 
+const MAX_JOURNAL_BYTES: usize = 1024 * 1024;
+const MAX_JOURNAL_RECORDS: usize = 128;
+
 #[derive(Clone, Serialize)]
 pub struct PairingCandidate {
     pub id: Uuid,
@@ -193,18 +196,18 @@ fn read_journal(path: &Path) -> Result<Vec<Intent>, String> {
         .open(path)
         .map_err(|_| "storage")?;
     validate_private(&file)?;
-    if file.metadata().map_err(|_| "storage")?.len() > 1024 * 1024 {
+    if file.metadata().map_err(|_| "storage")?.len() > MAX_JOURNAL_BYTES as u64 {
         return Err("storage".into());
     }
     let mut bytes = Vec::new();
-    file.take(1024 * 1024 + 1)
+    file.take(MAX_JOURNAL_BYTES as u64 + 1)
         .read_to_end(&mut bytes)
         .map_err(|_| "storage")?;
-    if bytes.len() > 1024 * 1024 {
+    if bytes.len() > MAX_JOURNAL_BYTES {
         return Err("storage".into());
     }
     let intents: Vec<Intent> = serde_json::from_slice(&bytes).map_err(|_| "storage")?;
-    if intents.len() > 128
+    if intents.len() > MAX_JOURNAL_RECORDS
         || intents.iter().any(|i| {
             !matches!(
                 i.status.as_str(),
@@ -223,7 +226,21 @@ fn read_journal(path: &Path) -> Result<Vec<Intent>, String> {
     {
         return Err("storage".into());
     }
+    check_journal_budget(&intents)?;
     Ok(intents)
+}
+fn check_journal_budget(intents: &[Intent]) -> Result<(), String> {
+    let bytes = serde_json::to_vec(intents).map_err(|_| "storage")?;
+    let reserved_status_bytes = 2 * intents
+        .iter()
+        .filter(|i| matches!(i.status.as_str(), "unknown" | "pending"))
+        .count();
+    if intents.len() > MAX_JOURNAL_RECORDS
+        || bytes.len().saturating_add(reserved_status_bytes) > MAX_JOURNAL_BYTES
+    {
+        return Err("journal_full".into());
+    }
+    Ok(())
 }
 fn error_code(error: ClientError) -> String {
     match error {
@@ -345,6 +362,7 @@ impl RemoteService {
         }
     }
     pub async fn sign_out(&self) -> Result<RemoteSnapshot, String> {
+        let _gate = self.signout_gate.lock().await;
         self.signing_out.store(true, Ordering::Release);
         self.view.send_modify(|v| {
             v.generation += 1;
@@ -357,9 +375,6 @@ impl RemoteService {
             v.intents.clear();
             v.issue = None;
         });
-        let Ok(_gate) = self.signout_gate.try_lock() else {
-            return Ok(self.inspect());
-        };
         self.shutdown().await;
         let written = fs::DirBuilder::new()
             .recursive(true)
@@ -479,24 +494,23 @@ impl Actor {
         if self.store.read().map_err(error_code)?.is_none() {
             return Ok(());
         }
-        self.client =
-            Some(OwnerClient::open_with(&self.root, self.store.clone()).map_err(error_code)?);
-        let journal = self.root.join("intents.json");
-        if journal.exists() {
-            self.intents = read_journal(&journal)?;
-        }
-        if let Some(client) = &self.client
-            && client.trust().is_none()
-        {
-            let pairing = client.pairing_request("Pending desktop".into());
+        let client = OwnerClient::open_with(&self.root, self.store.clone()).map_err(error_code)?;
+        let intents =
+            read_journal(&self.root.join("intents.json")).map_err(|_| "journal_unavailable")?;
+        let image = client.installed_workspace().map_err(error_code)?;
+        let pairing = client
+            .trust()
+            .is_none()
+            .then(|| client.pairing_request("Pending desktop".into()));
+        self.client = Some(client);
+        self.intents = intents;
+        if let Some(pairing) = pairing {
             self.publish(|v| {
                 v.status = "pairing".into();
                 v.pairing = Some(pairing);
             });
         }
-        if let Some(client) = &self.client
-            && let Some(image) = client.installed_workspace().map_err(error_code)?
-        {
+        if let Some(image) = image {
             self.publish(|v| {
                 v.status = "offline".into();
                 v.workspace = Some(image);
@@ -621,7 +635,7 @@ impl Actor {
                 intent.status = "confirmed".into();
             }
         }
-        self.save_intents()?;
+        self.save_intents(&self.intents)?;
         self.reconnect_attempt = 0;
         self.publish(|v| {
             v.status = "online".into();
@@ -660,8 +674,9 @@ impl Actor {
             })
             .collect()
     }
-    fn save_intents(&self) -> Result<(), String> {
-        storage(&self.root, "intents.json", &self.intents)
+    fn save_intents(&self, intents: &[Intent]) -> Result<(), String> {
+        check_journal_budget(intents)?;
+        storage(&self.root, "intents.json", &intents)
     }
     async fn mutate(&mut self, operation: OwnerOperation) -> Result<(), String> {
         self.recover().await?;
@@ -674,20 +689,18 @@ impl Actor {
         if self.intents.iter().any(|i| i.status == "unknown") {
             return Err("unresolved_intent".into());
         }
-        if self.intents.len() >= 128 {
-            self.intents
-                .retain(|i| matches!(i.status.as_str(), "unknown" | "attention"));
-            if self.intents.len() >= 128 {
-                return Err("journal_full".into());
-            }
-        }
         let id = Uuid::new_v4();
-        self.intents.push(Intent {
+        let mut next = self.intents.clone();
+        next.push(Intent {
             id,
             operation: operation.clone(),
             status: "unknown".into(),
         });
-        self.save_intents()?;
+        if check_journal_budget(&next).is_err() {
+            next.retain(|i| !matches!(i.status.as_str(), "confirmed" | "refused"));
+        }
+        self.save_intents(&next)?;
+        self.intents = next;
         self.publish(|v| v.intents = self.intent_views());
         let reply = self
             .session
@@ -698,12 +711,13 @@ impl Actor {
         if let Err(error) = reply {
             if matches!(error, ClientError::Refused(_)) {
                 self.intents.last_mut().ok_or("storage")?.status = "refused".into();
-                self.save_intents()?;
+                self.save_intents(&self.intents)?;
             }
             return Err(error_code(error));
         }
         self.intents.last_mut().ok_or("storage")?.status = "pending".into();
-        self.save_intents().map_err(|_| "unknown_outcome")?;
+        self.save_intents(&self.intents)
+            .map_err(|_| "unknown_outcome")?;
         self.recover().await.map_err(|_| "unknown_outcome".into())
     }
     async fn fetch(
@@ -772,15 +786,43 @@ impl Actor {
                 status
             }
             IntentCommand::Begin { label } => {
+                if label.is_empty() || label.len() > 100 {
+                    return Err("invalid_input".into());
+                }
                 self.session = None;
                 self.client = None;
-                if self.view.borrow().issue.as_deref() == Some("revoked") {
+                let revoked = self.view.borrow().issue.as_deref() == Some("revoked");
+                let signed_out = self.root.join("signed-out.json").exists();
+                let intents = if revoked || signed_out {
                     self.store.delete().map_err(error_code)?;
-                    self.intents.clear();
-                    self.save_intents()?;
                     for name in ["workspace.json", "state.json"] {
                         let _ = fs::remove_file(self.root.join(name));
                     }
+                    Vec::new()
+                } else {
+                    let journal = self.root.join("intents.json");
+                    let has_journal = match fs::symlink_metadata(&journal) {
+                        Ok(_) => true,
+                        Err(error) if error.kind() == std::io::ErrorKind::NotFound => false,
+                        Err(_) => return Err("journal_unavailable".into()),
+                    };
+                    if self.store.read().map_err(error_code)?.is_some() || has_journal {
+                        read_journal(&journal).map_err(|_| "journal_unavailable")?
+                    } else {
+                        Vec::new()
+                    }
+                };
+                let pairing = OwnerClient::initialize_with(&self.root, label, self.store.clone())
+                    .map_err(error_code)?;
+                let client =
+                    OwnerClient::open_with(&self.root, self.store.clone()).map_err(error_code)?;
+                self.save_intents(&intents)?;
+                if signed_out {
+                    fs::remove_file(self.root.join("signed-out.json")).map_err(|_| "storage")?;
+                }
+                self.client = Some(client);
+                self.intents = intents;
+                if revoked {
                     self.generation += 1;
                     self.view.send_modify(|v| {
                         v.generation = self.generation;
@@ -791,27 +833,6 @@ impl Actor {
                         v.intents.clear();
                     });
                 }
-                if label.is_empty() || label.len() > 100 {
-                    return Err("invalid_input".into());
-                }
-                if self.root.join("signed-out.json").exists() {
-                    self.store.delete().map_err(error_code)?;
-                }
-                if self.root.join("signed-out.json").exists() {
-                    self.intents.clear();
-                    self.save_intents()?;
-                    for name in ["workspace.json", "state.json"] {
-                        let _ = fs::remove_file(self.root.join(name));
-                    }
-                }
-                let pairing = OwnerClient::initialize_with(&self.root, label, self.store.clone())
-                    .map_err(error_code)?;
-                if self.root.join("signed-out.json").exists() {
-                    fs::remove_file(self.root.join("signed-out.json")).map_err(|_| "storage")?;
-                }
-                self.client = Some(
-                    OwnerClient::open_with(&self.root, self.store.clone()).map_err(error_code)?,
-                );
                 self.publish(|v| {
                     v.status = "pairing".into();
                     v.issue = None;
@@ -947,7 +968,7 @@ impl Actor {
                     .find(|i| i.id == id && i.status == "unknown")
                     .ok_or("stale")?;
                 intent.status = "attention".into();
-                self.save_intents()?;
+                self.save_intents(&self.intents)?;
                 self.publish(|v| v.intents = self.intent_views());
                 Ok(())
             }

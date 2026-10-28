@@ -10,4 +10,5 @@ cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets --locked
 cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked
 cargo build -p botstral-manager --locked
 cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked --test local -- --ignored --test-threads=1 --nocapture
+python3 desktop/fixtures/paired_manager.py --verify-journal
 npm run desktop -- build --debug --no-bundle

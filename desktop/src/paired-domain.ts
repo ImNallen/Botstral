@@ -231,6 +231,10 @@ export const remoteIssues: Record<string, string> = {
     'The reply was lost. The saved operation identity is retained. Refresh to reconcile. Do not submit a replacement.',
   unresolved_intent:
     'A saved operation has an unknown outcome. Refresh to reconcile it before sending more work.',
+  journal_unavailable:
+    'The saved operation journal cannot be validated. New work is blocked. Restore its protected permissions or recover the profile before continuing.',
+  journal_full:
+    'The saved operation journal is full. Reconcile uncertain work before starting another action.',
   inference_unverified:
     'Verify a tool-capable inference configuration for this bot in trusted manager administration.',
   configure_inference_locally:

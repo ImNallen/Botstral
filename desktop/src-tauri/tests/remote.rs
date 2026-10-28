@@ -147,6 +147,67 @@ async fn sign_out_clears_native_authority_when_the_profile_directory_was_removed
     }
 }
 
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn concurrent_sign_out_callers_wait_until_native_deletion_finishes() {
+    struct BlockingDeletion {
+        inner: TestStore,
+        entered: Mutex<Option<tokio::sync::oneshot::Sender<()>>>,
+        released: (Mutex<bool>, std::sync::Condvar),
+    }
+    impl SecretStore for BlockingDeletion {
+        fn read(&self) -> Result<Option<Zeroizing<Vec<u8>>>, ClientError> {
+            self.inner.read()
+        }
+        fn replace(&self, bytes: Zeroizing<Vec<u8>>) -> Result<(), ClientError> {
+            self.inner.replace(bytes)
+        }
+        fn delete(&self) -> Result<(), ClientError> {
+            if let Some(entered) = self.entered.lock().unwrap().take() {
+                let _ = entered.send(());
+                let mut released = self.released.0.lock().unwrap();
+                while !*released {
+                    released = self.released.1.wait(released).unwrap();
+                }
+            }
+            self.inner.delete()
+        }
+    }
+    let directory = tempfile::tempdir().unwrap();
+    let (entered, deleting) = tokio::sync::oneshot::channel();
+    let store = Arc::new(BlockingDeletion {
+        inner: TestStore::default(),
+        entered: Mutex::new(Some(entered)),
+        released: (Mutex::new(false), std::sync::Condvar::new()),
+    });
+    let service = RemoteService::new(directory.path().join("owner"), store.clone());
+    service
+        .command(IntentCommand::Begin {
+            label: "Concurrent sign-out".into(),
+        })
+        .await
+        .unwrap();
+    let first_service = service.clone();
+    let first = tokio::spawn(async move { first_service.sign_out().await });
+    deleting.await.unwrap();
+    assert!(store.read().unwrap().is_some());
+    let second_service = service.clone();
+    let mut second = tokio::spawn(async move { second_service.sign_out().await });
+    let returned_early = tokio::time::timeout(Duration::from_millis(100), &mut second)
+        .await
+        .is_ok();
+    *store.released.0.lock().unwrap() = true;
+    store.released.1.notify_all();
+    first.await.unwrap().unwrap();
+    if !returned_early {
+        second.await.unwrap().unwrap();
+    }
+    assert!(store.read().unwrap().is_none());
+    assert!(
+        !returned_early,
+        "A concurrent sign-out reported success while native deletion was blocked"
+    );
+}
+
 async fn wait(
     service: &RemoteService,
     predicate: impl Fn(&OwnerWorkspace) -> bool,
