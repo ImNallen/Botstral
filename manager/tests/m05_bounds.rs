@@ -3,8 +3,8 @@ use std::mem::size_of;
 
 #[test]
 fn admitted_snapshot_and_temporary_storage_fit_recovery_budgets() {
-    assert_eq!(OWNER_SNAPSHOT_SERIALIZED_BOUND, 64_317_440);
-    assert_eq!(OWNER_SNAPSHOT_ALLOCATION_BOUND, 67_272_704);
+    assert_eq!(OWNER_SNAPSHOT_SERIALIZED_BOUND, 64_350_208);
+    assert_eq!(OWNER_SNAPSHOT_ALLOCATION_BOUND, 67_338_240);
     const {
         assert!(OWNER_SNAPSHOT_SERIALIZED_BOUND < OWNER_TRANSFER_BYTES);
     }

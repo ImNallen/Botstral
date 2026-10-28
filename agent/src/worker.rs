@@ -19,10 +19,16 @@ impl Worker {
             test_worker,
         })
     }
+    pub fn connector_settlements(&self) -> io::Result<Vec<crate::connector::Settlement>> {
+        self.journal.connector_settlements()
+    }
     pub fn hello(&self) -> Hello {
         let mut hello = Hello::current(self.test_worker);
         if self.journal.process_capable() {
             hello.capabilities.push(Capability::ProcessSystemdV1);
+        }
+        if self.journal.connector_capable() {
+            hello.capabilities.push(Capability::ConnectorV1);
         }
         if self.journal.vibe_capable() {
             hello.capabilities.push(Capability::VibeV1);

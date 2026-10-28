@@ -42,6 +42,9 @@ pub(in crate::manager) fn decode(name: &str, arguments: &str) -> Result<ToolProp
 
 pub(in crate::manager) fn function(proposal: &ToolProposal) -> Value {
     match proposal {
+        ToolProposal::Connector(args) => {
+            json!({"name":args.tool.public_name(),"arguments":serde_json::to_string(&args.arguments).expect("arguments serialize")})
+        }
         ToolProposal::Vibe(args) => {
             json!({"name":"vibe","arguments":serde_json::to_string(args).expect("proposal serializes")})
         }
@@ -60,6 +63,27 @@ pub(in crate::manager) fn translate(
     deadline: i64,
 ) -> Result<WorkSpec, ErrorCode> {
     match proposal {
+        ToolProposal::Connector(args) => {
+            let policy = policy
+                .connectors
+                .as_ref()
+                .ok_or(ErrorCode::UnsupportedExecution)?;
+            if !policy.tools.contains(&args.tool) {
+                return Err(ErrorCode::UnsupportedExecution);
+            }
+            let spec = ConnectorSpec {
+                operation: ConnectorOperation::Call {
+                    proposal: args.clone(),
+                },
+                runner: policy.runner.clone(),
+                deadline,
+                result: connector_output(policy.max_result_bytes.min(MAX_RUN_TEXT_BYTES as u32)),
+            };
+            spec.validate()?;
+            Ok(WorkSpec::Connector {
+                spec: Box::new(spec),
+            })
+        }
         ToolProposal::Vibe(args) => {
             let p = policy
                 .vibe
@@ -167,8 +191,12 @@ pub(in crate::manager) fn validate_policy(
         && policy.process.is_none()
         && policy.vibe.is_none()
         && policy.vision.is_none()
+        && policy.connectors.is_none()
     {
         return Err(ErrorCode::InvalidMessage);
+    }
+    if let Some(connectors) = &policy.connectors {
+        connectors.validate()?;
     }
     if let Some(computer) = &policy.computer {
         ComputerSpec {

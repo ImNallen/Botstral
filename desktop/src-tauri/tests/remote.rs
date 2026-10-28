@@ -551,6 +551,7 @@ async fn a_journal_larger_than_secret_file_limits_restores_without_credentials_o
                     images: vec![],
                     prompt: "a".repeat(4096),
                     execution_policy: RunExecutionPolicy {
+                        connectors: None,
                         vision: None,
                         vibe: None,
                         computer: None,

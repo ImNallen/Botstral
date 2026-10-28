@@ -2,6 +2,7 @@ mod artifacts;
 #[cfg(test)]
 mod backup_tests;
 mod coding;
+mod connectors;
 mod devices;
 mod inference;
 mod memory;
@@ -75,7 +76,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 8 {
+    if version > 9 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -116,6 +117,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 8 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0008.sql"))?;
+        tx.commit()?;
+    }
+    if version < 9 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0009.sql"))?;
         tx.commit()?;
     }
     connection.execute(
@@ -196,6 +202,7 @@ impl State {
         state.recover_inferences(false)?;
         state.recover_runs(false)?;
         state.recover_coding()?;
+        state.recover_connectors()?;
         Ok(state)
     }
 
@@ -614,12 +621,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 9).unwrap();
+        db.pragma_update(None, "user_version", 10).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            9
+            10
         );
     }
 

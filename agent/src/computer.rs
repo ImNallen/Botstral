@@ -117,6 +117,7 @@ impl Configuration {
             spec: launch.lower(),
             computer: Some(launch),
             vibe: None,
+            connector: None,
             expires_at: process::now() + 30,
         };
         process::write(&directory.join("manifest.json"), &manifest)?;

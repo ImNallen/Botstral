@@ -86,6 +86,8 @@ pub(super) fn run(directory: &Path) -> io::Result<()> {
     let manifest: Manifest = read(&directory.join("manifest.json"))?;
     if let Some(computer) = &manifest.computer {
         computer.verify(&manifest.spec)?;
+    } else if let Some(connector) = &manifest.connector {
+        connector.verify(&manifest.spec)?;
     } else if let Some(vibe) = &manifest.vibe {
         vibe.verify(&manifest.spec)?;
     } else {

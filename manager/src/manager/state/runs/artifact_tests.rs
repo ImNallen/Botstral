@@ -68,6 +68,7 @@ fn collection_validates_files_and_exposes_only_bounded_untrusted_text() {
             symlink(&actual, &file).unwrap();
         }
         let permit = CollectPermit {
+            connectors: vec![],
             run: f.input.id,
             turn: RunTurnId::new(),
             task,

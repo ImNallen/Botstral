@@ -1,4 +1,5 @@
 pub(crate) mod coding;
+pub(crate) mod connectors;
 mod crypto;
 pub(crate) mod devices;
 mod inference;
@@ -189,6 +190,7 @@ pub struct Manager {
     provider: provider::Provider,
     events: watch::Receiver<u64>,
     pub(crate) snapshots: Arc<Semaphore>,
+    connector_capacity: Arc<Semaphore>,
 }
 #[derive(Clone)]
 pub struct LocalSetup {
@@ -262,6 +264,7 @@ impl Manager {
                         provider,
                         events,
                         snapshots: Arc::new(Semaphore::new(1)),
+                        connector_capacity: Arc::new(Semaphore::new(4)),
                     },
                     setup,
                     thread,

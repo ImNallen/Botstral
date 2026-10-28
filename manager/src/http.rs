@@ -1,3 +1,4 @@
+mod connectors;
 mod devices;
 mod inference;
 mod runs;
@@ -250,6 +251,7 @@ pub(crate) fn regular_router(manager: Manager) -> Router {
         .merge(tasks::router())
         .merge(inference::router())
         .merge(runs::router())
+        .merge(connectors::router())
         .route(
             "/health",
             get(|| async { Json(serde_json::json!({"status":"ok"})) }),

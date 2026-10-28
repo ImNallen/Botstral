@@ -574,6 +574,9 @@ impl State {
             && task.approval.binding.as_ref() == Some(&binding)
             && policy.allow
             && policy.revision == binding.permission_revision
+            && self
+                .validate_connector_work(task.command.bot, task.command.worker, &task.command.work)
+                .is_ok()
             && binding.expires_at > self.now()
             && task.request.settings.deadline > self.now();
         if !valid {
@@ -597,6 +600,20 @@ impl State {
         save(&tx, &task)?;
         for output in task.command.work.outputs() {
             tx.execute("INSERT INTO artifacts(id,task,worker,journal,execution,slot,reserved) VALUES(?1,?2,?3,?4,?5,?6,?7)",params![ArtifactId::new().to_string(),task.id.to_string(),lease.worker.to_string(),incarnation.to_string(),task.command.execution.to_string(),output.slot,output.max_bytes as i64])?;
+        }
+        if matches!(
+            task.command.work,
+            WorkSpec::Vibe { .. } | WorkSpec::Connector { .. }
+        ) {
+            tx.execute(
+                "INSERT INTO connector_leases VALUES(?1,?2,?3,?4)",
+                params![
+                    task.id.to_string(),
+                    task.command.execution.to_string(),
+                    lease.generation.get() as i64,
+                    json(&fence)?
+                ],
+            )?;
         }
         if matches!(task.command.work, WorkSpec::Vibe { .. }) {
             tx.execute(
@@ -631,6 +648,7 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
         WorkSpec::Process { .. } => capabilities.contains(&Capability::ProcessSystemdV1),
         WorkSpec::Computer { .. } => capabilities.contains(&Capability::ComputerV1),
         WorkSpec::Vibe { .. } => capabilities.contains(&Capability::VibeV1),
+        WorkSpec::Connector { .. } => capabilities.contains(&Capability::ConnectorV1),
     }
 }
 

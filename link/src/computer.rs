@@ -156,13 +156,17 @@ impl WorkSpec {
     pub fn supervised(&self) -> bool {
         matches!(
             self,
-            Self::Process { .. } | Self::Computer { .. } | Self::Vibe { .. }
+            Self::Process { .. }
+                | Self::Computer { .. }
+                | Self::Vibe { .. }
+                | Self::Connector { .. }
         )
     }
     pub fn outputs(&self) -> &[OutputDeclaration] {
         match self {
             Self::Computer { spec } => &spec.outputs,
             Self::Vibe { spec } => &spec.policy.outputs,
+            Self::Connector { spec } => std::slice::from_ref(&spec.result),
             _ => &[],
         }
     }

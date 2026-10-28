@@ -301,6 +301,8 @@ pub struct AuthoritativeEvent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct OwnerSnapshot {
+    #[serde(default)]
+    pub connections: Vec<ConnectionSummary>,
     pub tasks: Vec<TaskView>,
     pub runs: Vec<crate::RunSummary>,
     pub inferences: Vec<crate::InferenceView>,

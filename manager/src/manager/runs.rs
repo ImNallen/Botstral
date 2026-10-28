@@ -22,6 +22,7 @@ pub(super) struct CollectPermit {
     pub run: RunId,
     pub turn: RunTurnId,
     pub task: TaskView,
+    pub connectors: Vec<ConnectorCallView>,
     pub directory: PathBuf,
     pub secret: SecretString,
 }
@@ -55,7 +56,13 @@ pub(super) fn start(
             if *stopped.borrow() {
                 break;
             }
-            if let Err(error) = queue.call_wait(|s| s.reconcile_run_stops()).await {
+            if let Err(error) = queue
+                .call_wait(|s| {
+                    s.reconcile_connectors()?;
+                    s.reconcile_run_stops()
+                })
+                .await
+            {
                 failure = Some(error);
                 break;
             }

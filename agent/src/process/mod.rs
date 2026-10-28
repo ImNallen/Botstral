@@ -55,6 +55,8 @@ pub(crate) struct Manifest {
     pub computer: Option<crate::computer::Launch>,
     #[serde(default)]
     pub vibe: Option<crate::vibe::Launch>,
+    #[serde(default)]
+    pub connector: Option<crate::connector::Launch>,
     pub expires_at: i64,
 }
 impl Manifest {

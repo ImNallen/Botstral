@@ -207,6 +207,9 @@ impl State {
             return Err(OperationError::InvalidInput);
         }
         tools::validate_policy(&request.execution_policy, limits.deadline)?;
+        if let Some(policy) = &request.execution_policy.connectors {
+            self.permitted_connector_catalog(request.bot, policy)?;
+        }
         if let Some(vision) = &request.execution_policy.vision {
             vision.validate()?;
         }
@@ -365,22 +368,28 @@ impl State {
         }
         Ok(())
     }
+    pub(in crate::manager) fn parent_run(
+        &self,
+        task: TaskId,
+    ) -> Result<Option<RunView>, OperationError> {
+        let run: Option<String> = self
+            .connection
+            .query_row(
+                "SELECT run FROM run_children WHERE task=?1",
+                [task.to_string()],
+                |r| r.get(0),
+            )
+            .optional()?;
+        run.map(|id| self.load_run(id.parse().map_err(|_| OperationError::Internal)?))
+            .transpose()
+    }
     pub(in crate::manager) fn run_child_eligible(
         &self,
         task: &TaskView,
     ) -> Result<bool, OperationError> {
-        let id: Option<String> = self
-            .connection
-            .query_row(
-                "SELECT run FROM run_children WHERE task=?1",
-                [task.id.to_string()],
-                |r| r.get(0),
-            )
-            .optional()?;
-        let Some(id) = id else {
+        let Some(view) = self.parent_run(task.id)? else {
             return Ok(true);
         };
-        let view = self.load_run(id.parse().map_err(|_| OperationError::Internal)?)?;
         let limits = &view.request.limits;
         if self.run_admission_stopped()
             || view.summary.cancellation_requested_at.is_some()
@@ -496,6 +505,18 @@ impl State {
                         &turn.messages,
                         Some(&view.request.execution_policy),
                     );
+                    if let Some(policy) = &view.request.execution_policy.connectors {
+                        match self.permitted_connector_catalog(view.request.bot, policy) {
+                            Ok(catalog) => prepared.connector_tools(catalog),
+                            Err(_) => {
+                                view.summary.phase = RunPhase::Stopped {
+                                    reason: RunStopReason::ConfigurationChanged,
+                                };
+                                save_summary(&self.connection, &view.summary)?;
+                                continue;
+                            }
+                        }
+                    }
                     let provider_request = prepared.encoded();
                     if provider_request.len() > MAX_PROVIDER_REQUEST {
                         return Err(OperationError::Internal);
@@ -577,6 +598,7 @@ impl State {
                         return Ok(Some(RunJob::Collect(Box::new(CollectPermit {
                             run: summary.id,
                             turn,
+                            connectors: self.task_connector_calls(task.id)?,
                             task,
                             directory: self.directory.clone(),
                             secret: match self.provider_secret() {

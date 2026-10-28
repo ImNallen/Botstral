@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-pub const VERSION: u16 = 3;
+pub const VERSION: u16 = 4;
 pub const MAX_MESSAGE: usize = 64 * 1024;
 pub const MAX_SESSIONS: usize = 64;
 pub const MAX_PENDING: usize = 128;
@@ -83,6 +83,8 @@ mod computer;
 pub use computer::*;
 mod vision;
 pub use vision::*;
+mod connector;
+pub use connector::*;
 mod vibe;
 pub use vibe::*;
 mod process;
@@ -184,6 +186,7 @@ pub enum Capability {
     ProcessSystemdV1,
     VibeV1,
     ComputerV1,
+    ConnectorV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -307,6 +310,7 @@ pub enum WorkSpec {
     Process { spec: Box<ProcessSpec> },
     Vibe { spec: Box<VibeSpec> },
     Computer { spec: Box<ComputerSpec> },
+    Connector { spec: Box<ConnectorSpec> },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

@@ -154,11 +154,16 @@ export type WorkSpec =
   | {
       spec: ComputerSpec;
       type: 'computer';
+    }
+  | {
+      spec: ConnectorSpec;
+      type: 'connector';
     };
 export type ProcessProfile = 'linux_systemd_v1';
 export type VibeAccess = 'edit_files_as_guest_account';
-export type MediaType = 'png' | 'text_plain' | 'octet_stream';
 export type CertificateFingerprint = string;
+export type ConnectionId = string;
+export type MediaType = 'png' | 'text_plain' | 'octet_stream';
 export type CodingWorkspaceId = string;
 export type VibeSession =
   | {
@@ -208,6 +213,15 @@ export type ComputerOperation =
       type: 'export_file';
     };
 export type ComputerProfile = 'linux_playwright_v1';
+export type ConnectorOperation =
+  | {
+      connection: ConnectionVersion;
+      type: 'discover';
+    }
+  | {
+      proposal: ConnectorProposal;
+      type: 'call';
+    };
 export type WorkerId = string;
 export type InputOwner = 'bot' | 'owner';
 export type Revision = number;
@@ -265,6 +279,8 @@ export type ErrorCode =
   | 'disconnected'
   | 'conflict';
 export type ManagerId = string;
+export type ConnectionAvailability =
+  'needs_discovery' | 'ready' | 'authentication_required' | 'unavailable' | 'revoked';
 export type ConversationId = string;
 export type InferenceVerification =
   | {
@@ -475,6 +491,59 @@ export type OwnerClientMessage =
     };
 export type OwnerOperation =
   | {
+      input: InstallConnection;
+      method: 'install_connection';
+    }
+  | {
+      method: 'connections';
+    }
+  | {
+      id: ConnectionId;
+      method: 'connection';
+    }
+  | {
+      input: DiscoverConnection;
+      method: 'discover_connection';
+    }
+  | {
+      id: ConnectionId;
+      input: ReplaceConnectionSecret;
+      method: 'replace_connection_secret';
+    }
+  | {
+      expected_revision: number;
+      id: ConnectionId;
+      method: 'reconnect_connection';
+    }
+  | {
+      expected_revision: number;
+      id: ConnectionId;
+      method: 'revoke_connection';
+    }
+  | {
+      bot: BotId;
+      connection: ConnectionId;
+      method: 'connector_grants';
+    }
+  | {
+      bot: BotId;
+      input: SetConnectorGrants;
+      method: 'set_connector_grants';
+    }
+  | {
+      bot: BotId;
+      method: 'connector_tools';
+    }
+  | {
+      method: 'connector_calls';
+      task: TaskId;
+    }
+  | {
+      after: number;
+      connection: ConnectionId;
+      method: 'connector_audit';
+    }
+  | {
       method: 'workspace';
     }
   | {
@@ -608,6 +677,36 @@ export type OwnerOperation =
       method: 'coding_calls';
       task: TaskId;
     };
+export type ConnectionTransport =
+  | {
+      endpoint: string;
+      type: 'remote_http';
+    }
+  | {
+      account: ProcessAccount;
+      arguments: string[];
+      cwd: string;
+      environment: {
+        [k: string]: string;
+      };
+      executable: string;
+      type: 'worker_stdio';
+      worker: WorkerId;
+    };
+export type ConnectionSecretInput =
+  | {
+      type: 'none';
+    }
+  | {
+      type: 'bearer';
+      value: string;
+    }
+  | {
+      type: 'local_environment';
+      values: {
+        [k: string]: string;
+      };
+    };
 export type DeviceFingerprint = string;
 export type DeviceId = string;
 export type DeviceRole = 'owner' | 'worker';
@@ -628,6 +727,30 @@ export type OwnerHello =
       version: number;
     };
 export type OwnerReply =
+  | {
+      type: 'connection';
+      value: ConnectionView;
+    }
+  | {
+      type: 'connections';
+      value: ConnectionView[];
+    }
+  | {
+      type: 'connector_grants';
+      value: BotConnectorGrants;
+    }
+  | {
+      type: 'connector_tools';
+      value: ConnectorToolDefinition[];
+    }
+  | {
+      type: 'connector_calls';
+      value: ConnectorCallView[];
+    }
+  | {
+      type: 'connector_audit';
+      value: ConnectorAudit[];
+    }
   | {
       type: 'workspace';
       value: OwnerWorkspace;
@@ -691,6 +814,50 @@ export type OwnerReply =
         declaration: OutputDeclaration;
       };
     };
+export type ConnectorCallId = string;
+export type ConnectorResult =
+  | {
+      tools: McpTool[];
+      type: 'catalog';
+    }
+  | {
+      type: 'tool';
+      value: unknown;
+    };
+export type ConnectorCallState =
+  | {
+      type: 'reserved';
+    }
+  | {
+      type: 'dispatch_possible';
+    }
+  | {
+      outcome: ConnectorOutcome;
+      type: 'resolved';
+    };
+export type ConnectorOutcome =
+  | {
+      reason: ConnectorFailure;
+      type: 'not_sent';
+    }
+  | {
+      result: ConnectorResult;
+      type: 'finished';
+    }
+  | {
+      reason: ConnectorFailure;
+      type: 'unknown';
+    };
+export type ConnectorFailure =
+  | 'authority'
+  | 'authentication'
+  | 'catalog_changed'
+  | 'protocol'
+  | 'bound'
+  | 'transport'
+  | 'deadline'
+  | 'restart'
+  | 'interrupted';
 export type RunAttemptId = string;
 export type ToolProposal =
   | {
@@ -704,6 +871,10 @@ export type ToolProposal =
   | {
       arguments: VibeProposal;
       tool: 'vibe';
+    }
+  | {
+      arguments: ConnectorProposal;
+      tool: 'connector';
     };
 export type RunMessage =
   | {
@@ -962,7 +1133,13 @@ export type SealedOutput =
     };
 export type JournalPhase = 'prepared' | 'claim_pending' | 'admitted' | 'resolved' | 'uncertain' | 'stopped';
 export type Capability =
-  'logical_sessions' | 'input_fencing' | 'test_input' | 'process_systemd_v1' | 'vibe_v1' | 'computer_v1';
+  | 'logical_sessions'
+  | 'input_fencing'
+  | 'test_input'
+  | 'process_systemd_v1'
+  | 'vibe_v1'
+  | 'computer_v1'
+  | 'connector_v1';
 export type ReleaseChannel = 'stable' | 'experimental';
 
 export interface Protocol {
@@ -1126,11 +1303,35 @@ export interface VibePolicy {
   access: VibeAccess;
   account: ProcessAccount;
   configuration_revision: number;
+  connectors?: ConnectorToolPolicy | null;
   model_id: string;
   outputs: OutputDeclaration[];
   resources: ProcessLimits;
   runtime: CertificateFingerprint;
   workspace: CodingWorkspace;
+}
+export interface ConnectorToolPolicy {
+  max_calls: number;
+  max_result_bytes: number;
+  runner: ConnectorRunner;
+  tools: ConnectorToolBinding[];
+}
+export interface ConnectorRunner {
+  account: ProcessAccount;
+  limits: ProcessLimits;
+  runtime: CertificateFingerprint;
+}
+export interface ConnectorToolBinding {
+  catalog_revision: number;
+  connection: ConnectionVersion;
+  grant_revision: number;
+  name: string;
+  schema_digest: CertificateFingerprint;
+}
+export interface ConnectionVersion {
+  connection: ConnectionId;
+  credential_epoch: number;
+  revision: number;
 }
 export interface OutputDeclaration {
   max_bytes: number;
@@ -1159,6 +1360,16 @@ export interface Viewport {
   height: number;
   width: number;
 }
+export interface ConnectorSpec {
+  deadline: number;
+  operation: ConnectorOperation;
+  result: OutputDeclaration;
+  runner: ConnectorRunner;
+}
+export interface ConnectorProposal {
+  arguments: unknown;
+  tool: ConnectorToolBinding;
+}
 export interface InputFence {
   generation: Generation;
   owner: InputOwner;
@@ -1181,6 +1392,7 @@ export interface ManagerTrust {
   server_name: string;
 }
 export interface OwnerSnapshot {
+  connections?: ConnectionSummary[];
   conversations: Conversation[];
   documents: Document[];
   inference_configurations: InferenceConfiguration[];
@@ -1189,6 +1401,14 @@ export interface OwnerSnapshot {
   permissions: Permission[];
   runs: RunSummary[];
   tasks: TaskView[];
+}
+export interface ConnectionSummary {
+  availability: ConnectionAvailability;
+  catalog_revision: number;
+  id: ConnectionId;
+  label: string;
+  tool_count: number;
+  version: ConnectionVersion;
 }
 export interface Conversation {
   bot: BotId;
@@ -1312,6 +1532,28 @@ export interface TaskSettings {
   max_turns: number;
   model: string;
 }
+export interface InstallConnection {
+  id: ConnectionId;
+  label: string;
+  transport: ConnectionTransport;
+}
+export interface DiscoverConnection {
+  deadline: number;
+  expected: ConnectionVersion;
+  runner: ConnectorRunner;
+  session: ComputerSessionId;
+  task: TaskId;
+}
+export interface ReplaceConnectionSecret {
+  expected_revision: number;
+  secret: ConnectionSecretInput;
+}
+export interface SetConnectorGrants {
+  catalog_revision: number;
+  connection: ConnectionVersion;
+  expected_revision: number;
+  tools: string[];
+}
 export interface SubmitRun {
   bot: BotId;
   configuration_revision: number;
@@ -1324,6 +1566,7 @@ export interface SubmitRun {
 }
 export interface RunExecutionPolicy {
   computer?: ComputerToolPolicy | null;
+  connectors?: ConnectorToolPolicy | null;
   process?: ProcessToolPolicy | null;
   vibe?: VibeToolPolicy | null;
   vision?: VisionPolicy | null;
@@ -1374,6 +1617,51 @@ export interface OwnerInvitation {
   invitation: string;
   role: DeviceRole;
   trust: ManagerTrust;
+}
+export interface ConnectionView {
+  availability: ConnectionAvailability;
+  catalog_revision: number;
+  id: ConnectionId;
+  label: string;
+  tools: McpTool[];
+  transport: ConnectionTransport;
+  version: ConnectionVersion;
+}
+export interface McpTool {
+  description: string;
+  input_schema: unknown;
+  name: string;
+}
+export interface BotConnectorGrants {
+  bot: BotId;
+  connection: ConnectionId;
+  revision: number;
+  tools: ConnectorToolBinding[];
+}
+export interface ConnectorToolDefinition {
+  binding: ConnectorToolBinding;
+  description: string;
+  input_schema: unknown;
+}
+export interface ConnectorCallView {
+  argument_digest: CertificateFingerprint;
+  connection: ConnectionVersion;
+  created_at: number;
+  execution: ExecutionId;
+  id: ConnectorCallId;
+  late_result?: ConnectorResult | null;
+  revoked_during_call_at?: number | null;
+  state: ConnectorCallState;
+  task: TaskId;
+  tool?: ConnectorToolBinding | null;
+}
+export interface ConnectorAudit {
+  at: number;
+  call?: ConnectorCallId | null;
+  code: string;
+  connection: ConnectionId;
+  digest?: CertificateFingerprint | null;
+  sequence: number;
 }
 export interface OwnerWorkspace {
   bots: WorkspaceBot[];
