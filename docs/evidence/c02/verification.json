@@ -1,6 +1,6 @@
 {
   "recorded_at": "2026-10-28T10:29:02.502990+00:00",
-  "source_head": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+  "source_head": "b75e7aa79190d2e978d06dab72481e3c3d282233",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
   "parent_checks": [
@@ -77,6 +77,13 @@
       "journal_contracts": 4,
       "deterministic_lifecycle_tests": 7,
       "evidence": "final-desktop.log"
+    },
+    {
+      "command": "python3 -W error::ResourceWarning manager/tests/c02_browser_cleanup.py",
+      "exit_code": 0,
+      "tests": 3,
+      "source": "b75e7aa79190d2e978d06dab72481e3c3d282233",
+      "evidence": "browser-cleanup-regressions.log"
     }
   ],
   "packaged_walkthrough": {
@@ -92,7 +99,7 @@
     "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
-    "independent review of browser-policy correction and production test support",
+    "independent recheck of the browser verification helper cleanup correction",
     "platform and operating-system observations listed in docs/c02-acceptance.md"
   ],
   "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",

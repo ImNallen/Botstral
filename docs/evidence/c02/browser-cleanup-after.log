@@ -1,0 +1,2 @@
+ISSUES native composer browser, actual DOM/file effects and verified exports: injected send transport failure
+{"case": "cleanup-error", "escaped_error": null, "helper_return": 1, "invitation_exists": false, "private_directory_exists": false, "results_exists": true}

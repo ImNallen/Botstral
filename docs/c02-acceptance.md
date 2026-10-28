@@ -1,6 +1,6 @@
 # C02 acceptance record
 
-The macOS paired desktop workflow passed in the packaged app over the public relay with the real production worker. Journal and lifecycle corrections passed independent review at `d5ecb8c`. Final independent review of the later browser-policy correction and production test support remains open. No production deployment or merge occurred.
+The macOS paired desktop workflow passed in the packaged app over the public relay with the real production worker. Journal and lifecycle corrections passed independent review at `d5ecb8c`. Final independent delta review reproduced no production policy defect. It found a verification-helper cleanup defect, now corrected with passing regressions. Independent recheck of that helper correction remains open. No production deployment or merge occurred.
 
 ## Paired workflow
 

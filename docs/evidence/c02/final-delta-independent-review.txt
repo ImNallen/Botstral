@@ -1,0 +1,99 @@
+# C02 final delta review
+
+The goal is a packaged paired desktop that connects through manager WSS, restores history, submits durable runs, reviews exact effects, cancels worker work, and saves verified results. This focused review found one P2 defect in the new acceptance helper. No production behavior defect was reproduced in the browser-policy correction. The helper finding needs correction. This is not C02 deployment or merge approval.
+
+## Exact scope
+
+Reviewed by `gpt-6.1-sol` with high reasoning effort in `/Users/nallen/.t3/worktrees/Botstral/t3-0ba48559`.
+
+- HEAD is `d2aa2481a6a5cba6c326b966057e2ddd50f8fe24`.
+- Base is `6c2b70b03295cdc8a5f69411f0bb0628f383c7fd`. The observed merge base equals it.
+- This review owns the delta after `d5ecb8c1424e6461d6b47f9539913258e761d498`, comprising `5a91719`, `b6081d2`, and `d2aa248`.
+- The earlier `gpt-6-astra` security and `gpt-6-luna` lifecycle verdicts remain unchanged at their reviewed source. I read both retained reports. Their executions are not my independent passes.
+
+I read the requested poteto-mode skill in full, project `AGENTS.md`, the four requested C02 documents, the changed code, and the parent evidence records. The throughput checkpoint is not applicable to this read-only investigation. The explicit prohibition on subagents overrides the skills' delegation steps. No subagents ran.
+
+## Finding
+
+### P2. Native shutdown failure skips private cleanup and evidence persistence
+
+Location is `manager/tests/c02_browser.py`, lines 68 through 72, especially the unguarded `native.close()` at line 70. `Native.close()` in `manager/tests/c02_production.py`, lines 63 through 67, can raise when its `quit` command times out. That exception exits the browser helper's finalizer before `shutil.rmtree(local)` and `private(.../results.json, record)` run.
+
+The retained [reproduction](c02-final-delta/probe_browser_cleanup.py) calls the actual `c02_browser.main`, `Native.close`, and `Native.call`. It substitutes local manager responses and a local protocol subprocess. The send fails after the helper writes its synthetic invitation. The failing case forces `select.select` to report timeout during quit, without waiting 150 seconds. It uses no SSH, real credentials, OS keychain, or worker.
+
+Exact commands and results follow.
+
+```sh
+python3 .audit/c02-final-delta/probe_browser_cleanup.py --case control
+```
+
+This exits 0. The helper returns 1 for the injected send failure. The observed values are `results_exists=true`, `private_directory_exists=false`, and `invitation_exists=false`.
+
+```sh
+python3 .audit/c02-final-delta/probe_browser_cleanup.py --case cleanup-error
+```
+
+This exits 1 at `AssertionError: Cleanup failure must not discard results.json`. The actual observation is:
+
+```json
+{"case":"cleanup-error","escaped_error":"native command timed out quit","helper_return":null,"invitation_exists":true,"private_directory_exists":true,"results_exists":false}
+```
+
+The intended outcome is an unsuccessful helper result with the send and shutdown failures recorded, followed by an attempt to remove private local files even when shutdown fails. Separate the shutdown attempt, local removal, and evidence write with independent finalizers. Preserve cleanup errors instead of losing the result record. No fix was applied in this review.
+
+Both [control](c02-final-delta/browser-cleanup-control.log) and [failure](c02-final-delta/browser-cleanup-cleanup-error.log) logs are retained. The probe removes its synthetic leftovers and reaps its local subprocess after recording observations. An initial protocol-fixture setup omitted the required `error` response field. That control failed with `'error'` before correction. Its [setup log](c02-final-delta/browser-cleanup-setup-error.log) is retained and is not a product finding.
+
+This finding concerns future helper failure handling. It does not turn the parent's successful browser or cleanup observations into failures. I did not reproduce an OS credential leak or claim one.
+
+## Independently executed checks
+
+All commands ran in this checkout. Ignored tests are excluded from pass counts.
+
+| Command | Exit | Actual result |
+| --- | ---: | --- |
+| `git rev-parse HEAD` | 0 | The exact requested HEAD matched. |
+| `git merge-base HEAD 6c2b70b03295cdc8a5f69411f0bb0628f383c7fd` | 0 | The exact requested base matched. |
+| `git diff --exit-code b6081d2..HEAD -- agent manager link desktop scripts Cargo.toml Cargo.lock package.json package-lock.json` | 0 | No later component or shared-build delta exists. |
+| `python3 desktop/fixtures/c02_source_record.py --check-controls` | 0 | `C02 source manifest matches 222 files.` Changed-hash, missing-file, and extra-file controls were rejected. |
+| `cargo test -p botstral-manager --locked --offline --lib m04_ -- --nocapture` | 0 | `18 passed; 0 failed; 2 ignored`. |
+| `cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --offline --test remote` | 0 | `7 passed; 0 failed; 1 ignored`. The real-Keychain contract did not run. |
+| `cargo build --workspace --locked --offline` | 0 | Default production binaries built. |
+| `cargo check -p botstral-manager -p botstral-agent --release --offline --locked --features botstral-manager/nonproduction-test-worker,botstral-agent/nonproduction-test-worker` | 101 | Both packages emitted `nonproduction-test-worker is forbidden in release builds`. This is the expected negative control. It is a compilation check, not a release bundle build. |
+| `target/debug/botstral-manager --help` | 0 | Ordinary manager command usage was returned. |
+| `target/debug/botstral-agent --help` | 0 | Ordinary production agent command usage was returned. |
+| `python3 .audit/c02-final-delta/check_boundaries.py` | 0 | Production executables exclude fixture markers. The manager test executable includes them. No default test-agent executable exists. |
+| `cargo test -p botstral-manager --offline --locked --lib -- --list --ignored` | 0 | Four ignored tests were listed, including `c02_production_remote_fixture`. |
+| `python3 .audit/c02-final-delta/probe_local_fixture.py` | 0 | The actual new ignored fixture passed isolated local authentication, generation 0 to 1 runtime restart, stable bot identity, reuse of its public TLS listener port, graceful stop, and endpoint refusal after stop. |
+| `python3 .audit/c02-final-delta/probe_fixture_response.py` | 0 | The exact extracted Rust response function produced recorded chat, six browser operations, a cancellation proposal, and tool-result termination. Its generated append program ran locally twice and produced exactly `one effect\n` twice. |
+| `python3 .audit/c02-final-delta/check_evidence.py` | 0 | Source, support, archive, artifact, cleanup, and video consistency checks passed. |
+| `git diff --check 6c2b70b03295cdc8a5f69411f0bb0628f383c7fd..HEAD` | 0 | No whitespace errors were reported. |
+
+The local fixture probe invokes `cargo test -p botstral-manager --locked --offline --lib c02_production_remote_fixture -- --ignored --nocapture`. Its [manager log](c02-final-delta/local-fixture-manager.log) records one passed test. It removes its temporary certificates and state. It does not enroll or execute a worker.
+
+The response probe compiles the original response function extracted before `fn publish`, using the checkout's built `serde_json` library. Its [generated Rust file](c02-final-delta/fixture_response.rs) and [output](c02-final-delta/fixture-response.log) are retained. The unused-import warning comes from excluding `publish` and the fixture runner. The complete source module compiled in the manager tests. This probe does not claim full worker execution.
+
+The retained boundary check found both fixture markers absent from the default manager and agent executables and present in the manager test executable. No `target/debug/botstral-test-agent` was produced. Source inspection confirms `inference::tests` is behind `cfg(test)`, and the new module is nested inside it. Each ordinary provider fixture initializes `production` to `None`. The separate test-worker feature and its release refusal remain intact. The native driver is an example executable, not part of the packaged application's entry point.
+
+All six C02 Python helpers compiled without execution. [The retained record](c02-final-delta/python-compile.json) contains the exact command and exit.
+
+## Evidence consistency
+
+[The repeatable checker](c02-final-delta/check_evidence.py) verified all 222 current component hashes, 29 historical production evidence hashes, eight final test-support hashes, and the three Rust overlay hashes. Reconstructing the frozen `e81cdbd` archive with those exact overlays produced the recorded archive SHA-256 `8bc02330af8988b083c32a8a926e62415218af89dab8c8896266a272f20f7be1`.
+
+The current source manifest names `b6081d2d6aec132ec0b55c817e363344f96da0bf`. Its hashes match HEAD. `d2aa248` adds documentation and evidence. The only new application behavior is the combined browser policy of 128 processes and 1 GiB, with matching displayed copy. Those values match the existing M04 production policy. No assertion isolates which resource caused the original failure.
+
+Parent before and after records retain failed and completed tasks respectively, the same leaf pin and public relay route, distinct binary identities, and the corresponding resource policies. The initial unavailable-relay attempt remains a connection failure rather than a browser-policy measurement. Exported text and PNG hashes match the parent records. The graphical cancellation task matches the observed process identities, records `systemd_scope_empty`, and has an empty later PID observation. The lost-reply record has exactly one submission, one dropped reply, and one additional effect.
+
+The historical production runner hash in `summary.json` differs from current helper source. `source.json` explicitly records the later invitation and cleanup-reporting changes, and its final hashes match. The browser after-record also predates the helper's new `native_source_dirty` and `native_remote_source_sha256` fields. The separate correction record supplies the matching final `remote.rs` hash. This is consistent historical evidence, with less direct source-to-binary provenance than a fresh current-helper run. I did not independently rebuild or authenticate the parent's historical binary.
+
+The four-unit cleanup record reports absent recorded PIDs, inactive units, removed fixture roots, and refusing endpoints. The local Keychain cleanup record reports lookup exit 44. These are parent observations. I did not contact the historical fixture or call its cleanup again. The retained-fixture instructions in the frozen production record are superseded by this later cleanup evidence.
+
+The video SHA-256 matches `packaged-identity.json`. `ffprobe` reports an 80.000000-second H.264 video at 1280 by 960. The capture manifest has 18 ordered entries across the actual walkthrough times. The documentation explicitly describes assembled state captures with condensed pauses. I verified file and record consistency, not continuous interaction or original capture provenance.
+
+## Remaining boundaries
+
+The parent's final `make verify` and `make verify-desktop` were running when this review was requested. I did not inspect another checkout or count those incomplete results as passes. Parent frontend tests, native browser execution, bundle build, public-relay walkthrough, real-Keychain restoration, active app restart, production cancellation, revocation, and verified export remain attributed to the parent.
+
+This review did not exercise GUI, hostile packaged navigation, nested windows, remote frames, unsolicited subscriptions, OS Keychain denial or deletion failure, Linux Secret Service, Windows, physical sleep, network-interface changes, delivered OS notifications, or signed release and update behavior. These are limitations, not findings. The injected shutdown timeout tests helper control flow and does not establish an actual OS failure.
+
+The Prove It Works principle changed the review by requiring an actual failing cleanup probe, real local fixture restart, and direct byte and hash comparisons before reporting conclusions. No production source, branch, checkout, installed runtime, real owner state, or OS credential was changed. No push, pull request, watch, merge, deployment, paid inference, GUI interaction, SSH, or further reviewer was used.
