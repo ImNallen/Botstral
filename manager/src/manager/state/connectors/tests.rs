@@ -1153,3 +1153,32 @@ fn permission_revocation_preserves_stopped_unknown_attention() {
     assert_eq!(current.state, TaskState::AwaitingAttention);
     assert_eq!(current.outcome, stopped.outcome);
 }
+
+#[test]
+fn bot_deletion_preserves_stopped_unknown_attention() {
+    let (mut f, stopped) = stopped_unknown();
+    f.state
+        .routine_command(
+            token(),
+            RoutineCommand {
+                id: RequestId::new(),
+                action: RoutineAction::DeleteBot { bot: f.bot },
+            },
+        )
+        .unwrap();
+    let receipt: String = f
+        .state
+        .connection
+        .query_row(
+            "SELECT body FROM report_receipts WHERE sequence=2",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    f.state
+        .durable_reports(f.lease, f.journal, 2, vec![parse(receipt).unwrap()])
+        .unwrap();
+    let after = f.state.load_task(stopped.id).unwrap();
+    assert_eq!(after.outcome, stopped.outcome);
+    assert_eq!(after.state, TaskState::AwaitingAttention);
+}
