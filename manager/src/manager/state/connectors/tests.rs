@@ -802,3 +802,5 @@ fn authentication_failure_hides_tools_and_large_secret_entry_is_atomic() {
     );
     assert!(after.version.revision > before.version.revision);
 }
+
+mod schema_bounds;

@@ -207,9 +207,10 @@ impl State {
             return Err(OperationError::InvalidInput);
         }
         tools::validate_policy(&request.execution_policy, limits.deadline)?;
-        if let Some(policy) = &request.execution_policy.connectors {
-            self.permitted_connector_catalog(request.bot, policy)?;
-        }
+        let connector_catalog = match &request.execution_policy.connectors {
+            Some(policy) => self.permitted_connector_catalog(request.bot, policy)?,
+            None => Vec::new(),
+        };
         if let Some(vision) = &request.execution_policy.vision {
             vision.validate()?;
         }
@@ -255,6 +256,16 @@ impl State {
         };
         if next_call_stop(&view)?.is_some() {
             return Err(OperationError::InferenceBudget);
+        }
+        let mut prepared = PreparedChat::new(
+            &view.configuration.policy,
+            view.request.limits.max_output_tokens,
+            &transcript(self, &view)?,
+            Some(&view.request.execution_policy),
+        );
+        prepared.connector_tools(connector_catalog);
+        if prepared.encoded().len() > MAX_PROVIDER_REQUEST {
+            return Err(OperationError::InvalidInput);
         }
         let owner = self.principal()?;
         let tx = self
@@ -519,7 +530,12 @@ impl State {
                     }
                     let provider_request = prepared.encoded();
                     if provider_request.len() > MAX_PROVIDER_REQUEST {
-                        return Err(OperationError::Internal);
+                        view.summary.phase = RunPhase::Stopped {
+                            reason: RunStopReason::TranscriptLimit,
+                        };
+                        view.summary.updated_at = self.now();
+                        save_summary(&self.connection, &view.summary)?;
+                        continue;
                     }
                     if prepared.materialize_images(&self.directory).is_err() {
                         view.summary.phase = RunPhase::AwaitingAttention {

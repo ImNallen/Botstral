@@ -304,3 +304,6 @@ fn run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt(
         }
     }
 }
+
+#[path = "catalog_bounds.rs"]
+mod catalog_bounds;

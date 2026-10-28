@@ -30,6 +30,20 @@ class InstallationTests(unittest.TestCase):
                     install.install(second, binary, destination, ROOT / second / 'packaging')
                 self.assertFalse((destination / ('usr/lib/botstral-' + second)).exists())
 
+    def test_connector_interpreter_is_verified_and_tampering_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            interpreter = root / 'python'
+            interpreter.write_bytes(b'pinned connector interpreter')
+            (root / 'connector.json').write_text(json.dumps({'python': str(interpreter), 'python_sha256': diagnose.digest(interpreter)}))
+            self.assertEqual(diagnose.runtime_hashes(root), ['connector.json'])
+            interpreter.write_bytes(b'changed interpreter')
+            with self.assertRaisesRegex(ValueError, 'connector interpreter digest mismatch'):
+                diagnose.runtime_hashes(root)
+            interpreter.unlink()
+            with self.assertRaises(FileNotFoundError):
+                diagnose.runtime_hashes(root)
+
     def test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()

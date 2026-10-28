@@ -186,6 +186,14 @@ class WorkerRecoveryTests(unittest.TestCase):
             processes.mkdir(mode=0o700)
             (processes / 'retained-evidence').write_text('scope stop evidence')
             (processes / 'retained-evidence').chmod(0o600)
+            interpreter = root / 'runtime/bytes'
+            (state / 'connector.json').write_text(json.dumps({'python': str(interpreter), 'python_sha256': r.digest(interpreter)}))
+            (state / 'connector.json').chmod(0o600)
+            self.assertIn(str(interpreter), r.references(state))
+            omitted_runtime = [item for item in selected if item['kind'] != 'runtime']
+            with self.assertRaisesRegex(ValueError, 'runtime reference is not covered'):
+                r.create('agent', state, root / 'missing-runtime', {'roots': omitted_runtime})
+            self.assertFalse((root / 'missing-runtime').exists())
             with patch.object(r, 'worker_quiet') as quiet:
                 r.create('agent', state, root / 'backup', {'roots': selected})
                 self.assertEqual(quiet.call_count, 2)
@@ -209,6 +217,9 @@ class WorkerRecoveryTests(unittest.TestCase):
             for selected_root in selected:
                 self.assertEqual((Path(selected_root['path']) / 'bytes').read_text(), selected_root['kind'] + ' retained bytes')
             self.assertEqual((root / 'tool/bytes').stat().st_mode & 0o777, 0o700)
+            import diagnose
+            self.assertEqual(diagnose.runtime_hashes(state), ['connector.json'])
+            self.assertEqual(interpreter.read_text(), 'runtime retained bytes')
             with sqlite3.connect(state / 'agent.sqlite3') as db:
                 self.assertEqual(db.execute('SELECT incarnation FROM metadata').fetchone()[0], incarnation)
             (state / 'agent.lock').touch(mode=0o600)

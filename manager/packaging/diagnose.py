@@ -53,6 +53,11 @@ def runtime_hashes(state):
             count += 1
         require(count > 0, 'runtime manifest is empty')
         verified.append(name)
+    connector = state / 'connector.json'
+    if connector.exists():
+        configuration = read_json(connector)
+        require(digest(absolute(configuration['python'])) == configuration['python_sha256'], 'connector interpreter digest mismatch')
+        verified.append('connector.json')
     return verified
 
 

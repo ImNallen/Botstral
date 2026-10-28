@@ -230,6 +230,57 @@ impl Manager {
     }
 }
 
+fn bounded_schema(schema: &serde_json::Value) -> bool {
+    fn visit(
+        value: &serde_json::Value,
+        root: &serde_json::Value,
+        left: &mut usize,
+        depth: usize,
+    ) -> bool {
+        if *left == 0 || depth == 0 {
+            return false;
+        }
+        *left -= 1;
+        match value {
+            serde_json::Value::Object(object) => {
+                if [
+                    "$id",
+                    "$anchor",
+                    "$dynamicAnchor",
+                    "$dynamicRef",
+                    "$recursiveRef",
+                    "$recursiveAnchor",
+                ]
+                .iter()
+                .any(|key| object.contains_key(*key))
+                {
+                    return false;
+                }
+                if let Some(reference) = object.get("$ref") {
+                    let Some(pointer) = reference.as_str().and_then(|s| s.strip_prefix('#')) else {
+                        return false;
+                    };
+                    if !pointer.starts_with('/')
+                        || !root
+                            .pointer(pointer)
+                            .is_some_and(|target| visit(target, root, left, depth - 1))
+                    {
+                        return false;
+                    }
+                }
+                object
+                    .values()
+                    .all(|value| visit(value, root, left, depth - 1))
+            }
+            serde_json::Value::Array(array) => array
+                .iter()
+                .all(|value| visit(value, root, left, depth - 1)),
+            _ => true,
+        }
+    }
+    bounded_connector_json(schema, 8192) && visit(schema, schema, &mut 1024, 64)
+}
+
 pub(super) fn validate_catalog(tools: &[McpTool]) -> Result<(), OperationError> {
     let mut names = std::collections::HashSet::new();
     if tools.len() > MAX_CONNECTOR_TOOLS
@@ -242,6 +293,9 @@ pub(super) fn validate_catalog(tools: &[McpTool]) -> Result<(), OperationError> 
     }
     for tool in tools {
         tool.validate()?;
+        if !bounded_schema(&tool.input_schema) {
+            return Err(OperationError::InvalidInput);
+        }
         if !names.insert(&tool.name) {
             return Err(OperationError::InvalidInput);
         }
@@ -257,7 +311,8 @@ pub(super) fn validate_arguments(
     schema: &serde_json::Value,
     arguments: &serde_json::Value,
 ) -> Result<(), OperationError> {
-    if !arguments.is_object()
+    if !bounded_schema(schema)
+        || !arguments.is_object()
         || !bounded_connector_json(arguments, 8192)
         || !jsonschema::options()
             .offline()

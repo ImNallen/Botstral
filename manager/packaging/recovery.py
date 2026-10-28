@@ -226,11 +226,11 @@ def references(state):
     config = read_json(state / 'config.json')
     for name in ('manager_ca', 'client_cert', 'client_key'):
         result.append(str(absolute(config[name])))
-    for name in ('computer.json', 'vibe.json'):
+    for name in ('computer.json', 'vibe.json', 'connector.json'):
         path = state / name
         if path.exists():
             config = read_json(path)
-            for key in ('directory', 'manifest'):
+            for key in ('directory', 'manifest', 'python'):
                 if key in config:
                     result.append(str(absolute(config[key])))
     return sorted(set(result))

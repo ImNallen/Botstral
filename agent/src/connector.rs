@@ -289,6 +289,30 @@ mod tests {
     }
 
     #[test]
+    fn generated_configuration_loads_in_the_production_worker() {
+        let root = tempfile::tempdir().unwrap();
+        let output = std::process::Command::new("python3")
+            .args(["-c", "import sys; print(sys.executable)"])
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        let generated = std::process::Command::new("python3")
+            .arg(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/connector/configure.py"
+            ))
+            .arg("--python")
+            .arg(String::from_utf8(output.stdout).unwrap().trim())
+            .output()
+            .unwrap();
+        assert!(generated.status.success());
+        let configuration = root.path().join("connector.json");
+        fs::write(&configuration, generated.stdout).unwrap();
+        fs::set_permissions(&configuration, fs::Permissions::from_mode(0o600)).unwrap();
+        assert!(Configuration::read(root.path()).unwrap().is_some());
+    }
+
+    #[test]
     fn runtime_identity_binds_the_helper_and_exact_interpreter_bytes() {
         let root = tempfile::tempdir().unwrap();
         let python = root.path().join("python");
