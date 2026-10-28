@@ -426,10 +426,10 @@ function ExecutionSettings({
       </label>
       <p className="muted small-copy">
         Browser and file tools use the supported Linux Playwright profile, an 800 by 600 viewport,
-        64 processes, 512 MiB of memory, and the deadline above. Output slots are text for
-        result.txt and image for screenshot.png. Process tools use 8 processes and 64 MiB of memory.
-        Both capture at most 1024 process output bytes. Use your administrator's approved worker
-        account and installed runtime digest.
+        128 processes, 1 GiB of memory, and the deadline above. Output slots are text for result.txt
+        and image for screenshot.png. Process tools use 8 processes and 64 MiB of memory. Both
+        capture at most 1024 process output bytes. Use your administrator's approved worker account
+        and installed runtime digest.
       </p>
     </details>
   );

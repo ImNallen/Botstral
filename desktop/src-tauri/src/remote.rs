@@ -1019,8 +1019,8 @@ impl Actor {
                     limits: ProcessLimits {
                         runtime_seconds: input.seconds,
                         output_bytes: 1024,
-                        processes: 64,
-                        memory_bytes: 512 * 1024 * 1024,
+                        processes: 128,
+                        memory_bytes: 1024 * 1024 * 1024,
                     },
                     viewport: Viewport {
                         width: 800,
