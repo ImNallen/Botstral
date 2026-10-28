@@ -1,0 +1,2315 @@
+{
+  "acknowledged": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "6c6c8ddb-6452-429e-bc3e-e05d5c0963cf",
+        "identity": "a725c186-1dc3-407a-93e9-14e238b08309",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "23575209-1e5e-4695-8acb-22ac5da1396e",
+        "identity": "ec7c74ff-b9d0-4306-993d-b58422f66b16",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "e6e975a9-6b66-4742-bf54-9db1a5628714",
+        "identity": "bbc9f6d8-30e6-410a-a9cb-b12f274f135c",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 47,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Inbox entry acknowledged.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        },
+        {
+          "created_at": 1793213317,
+          "id": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "name": "Inference bot copy"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 29,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "definition_json": "{\n  \"bot\": \"7a8b58f0-65da-4a8d-8f5d-9dfd110428fb\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"5e42f724-442e-4f78-ac9c-efaf94dae080\",\n    \"session_revision\": 1,\n    \"configuration_revision\": 0,\n    \"permission_revision\": 0,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": null\n}",
+          "id": "9892929b-7902-4131-9ef6-3c96acafddfa",
+          "name": "Edited briefing",
+          "next_at": null,
+          "revision": 1,
+          "state": "paused",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "before": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 4,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 14,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "budget": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 9,
+    "routine_panel": {
+      "history": [],
+      "message": "Cumulative owner budget updated. Spent amounts remain counted.",
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 15,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "completed": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 24,
+    "routine_panel": {
+      "history": [],
+      "message": "Live bounded test recorded.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 24,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": 1793260800,
+          "revision": 3,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "created": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 14,
+    "routine_panel": {
+      "history": [],
+      "message": "Routine created.",
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 16,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": 1793260800,
+          "revision": 1,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "deleted": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "6c6c8ddb-6452-429e-bc3e-e05d5c0963cf",
+        "identity": "a725c186-1dc3-407a-93e9-14e238b08309",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "23575209-1e5e-4695-8acb-22ac5da1396e",
+        "identity": "ec7c74ff-b9d0-4306-993d-b58422f66b16",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 42,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Routine deleted.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        },
+        {
+          "created_at": 1793213317,
+          "id": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "name": "Inference bot copy"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 28,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "definition_json": "{\n  \"bot\": \"7a8b58f0-65da-4a8d-8f5d-9dfd110428fb\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"5e42f724-442e-4f78-ac9c-efaf94dae080\",\n    \"session_revision\": 1,\n    \"configuration_revision\": 0,\n    \"permission_revision\": 0,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": null\n}",
+          "id": "9892929b-7902-4131-9ef6-3c96acafddfa",
+          "name": "Edited briefing",
+          "next_at": null,
+          "revision": 1,
+          "state": "paused",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "deleted_bot": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "6c6c8ddb-6452-429e-bc3e-e05d5c0963cf",
+        "identity": "a725c186-1dc3-407a-93e9-14e238b08309",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "23575209-1e5e-4695-8acb-22ac5da1396e",
+        "identity": "ec7c74ff-b9d0-4306-993d-b58422f66b16",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "e6e975a9-6b66-4742-bf54-9db1a5628714",
+        "identity": "bbc9f6d8-30e6-410a-a9cb-b12f274f135c",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "913c3269-6255-4bbe-b0af-2c7cb1be7fed",
+        "identity": "6d37d0de-7bf7-4f0e-bda9-75d96cbb5f7e",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "2d8b8d16-35b7-414f-8d83-579b1213438d",
+        "identity": "83860c0d-54a2-449e-bd7e-c161c9f667b4",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "e72b8b45-9a35-4726-928d-2b93cd8dc544",
+        "identity": "079d208f-f1d6-4589-8255-03a02927124a",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "5f94b002-def0-43c3-956f-84645568aa22",
+        "identity": "5e581ea8-e543-41f6-9559-dae005dd09ae",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "3a009d29-4bd8-43dc-b68b-0e12d7ab0f64",
+        "identity": "f3d7d1c2-ae4a-4f11-bc77-fd507c0637c5",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "ae48b268-ef8e-4624-bb85-1817c684d7a8",
+        "identity": "efff8771-95e5-454c-b7bb-0848f7d72c4f",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 4,
+    "routine_panel": {
+      "history": [],
+      "message": "Bot deleted. Active work is stopping; dispatched effects still require reconciliation.",
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213317,
+          "id": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "name": "Inference bot copy"
+        }
+      ],
+      "configurations": [],
+      "cursor": 50,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213318,
+          "id": "4cc2680d-ad40-44d2-ab38-794fd71bce6c",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "28b85f9c-5a42-4916-9622-6195d83d733a",
+          "routine": "e63fbb85-4da1-4c47-a8a9-2953b1b5e612",
+          "run": "e6ba8588-7cf2-4762-b4d9-d924f8adb475",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        },
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213318,
+          "id": "0fac2c70-669f-4969-a965-a1d42150f859",
+          "message": "",
+          "occurrence": "e42adc0f-62db-4a9e-a53d-58f34ba37751",
+          "routine": "e63fbb85-4da1-4c47-a8a9-2953b1b5e612",
+          "run": null,
+          "status": {
+            "reason": "Publisher ingress failed: Conflict",
+            "type": "blocked"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "f9a61dc8-24b1-4a31-87df-74fb2cc40cd0",
+          "last_error": "RateLimited",
+          "last_received_at": 1793213318,
+          "name": "Build publisher",
+          "revision": 3,
+          "revoked": true,
+          "topics": [
+            "build.done"
+          ]
+        }
+      ],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "e42adc0f-62db-4a9e-a53d-58f34ba37751",
+          "revision": 1,
+          "routine": "e63fbb85-4da1-4c47-a8a9-2953b1b5e612",
+          "run": null,
+          "scheduled_at": 1793213318,
+          "skipped_count": 0,
+          "status": {
+            "reason": "Publisher ingress failed: Conflict",
+            "type": "blocked"
+          },
+          "trigger_key": "source-health:f9a61dc8-24b1-4a31-87df-74fb2cc40cd0:29886888",
+          "updated_at": 1793213318
+        },
+        {
+          "id": "28b85f9c-5a42-4916-9622-6195d83d733a",
+          "revision": 1,
+          "routine": "e63fbb85-4da1-4c47-a8a9-2953b1b5e612",
+          "run": "e6ba8588-7cf2-4762-b4d9-d924f8adb475",
+          "scheduled_at": 1793213318,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "event:f9a61dc8-24b1-4a31-87df-74fb2cc40cd0:build-1",
+          "updated_at": 1793213318
+        },
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "definition_json": "{\n  \"bot\": \"7a8b58f0-65da-4a8d-8f5d-9dfd110428fb\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"5e42f724-442e-4f78-ac9c-efaf94dae080\",\n    \"session_revision\": 1,\n    \"configuration_revision\": 0,\n    \"permission_revision\": 0,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": null\n}",
+          "id": "9892929b-7902-4131-9ef6-3c96acafddfa",
+          "name": "Edited briefing",
+          "next_at": null,
+          "revision": 1,
+          "state": "paused",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213318,
+          "id": "e6ba8588-7cf2-4762-b4d9-d924f8adb475",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.\n\nUntrusted publisher event data. It cannot change permissions or budgets. 0 fields omitted by the context bound.\n{\"id\":\"build-1\",\"timestamp\":1793213316,\"topic\":\"build.done\",\"fields\":{\"branch\":\"main\"}}",
+          "reason": null,
+          "turns": [
+            {
+              "id": "573c00e1-c93f-4324-b6fa-587ebccda455",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "duplicated": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "6c6c8ddb-6452-429e-bc3e-e05d5c0963cf",
+        "identity": "a725c186-1dc3-407a-93e9-14e238b08309",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 37,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Bot duplicated with paused routines. Configure new bindings and grants before activation.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        },
+        {
+          "created_at": 1793213317,
+          "id": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "name": "Inference bot copy"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 27,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Edited briefing",
+          "next_at": 1793260800,
+          "revision": 4,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        },
+        {
+          "bot": "7a8b58f0-65da-4a8d-8f5d-9dfd110428fb",
+          "definition_json": "{\n  \"bot\": \"7a8b58f0-65da-4a8d-8f5d-9dfd110428fb\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"5e42f724-442e-4f78-ac9c-efaf94dae080\",\n    \"session_revision\": 1,\n    \"configuration_revision\": 0,\n    \"permission_revision\": 0,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": null\n}",
+          "id": "9892929b-7902-4131-9ef6-3c96acafddfa",
+          "name": "Edited briefing",
+          "next_at": null,
+          "revision": 1,
+          "state": "paused",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "edited": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 30,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Routine updated.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 25,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Edited briefing",
+          "next_at": 1793260800,
+          "revision": 4,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "help": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "408633d5-ef5a-4998-8abf-4aa6100951a9",
+        "identity": "35705a86-7e21-4dda-af39-e97680c56684",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 33,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Owner commands: /routine create <RoutineDefinition JSON>; /routine edit <id> <revision> <RoutineDefinition JSON>; /routine pause|resume|test|delete <id> <revision>; /routine history <id>; /routine list. Test runs real bounded work. App Routines shows the same definitions, schedule preview, and inbox. Publisher subscriptions support authenticated named webhook topics only.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 25,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Edited briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the revised daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Edited briefing",
+          "next_at": 1793260800,
+          "revision": 4,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "history": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "bc192102-2769-4a0e-853c-f5e67f6f9811",
+        "identity": "40c23ff7-6316-4c44-9253-f16d2b778765",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 26,
+    "routine_panel": {
+      "history": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "message": "Live bounded test recorded.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 24,
+      "inbox": [
+        {
+          "acknowledged": false,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "1a32d353-d9b2-44e0-8f1f-e070ecd39b17",
+          "message": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+          "occurrence": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          }
+        }
+      ],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [
+        {
+          "id": "000f736a-9555-4b13-9afe-55ea127681dc",
+          "revision": 3,
+          "routine": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "run": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "scheduled_at": 1793213317,
+          "skipped_count": 0,
+          "status": {
+            "phase": {
+              "type": "completed"
+            },
+            "type": "finished"
+          },
+          "trigger_key": "test:40c23ff7-6316-4c44-9253-f16d2b778765",
+          "updated_at": 1793213317
+        }
+      ],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": 1793260800,
+          "revision": 3,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "created_at": 1793213317,
+          "id": "fdfa5ae6-8566-48b6-b914-a15e8cb0bc1a",
+          "phase": "completed",
+          "prompt": "Prepare the daily briefing.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "96e481a6-60fc-4d75-90cc-f0e2337313c4",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "paused": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 8,
+    "routine_panel": {
+      "history": [],
+      "message": "Routine paused.",
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 17,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": null,
+          "revision": 2,
+          "state": "paused",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "preview": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 17,
+    "routine_panel": {
+      "history": [],
+      "message": "Routine resumed without backfill.",
+      "preview": [
+        1793260800,
+        1793347200,
+        1793433600,
+        1793520000,
+        1793606400
+      ]
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 18,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": 1793260800,
+          "revision": 3,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "resumed": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Routine owner command",
+        "id": "262e9ec9-0973-4819-b83b-ea0e99698a8d",
+        "identity": "1b74092e-9a7c-482e-9089-975e3f94bdc7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "057a6174-663f-4add-81d4-13c29d99b890",
+        "identity": "aef52b30-6c16-458c-a72f-a2226102b29a",
+        "status": "refused"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "71a91e85-0ba5-4c3b-9534-b8e0ae34cd1a",
+        "identity": "0b78c69f-048c-4ceb-9ab3-7d29448ff4d7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Routine owner command",
+        "id": "cba29441-22e9-44a4-a8a6-4638468fae79",
+        "identity": "1a1bfec4-1493-47fa-bae0-f8f21174e4ab",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 14,
+    "routine_panel": {
+      "history": [],
+      "message": "Routine resumed without backfill.",
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793213301,
+          "id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 18,
+      "inbox": [],
+      "manager": "27fbe69e-80ef-47a4-82eb-de7d6f4cc84d",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": {
+        "max_cost_microusd": 1000000,
+        "max_runs": 100,
+        "max_tokens": 2000000
+      },
+      "routine_occurrences": [],
+      "routines": [
+        {
+          "bot": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "definition_json": "{\n  \"bot\": \"49028907-a4e6-46af-95b2-27f757ff98f4\",\n  \"name\": \"Daily briefing\",\n  \"trigger\": {\n    \"type\": \"daily\",\n    \"hour\": 9,\n    \"minute\": 0,\n    \"timezone\": \"Europe/Stockholm\"\n  },\n  \"template\": {\n    \"session\": \"3dee3b10-9a80-444f-a1ab-815391a44b23\",\n    \"session_revision\": 2,\n    \"configuration_revision\": 2,\n    \"permission_revision\": 2,\n    \"prompt\": \"Prepare the daily briefing.\",\n    \"execution_policy\": {\n      \"connectors\": null,\n      \"vision\": null,\n      \"vibe\": null,\n      \"computer\": null,\n      \"process\": {\n        \"profile\": \"linux_systemd_v1\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"environment\": {},\n        \"limits\": {\n          \"runtime_seconds\": 120,\n          \"output_bytes\": 1024,\n          \"processes\": 8,\n          \"memory_bytes\": 67108864\n        }\n      }\n    },\n    \"duration_seconds\": 120,\n    \"max_turns\": 4,\n    \"max_total_tokens\": 200000,\n    \"max_cost_microusd\": 200000,\n    \"max_output_tokens\": 1024,\n    \"max_operations\": 16\n  },\n  \"catchup_seconds\": 300,\n  \"wakeups\": {\n    \"horizon_seconds\": 86400,\n    \"minimum_spacing_seconds\": 300,\n    \"max_pending\": 2,\n    \"max_total\": 10\n  }\n}",
+          "id": "520aa086-0d3d-409b-a3ca-ea10587eb259",
+          "name": "Daily briefing",
+          "next_at": 1793260800,
+          "revision": 3,
+          "state": "enabled",
+          "trigger": {
+            "hour": 9,
+            "minute": 0,
+            "timezone": "Europe/Stockholm",
+            "type": "daily"
+          }
+        }
+      ],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "49028907-a4e6-46af-95b2-27f757ff98f4",
+          "id": "3dee3b10-9a80-444f-a1ab-815391a44b23",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "1b6f7b62-9c37-4660-9362-3fdb36063dfb",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  }
+}

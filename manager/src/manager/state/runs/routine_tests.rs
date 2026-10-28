@@ -105,7 +105,71 @@ fn p03_atomic_admission_restart_identity_and_more_than_sixteen_completions() {
         })
         .unwrap();
     assert_eq!(n, 20);
+    let counters: (i64, i64, i64) = f
+        .state
+        .connection
+        .query_row(
+            "SELECT admitted_runs,tokens,cost FROM routine_budget",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    let ledger: (i64, i64, i64) = f
+        .state
+        .connection
+        .query_row(
+            "SELECT count(*),sum(tokens),sum(cost) FROM routine_reservations",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(counters, ledger);
+
     assert_eq!(f.state.inbox().unwrap().len(), 20);
+    let archived: Vec<String> = f
+        .state
+        .connection
+        .prepare("SELECT receipt FROM run_turn_receipts")
+        .unwrap()
+        .query_map([], |r| r.get(0))
+        .unwrap()
+        .collect::<Result<_, _>>()
+        .unwrap();
+    assert_eq!(archived.len(), 4);
+    for receipt in archived {
+        let receipt: serde_json::Value = serde_json::from_str(&receipt).unwrap();
+        assert_eq!(receipt["provider_request_id"], "recorded-response");
+        assert_eq!(receipt["text"], "Recorded response");
+    }
+
+    f.state.test_time = Some(1000);
+    command(
+        &mut f.state,
+        RoutineAction::SetPaused {
+            id,
+            expected_revision: 1,
+            paused: true,
+        },
+    )
+    .unwrap();
+    command(
+        &mut f.state,
+        RoutineAction::SetPaused {
+            id,
+            expected_revision: 2,
+            paused: false,
+        },
+    )
+    .unwrap();
+    f.state.test_time = Some(1060);
+    f.state.reconcile_routines().unwrap();
+    assert_eq!(history(&f, id).len(), 20);
+    let admitted: i64 = f
+        .state
+        .connection
+        .query_row("SELECT admitted_runs FROM routine_budget", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(admitted, 20);
 }
 #[test]
 fn p03_locked_vault_stale_bindings_budget_and_pause_missed_overlap() {
@@ -264,7 +328,30 @@ fn p03_owner_commands_replay_tombstone_and_paused_copies() {
     assert_ne!(copied.id, id);
     assert!(copied.definition.wakeups.is_none());
     assert_ne!(copied.definition.template.session, f.input.session);
+    let admitted = history(&f, id)[0].run.unwrap();
+    let call = claim(&mut f.state);
+    f.state
+        .finish_run_call(
+            admitted,
+            call.turn.id,
+            call.turn.attempt,
+            response(Some(process_call("delete-fence"))),
+        )
+        .unwrap();
+    let task = f.state.load_run(admitted).unwrap().turns[0]
+        .intent
+        .as_ref()
+        .unwrap()
+        .task;
+    let permit = f.approve_and_claim(task);
     command(&mut f.state, RoutineAction::DeleteBot { bot: f.input.bot }).unwrap();
+    assert_eq!(
+        f.state.load_task(task).unwrap().state,
+        TaskState::Cancelling
+    );
+    let cancellation=f.drain().into_iter().find(|message|matches!(message,ManagerMessage::Delivery(delivery) if delivery.cancel && delivery.body.task==task)).unwrap();
+    assert!(f.state.admit_delivery(f.lease, &cancellation).is_ok());
+    assert!(f.state.admit_delivery(f.lease, &permit).is_err());
     assert_eq!(
         f.state.require_live_bot(f.input.bot),
         Err(OperationError::NotFound)
@@ -331,6 +418,14 @@ fn p03_authenticated_event_receipt_conflict_and_owner_conversation() {
         receipt
     );
     assert_eq!(history(&f, id).len(), 1);
+    let admitted = f.state.load_run(history(&f, id)[0].run.unwrap()).unwrap();
+    assert!(
+        admitted
+            .request
+            .prompt
+            .contains("Untrusted publisher event data")
+    );
+    assert!(admitted.request.prompt.contains("build-1"));
     body.fields
         .insert("branch".into(), EventScalar::Text("other".into()));
     assert_eq!(
@@ -363,6 +458,27 @@ fn p03_authenticated_event_receipt_conflict_and_owner_conversation() {
         f.state.routine_views().unwrap()[0].state,
         RoutineState::Paused
     );
+    let original = f
+        .state
+        .routine_history(token(), id, None, 32)
+        .unwrap()
+        .into_iter()
+        .find_map(|o| o.run)
+        .unwrap();
+    let mut replacement = f.state.routine_views().unwrap()[0].definition.clone();
+    replacement.trigger = RoutineTrigger::Interval {
+        anchor: 1000,
+        seconds: 60,
+    };
+    command(
+        &mut f.state,
+        RoutineAction::Replace {
+            id,
+            expected_revision: 2,
+            definition: Box::new(replacement),
+        },
+    )
+    .unwrap();
     command(
         &mut f.state,
         RoutineAction::RevokePublisher {
@@ -371,6 +487,7 @@ fn p03_authenticated_event_receipt_conflict_and_owner_conversation() {
         },
     )
     .unwrap();
+    assert!(!f.state.routine_run_authorized(original).unwrap());
     assert_eq!(
         f.state
             .ingest_routine_event(publisher, credential, serde_json::to_vec(&body).unwrap()),
@@ -497,7 +614,7 @@ fn p03_wakeup_atomic_result_replay_and_chain_share_one_budget() {
 }
 #[test]
 fn p03_sqlite_restart_before_and_after_admission_and_inbox_ack() {
-    for boundary in ["before", "after", "completed"] {
+    for boundary in ["before", "after", "completed", "completed_before_inbox"] {
         let mut f = fixture();
         let id = create(&mut f, RoutineTrigger::Once { at: 1000 });
         if boundary != "before" {
@@ -507,6 +624,13 @@ fn p03_sqlite_restart_before_and_after_admission_and_inbox_ack() {
         if boundary == "completed" {
             finish(&mut f, original.unwrap());
         }
+        if boundary == "completed_before_inbox" {
+            let call = claim(&mut f.state);
+            f.state
+                .finish_run_call(call.run, call.turn.id, call.turn.attempt, response(None))
+                .unwrap();
+            assert!(f.state.inbox().unwrap().is_empty());
+        }
         super::restart_tests::reopen(&mut f);
         f.state.reconcile_routines().unwrap();
         let rows = history(&f, id);
@@ -514,7 +638,7 @@ fn p03_sqlite_restart_before_and_after_admission_and_inbox_ack() {
         if let Some(original) = original {
             assert_eq!(rows[0].run, Some(original));
         }
-        if boundary == "completed" {
+        if matches!(boundary, "completed" | "completed_before_inbox") {
             let inbox = f.state.inbox().unwrap();
             assert_eq!(inbox.len(), 1);
             command(
@@ -570,4 +694,253 @@ fn p03_current_configuration_and_shared_aggregate_reservations_block_admission()
     assert!(
         matches!(&history(&f,id)[0].status,OccurrenceStatus::Blocked {reason} if reason=="InferenceUnverified")
     );
+}
+
+#[test]
+fn p03_compact_workspace_preview_keeps_full_text_available_and_fits_bound() {
+    let mut f = fixture();
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    f.state
+        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
+        .unwrap();
+    let mut view = f.state.load_run(p.run).unwrap();
+    let full = "😀".repeat(1024);
+    view.turns[0].response = Some(RunMessage::Assistant {
+        content: full.clone(),
+        tool_call: None,
+    });
+    view.turns[0].manager_result = Some(ManagerToolResult {
+        call: RunToolCall {
+            id: "local".into(),
+            proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                at: 2000,
+                prompt: "later".into(),
+            }),
+        },
+        result: "\0".repeat(MAX_RUN_RESULT_BYTES),
+    });
+    view.turns = vec![view.turns[0].clone(); MAX_RUN_TURNS as usize];
+    let preview = WorkspaceRun::project(view.clone(), true);
+    assert!(preview.turns.iter().all(|t| t.truncated));
+    assert_eq!(preview.turns[0].text.as_ref().unwrap().len(), 1024);
+    assert!(json(&preview).unwrap().len() < MAX_WORKSPACE_RUN_BYTES);
+    let detail = WorkspaceRun::project(view, false);
+    assert_eq!(detail.turns[0].text.as_ref(), Some(&full));
+    assert!(detail.turns.iter().all(|t| !t.truncated));
+}
+
+#[test]
+fn p03_authenticated_conversation_crud_and_model_text_cannot_manage_routines() {
+    let mut f = fixture();
+    command(
+        &mut f.state,
+        RoutineAction::SetBudget {
+            budget: RoutineBudget {
+                max_runs: 10,
+                max_tokens: 2_000_000,
+                max_cost_microusd: 2_000_000,
+            },
+        },
+    )
+    .unwrap();
+    let bot = f.input.bot;
+    let request = RequestId::new();
+    let id = RoutineId(request.0);
+    let mut d = definition(&f, RoutineTrigger::Once { at: 1300 });
+    let create = format!("/routine create {}", json(&d).unwrap());
+    f.state
+        .routine_conversation(token(), bot, request, create.clone())
+        .unwrap();
+    assert_eq!(f.state.routine_views().unwrap().len(), 1);
+    d.name = "Edited in conversation".into();
+    for text in [
+        format!("/routine edit {id} 1 {}", json(&d).unwrap()),
+        format!("/routine test {id} 2"),
+        format!("/routine history {id}"),
+        format!("/routine pause {id} 2"),
+        format!("/routine resume {id} 3"),
+        format!("/routine delete {id} 4"),
+    ] {
+        f.state
+            .routine_conversation(token(), bot, RequestId::new(), text)
+            .unwrap();
+    }
+    assert_eq!(history(&f, id).len(), 1);
+    assert!(f.state.routine_views().unwrap().is_empty());
+    f.state
+        .routine_conversation(token(), bot, request, create)
+        .unwrap();
+    assert!(f.state.routine_views().unwrap().is_empty());
+    let mut f = fixture();
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    let mut text = response(None);
+    if let ModelOutcome::Billed { response, .. } = &mut text {
+        *response = Ok(RunMessage::Assistant {
+            content: "/routine delete all".into(),
+            tool_call: None,
+        });
+    }
+    f.state
+        .finish_run_call(p.run, p.turn.id, p.turn.attempt, text)
+        .unwrap();
+    assert!(f.state.routine_views().unwrap().is_empty());
+    let mut f = fixture();
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    f.state
+        .finish_run_call(
+            p.run,
+            p.turn.id,
+            p.turn.attempt,
+            response(Some(RunToolCall {
+                id: "ungranted".into(),
+                proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                    at: 1100,
+                    prompt: "Unauthorized wakeup".into(),
+                }),
+            })),
+        )
+        .unwrap();
+    let run = f.state.load_run(p.run).unwrap();
+    assert!(
+        run.turns[0]
+            .manager_result
+            .as_ref()
+            .unwrap()
+            .result
+            .contains("Unauthorized")
+    );
+    assert!(run.turns[0].intent.is_none());
+    assert!(f.state.routine_recent().unwrap().is_empty());
+}
+
+#[test]
+fn p03_reusable_template_refreshes_parent_and_nested_coding_deadlines() {
+    let mut f = fixture();
+    let id = create(&mut f, RoutineTrigger::Once { at: 9000 });
+    let mut d = f.state.routine_views().unwrap()[0].definition.clone();
+    d.template.execution_policy.vibe = Some(VibeToolPolicy {
+        policy: VibePolicy {
+            connectors: None,
+            workspace: CodingWorkspace {
+                id: CodingWorkspaceId::new(),
+                path: "/srv/coding/fixture".into(),
+            },
+            runtime: CertificateFingerprint::from_der(b"routine Vibe"),
+            account: ProcessAccount {
+                uid: 1000,
+                gid: 1000,
+            },
+            resources: ProcessLimits {
+                runtime_seconds: 60,
+                output_bytes: 1024,
+                processes: 32,
+                memory_bytes: 268435456,
+            },
+            configuration_revision: 1,
+            model_id: "mistral-small-2506".into(),
+            access: VibeAccess::EditFilesAsGuestAccount,
+            outputs: vec![],
+        },
+        limits: RunLimits {
+            deadline: 120,
+            max_turns: 3,
+            max_operations: 1,
+            ..f.input.limits.clone()
+        },
+    });
+    command(
+        &mut f.state,
+        RoutineAction::Replace {
+            id,
+            expected_revision: 1,
+            definition: Box::new(d),
+        },
+    )
+    .unwrap();
+    for now in [1000, 2000] {
+        f.state.test_time = Some(now);
+        command(
+            &mut f.state,
+            RoutineAction::Test {
+                id,
+                expected_revision: 2,
+            },
+        )
+        .unwrap();
+        let run = f.state.load_run(history(&f, id)[0].run.unwrap()).unwrap();
+        assert_eq!(run.request.limits.deadline, now + 500);
+        assert_eq!(
+            run.request
+                .execution_policy
+                .vibe
+                .as_ref()
+                .unwrap()
+                .limits
+                .deadline,
+            now + 120
+        );
+        finish(&mut f, run.summary.id);
+    }
+    assert_eq!(
+        f.state.routine_views().unwrap()[0]
+            .definition
+            .template
+            .execution_policy
+            .vibe
+            .as_ref()
+            .unwrap()
+            .limits
+            .deadline,
+        120
+    );
+}
+
+#[test]
+fn p03_each_exact_approval_has_a_new_durable_inbox_decision() {
+    let mut f = fixture();
+    let id = create(&mut f, RoutineTrigger::Once { at: 1000 });
+    f.state.reconcile_routines().unwrap();
+    let run = history(&f, id)[0].run.unwrap();
+    let mut decisions = Vec::new();
+    for call in ["first-decision", "second-decision"] {
+        let p = claim(&mut f.state);
+        f.state
+            .finish_run_call(
+                run,
+                p.turn.id,
+                p.turn.attempt,
+                response(Some(process_call(call))),
+            )
+            .unwrap();
+        let view = f.state.load_run(run).unwrap();
+        let mut task = f
+            .state
+            .load_task(view.turns.last().unwrap().intent.as_ref().unwrap().task)
+            .unwrap();
+        task.state = TaskState::AwaitingApproval;
+        tasks::save(&f.state.connection, &task).unwrap();
+        f.state.reconcile_routines().unwrap();
+        let inbox = f.state.inbox().unwrap();
+        assert_eq!(inbox.len(), 1);
+        assert!(
+            matches!(&inbox[0].status,OccurrenceStatus::Decision {reason} if reason.contains(&task.id.to_string()))
+        );
+        decisions.push(inbox[0].id);
+        command(
+            &mut f.state,
+            RoutineAction::AcknowledgeInbox { id: inbox[0].id },
+        )
+        .unwrap();
+        task.state = TaskState::Completed;
+        tasks::save(&f.state.connection, &task).unwrap();
+        f.state
+            .finish_run_result(run, p.turn.id, task, Ok("Synthetic task result".into()))
+            .unwrap();
+        f.state.reconcile_routines().unwrap();
+    }
+    assert_ne!(decisions[0], decisions[1]);
+    assert!(f.state.inbox().unwrap().is_empty());
 }

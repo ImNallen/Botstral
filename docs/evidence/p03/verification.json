@@ -1,0 +1,88 @@
+{
+  "recorded_at": "2026-10-28T18:50:26.910573+00:00",
+  "base_commit": "899772e075ad4d0576f96048361b90e7eccd127b",
+  "environment": {
+    "system": "Darwin 27.0.0 arm64",
+    "cargo": "1.93.0",
+    "node": "26.12.1",
+    "npm": "11.20.0"
+  },
+  "checks": [
+    {
+      "command": "cargo test -p botstral-manager --lib p03_",
+      "exit_code": 0,
+      "result": "13 passed",
+      "worktree_log": ".audit/p03/focused-final.log",
+      "log_sha256": "88de1cdc35cb5f0583266ad58b864023b001b8a61bf8e1a52a55da86c8aabcb9"
+    },
+    {
+      "command": "cargo test -p botstral-manager --lib calendar_gap_fold_and_anchoring",
+      "exit_code": 0,
+      "result": "1 passed",
+      "worktree_log": ".audit/p03/calendar-final.log",
+      "log_sha256": "5e69d9b4dce2cc33217ad17492a0998baba1c748b88f6b0e906de1f6360edad3"
+    },
+    {
+      "command": "./scripts/verify.sh",
+      "exit_code": 0,
+      "result": "Passed all configured stages. Manager library: 99 passed, 5 opt-in ignored.",
+      "worktree_log": ".audit/p03/workspace-handoff.log",
+      "log_sha256": "973726aa498f020cb103ccbfc7adadb53f21134f2eace68a056cbb9b1d5e06cd"
+    },
+    {
+      "command": "./scripts/verify-desktop.sh",
+      "exit_code": 0,
+      "result": "Passed all configured stages. Frontend: 27 passed, 1 skipped. All 7 native journal cases passed.",
+      "worktree_log": ".audit/p03/desktop-handoff.log",
+      "log_sha256": "61936b47c469c7f0fc3d2731779ac2df5e36041822a9ce9b580687f7efc326b0"
+    },
+    {
+      "command": "BOTSTRAL_P03_VIEWS=\"$PWD/.audit/p03/final-native-controls.json\" python3 desktop/fixtures/paired_manager.py --verify-journal --journal-case p03_routine_controls_and_crash_journal_recovery --root .audit/p03/native-manager-final-recording",
+      "exit_code": 0,
+      "result": "1 actual-manager native journal case passed.",
+      "worktree_log": ".audit/p03/final-native-recording.log",
+      "log_sha256": "ffc6f25f528f7b4f17d220e4fe48b153930b31461ee11b919e156c76255e8c10"
+    },
+    {
+      "command": "npm run test --workspace @botstral/desktop -- src/routine-contract.test.ts",
+      "exit_code": 0,
+      "result": "1 passed against the final native recording.",
+      "worktree_log": ".audit/p03/final-recorded-contract.log",
+      "log_sha256": "2b372ef2bcdb7769bdd3f0e4908b6f01e90cae0e6b75ba0050f941b6037a5c5b"
+    },
+    {
+      "command": "node desktop/fixtures/p03-proof.mjs /tmp/botstral-m06-visual/node_modules/playwright/index.mjs",
+      "exit_code": 0,
+      "result": "12 component interactions. No browser errors.",
+      "worktree_log": ".audit/p03/final-component-proof.log",
+      "log_sha256": "50851af1780a2470b9746329a9ece49a1582d43a88d0fedde9e8912b6363169f"
+    }
+  ],
+  "additional_checks": [
+    {
+      "command": "npx tsc --noEmit -p desktop/fixtures/tsconfig.p03.json",
+      "exit_code": 0
+    },
+    {
+      "command": "npx prettier --check desktop/fixtures/p03-proof.tsx desktop/fixtures/p03-proof.mjs desktop/fixtures/tsconfig.p03.json",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "video": {
+    "path": "docs/evidence/p03/routine-controls.webm",
+    "duration_seconds": 15.2,
+    "sha256": "64c18e121a87acefc1f82b67574733e3b70bc539796fb54cb938d2cd5eb59697"
+  },
+  "resolved_failure": "An extra recording attempt timed out during native sign-in under concurrent verification. The full desktop script and final standalone recording passed.",
+  "limitations": [
+    "Linux systemd, pinned Vibe runtime, and isolated multi-VM production acceptance remain opt-in and were unavailable on this macOS host.",
+    "Native P03 journal checks use a memory-backed secret store. The OS keychain acceptance case was not run.",
+    "The video uses actual app components with recorded actual-manager responses and a visible fixture label. Its model and worker are synthetic.",
+    "The manager-only loop uses a recorded inference provider and synthetic worker. The counted effect check uses the real connector adapter with a local HTTP fixture.",
+    "No OS push delivery while the app is closed is claimed."
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "resolveJsonModule": true },
+  "include": ["p03-proof.tsx"]
+}

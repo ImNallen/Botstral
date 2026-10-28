@@ -67,6 +67,12 @@ function snapshot(status: 'online' | 'offline' = 'online') {
 function application(initial = snapshot()) {
   const result = () => Promise.resolve(initial);
   return {
+    runDetails: result,
+    routine: result,
+    routineText: result,
+    saveRoutine: result,
+    routineHistory: result,
+    routinePreview: result,
     inspect: vi.fn(result),
     observe: vi.fn<PairedApplication['observe']>().mockResolvedValue(() => {}),
     beginPairing: result,

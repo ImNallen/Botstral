@@ -213,6 +213,84 @@ async fn remote_refresh(
     service.command(IntentCommand::Refresh).await
 }
 #[tauri::command]
+async fn run_details(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    id: botstral_link::RunId,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.command(IntentCommand::RunDetails(id)).await
+}
+#[tauri::command]
+async fn routine_text(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    bot: botstral_link::BotId,
+    text: String,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .command(IntentCommand::RoutineText { bot, text })
+        .await
+}
+#[tauri::command]
+async fn routine_command(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    input: botstral_link::RoutineCommand,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.command(IntentCommand::Routine(input)).await
+}
+#[tauri::command]
+async fn save_routine(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    id: botstral_link::RoutineId,
+    expected_revision: u64,
+    definition_json: String,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    if definition_json.len() > botstral_link::MAX_ROUTINE_BYTES {
+        return Err("invalid_input".into());
+    }
+    let definition = serde_json::from_str(&definition_json).map_err(|_| "invalid_input")?;
+    service
+        .command(IntentCommand::Routine(botstral_link::RoutineCommand {
+            id: botstral_link::RequestId::new(),
+            action: botstral_link::RoutineAction::Replace {
+                id,
+                expected_revision,
+                definition,
+            },
+        }))
+        .await
+}
+#[tauri::command]
+async fn routine_history(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    id: botstral_link::RoutineId,
+    before: Option<botstral_link::OccurrenceId>,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .command(IntentCommand::RoutineHistory { id, before })
+        .await
+}
+#[tauri::command]
+async fn routine_preview(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    trigger: botstral_link::RoutineTrigger,
+    after: i64,
+) -> Result<RemoteSnapshot, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .command(IntentCommand::RoutinePreview { trigger, after })
+        .await
+}
+#[tauri::command]
 async fn send_run(
     window: WebviewWindow,
     service: tauri::State<'_, RemoteService>,
@@ -491,6 +569,12 @@ pub fn run() {
             confirm_pairing,
             remote_refresh,
             send_run,
+            run_details,
+            routine_command,
+            routine_text,
+            save_routine,
+            routine_history,
+            routine_preview,
             open_session,
             set_permission,
             review_approval,

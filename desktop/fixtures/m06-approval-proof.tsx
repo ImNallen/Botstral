@@ -46,6 +46,12 @@ const unavailable = async (): Promise<never> => {
   throw new Error('This proof cannot grant authority.');
 };
 const application: PairedApplication = {
+  runDetails: unavailable,
+  routine: unavailable,
+  routineText: unavailable,
+  saveRoutine: unavailable,
+  routineHistory: unavailable,
+  routinePreview: unavailable,
   inspect: async () => snapshot,
   observe: async () => () => {},
   beginPairing: unavailable,

@@ -537,3 +537,12 @@ async fn readable_unknown_journal_blocks_mutation_without_replay() {
     );
     reopened.shutdown().await;
 }
+
+#[path = "journal/p03.rs"]
+mod p03;
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p03_routine_controls_and_crash_journal_recovery() {
+    p03::verify().await;
+}

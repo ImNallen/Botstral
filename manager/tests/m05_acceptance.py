@@ -243,7 +243,7 @@ def native_boundary(f, directory, wrong_leaf):
                     return json.loads(bytes(v ^ mask[i%4] for i,v in enumerate(body)))
                 hello = receive()
                 require(hello['type'] == 'authenticate', 'stub expected saved authentication')
-                welcome = json.dumps({'type':'welcome','version':2,'manager':config['trust']['manager'],'device':config['device']}).encode()
+                welcome = json.dumps({'type':'welcome','version':3,'manager':config['trust']['manager'],'device':config['device']}).encode()
                 connection.sendall(b'\x81\x7e'+struct.pack('!H',len(welcome))+welcome)
                 require(receive()['type'] == 'watch', 'native client did not subscribe before recovery')
                 call = receive()
@@ -356,7 +356,7 @@ class Fixture:
     def socket(self, directory):
         config = json.loads((directory/'device.json').read_text())
         ws = WebSocket(self.addresses['public'], self.context)
-        ws.send({'type':'authenticate', 'version':2, 'manager':config['trust']['manager'], 'role':'owner', 'credential':config['credential']})
+        ws.send({'type':'authenticate', 'version':3, 'manager':config['trust']['manager'], 'role':'owner', 'credential':config['credential']})
         require(ws.receive()['type'] == 'welcome', 'device authentication failed')
         return ws
 
@@ -419,7 +419,7 @@ def exercise(f, checks):
         ws = WebSocket(f.addresses['public'], f.context)
         try:
             barrier.wait(timeout=5)
-            ws.send({'type':'enroll','version':2,'manager':racing['trust']['manager'],'role':'owner','credential':racing['credential'],'invitation':racing['invitation']})
+            ws.send({'type':'enroll','version':3,'manager':racing['trust']['manager'],'role':'owner','credential':racing['credential'],'invitation':racing['invitation']})
             outcomes.append(ws.receive()['type'])
         finally:
             ws.close()
@@ -574,7 +574,7 @@ def exercise(f, checks):
     recovered = f.client('lost-response')
     config = json.loads((recovered/'device.json').read_text())
     lost = WebSocket(f.addresses['public'], f.context)
-    lost.send({'type':'enroll', 'version':2, 'manager':config['trust']['manager'], 'role':'owner', 'credential':config['credential'], 'invitation':config['invitation']})
+    lost.send({'type':'enroll', 'version':3, 'manager':config['trust']['manager'], 'role':'owner', 'credential':config['credential'], 'invitation':config['invitation']})
     lost.close()
     deadline = time.monotonic()+5
     while time.monotonic() < deadline:

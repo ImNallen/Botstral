@@ -18,13 +18,18 @@ CREATE TABLE routine_occurrences (
     status TEXT NOT NULL,
     view TEXT NOT NULL,
     prompt TEXT,
-    binding TEXT NOT NULL,
+    binding TEXT NOT NULL CHECK(length(binding)<=1024),
     UNIQUE(routine,trigger_key)
 ) STRICT;
 CREATE INDEX routine_occurrences_history ON routine_occurrences(routine,scheduled_at);
 CREATE INDEX routine_occurrences_status ON routine_occurrences(status);
 CREATE TABLE routine_commands (id TEXT PRIMARY KEY, request TEXT NOT NULL, result TEXT NOT NULL) STRICT;
-CREATE TABLE routine_budget (id INTEGER PRIMARY KEY CHECK(id=1), view TEXT NOT NULL) STRICT;
+CREATE TABLE routine_budget (
+    id INTEGER PRIMARY KEY CHECK(id=1), view TEXT NOT NULL,
+    admitted_runs INTEGER NOT NULL DEFAULT 0 CHECK(admitted_runs>=0),
+    tokens INTEGER NOT NULL DEFAULT 0 CHECK(tokens>=0),
+    cost INTEGER NOT NULL DEFAULT 0 CHECK(cost>=0)
+) STRICT;
 CREATE TABLE routine_reservations (
     run TEXT PRIMARY KEY REFERENCES runs(id), routine TEXT NOT NULL REFERENCES routines(id),
     tokens INTEGER NOT NULL, cost INTEGER NOT NULL
@@ -49,4 +54,17 @@ CREATE TABLE routine_wakeups (
     call_id TEXT NOT NULL, occurrence TEXT NOT NULL REFERENCES routine_occurrences(id),
     PRIMARY KEY(parent_run,call_id)
 ) STRICT;
+CREATE INDEX routine_publishers_active ON routine_publishers(json_extract(view,'$.revoked'));
+CREATE INDEX runs_active_phase ON runs(json_extract(summary,'$.phase.type'));
+CREATE INDEX tasks_active_phase ON tasks(json_extract(view,'$.state'));
+CREATE INDEX routine_occurrences_active ON routine_occurrences(routine,status);
+CREATE INDEX routine_occurrences_due ON routine_occurrences(status,scheduled_at);
+CREATE TABLE run_turn_receipts (
+    turn TEXT PRIMARY KEY,
+    run TEXT NOT NULL REFERENCES runs(id),
+    attempt TEXT NOT NULL UNIQUE,
+    receipt TEXT NOT NULL CHECK(length(receipt)<=32768)
+) STRICT;
+CREATE TRIGGER immutable_run_turn_receipt BEFORE UPDATE ON run_turn_receipts
+BEGIN SELECT RAISE(ABORT,'immutable run turn receipt'); END;
 PRAGMA user_version = 10;

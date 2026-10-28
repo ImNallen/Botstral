@@ -1012,6 +1012,17 @@ export type ConnectorFailure =
   | 'deadline'
   | 'restart'
   | 'interrupted';
+export type EventReplay =
+  | {
+      cursor: number;
+      entries: AuthoritativeEvent[];
+      type: 'events';
+    }
+  | {
+      cursor: number;
+      state: OwnerSnapshot;
+      type: 'snapshot';
+    };
 export type RunAttemptId = string;
 export type ToolProposal =
   | {
@@ -1068,17 +1079,6 @@ export type RunTurnPhase =
   | {
       reason: InferenceAttentionReason;
       type: 'awaiting_attention';
-    };
-export type EventReplay =
-  | {
-      cursor: number;
-      entries: AuthoritativeEvent[];
-      type: 'events';
-    }
-  | {
-      cursor: number;
-      state: OwnerSnapshot;
-      type: 'snapshot';
     };
 export type TaskEvent =
   | {
@@ -1915,7 +1915,7 @@ export interface OwnerWorkspace {
   manager: ManagerId;
   owner: string;
   run_ready_bots: BotId[];
-  runs: RunView[];
+  runs: WorkspaceRun[];
   sessions: ComputerSession[];
   state: OwnerSnapshot;
   vault_unlocked: boolean;
@@ -1925,6 +1925,29 @@ export interface WorkspaceBot {
   created_at: number;
   id: BotId;
   name: string;
+}
+export interface WorkspaceRun {
+  request: SubmitRun;
+  summary: RunSummary;
+  turns: WorkspaceRunTurn[];
+}
+export interface WorkspaceRunTurn {
+  id: RunTurnId;
+  ordinal: number;
+  result?: string | null;
+  task?: TaskId | null;
+  text?: string | null;
+  truncated: boolean;
+}
+export interface WorkspaceWorker {
+  id: WorkerId;
+  phase: string;
+  revoked: boolean;
+}
+export interface AuthoritativeEvent {
+  entity: string;
+  kind: string;
+  sequence: number;
 }
 export interface RunView {
   configuration: InferenceConfiguration;
@@ -1986,16 +2009,6 @@ export interface AuthorizedImage {
   length: number;
   reference: ImageReference;
   width: number;
-}
-export interface WorkspaceWorker {
-  id: WorkerId;
-  phase: string;
-  revoked: boolean;
-}
-export interface AuthoritativeEvent {
-  entity: string;
-  kind: string;
-  sequence: number;
 }
 export interface OwnerReceipt {
   acknowledgment: Acknowledgment;

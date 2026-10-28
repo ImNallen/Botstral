@@ -4,6 +4,8 @@ import { remoteIssues, type Device, type Task, type Workspace } from './paired-d
 import { Avatar } from './Avatar';
 import { Icon } from './Icon';
 import { formatDate } from './format';
+import type { RunTemplate } from '@botstral/link';
+import { Routines, RoutineInbox } from './Routines';
 
 function WorkspaceDialog({
   label,
@@ -480,12 +482,16 @@ export function PairedWorkspace({
   const [details, setDetails] = useState(false);
   const [hiddenCandidate, setHiddenCandidate] = useState<string | null>(null);
   const bot = workspace?.bots.find((b) => b.id === selected) ?? workspace?.bots[0];
+  useEffect(() => {
+    if (bot && !workspace?.bots.some((item) => item.id === selected)) setSelected(bot.id);
+  }, [bot, workspace?.bots, selected]);
   const session = workspace?.sessions.find((s) => s.bot_id === bot?.id);
   const worker = workspace?.workers.find((w) => w.id === session?.worker_id);
   const config = workspace?.configurations.find((c) => c.bot === bot?.id);
   const permission = workspace?.permissions.find((p) => p.bot === bot?.id);
   const unknown = snapshot?.intents.some((i) => i.status === 'unknown');
-  const blocker =
+  const routineCommand = text.startsWith('/routine ');
+  const executionBlocker =
     snapshot?.status !== 'online'
       ? 'Reconnect and recover the workspace before sending.'
       : !workspace?.vault_unlocked
@@ -505,6 +511,67 @@ export function PairedWorkspace({
                     : !settings.process && !/^[a-f0-9]{64}$/.test(settings.runtime)
                       ? 'Enable bounded process tools or enter the approved browser runtime digest.'
                       : null;
+  const blocker = routineCommand
+    ? snapshot?.status !== 'online'
+      ? 'Reconnect to send owner commands.'
+      : unknown
+        ? 'Resolve the saved operation first.'
+        : null
+    : executionBlocker;
+  const template: RunTemplate | null =
+    session && config && (settings.process || /^[a-f0-9]{64}$/.test(settings.runtime))
+      ? {
+          session: session.id,
+          session_revision: session.revision,
+          configuration_revision: config.revision,
+          permission_revision: permission?.revision ?? 1,
+          prompt: '',
+          duration_seconds: settings.seconds,
+          max_turns: settings.turns,
+          max_total_tokens: settings.tokens,
+          max_cost_microusd: settings.cost,
+          max_output_tokens: settings.output,
+          max_operations: 16,
+          execution_policy: {
+            process: settings.process
+              ? {
+                  profile: 'linux_systemd_v1',
+                  account: { uid: settings.uid, gid: settings.gid },
+                  environment: {},
+                  limits: {
+                    runtime_seconds: settings.seconds,
+                    output_bytes: 1024,
+                    processes: 8,
+                    memory_bytes: 64 * 1024 * 1024,
+                  },
+                }
+              : null,
+            computer: /^[a-f0-9]{64}$/.test(settings.runtime)
+              ? {
+                  profile: 'linux_playwright_v1',
+                  account: { uid: settings.uid, gid: settings.gid },
+                  runtime: { sha256: settings.runtime },
+                  limits: {
+                    runtime_seconds: settings.seconds,
+                    output_bytes: 1024,
+                    processes: 128,
+                    memory_bytes: 1024 * 1024 * 1024,
+                  },
+                  viewport: { width: 800, height: 600 },
+                  outputs: [
+                    { slot: 'text', name: 'result.txt', media_type: 'text_plain', max_bytes: 8192 },
+                    {
+                      slot: 'image',
+                      name: 'screenshot.png',
+                      media_type: 'png',
+                      max_bytes: 1024 * 1024,
+                    },
+                  ],
+                }
+              : null,
+          },
+        }
+      : null;
   const issue = state.issue ?? snapshot?.issue;
   const runs = workspace?.runs.filter((r) => r.bot === bot?.id) ?? [];
   const linked = new Set(runs.flatMap((r) => r.turns.flatMap((t) => (t.task ? [t.task] : []))));
@@ -590,13 +657,34 @@ export function PairedWorkspace({
               Cached workspace. Actions require pinned authentication and complete recovery.
             </div>
           )}
+          {workspace && (
+            <RoutineInbox
+              workspace={workspace}
+              controller={controller}
+              busy={state.busy || snapshot?.status !== 'online'}
+            />
+          )}
+          {snapshot?.routine_panel.message && (
+            <section className="routine-reply" aria-label="Owner command reply">
+              <strong>Owner command reply</strong>
+              <pre>{snapshot.routine_panel.message}</pre>
+            </section>
+          )}
           {!workspace ? (
             <Pairing controller={controller} local={local} onLocal={onLocal} />
           ) : bot ? (
             <>
+              <Routines
+                workspace={workspace}
+                bot={bot}
+                snapshot={snapshot}
+                template={template}
+                controller={controller}
+                busy={state.busy || snapshot.status !== 'online'}
+              />
               <p className="thread-explanation">
-                Each message starts a separate durable run. Context is retained within that run.
-                Earlier runs remain in history.
+                Messages start separate durable runs. Type /routine help for authenticated owner
+                controls. Context is retained within each run. Earlier runs remain in history.
               </p>
               {!runs.length && (
                 <div className="empty-chat">
@@ -633,6 +721,16 @@ export function PairedWorkspace({
                   {run.turns.map((turn) => (
                     <div key={turn.id} className="assistant-turn">
                       {turn.text && <p className="assistant-message">{turn.text}</p>}
+                      {turn.truncated && (
+                        <button
+                          disabled={state.busy || snapshot.status !== 'online'}
+                          onClick={() =>
+                            void controller.run(() => controller.app.runDetails(run.id))
+                          }
+                        >
+                          Load full run text
+                        </button>
+                      )}
                       {turn.task &&
                         workspace.tasks
                           .filter((t) => t.id === turn.task)
@@ -721,7 +819,13 @@ export function PairedWorkspace({
               aria-label="Run composer"
               onSubmit={(event) => {
                 event.preventDefault();
-                if (!session || blocker || !text.trim()) return;
+                if (blocker || !text.trim()) return;
+                if (routineCommand) {
+                  void controller.run(() => controller.app.routineText(bot.id, text));
+                  setText('');
+                  return;
+                }
+                if (!session) return;
                 const prompt = text;
                 void controller.run(() =>
                   controller.app.send({

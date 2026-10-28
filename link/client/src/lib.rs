@@ -1,3 +1,5 @@
+mod workspace_cache;
+
 use base64::{
     Engine,
     engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
@@ -394,9 +396,8 @@ impl OwnerClient {
         if file.metadata().map_err(|_| ClientError::Storage)?.len() > OWNER_TRANSFER_BYTES as u64 {
             return Err(ClientError::Storage);
         }
-        let image: OwnerWorkspace =
-            serde_json::from_reader(file.take(OWNER_TRANSFER_BYTES as u64 + 1))
-                .map_err(|_| ClientError::Storage)?;
+        let image = workspace_cache::read(file.take(OWNER_TRANSFER_BYTES as u64 + 1))
+            .map_err(|_| ClientError::Storage)?;
         if self.trust().is_none_or(|t| t.manager != image.manager) {
             return Err(ClientError::Trust);
         }
@@ -650,6 +651,9 @@ impl OwnerSession {
         let read = matches!(
             &operation,
             OwnerOperation::Workspace
+                | OwnerOperation::RoutineStatus { .. }
+                | OwnerOperation::RoutineHistory { .. }
+                | OwnerOperation::RoutinePreview { .. }
                 | OwnerOperation::Resume { .. }
                 | OwnerOperation::Task { .. }
                 | OwnerOperation::Run { .. }

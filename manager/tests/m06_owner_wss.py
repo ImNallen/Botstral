@@ -24,7 +24,7 @@ def exercise(manager, report):
             invitation = fixture.owner('POST', '/v1/device-invitations', {'request': {'fingerprint': fingerprint, 'label': 'M06 connector fixture'}, 'lifetime_seconds': 600})
             trust = fixture.profile()
             websocket = WebSocket(fixture.addresses['public'], fixture.context)
-            websocket.send({'type': 'enroll', 'version': 2, 'manager': trust['manager'], 'role': 'owner',
+            websocket.send({'type': 'enroll', 'version': 3, 'manager': trust['manager'], 'role': 'owner',
                             'credential': credential, 'invitation': invitation['invitation']})
             assert websocket.receive()['type'] == 'welcome'
             identity = str(uuid.uuid4())

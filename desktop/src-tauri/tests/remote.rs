@@ -332,7 +332,11 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
     let configurations = projected["workspace"]["configurations"].as_array().unwrap();
     assert_eq!(configurations.len(), 1);
     assert_eq!(configurations[0]["ready"], true);
-    assert!(chat.runs.iter().flat_map(|r| &r.turns).any(|t| matches!(&t.response, Some(RunMessage::Assistant { content, .. }) if content.contains("durable recorded assistant"))));
+    assert!(chat.runs.iter().flat_map(|r| &r.turns).any(|t| {
+        t.text
+            .as_ref()
+            .is_some_and(|content| content.contains("durable recorded assistant"))
+    }));
     service
         .command(IntentCommand::Send(send("Create a file", true)))
         .await
@@ -412,7 +416,7 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
             .iter()
             .filter(|r| r.request.prompt == "Please cancel a long operation")
             .flat_map(|r| &r.turns)
-            .any(|t| t.intent.is_some())
+            .any(|t| t.task.is_some())
     })
     .await;
     let cancellation_task = cancelling
@@ -422,7 +426,7 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap()
         .turns
         .iter()
-        .find_map(|t| t.intent.as_ref().map(|i| i.task))
+        .find_map(|t| t.task)
         .unwrap();
     let review = service
         .command(IntentCommand::Review(cancellation_task))

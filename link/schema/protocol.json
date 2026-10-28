@@ -5644,7 +5644,7 @@
         "runs": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/RunView"
+            "$ref": "#/$defs/WorkspaceRun"
           }
         },
         "sessions": {
@@ -9026,6 +9026,73 @@
         "id",
         "name",
         "created_at"
+      ]
+    },
+    "WorkspaceRun": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/SubmitRun"
+        },
+        "summary": {
+          "$ref": "#/$defs/RunSummary"
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkspaceRunTurn"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "request",
+        "turns"
+      ]
+    },
+    "WorkspaceRunTurn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RunTurnId"
+        },
+        "ordinal": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "result": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "task": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "truncated"
       ]
     },
     "WorkspaceWorker": {

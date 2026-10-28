@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 identifiers!(RoutineId, OccurrenceId, PublisherId, InboxId);
 pub const MAX_ROUTINES: usize = 128;
 pub const MAX_PUBLISHERS: usize = 32;
+pub const MAX_PUBLISHER_HISTORY: usize = 16;
 pub const MAX_ROUTINE_PAGE: usize = 32;
 pub const MAX_INBOX_PAGE: usize = 64;
 pub const MAX_ROUTINE_BYTES: usize = 24 * 1024;

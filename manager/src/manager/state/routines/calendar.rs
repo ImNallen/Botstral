@@ -9,7 +9,9 @@ pub(super) fn validate(trigger: &RoutineTrigger) -> Result<(), OperationError> {
             Ok(())
         }
         RoutineTrigger::Interval { anchor, seconds }
-            if *anchor > 0 && (60..=31_536_000).contains(seconds) =>
+            if *anchor > 0
+                && DateTime::from_timestamp(*anchor, 0).is_some()
+                && (60..=31_536_000).contains(seconds) =>
         {
             Ok(())
         }
@@ -50,6 +52,9 @@ fn daily(date: NaiveDate, hour: u8, minute: u8, zone: Tz) -> Option<i64> {
 }
 pub(super) fn next(trigger: &RoutineTrigger, after: i64) -> Result<Option<i64>, OperationError> {
     validate(trigger)?;
+    if after < 0 || DateTime::from_timestamp(after, 0).is_none() {
+        return Err(OperationError::InvalidInput);
+    }
     match trigger {
         RoutineTrigger::Once { at } => Ok((*at > after).then_some(*at)),
         RoutineTrigger::Interval { anchor, seconds } => {
@@ -100,11 +105,28 @@ pub(super) fn latest(
             skipped.min(i64::from(u32::MAX)) as u32,
         ));
     }
-    if matches!(trigger, RoutineTrigger::Daily { .. }) {
-        // Only recent calendar dates are eligible after an outage.
+    if let RoutineTrigger::Daily {
+        hour,
+        minute,
+        timezone,
+    } = trigger
+    {
+        let zone: Tz = timezone.parse().map_err(|_| OperationError::InvalidInput)?;
+        let date_of = |at: i64| -> Result<NaiveDate, OperationError> {
+            let date = DateTime::<Utc>::from_timestamp(at, 0)
+                .ok_or(OperationError::InvalidInput)?
+                .with_timezone(&zone)
+                .date_naive();
+            if let Some(previous) = date.pred_opt()
+                && daily(previous, *hour, *minute, zone) == Some(at)
+            {
+                Ok(previous)
+            } else {
+                Ok(date)
+            }
+        };
         let after = now.saturating_sub(3 * 86400).max(first - 1);
         let mut at = next(trigger, after)?.ok_or(OperationError::InvalidInput)?;
-        let mut skipped = ((after - first).max(0) / 86400).min(i64::from(u32::MAX)) as u32;
         for _ in 0..5 {
             let Some(following) = next(trigger, at)? else {
                 break;
@@ -113,8 +135,10 @@ pub(super) fn latest(
                 break;
             }
             at = following;
-            skipped = skipped.saturating_add(1);
         }
+        let skipped = (date_of(at)? - date_of(first)?)
+            .num_days()
+            .clamp(0, i64::from(u32::MAX)) as u32;
         return Ok((at, skipped));
     }
     Ok((first, 0))

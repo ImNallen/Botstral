@@ -31,4 +31,42 @@ fn calendar_gap_fold_and_anchoring() {
         .unwrap(),
         Some(280)
     );
+    assert_eq!(
+        calendar::latest(
+            &daily,
+            stamp("2026-03-27T01:30:00Z"),
+            stamp("2026-03-30T12:00:00Z")
+        )
+        .unwrap(),
+        (stamp("2026-03-30T00:30:00Z"), 3)
+    );
+    assert_eq!(
+        calendar::latest(
+            &daily,
+            stamp("2026-10-23T00:30:00Z"),
+            stamp("2026-10-26T12:00:00Z")
+        )
+        .unwrap(),
+        (stamp("2026-10-26T01:30:00Z"), 3)
+    );
+    assert_eq!(
+        calendar::next(
+            &RoutineTrigger::Interval {
+                anchor: 100,
+                seconds: 60
+            },
+            i64::MIN
+        ),
+        Err(OperationError::InvalidInput)
+    );
+    assert_eq!(
+        calendar::next(
+            &RoutineTrigger::Interval {
+                anchor: i64::MAX,
+                seconds: 60
+            },
+            100
+        ),
+        Err(OperationError::InvalidInput)
+    );
 }

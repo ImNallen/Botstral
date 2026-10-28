@@ -1066,3 +1066,59 @@ summary {
 .action-review .pairing-panel {
   margin: 0;
 }
+
+.routines-panel,
+.routine-inbox,
+.routine-reply {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.routines-panel > summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+.routine-card {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.routine-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.routine-card small {
+  display: block;
+}
+.routine-create,
+.routine-card form,
+.routines-panel form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.routines-panel label {
+  display: grid;
+  gap: 6px;
+}
+.routines-panel input,
+.routines-panel select,
+.routines-panel textarea {
+  width: 100%;
+  padding: 8px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.routines-panel input[type='checkbox'] {
+  width: auto;
+}
+.routine-reply pre,
+.routine-card pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

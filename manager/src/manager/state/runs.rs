@@ -159,8 +159,8 @@ impl State {
     }
     pub(super) fn run_summaries(&self) -> Result<Vec<RunSummary>, OperationError> {
         self.connection
-            .prepare("SELECT summary FROM runs WHERE json_extract(summary,'$.phase.type') NOT IN ('completed','cancelled','stopped') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT 16) ORDER BY rowid")?
-            .query_map([], |r| r.get::<_, String>(0))?
+            .prepare("SELECT summary FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','cancelling','awaiting_attention') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT ?1) ORDER BY rowid")?
+            .query_map([MAX_RUN_HISTORY as i64], |r| r.get::<_, String>(0))?
             .map(|row| parse(row?))
             .collect()
     }
@@ -260,7 +260,7 @@ impl State {
             return Err(OperationError::InvalidInput);
         }
         let count: i64 = self.connection.query_row(
-            "SELECT count(*) FROM runs WHERE json_extract(summary,'$.phase.type') NOT IN ('completed','cancelled','stopped')", [], |r| r.get(0))?;
+            "SELECT count(*) FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','cancelling','awaiting_attention')", [], |r| r.get(0))?;
         if count >= MAX_RUNS as i64 {
             return Err(OperationError::Busy);
         }

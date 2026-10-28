@@ -2,6 +2,9 @@ use crate::*;
 use std::collections::BTreeMap;
 
 pub const MAX_RUNS: usize = 16;
+pub const MAX_RUN_HISTORY: usize = 8;
+pub const MAX_TASK_HISTORY: usize = 32;
+pub const MAX_WORKSPACE_RUN_BYTES: usize = 128 * 1024;
 pub const MAX_RUN_TURNS: u32 = 8;
 pub const MAX_RUN_SECONDS: i64 = 3600;
 pub const MAX_RUN_TRANSCRIPT_BYTES: usize = 32 * 1024;
