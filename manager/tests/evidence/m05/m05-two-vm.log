@@ -1,0 +1,12 @@
+Started 2026-10-27T22:03:37.764750+00:00
+Command python3 manager/tests/m05_two_vm.py --binaries .audit/linux-bin --legacy-agent-bin .audit/linux-bin/m04-botstral-agent --bore-bin .audit/bore-linux --output .audit/m05-two-vm
+PASS real_native_owner_over_direct_lan
+PASS unchanged_production_worker_over_same_public_listener
+PASS public_relay_excludes_setup_and_local_administration_with_forwarded_headers
+PASS actual_external_bore_data_path_with_unchanged_inner_tls
+PASS actual_native_reconnect_and_durable_recovery_through_public_relay
+PASS current_and_future_remote_owner_revocation_with_worker_progress
+PASS remote_revocation_persists_after_restart
+
+Finished 2026-10-27T22:04:33.977673+00:00
+Exit 0

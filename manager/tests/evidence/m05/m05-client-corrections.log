@@ -1,0 +1,6 @@
+Started 2026-10-27T22:01:42.983334+00:00
+Command python3 manager/tests/m05_client_regressions.py --binaries .audit/macos-default-bin --output .audit/m05-client-corrections
+{"passed": true, "checks": ["exclusive_client_storage_and_unknown_committed_mutation", "transient_tls_alert_then_healthy_pinned_recovery"]}
+
+Finished 2026-10-27T22:01:50.303197+00:00
+Exit 0

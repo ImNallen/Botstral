@@ -1,0 +1,12 @@
+Observed 2026-10-27T21:58:15.341934+00:00
+dbus.service                     loaded inactive dead D-Bus User Message Bus
+dirmngr.service                  loaded inactive dead GnuPG network certificate management daemon
+gpg-agent.service                loaded inactive dead GnuPG cryptographic agent and passphrase cache
+keyboxd.service                  loaded inactive dead GnuPG public key management service
+launchpadlib-cache-clean.service loaded inactive dead Clean up old files in the Launchpadlib cache
+pk-debconf-helper.service        loaded inactive dead debconf communication service
+snapd.session-agent.service      loaded inactive dead snapd user session agent
+   1544 systemd
+   1545 (sd-pam)
+ 227575 sshd
+ 227576 ps

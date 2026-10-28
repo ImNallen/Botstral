@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-c4f358204e68019f)
+
+running 1 test
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 61 filtered out; finished in 15.52s
+

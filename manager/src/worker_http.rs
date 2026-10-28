@@ -1,35 +1,25 @@
 use crate::manager::{ConnectionLease, Manager, OperationError, WorkerGateway};
 use age::secrecy::SecretString;
 use axum::body::{Body, to_bytes};
-use botstral_link::{tls, *};
+use botstral_link::*;
 use futures_util::{SinkExt, StreamExt};
-use hyper::{
-    Request, Response, StatusCode, body::Incoming, server::conn::http1, service::service_fn,
-};
-use hyper_util::rt::{TokioIo, TokioTimer};
-use rustls::{ServerConfig, server::WebPkiClientVerifier};
-use std::{convert::Infallible, io, net::SocketAddr, path::PathBuf, sync::Arc, time::Duration};
-use tokio::{
-    net::TcpListener,
-    sync::{Semaphore, mpsc, oneshot, watch},
-    task::JoinSet,
-};
-use tokio_rustls::TlsAcceptor;
+use hyper::{Request, Response, StatusCode, body::Incoming};
+use hyper_util::rt::TokioIo;
+use std::{convert::Infallible, io, time::Duration};
+use tokio::sync::{mpsc, watch};
 use tokio_tungstenite::{
     WebSocketStream,
-    tungstenite::{
-        Message,
-        handshake::server::create_response,
-        protocol::{Role, WebSocketConfig},
-    },
+    tungstenite::{Message, handshake::server::create_response},
 };
 
 const DEADLINE: Duration = Duration::from_secs(5);
-const CONNECTIONS: usize = 16;
 
 #[derive(Clone)]
 pub(crate) struct VerifiedIdentity(CertificateFingerprint);
 impl VerifiedIdentity {
+    pub(crate) fn from_verified(der: &[u8]) -> Self {
+        Self(CertificateFingerprint::from_der(der))
+    }
     pub(crate) fn fingerprint(&self) -> &CertificateFingerprint {
         &self.0
     }
@@ -39,104 +29,10 @@ impl VerifiedIdentity {
     }
 }
 
-pub struct WorkerTls {
-    pub listen: SocketAddr,
-    pub certificate: PathBuf,
-    pub key: PathBuf,
-    pub client_ca: PathBuf,
-}
-
-pub(crate) struct WorkerListener {
-    listener: TcpListener,
-    acceptor: TlsAcceptor,
-}
-impl WorkerListener {
-    pub(crate) async fn bind(config: WorkerTls) -> io::Result<Self> {
-        let provider = Arc::new(rustls::crypto::ring::default_provider());
-        let verifier = WebPkiClientVerifier::builder_with_provider(
-            Arc::new(tls::roots(&config.client_ca)?),
-            provider.clone(),
-        )
-        .build()
-        .map_err(io::Error::other)?;
-        let config_tls = ServerConfig::builder_with_provider(provider)
-            .with_safe_default_protocol_versions()
-            .map_err(io::Error::other)?
-            .with_client_cert_verifier(verifier)
-            .with_single_cert(
-                tls::certificates(&config.certificate)?,
-                tls::private_key(&config.key)?,
-            )
-            .map_err(io::Error::other)?;
-        Ok(Self {
-            listener: TcpListener::bind(config.listen).await?,
-            acceptor: TlsAcceptor::from(Arc::new(config_tls)),
-        })
-    }
-    pub(crate) fn local_addr(&self) -> io::Result<SocketAddr> {
-        self.listener.local_addr()
-    }
-    pub(crate) async fn serve(
-        self,
-        manager: Manager,
-        mut stopped: watch::Receiver<bool>,
-    ) -> io::Result<()> {
-        let permits = Arc::new(Semaphore::new(CONNECTIONS));
-        let mut tasks = JoinSet::new();
-        loop {
-            tokio::select! {
-                biased;
-                _ = stopped.changed() => break,
-                _ = tasks.join_next(), if !tasks.is_empty() => {},
-                accepted = self.listener.accept() => {
-                    let (stream, _) = accepted?;
-                    let Ok(permit) = permits.clone().try_acquire_owned() else { continue };
-                    let acceptor = self.acceptor.clone();
-                    let gateway = manager.worker_gateway();
-                    let manager = manager.clone();
-                    let mut stop = stopped.clone();
-                    tasks.spawn(async move {
-                        let _permit = permit;
-                        let connection = async {
-                            let stream = tokio::time::timeout(DEADLINE, acceptor.accept(stream)).await.map_err(io::Error::other)??;
-                            let certificate = stream.get_ref().1.peer_certificates().and_then(|certs| certs.first()).ok_or_else(|| io::Error::other("missing client certificate"))?;
-                            let peer = VerifiedIdentity(CertificateFingerprint::from_der(certificate.as_ref()));
-                            let (upgrade_tx, upgrade_rx) = oneshot::channel();
-                            let upgrade_tx = Arc::new(std::sync::Mutex::new(Some(upgrade_tx)));
-                            let service_gateway = gateway.clone();
-                            let service_manager = manager.clone();
-                            let service_peer = peer.clone();
-                            let service = service_fn(move |request| worker_request(request, service_peer.clone(), service_gateway.clone(), service_manager.clone(), upgrade_tx.clone()));
-                            tokio::time::timeout(Duration::from_secs(125), http1::Builder::new().timer(TokioTimer::new()).header_read_timeout(DEADLINE)
-                                .max_headers(32).max_buf_size(16384).serve_connection(TokioIo::new(stream), service).with_upgrades()).await.map_err(io::Error::other)?.map_err(io::Error::other)?;
-                            if let Ok(upgrade) = upgrade_rx.await {
-                                let stream = tokio::time::timeout(DEADLINE, upgrade).await.map_err(io::Error::other)?.map_err(io::Error::other)?;
-                                let config = WebSocketConfig::default().max_message_size(Some(MAX_MESSAGE)).max_frame_size(Some(MAX_MESSAGE));
-                                let socket = WebSocketStream::from_raw_socket(TokioIo::new(stream), Role::Server, Some(config)).await;
-                                connected(socket, gateway.clone(), peer).await?;
-                            }
-                            Ok::<_, io::Error>(())
-                        };
-                        tokio::select! { _ = stop.changed() => {}, _ = connection => {} }
-                    });
-                }
-            }
-        }
-        drop(self.listener);
-        if tokio::time::timeout(DEADLINE, async {
-            while tasks.join_next().await.is_some() {}
-        })
-        .await
-        .is_err()
-        {
-            tasks.shutdown().await;
-        }
-        Ok(())
-    }
-}
-
-type UpgradeSender = Arc<std::sync::Mutex<Option<oneshot::Sender<hyper::upgrade::OnUpgrade>>>>;
-async fn worker_request(
+pub(crate) use crate::public_http::PublicListener as WorkerListener;
+pub use crate::public_http::PublicTls as WorkerTls;
+use crate::public_http::UpgradeSender;
+pub(crate) async fn worker_request(
     mut request: Request<Incoming>,
     peer: VerifiedIdentity,
     gateway: WorkerGateway,
@@ -239,7 +135,7 @@ async fn worker_request(
             Ok(response) => {
                 let sender = upgrade.lock().unwrap().take();
                 if let Some(sender) = sender {
-                    let _ = sender.send(hyper::upgrade::on(&mut request));
+                    let _ = sender.send((hyper::upgrade::on(&mut request), false));
                     response.map(|_| Body::empty())
                 } else {
                     error_response(StatusCode::BAD_REQUEST, ErrorCode::WrongPhase)
@@ -256,7 +152,7 @@ async fn worker_request(
     Ok(response)
 }
 
-fn json_response(status: StatusCode, value: serde_json::Value) -> Response<Body> {
+pub(crate) fn json_response(status: StatusCode, value: serde_json::Value) -> Response<Body> {
     Response::builder()
         .status(status)
         .header("connection", "close")
@@ -265,7 +161,7 @@ fn json_response(status: StatusCode, value: serde_json::Value) -> Response<Body>
         .body(Body::from(value.to_string()))
         .unwrap()
 }
-fn error_response(status: StatusCode, code: ErrorCode) -> Response<Body> {
+pub(crate) fn error_response(status: StatusCode, code: ErrorCode) -> Response<Body> {
     json_response(status, serde_json::json!({"error":code}))
 }
 pub(crate) fn protocol_error(error: OperationError) -> ErrorCode {
@@ -293,7 +189,7 @@ async fn receive(socket: &mut Socket) -> Result<Envelope<WorkerMessage>, ErrorCo
         _ => Err(ErrorCode::InvalidMessage),
     }
 }
-async fn connected(
+pub(crate) async fn connected(
     mut socket: Socket,
     gateway: WorkerGateway,
     peer: VerifiedIdentity,

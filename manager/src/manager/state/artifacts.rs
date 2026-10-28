@@ -504,11 +504,11 @@ impl State {
     }
     pub(in crate::manager) fn download_artifact(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         task: TaskId,
         id: ArtifactId,
     ) -> Result<(fs::File, OutputDeclaration, u64), OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let task = self.load_task(task)?;
         if task.command.owner != self.principal()? {
             return Err(OperationError::Unauthorized);

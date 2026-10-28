@@ -154,14 +154,7 @@ pub struct OwnerInput {
     pub value: u32,
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub struct DispatchReceipt {
-    pub command_id: botstral_link::CommandId,
-    pub generation: botstral_link::Generation,
-    pub acknowledgment: botstral_link::Acknowledgment,
-    pub last_event: Option<botstral_link::TaskEvent>,
-    pub bot_inputs: u32,
-}
+pub use botstral_link::OwnerReceipt as DispatchReceipt;
 
 impl Manager {
     pub async fn set_input_owner(

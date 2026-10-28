@@ -1,0 +1,21 @@
+Started 2026-10-27T21:57:51.299578+00:00
+Command npm run check
+
+> check
+> npm run bindings:check && npm run check --workspaces
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+
+> @botstral/link@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+Finished 2026-10-27T21:58:06.113480+00:00
+Exit 0

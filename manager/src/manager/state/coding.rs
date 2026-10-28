@@ -105,10 +105,10 @@ impl State {
     }
     pub(in crate::manager) fn coding_calls(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         task: TaskId,
     ) -> Result<Vec<CodingCallView>, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.load_task(task)?;
         self.task_calls(task)
     }

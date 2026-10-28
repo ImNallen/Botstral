@@ -448,6 +448,8 @@ async fn abandoned_coding_caller_during_state_admission_releases_known_unsent_ho
         }
     });
     let manager = Manager {
+        events: watch::channel(0).1,
+        snapshots: Arc::new(Semaphore::new(1)),
         queue: queue.clone(),
         inference: control.clone(),
         provider: Provider::fixture("http://127.0.0.1:1".into()),

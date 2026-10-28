@@ -159,19 +159,19 @@ impl State {
 
     pub(in crate::manager) fn inference_configuration(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         bot: BotId,
     ) -> Result<InferenceConfiguration, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.load_inference_configuration(bot, self.latest_inference_revision(bot)?)
     }
 
     pub(in crate::manager) fn configure_inference(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: ConfigureInference,
     ) -> Result<InferenceConfiguration, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         validate_policy(&input.policy, self.now())?;
         if !self.connection.query_row(
             "SELECT EXISTS(SELECT 1 FROM bots WHERE id=?1)",
@@ -220,10 +220,10 @@ impl State {
 
     pub(in crate::manager) fn prepare_inference_verification(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: VerifyInference,
     ) -> Result<VerificationPermit, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         if self.latest_inference_revision(input.bot)? != input.revision {
             return Err(OperationError::Conflict);
         }
@@ -312,19 +312,19 @@ impl State {
 
     pub(in crate::manager) fn inference(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: InferenceId,
     ) -> Result<InferenceView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.load_inference(id)
     }
 
     pub(in crate::manager) fn submit_inference(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         input: SubmitInference,
     ) -> Result<InferenceView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         match self.load_inference(input.id) {
             Ok(previous) => {
                 return if previous.request == input {
@@ -403,10 +403,10 @@ impl State {
 
     pub(in crate::manager) fn cancel_inference(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: InferenceId,
     ) -> Result<InferenceView, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let mut view = self.load_inference(id)?;
         if view.cancellation_requested_at.is_some()
             || !matches!(

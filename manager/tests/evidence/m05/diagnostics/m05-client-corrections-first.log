@@ -1,0 +1,6 @@
+Started 2026-10-27T21:58:11.554959+00:00
+Command python3 manager/tests/m05_client_regressions.py --output .audit/m05-client-corrections
+{"passed": true, "checks": ["exclusive_client_storage_and_unknown_committed_mutation", "transient_tls_alert_then_healthy_pinned_recovery"]}
+
+Finished 2026-10-27T21:58:20.300041+00:00
+Exit 0

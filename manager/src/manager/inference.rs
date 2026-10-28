@@ -33,6 +33,12 @@ impl Default for InferenceControl {
     }
 }
 
+impl InferenceControl {
+    pub(super) fn notify_inference(&self) {
+        self.wake.notify_one();
+    }
+}
+
 pub(crate) struct InferenceRuntime {
     stop: watch::Sender<bool>,
     task: Option<JoinHandle<Result<(), OperationError>>>,

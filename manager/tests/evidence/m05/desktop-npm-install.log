@@ -1,0 +1,16 @@
+Started 2026-10-27T21:57:42.282727+00:00
+Command npm ci
+
+added 117 packages, and audited 120 packages in 686ms
+
+30 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+
+Finished 2026-10-27T21:57:43.076858+00:00
+Exit 0

@@ -1,0 +1,46 @@
+Started 2026-10-27T22:04:43.249251+00:00
+Command python3 .audit/cleanup.py
+{
+  "observed_at": "2026-10-27T22:04:43.274913+00:00",
+  "build_root": "/home/botstral/m05-final-4a0df3ffd5d6",
+  "hosts": {
+    "botstral-manager": {
+      "root": "/home/botstral/m05-final-4a0df3ffd5d6",
+      "owned_units": [],
+      "remaining_botstral_units": [],
+      "owned_processes_remaining": [],
+      "root_exists": false
+    },
+    "botstral-computer": {
+      "root": "/home/botstral/m05-final-4a0df3ffd5d6",
+      "owned_units": [],
+      "remaining_botstral_units": [
+        {
+          "unit": "botstral-0c2ca9ca-b846-4162-8fce-adb2108366ee-4bd9aaa6-2b64-4a0d-9cd3-ca926e69616a.service",
+          "active": "failed",
+          "sub": "failed"
+        },
+        {
+          "unit": "botstral-92fbf0cc-0ba0-419b-b06e-9faf27cb5aea-31e294c3-6648-461c-a62d-a2027823dc86.service",
+          "active": "failed",
+          "sub": "failed"
+        },
+        {
+          "unit": "botstral-9b90bff5-195e-44e9-9be2-205fee760243-4beec381-f682-4895-a69a-30f5afd786a4.service",
+          "active": "active",
+          "sub": "exited"
+        },
+        {
+          "unit": "botstral-e33081ea-7988-457f-8550-ff6bd70805fd-d45de883-d0e1-4755-a54a-fd77ee55ca47.service",
+          "active": "failed",
+          "sub": "failed"
+        }
+      ],
+      "owned_processes_remaining": [],
+      "root_exists": true
+    }
+  }
+}
+
+Finished 2026-10-27T22:04:43.804226+00:00
+Exit 0

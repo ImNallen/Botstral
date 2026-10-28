@@ -1,0 +1,167 @@
+{
+  "observed_source_head": "3a4aecdea15c1d1294cdff5ee42498cd8da97a4b",
+  "commands": [
+    {
+      "log": "m05-linux-verify.log",
+      "started": "2026-10-27T21:57:41.145807+00:00",
+      "invocation": "python3 .audit/linux-build.py",
+      "finished": "2026-10-27T22:03:12.126219+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-manager-suite.log",
+      "started": "2026-10-27T21:58:12.712788+00:00",
+      "invocation": "cargo test -p botstral-manager --locked -- --nocapture",
+      "finished": "2026-10-27T21:59:19.770032+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-default-build.log",
+      "started": "2026-10-27T21:57:11.554245+00:00",
+      "invocation": "cargo build --workspace --locked",
+      "finished": "2026-10-27T21:57:25.011468+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-default-build-final.log",
+      "started": "2026-10-27T22:01:26.923336+00:00",
+      "invocation": "cargo build --workspace --locked",
+      "finished": "2026-10-27T22:01:27.047000+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-client-contract-build.log",
+      "started": "2026-10-27T21:57:50.143441+00:00",
+      "invocation": "cargo build -p botstral-manager --locked --bins --example m05-client-contract",
+      "finished": "2026-10-27T21:57:59.886737+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-local-source-final.log",
+      "started": "2026-10-27T22:01:27.171667+00:00",
+      "invocation": "python3 manager/tests/m05_acceptance.py --manager-bin .audit/macos-default-bin/botstral-manager --probe-bin .audit/macos-default-bin/owner-probe --agent-bin .audit/macos-default-bin/botstral-agent --output .audit/m05-local-source-final",
+      "finished": "2026-10-27T22:04:17.014744+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-client-corrections.log",
+      "started": "2026-10-27T22:01:42.983334+00:00",
+      "invocation": "python3 manager/tests/m05_client_regressions.py --binaries .audit/macos-default-bin --output .audit/m05-client-corrections",
+      "finished": "2026-10-27T22:01:50.303197+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-two-vm.log",
+      "started": "2026-10-27T22:03:37.764750+00:00",
+      "invocation": "python3 manager/tests/m05_two_vm.py --binaries .audit/linux-bin --legacy-agent-bin .audit/linux-bin/m04-botstral-agent --bore-bin .audit/bore-linux --output .audit/m05-two-vm",
+      "finished": "2026-10-27T22:04:33.977673+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-coding-legacy.log",
+      "started": "2026-10-27T22:03:23.018161+00:00",
+      "invocation": "python3 .audit/compatibility.py coding",
+      "finished": "2026-10-27T22:03:52.239449+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-browser-file-process-artifact.log",
+      "started": "2026-10-27T22:04:04.847945+00:00",
+      "invocation": "python3 .audit/compatibility.py browser",
+      "finished": "2026-10-27T22:04:15.900038+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-npm-install.log",
+      "started": "2026-10-27T21:57:42.282727+00:00",
+      "invocation": "npm ci",
+      "finished": "2026-10-27T21:57:43.076858+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-final-check.log",
+      "started": "2026-10-27T21:57:51.299578+00:00",
+      "invocation": "npm run check",
+      "finished": "2026-10-27T21:58:06.113480+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-final-tests.log",
+      "started": "2026-10-27T21:57:52.456960+00:00",
+      "invocation": "npm test",
+      "finished": "2026-10-27T21:57:54.504049+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-final-build.log",
+      "started": "2026-10-27T21:57:53.618942+00:00",
+      "invocation": "npm run build",
+      "finished": "2026-10-27T21:57:54.962822+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-native-protocol.log",
+      "started": "2026-10-27T21:58:13.869559+00:00",
+      "invocation": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked",
+      "finished": "2026-10-27T21:58:24.019276+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "desktop-actual-manager.log",
+      "started": "2026-10-27T21:58:32.797309+00:00",
+      "invocation": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test local actual_manager_owner_bot_workers_and_sign_out -- --ignored --test-threads=1 --nocapture",
+      "finished": "2026-10-27T21:58:38.823052+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-python-check.log",
+      "started": "2026-10-27T22:01:05.422156+00:00",
+      "invocation": "python3 -m py_compile manager/tests/m05_acceptance.py manager/tests/m05_remote.py manager/tests/m05_two_vm.py manager/tests/m05_client_regressions.py manager/tests/m05_record.py",
+      "finished": "2026-10-27T22:01:05.454709+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-build-cleanup-inspection.log",
+      "started": "2026-10-27T22:04:43.249251+00:00",
+      "invocation": "python3 .audit/cleanup.py",
+      "finished": "2026-10-27T22:04:43.804226+00:00",
+      "exit_code": 0
+    },
+    {
+      "log": "m05-cleanup.log",
+      "started": "2026-10-27T22:04:53.863536+00:00",
+      "invocation": "python3 .audit/remove-fixtures.py",
+      "finished": "2026-10-27T22:04:55.139682+00:00",
+      "exit_code": 0
+    }
+  ],
+  "linux_build": {
+    "host": "botstral-computer",
+    "directory": "/home/botstral/m05-final-4a0df3ffd5d6/source",
+    "environment": {
+      "PATH": "$HOME/.cargo/bin:$PATH",
+      "umask": "077"
+    },
+    "source_transfer": "git archive --format=tar HEAD, gzip.compress(..., mtime=0), scp with BatchMode=yes and StrictHostKeyChecking=yes; verify sha256 before extracting",
+    "commands": [
+      "scripts/verify.sh",
+      "cargo build --workspace --locked",
+      "sha256sum target/debug/botstral-manager target/debug/owner-probe target/debug/botstral-agent"
+    ]
+  },
+  "linux_compatibility": {
+    "directory": "/home/botstral/m05-final-4a0df3ffd5d6/source",
+    "environment": {
+      "BOTSTRAL_RUN_AGENT_BIN": "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent",
+      "BOTSTRAL_VIBE_RUNTIME": "/home/botstral/m04-vibe-2.24.2",
+      "BOTSTRAL_RUN_RUNTIME": "/home/botstral/w01-runtime-76b03bf1"
+    },
+    "coding_command": "cargo test -p botstral-manager --locked --lib m04_coding_production_worker_pinned_vibe -- --ignored --nocapture",
+    "coding_tmpdir": "/home/botstral/m05-final-4a0df3ffd5d6/tmp-coding",
+    "browser_command": "cargo test -p botstral-manager --locked --lib m04_run_production_worker_browser_file_process_and_artifact -- --ignored --nocapture",
+    "browser_tmpdir": "/home/botstral/m05-final-4a0df3ffd5d6/tmp-browser",
+    "provider": "Existing recorded localhost provider fixtures, synthetic secret only, no paid calls."
+  },
+  "copy_safety": "Final local acceptance and correction runs used copies in .audit/macos-default-bin after the explicit final default workspace build. No build modifies these paths. Final post-run hashes match the acceptance summary.",
+  "evidence_only_changes": "No production or verification harness source changed. Diagnostic command quoting was corrected only in an untracked version probe. The first successful overlapping-build run is retained under diagnostics."
+}

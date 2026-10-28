@@ -3,12 +3,12 @@ use super::*;
 impl State {
     pub(in crate::manager) fn set_input_owner(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         id: ComputerSessionId,
         expected: Revision,
         owner: InputOwner,
     ) -> Result<ComputerSession, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let session = self.find_computer_session(id)?;
         if session.revision != expected {
             return Err(ErrorCode::StaleRevision.into());
@@ -73,10 +73,10 @@ impl State {
 
     pub(in crate::manager) fn dispatch(
         &mut self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         message: ManagerMessage,
     ) -> Result<DispatchReceipt, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         let (id, fence) = dispatch_fence(&message).ok_or(OperationError::InvalidInput)?;
         let session = self.find_computer_session(fence.session_id)?;
         let worker = session.worker_id;
@@ -123,11 +123,11 @@ impl State {
 
     pub(in crate::manager) fn receipt(
         &self,
-        token: SessionToken,
+        token: impl Into<OwnerAuthority>,
         worker: WorkerId,
         id: CommandId,
     ) -> Result<DispatchReceipt, OperationError> {
-        self.authorize(&token)?;
+        self.authorize_owner(&token.into())?;
         self.worker_connections
             .get(&worker)
             .ok_or(ErrorCode::Disconnected)?

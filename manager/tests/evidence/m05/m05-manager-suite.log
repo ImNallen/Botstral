@@ -1,0 +1,127 @@
+Started 2026-10-27T21:58:12.712788+00:00
+Command cargo test -p botstral-manager --locked -- --nocapture
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-06c17af9/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.68s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-a5c4c28522e557f4)
+
+running 64 tests
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ignored, Requires Linux systemd, BOTSTRAL_VIBE_RUNTIME=Vibe 2.24.2 and BOTSTRAL_RUN_AGENT_BIN=production agent.
+test local_state::tests::rejects_unsafe_state_and_second_owner ... ok
+test manager::devices::tests::remote_model_admission_preserves_shutdown_and_revocation_fences ... ok
+test manager::crypto::tests::vault_round_trip_and_authenticated_tampering ... ok
+test manager::inference::tests::m05_provider_verification_keeps_other_owner_operations_available ... ok
+test manager::inference::tests::run_tests::m04_run_function_capability_and_owner_authentication ... ok
+test manager::inference::tests::run_tests::production::m04_run_production_worker_browser_file_process_and_artifact ... ignored, Requires Linux x86_64, a systemd user manager, and BOTSTRAL_RUN_RUNTIME prepared by agent/runtime/setup.sh.
+test manager::inference::tests::m04_documented_token_details_settle_and_reject_invalid_subsets ... ok
+test manager::inference::tests::m04_completion_waits_for_state_queue_capacity ... ok
+test manager::inference::tests::run_tests::m04_run_late_usage_cancellation_and_crash ... ok
+test manager::state::inference::tests::m04_ledger_transitions_and_events_commit_together_and_settle_once ... ok
+test manager::state::inference::tests::m04_price_rounding_overflow_and_verification_authority ... ok
+test manager::inference::tests::m04_capacity_wait_expires_without_sending ... ok
+test manager::state::runs::tests::artifact_tests::collection_validates_files_and_exposes_only_bounded_untrusted_text ... ok
+test manager::state::runs::tests::artifact_tests::transcript_retention_and_replay_are_bounded ... ok
+test manager::state::runs::tests::child_claim_and_publication_recheck_parent_without_consuming_ineligible_approval ... ok
+test manager::inference::tests::m04_http_success_idempotency_replay_and_restart ... ok
+test manager::inference::tests::m04_admission_configuration_vault_and_budget_refusals ... ok
+test manager::state::runs::tests::coding_tests::abandoned_coding_caller_during_state_admission_releases_known_unsent_hold ... ok
+test manager::state::runs::tests::coding_tests::coding_helpers_retry_and_parent_limits_use_recorded_http_and_prior_durable_holds ... ok
+test manager::state::runs::tests::coding_tests::coding_child_uses_the_earlier_policy_or_parent_deadline ... ok
+test manager::inference::tests::m04_concurrency_cancellation_disconnect_and_shutdown ... ok
+test manager::inference::tests::m04_crash_marks_sending_uncertain_and_never_replaces_call ... ok
+test manager::state::runs::tests::coding_tests::coding_validation_rejects_model_switches_tools_urls_and_unknown_options ... ok
+test manager::state::runs::tests::coding_tests::pinned_vibe_wire_requests_pass_the_production_boundary_except_forbidden_tool_history ... ok
+test manager::state::runs::tests::coding_tests::resume_requires_confirmed_exit_same_owner_workspace_policy_and_exact_session ... ok
+test manager::state::runs::tests::recovery_tests::cancellation_requires_stop_evidence_and_reconciliation_is_idempotent ... ok
+test manager::state::runs::tests::provider_uncertainty_retains_reservation_and_late_cancelled_usage_settles_once ... ok
+test manager::state::runs::tests::registry_preserves_owner_policy_and_rejects_persistent_tab_assumptions ... ok
+test manager::state::runs::tests::restart_tests::admission_rollback_cannot_count_or_send_an_uncommitted_turn ... ok
+test manager::inference::tests::run_tests::m04_run_capacity_backpressure_and_bounded_shutdown ... ok
+test manager::state::runs::tests::cumulative_limits_stop_tools_after_settling_the_model_turn ... ok
+test manager::state::runs::tests::recovery_tests::revised_authority_is_checked_at_permit_publication ... ok
+test manager::state::runs::tests::coding_tests::coding_uncertainty_recovery_cancellation_and_identity_never_restore_authority ... ok
+test manager::state::runs::tests::run_intent_task_command_accounting_and_events_commit_together ... ok
+test manager::state::runs::tests::vision_tests::old_text_request_still_decodes ... ok
+test manager::state::runs::tests::results_are_durable_and_reconciled_without_replacement_effects ... ok
+test manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session ... ok
+test manager::state::tasks::tests::approval_mutations_require_owner_and_survive_login_changes ... ok
+test manager::state::tests::credential_budget_resets_only_after_window ... ok
+test manager::state::runs::tests::vision_tests::vision_sends_exact_authorized_png_bytes_and_retains_artifact_identity ... ok
+test manager::state::tests::migrations_are_atomic_and_refuse_future_versions ... ok
+test manager::state::runs::tests::recovery_tests::duplicate_call_ids_and_new_call_authority_cannot_create_replacement_work ... ok
+test manager::state::tasks::tests::task_outbox_and_event_roll_back_together ... ok
+test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
+test manager::state::workers::tests::invitation_binding_expiry_atomicity_and_replay ... ok
+test manager::state::workers::tests::pending_takeover_blocks_input_and_fences_queued_delivery ... ok
+test manager::state::workers::tests::snapshots_generations_late_disconnect_and_full_channels ... ok
+test manager::tests::credential_admission_is_released_before_completion_wakes_the_caller ... ok
+test manager::tests::queue_saturation_and_credential_admission_are_bounded ... ok
+test manager::state::runs::tests::restart_tests::reopening_at_committed_boundaries_preserves_call_child_and_result_identity ... ok
+test manager::state::runs::tests::vision_tests::vision_rejects_wrong_ownership_digest_capability_billing_and_corrupt_png_before_admission ... ok
+test manager::inference::tests::run_tests::m04_run_deadlines_reconcile_while_provider_slots_are_full ... ok
+test manager::inference::tests::m04_before_sending_cancellation_and_authority_rechecks ... ok
+test manager::inference::tests::m04_unknown_responses_retain_reservations_without_retry ... ok
+test manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart ... ok
+test manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials ... ok
+test manager::state::devices::tests::invitations_expire_and_attempt_limits_persist ... ok
+test manager::inference::tests::run_tests::m04_run_unsupported_proposals_settle_valid_usage_without_children ... ok
+test manager::inference::tests::run_tests::m04_run_recorded_browser_file_approval_result_artifact_and_followup ... ok
+test manager::inference::tests::run_tests::m04_run_truncated_final_is_stopped_and_persisted ... ok
+test manager::state::migration_tests::populated_v1_preserves_owner_bot_and_encrypted_credentials ... ok
+test manager::state::tests::expiry_and_revocation_are_checked_at_operation_time ... ok
+test manager::state::tests::setup_and_provider_replacement_roll_back_without_losing_values ... ok
+
+test result: ok. 62 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 18.26s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_manager-395ee854852b85bf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/owner-probe.rs (target/debug/deps/owner_probe-ddfa2b13dcdf003e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m01_local.rs (target/debug/deps/m01_local-6b3bc13ed62933de)
+
+running 1 test
+Manager stopped with exit status: 0.
+Setup is atomic, capability protected, and isolated from the regular listener.
+Bots, sessions, revocation, explicit locking, protected replacement, and read refusal pass over TCP.
+Browser boundaries, strict JSON, body and header limits, deadlines, and credential limits pass.
+Refused startup with exit status: 1.
+Manager stopped with signal: 9 (SIGKILL).
+Manager stopped with exit status: 0.
+Graceful shutdown completes with an unread bot-list response.
+Manager stopped with exit status: 0.
+A forced restart preserves the full bot and encrypted metadata, invalidates sessions, and locks the vault. Tampering fails unlock.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Private permissions, second-process exclusion, unsafe binds and state rejection, migration refusal, and complete secret scans pass.
+test m01_real_binary_over_tcp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 39.79s
+
+     Running tests/m05_bounds.rs (target/debug/deps/m05_bounds-8a10086368958fe2)
+
+running 1 test
+snapshot serialized=64317440 decoded=67272704 owner recovery peak<1GiB client temporary storage<=161MiB
+test admitted_snapshot_and_temporary_storage_fit_recovery_budgets ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_manager
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+Finished 2026-10-27T21:59:19.770032+00:00
+Exit 0

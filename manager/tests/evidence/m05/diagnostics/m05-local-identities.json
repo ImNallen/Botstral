@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-10-27T22:01:05.478584+00:00",
+  "local_default_binary_sha256": {
+    "botstral-manager": "fec9781df8ccf2103001613cab7d163cbadff3a10fa795dc598a319d5a05e348",
+    "owner-probe": "4d6a0c810f443fde41b66ac79fa05ded64211e58f2d290f9478b6a11b90a10d6",
+    "botstral-agent": "e2d3977056293d160c9c08d759712729970c84da3d1dd7f26938d0eb22f0f73d"
+  },
+  "contract_sha256": "dc8316db727f4a1ba83acae95fd230f8d5c8a27dd8a5f2a575822fefac8bb513",
+  "local_acceptance": {
+    "checks": [
+      "public_setup_absent_before_owner_with_forwarded_headers",
+      "separate_worker_and_owner_admission",
+      "native_persisted_pairing_and_authenticated_snapshot",
+      "exact_pin_precedes_all_application_bytes_and_unknown_mutations_are_not_replayed",
+      "concurrent_native_credential_enrollment_consumes_invitation_once",
+      "bounded_device_capacity_retries_without_discarding_credentials_or_trust",
+      "subscribe_before_initial_replay_preserves_the_concurrent_commit_and_wake",
+      "chunked_snapshot_and_ordinary_reply_above_64k_and_retention_rollover",
+      "interrupted_snapshot_preserves_cursor_and_recovers_after_retention_rollover",
+      "native_dead_peer_detection_reconnects_without_tcp_eof_or_pin_reset",
+      "slow_viewer_isolation_and_revocation_during_blocked_transfer",
+      "revoked_credential_rejected_after_manager_restart",
+      "lost_enrollment_response_recovers_with_persisted_credential",
+      "same_ca_wrong_leaf_refusal_and_explicit_local_trust_recovery",
+      "native_heartbeat_reconnect_notifications_and_atomic_application_cursor"
+    ],
+    "manager_sha256": "e9fe1af3d5e4d8b4a4697ef896ad5324f6ed89ce2c660fcff40a15a46f815368",
+    "probe_sha256": "938da41b8a3329dbc6fbaa966dca365edc54c06d0fac70ad138eb512f3f4086b",
+    "agent_sha256": "e2d3977056293d160c9c08d759712729970c84da3d1dd7f26938d0eb22f0f73d",
+    "passed": true,
+    "fixture_removed": true
+  },
+  "native_corrections": {
+    "passed": true,
+    "checks": [
+      "exclusive_client_storage_and_unknown_committed_mutation",
+      "transient_tls_alert_then_healthy_pinned_recovery"
+    ]
+  }
+}

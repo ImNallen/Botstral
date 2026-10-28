@@ -1,0 +1,33 @@
+Started 2026-10-27T22:04:04.847945+00:00
+Command python3 .audit/compatibility.py browser
+Remote command
+set -eu
+export PATH="$HOME/.cargo/bin:$PATH"
+umask 077
+cd /home/botstral/m05-final-4a0df3ffd5d6/source
+mkdir -p /home/botstral/m05-final-4a0df3ffd5d6/tmp-browser
+export TMPDIR=/home/botstral/m05-final-4a0df3ffd5d6/tmp-browser
+export BOTSTRAL_RUN_AGENT_BIN=/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent
+export BOTSTRAL_VIBE_RUNTIME=/home/botstral/m04-vibe-2.24.2
+export BOTSTRAL_RUN_RUNTIME=/home/botstral/w01-runtime-76b03bf1
+stat -c "%n %a %s" "$BOTSTRAL_RUN_AGENT_BIN" "$BOTSTRAL_VIBE_RUNTIME" "$BOTSTRAL_RUN_RUNTIME"
+sha256sum "$BOTSTRAL_RUN_AGENT_BIN" "$BOTSTRAL_RUN_RUNTIME/runtime.json"
+cargo test -p botstral-manager --locked --lib m04_run_production_worker_browser_file_process_and_artifact -- --ignored --nocapture
+find "$TMPDIR" -mindepth 1 -maxdepth 1 -printf "%f\n"
+
+/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent 700 6968032
+/home/botstral/m04-vibe-2.24.2 775 4096
+/home/botstral/w01-runtime-76b03bf1 700 4096
+a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00  /home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent
+1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061  /home/botstral/w01-runtime-76b03bf1/runtime.json
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-c4f358204e68019f)
+
+running 1 test
+test manager::inference::tests::run_tests::production::m04_run_production_worker_browser_file_process_and_artifact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 63 filtered out; finished in 10.60s
+
+
+Finished 2026-10-27T22:04:15.900038+00:00
+Exit 0

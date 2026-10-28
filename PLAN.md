@@ -158,20 +158,22 @@ Complete when a bot performs a real browser task, creates a file outside its cod
 
 Depends on M03. Desktop acceptance is completed in C02. Mobile and cellular checks follow in C04.
 
-- [ ] Expose a single TLS listener for the WSS control protocol, with separate method authority for owner devices and workers.
-- [ ] Verify direct LAN access and select a configured mesh or reachable outbound relay for remote access without a forwarded home-router port.
-- [ ] Keep the encrypted client connection terminated at the manager.
-- [ ] Add expiring single-use invitations bound to the manager identity and device role. Require trusted confirmation and attempt limits for short codes.
-- [ ] Pin manager identity at pairing and define certificate rotation and recovery without silently dropping the pin.
-- [ ] Issue separately revocable credentials for owner devices and workers. Handle desktop credential storage through C02 and later mobile storage through C04.
-- [ ] Route authenticated task events and supported computer input through the manager. W02 adds full desktop streams.
-- [ ] Close existing connections when a device is revoked.
-- [ ] Bound stream queues so a slow viewer does not block other clients.
-- [ ] Add heartbeats, dead-peer detection, exponential-backoff reconnect, event resumption, and snapshot recovery through M03.
-- [ ] Deliver notification events to the desktop app for native display. Notifications cannot grant approval authority or replace the durable task queue. C04 adds mobile push later.
-- [ ] Keep first-owner setup absent from public, relay, and worker routes, including requests with misleading forwarded addresses.
+- [x] Expose a single TLS listener for the WSS control protocol, with separate method authority for owner devices and workers.
+- [x] Verify direct LAN access and select a configured mesh or reachable outbound relay for remote access without a forwarded home-router port.
+- [x] Keep the encrypted client connection terminated at the manager.
+- [x] Add expiring single-use invitations bound to the manager identity and device role. Require trusted confirmation and attempt limits for short codes.
+- [x] Pin manager identity at pairing and define certificate rotation and recovery without silently dropping the pin.
+- [x] Issue separately revocable credentials for owner devices and workers. Handle desktop credential storage through C02 and later mobile storage through C04.
+- [x] Route authenticated task events and supported computer input through the manager. W02 adds full desktop streams.
+- [x] Close existing connections when a device is revoked.
+- [x] Bound stream queues so a slow viewer does not block other clients.
+- [x] Add heartbeats, dead-peer detection, exponential-backoff reconnect, event resumption, and snapshot recovery through M03.
+- [x] Deliver notification hints to the native owner client for desktop display integration in C02. Notifications cannot grant approval authority or replace the durable task queue. C04 adds mobile push later.
+- [x] Keep first-owner setup absent from public, relay, and worker routes, including requests with misleading forwarded addresses.
 
 Complete when an authenticated protocol client connects through the configured remote route, resumes after disconnection, and loses its current and future connections after revocation. Confirm that remote and worker clients cannot create the first owner. C02 verifies the desktop app on that route.
+
+M05 protocol acceptance passed with the reusable native owner client on the LAN and through a temporary public bore relay. The relay and fixture processes are stopped. C02 retains graphical pairing, native keychain storage, and platform notification display. See [M05 acceptance](docs/m05-acceptance.md).
 
 ### M06. Add plugins and package the manager
 
