@@ -1,0 +1,10 @@
+{
+  "source_head": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+  "native_binary_sha256": "df15d758d65a7a20f37ca898ba398baf91ed1e352faca472d1d888ed32e02b9f",
+  "video_sha256": "3a3e0e1db922fa81244151b62c4e2e67f343f825ef22bbdb9a8515d15da2ea44",
+  "video_method": "Actual native state captures, including the original baseline, with captions and condensed pauses. Not continuous video.",
+  "video_duration_seconds": 80,
+  "profile_removed": true,
+  "native_credential_absent": true,
+  "gui_run": "7278dfbc-3e68-42cc-babe-312408dea743"
+}

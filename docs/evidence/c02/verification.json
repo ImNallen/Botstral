@@ -1,6 +1,6 @@
 {
   "recorded_at": "2026-10-28T10:05:41.696172+00:00",
-  "source_head": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b",
+  "source_head": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
   "parent_checks": [
@@ -50,6 +50,18 @@
       "exit_code": 0,
       "evidence": "native-security-final.log",
       "source": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b"
+    },
+    {
+      "command": "python3 manager/tests/c02_browser.py --fixture .audit/c02/fixture-active.json --output .audit/c02/browser-policy-after",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "../c02-production-parent/browser-policy-after.json"
+    },
+    {
+      "command": "npm run desktop -- build --debug --bundles app",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "../c02-production-parent/production-bundle-final.log"
     }
   ],
   "packaged_walkthrough": {
@@ -65,16 +77,15 @@
     "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
-    "fresh independent review of concurrent sign-out and journal corrections",
-    "production two-VM acceptance and packaged remote route",
-    "final layout capture and video",
-    "platform checks outside macOS remain unverified"
+    "independent review of browser-policy correction and production test support",
+    "platform and operating-system observations listed in docs/c02-acceptance.md"
   ],
   "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",
   "review_corrections": {
     "missing_profile_signout": "Independent recheck passed at 7dc6935.",
-    "concurrent_signout": "Reproduced before correction. Seven deterministic lifecycle tests now pass. Fresh independent review pending.",
-    "journal_validation": "Reproduced erasure and unintended mutation. Actual-manager contracts now preserve bytes and block mutations. Fresh independent review pending.",
-    "journal_size": "Reproduced writes exceeding reader limit. Actual-manager restart contract now passes with bounded compaction retaining attention records. Fresh independent review pending."
-  }
+    "concurrent_signout": "Independent gpt-6-luna recheck passed at d5ecb8c. Its Keychain test passed; renderer wrapper could not run because vitest was absent. Parent renderer check passed separately.",
+    "journal_validation": "Independent gpt-6-astra recheck passed at d5ecb8c with original reproductions and adversarial neighbors.",
+    "journal_size": "Independent gpt-6-astra recheck passed at d5ecb8c, including exact 1MiB status-growth and protected-record compaction boundaries."
+  },
+  "production_parent": "../c02-production-parent/packaged-identity.json"
 }

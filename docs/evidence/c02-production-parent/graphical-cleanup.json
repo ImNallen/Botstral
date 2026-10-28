@@ -1,0 +1,141 @@
+{
+  "units": [
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-bore",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "259710",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "259710",
+        "ExecMainCode": "2",
+        "ExecMainStatus": "15",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-worker",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "414219",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "414219",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-manager",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "255862",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "255862",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-page",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "413945",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "413945",
+        "ExecMainCode": "2",
+        "ExecMainStatus": "15",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-manager",
+      "fixture_removed": true
+    },
+    {
+      "host": "botstral-computer",
+      "fixture_removed": true
+    }
+  ],
+  "endpoints_refuse": {
+    "192.168.1.40:34691": true,
+    "bore.pub:51870": true,
+    "bore.pub:34155": true
+  }
+}

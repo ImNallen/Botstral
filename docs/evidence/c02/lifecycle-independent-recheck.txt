@@ -1,0 +1,27 @@
+# C02 lifecycle final recheck
+
+The review checks whether C02 sign-out serializes concurrent callers, attempts credential cleanup after storage failures, restores a durable signed-out tombstone, and blocks command admission while lifecycle changes are in progress. I found no surviving lifecycle defect in the reviewed source.
+
+## Scope
+
+Reviewed source is exact HEAD `d5ecb8c1424e6461d6b47f9539913258e761d498`, based on `6c2b70b03295cdc8a5f69411f0bb0628f383c7fd`, in `/Users/nallen/.t3/worktrees/Botstral/t3-deb6ec2c`. The source manifest names ancestor `a9d2506e2e55916e10e8dbedd30ca83974bd0e7b`; its hashes match the current tracked source. HEAD changes docs and evidence only. Reviewed by `gpt-6-luna`.
+
+I read `docs/c02-review.md`, `docs/c02-architecture.md`, `docs/c02-acceptance.md`, `docs/evidence/c02/verification.json`, and both prior lifecycle reports named in the review request. I made no production-source changes. The added file `desktop/src-tauri/tests/c02_lifecycle_review.rs` is an isolated cleanup-error repro.
+
+## Findings
+
+None. In `desktop/src-tauri/src/remote.rs`, `RemoteService::sign_out` acquires `signout_gate` before setting `signing_out` or changing the view, then holds the guard through actor shutdown, tombstone write, and native credential deletion. The probes below confirmed the externally visible lifecycle results.
+
+## Commands and results
+
+- `git rev-parse HEAD` returned `d5ecb8c1424e6461d6b47f9539913258e761d498`. `git rev-parse 6c2b70b03295cdc8a5f69411f0bb0628f383c7fd` succeeded. `git status --short --branch` showed the requested review branch before adding the test and report.
+- `python3 desktop/fixtures/c02_source_record.py --check-controls` exited 0. It reported a match for 215 source files and passed negative controls for changed hash, missing file, and extra file.
+- `cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test remote` exited 0. Seven deterministic lifecycle and storage tests passed; one actual-manager test was ignored by this command. The tests include blocked duplicate sign-out, missing-profile sign-out with successful and failed deletion, durable tombstone restoration, and rejection of new intents during an admitted native call.
+- `cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test c02_lifecycle_review -- --nocapture` exited 0. The new deterministic repro made profile directory creation fail by placing a file at the profile path. It verified that native deletion was still attempted, sign-out returned `sign_out_storage_failed`, and the view remained signed out with the storage issue.
+- `python3 desktop/fixtures/paired_manager.py --verify-native` ran the actual-manager contract successfully. Its Rust test passed against the synthetic manager and real macOS Keychain, including durable run/task behavior, approval, artifact verification, restoration, credential scan, and revocation. The overall wrapper then exited 1 because it invokes the renderer contract and `vitest` is unavailable (`sh: vitest: command not found`). No dependency installation was attempted.
+
+The parent-reported `make verify-desktop` and separate prior native pass were not counted as independent review results.
+
+## Limits
+
+This recheck did not exercise the packaged production remote route, GUI or video workflow, production worker, process-group cancellation, manager/app restart during active production work, Linux Secret Service, Windows, or operating-system keychain lock and denial. These remain unverified acceptance boundaries, not findings. The native service contract did pass as described above; the wrapper's renderer-boundary test did not run because `vitest` is absent.

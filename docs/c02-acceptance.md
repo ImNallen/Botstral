@@ -1,66 +1,50 @@
 # C02 acceptance record
 
-C02 implementation is available. The packaged graphical walkthrough passed with a real manager, macOS Keychain, recorded provider, and explicitly synthetic worker. Full milestone acceptance remains open for independent review and production checks over the configured remote route. No production owner state was changed.
+The macOS paired desktop workflow passed in the packaged app over the public relay with the real production worker. Journal and lifecycle corrections passed independent review at `d5ecb8c`. Final independent review of the later browser-policy correction and production test support remains open. No production deployment or merge occurred.
 
-## Verified service and protocol behavior
+## Paired workflow
 
-The implementation was exercised on macOS 27.0.1, build 26A434, on Apple silicon. Native credentials used the real macOS Keychain through keyring 3.6.3 with `apple-native`. The Linux backend is compiled with `sync-secret-service` and `crypto-rust`; Linux native behavior and Windows acceptance have not run.
+The native actor uses the extracted `link/client` over pinned owner WSS. Credentials and pending invitations stay in the operating-system keychain. The additive Workspace read recovers the complete manager projection and cursor. Exact-action approval checks immutable command content, the prior approval and current permission revision under manager authority.
 
-The following commands passed against isolated synthetic managers:
+Each composer message starts a separate durable M04 run. Actual assistant turns and linked tasks appear in history. Earlier runs are not implicit model context. Voice, attachments and mobile remain outside C02.
 
-```sh
-cargo build --workspace --examples --locked
-python3 manager/tests/m05_client_regressions.py --output /tmp/c02-client-verified
-python3 manager/tests/m05_acceptance.py \
-  --manager-bin target/debug/botstral-manager \
-  --probe-bin target/debug/owner-probe \
-  --agent-bin target/debug/botstral-agent \
-  --output /tmp/c02-m05-verified
-python3 manager/tests/c02_workspace.py --output /tmp/c02-workspace-verified
-python3 desktop/fixtures/paired_manager.py --verify-native
-```
+All 15 M05 actual-binary contracts passed, including a run with the retained pre-extraction probe. Its SHA-256 matches the M05 identity record, `938da41b8a3329dbc6fbaa966dca365edc54c06d0fac70ad138eb512f3f4086b`. Shared-client regressions and six manager workspace and approval boundaries passed. [Original implementation verification](evidence/c02/verification-implementation.json) and [parent verification](evidence/c02/verification.json) retain commands, exits and source identities.
 
-All 15 M05 actual-binary contracts passed. They cover pinned authentication, credential-first enrollment recovery, worker and owner separation, retention rollover, interrupted transfers, heartbeats, dead peers, revocation, and uncertain mutations without replay. The extracted client also passed exclusive client and session ownership, committed mutation with response-storage failure, and transient TLS retry.
+`make verify-desktop` passed after the journal corrections. It includes 25 frontend tests, seven deterministic lifecycle tests, four isolated actual-manager journal contracts, local administration, Clippy and the bundled-interface build. The separate actual-manager contract with real macOS Keychain and renderer parser passed. Final repository and desktop verification after production fixture integration is recorded separately when complete.
 
-The C02 manager contract passed consistent workspace hydration, unchanged strict Resume fields, changed-action refusal, stale permission refusal, intervening approval revocation refusal, and exact execution grant. The parent found the retained pre-extraction probe and verified its SHA-256 against the committed M05 identity record. All 15 M05 contracts passed with that old binary against the new manager. Its hash is `938da41b8a3329dbc6fbaa966dca365edc54c06d0fac70ad138eb512f3f4086b`.
+The native journal validates before installing client authority. Missing or invalid storage preserves original bytes and blocks new mutations and pairing bypasses. All writes share reader byte and record bounds. Compaction retains unknown, pending and attention records. Concurrent sign-out callers serialize complete cleanup. A durable tombstone prevents authentication when native deletion fails. [Independent review and correction details](c02-review.md) retain the failure and correction evidence.
 
-The actual-manager native contract passed real keychain creation and restoration, persisted graphical-pairing service operations, durable user and assistant run turns, linked task creation, reviewed grant, digest-verified export, synthetic cancellation with authoritative synthetic stop evidence, suspension, restoration, credential scans, and local device revocation. It checks that credentials and invitations are absent from snapshots and ordinary app files and that no `device.json` exists. The test deletes its synthetic keychain item and stops its fixture.
+## Production service acceptance
 
-Native unit checks passed unavailable-store refusal before fingerprint publication, failed-deletion tombstone restoration, bounded link rejection, restoration of a journal larger than 64 KiB, and sign-out admission fencing while an earlier native call finishes. Frontend tests passed inert remote content, durable turn and task rendering, offline action refusal, strict credential-free parsing, stale revisions, and immediate sign-out fencing. All 25 ordinary frontend tests passed. The fixture also passed the separate renderer schema contract with actual native pairing, review, run, artifact, and signed-out projections. Existing local administration tests remain in the desktop verification command.
+[The production record](c02-production-acceptance.md) retains the frozen-source run, binary hashes and exact limits. It passed actual macOS native service access over LAN and bore.pub, real process-group cancellation, retention-gap recovery, runtime restart and lost-reply reconciliation without duplicate effects. The Manager ran its production runtime inside an ignored recorded-provider fixture. The unchanged installed production worker ran on the Computer VM. This is not a release Manager process-restart claim.
 
-## Verification and packaging
+The initial native browser policy failed at 64 processes and 512 MiB. The same actions passed under the supported M04 combined limits of 128 processes and 1 GiB. The parent reproduced the failure, corrected native policy and its displayed description in `b6081d2`, and passed the actual native composer browser gate through the public relay. Native text and PNG exports verified actual DOM and guest-file effects. [The correction record](evidence/c02-production-parent/browser-policy-correction.json) distinguishes this pass from the original loopback diagnostic. Neither resource was isolated individually.
 
-`make verify` passed, including production and nonproduction builds, actual-binary recovery tests, release builds, and both forbidden nonproduction release-feature checks. The initial run exposed a new bot-admission limit that changed old behavior. The limit was removed. A later recovery assertion counted the newly committed reconnect roster events as duplicate report events. Its baseline now starts after reconnect and still proves zero events from replaying a report receipt.
+## Packaged graphical acceptance
 
-`make verify-desktop` passed, including frontend checks and tests, native clippy and tests, actual-manager local administration checks, and the bundled-interface native build. A concurrent feature-changing build caused one intermediate rustdoc dependency failure; the serial verification and direct doctest rerun passed without changing the test gate.
+The final bundle was built with `npm run desktop -- build --debug --bundles app`. It contains the interface and uses no development server. The parent used a fresh isolated debug profile and the real macOS Keychain. Public manager identity was `f416297c-97a3-47e1-af70-77ca55ca436a`. The public route was `bore.pub:34155`, with leaf `190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7`.
 
-The command `npm run desktop -- build --debug --bundles app` produced `desktop/src-tauri/target/debug/bundle/macos/Botstral.app`. This build contains the interface and requires no development server. Its graphical workflow is documented in [the native fixture guide](c02-native-workflow.md).
+| Executed graphical gate | Result |
+| --- | --- |
+| Pairing | Native protected-file import, public role and pin confirmation, actual relay connection. |
+| Durable chat | A composer submission produced the recorded assistant reply and durable history. |
+| Browser and file work | Exact navigation, DOM selectors, file contents and target reviewed before approval. Production task completed without Refresh. |
+| Result save | Native chooser saved 28 bytes. The actual file matched the declared SHA-256, `f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205`. |
+| Active restart recovery | App quit and relaunched with the same identity while approved work remained active. Manager runtime restarted from generation 1 to 2. Uncertain worker state remained visible. |
+| Cancellation | Graphical cancellation reached terminal Cancelled. Manager recorded `SystemdScopeEmpty`. Both observed production processes were absent. |
+| Retention gap | While paused, 160 permission changes moved cursor 350 outside replay retention. Resume installed the complete current workspace at cursor 510. |
+| Lost reply | A private TLS fault route forwarded one SubmitRun and dropped its committed reply. The app retained the saved identity and recovered one run. Graphical approval produced exactly one additional real append. |
+| Revocation | Protected activity cleared immediately. A future launch with the same native identity remained blocked. |
+| Sign-out and cleanup | Graphical sign-out removed the exact native credential. Keychain lookup returned 44, meaning absent. The invitation, isolated profile, fault proxy and all four remote fixture units were removed. Both LAN and relay endpoints refused TCP. |
 
-## Packaged native walkthrough
+The fault-injection route was private loopback TLS to the actual Manager VM. It was separate from the public relay used for browser work. [Graphical results and cleanup](evidence/c02-production-parent/) retain exact task, run, process and cursor evidence. [The frame manifest](evidence/c02-production-parent/graphical-frames.json) records capture times and captions. [The 80-second video](assets/c02-paired-desktop.mp4) contains actual before and after native captures as a state-by-state walkthrough with pauses condensed. It is not a continuous recording. Invitation contents were excluded from captured frames.
 
-The parent launched the bundled app with an isolated debug profile. Graphical checks passed trusted local sign-in, fingerprint creation, native trust-file selection, public manager and pin confirmation, paired workspace recovery, actual recorded assistant turns, exact-action review, synthetic task completion, native result save, synthetic cancellation, pause and resume, same-binary quit and relaunch, and current and future device revocation. Sign-out cleared the synthetic keychain credential. Both synthetic profile items and fixture processes were removed.
+An earlier packaged walkthrough used an explicitly synthetic worker and recorded provider. It remains historical evidence in `evidence/c02/verification.json`. It is not counted as production browser or process proof. A stale accessibility diff initially suggested a missed update; a fresh rendered capture showed completion without Refresh. No delivery defect was confirmed.
 
-The exported file contained 65 bytes. Its SHA-256 matched the manager declaration, `c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906`. Its contents explicitly state that no production process ran. The native contract now waits on activity notifications without sending refresh commands. That contract passed. A stale accessibility diff initially suggested a missed update; a fresh rendered capture showed completion without a Refresh action. No event-delivery defect was confirmed.
+## Exact limits
 
-The walkthrough exposed unreadable approval ordering and overflowing history. The parent moved exact operations and arguments before execution identifiers, kept the conversation inside its scroll area, arranged the sidebar controls vertically, displayed spending limits in dollars, and restricted activity delivery to the authorized main webview. The updated desktop verification passed, including 25 frontend tests. Final layout capture remains part of the production walkthrough.
+Execution ran on macOS 27.0.1, build 26A434, Apple silicon. The real macOS Keychain backend was exercised. Linux Secret Service and Windows remain unverified. Rebuilding an unsigned development binary previously triggered a protected operating-system keychain prompt. That process was stopped. Same-binary relaunch passed. Signed release and update behavior remains in the release track.
 
-Rebuilding the unsigned development binary triggered an operating-system keychain access prompt for an item created by the earlier binary. Automation could not inspect the protected system prompt. That process was stopped. Same-binary relaunch passed using a fresh synthetic profile. Signed release and update behavior remains in the release track.
+Deterministic tests cover origin and capability policy, native storage failures, failed deletion, malformed journals, stale approval, uncertainty and admission races. Hostile packaged navigation, nested windows, remote frames and unsolicited event-subscription attempts were not driven graphically. Real keychain lock or denial, operating-system deletion failure, physical sleep, changing network interfaces and delivered operating-system notifications remain unobserved. These are explicit limits, not passing checks.
 
-## Remaining exact acceptance boundaries
-
-The interaction video must not expose invitations or device credentials. Native origin and capability policy tests passed, but hostile runtime navigation, nested windows, popups, remote frames, unsolicited links, and event subscription attempts still need packaged observation.
-
-The configured remote route from the actual desktop host and the supported worker on the Computer VM have not been exercised by this implementation owner. Real production browser execution, process-group cancellation, manager and app restart during active production work, desktop retention-gap recovery, and lost-reply reconciliation through the complete native graphical path remain acceptance gates. The M05 probe and synthetic native fixture support those checks but do not replace them.
-
-Actual keychain lock or denial, failed deletion through the operating-system backend, physical sleep and network changes, and delivered operating-system notifications still need native observation. Deterministic unit tests cover the service failure states. Linux Secret Service and Windows remain unverified.
-
-The parent owns final independent review, integration, visual proof, and pull request creation. No push, pull request, watch, merge, deployment, or production owner mutation was performed.
-
-Independent lifecycle review reproduced a missing-profile sign-out defect. The new regression first failed because the native credential survived successful sign-out. After correction, the regression and all six deterministic native lifecycle tests passed. Both successful deletion and deletion failure after profile removal are covered. The independent recheck confirmed the missing-profile correction and found a second concurrent sign-out defect. Its regression failed before correction and passed afterward. All seven deterministic lifecycle tests now pass. Security review also reproduced journal-validation data loss and journal overflow. The parent corrected both and added isolated actual-manager recovery contracts to `make verify-desktop`. Fresh independent rechecks and production acceptance remain open.
-
-Run `python3 desktop/fixtures/c02_source_record.py --check-controls` to verify the current component source manifest. The verifier also rejects changed hashes, omitted source files, and unexpected files. The implementation owner's earlier manifest is preserved as `evidence/c02/source-implementation.json`.
-
-
-Sanitized [verification results](evidence/c02/verification.json), [source hashes](evidence/c02/source.json), [M05 results](evidence/c02/m05.json), [native results](evidence/c02/native.txt), and the [decision trail](evidence/c02/decisions.tsv) are retained with the implementation. The source manifest excludes generated target directories and contains no credentials.
-
-Additional [two-VM production acceptance](c02-production-acceptance.md) ran against frozen source `e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed`. Actual macOS RemoteService access passed over LAN and the public relay. Production cancellation, retention-gap recovery, runtime restart recovery, and lost-reply reconciliation passed. The native browser resource policy failed. A separately labelled supported M04 policy control completed real browser work and verified exports. The production issue and parent graphical gates remain open.
+Run `python3 desktop/fixtures/c02_source_record.py --check-controls` to verify the recorded source and its changed, missing and extra-file negative controls. The original implementation manifest remains preserved. Fixtures use synthetic credentials and recorded inference. No paid inference, installed-runtime changes or real owner-state changes occurred.

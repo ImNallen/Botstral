@@ -1,6 +1,6 @@
-# C02 production acceptance remains open
+# C02 production acceptance record
 
-ISSUES. The native composer browser policy failed on production source `e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed`. All other executed service gates passed. Packaged graphical acceptance remains the parent's responsibility.
+The initial run reported ISSUES. The native composer browser policy failed on production source `e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed`. All other executed service gates passed. The parent corrected and passed that gate in `b6081d2`, then completed the packaged graphical workflow. See [parent acceptance](c02-acceptance.md) for the updated results.
 
 ## Production issue for the parent
 
@@ -8,7 +8,7 @@ The native `Send` policy in `desktop/src-tauri/src/remote.rs` assigns 64 process
 
 A separately labelled control submitted the same operations through fixture loopback administration with the previously supported M04 policy of 128 processes and 1 GiB. It completed navigation, fill, click, text capture, file creation, and screenshot. Native review, approval, transfer, digest verification, and export used the public relay. The exported text is exactly `C02 production browser proof`. The guest file is exactly `C02 production file proof` followed by a newline.
 
-This proves the combined native resource policy is insufficient for this supported runtime. It does not isolate which resource limit causes the failure. The test fixture does not change the native policy. The parent must fix the production policy and rerun the native composer browser gate before claiming C02 completion.
+This proves the combined native resource policy is insufficient for this supported runtime. It does not isolate which resource limit causes the failure. The test fixture does not change the native policy. The parent reproduced the failure over the restarted relay, changed native policy to the supported combined limits, and reran the actual native composer gate. It passed with actual DOM and guest-file effects and native verified text and PNG exports. This establishes the combined policy correction; neither resource was isolated individually. [Parent results](evidence/c02-production-parent/browser-policy-correction.json) retain the before and after binary identities and outcomes. Packaged graphical acceptance remains open.
 
 The [failed task](evidence/c02-production/native-browser-failure.json), [complete results](evidence/c02-production/summary.json), [exported text](evidence/c02-production/browser-export.txt), and [actual browser PNG](evidence/c02-production/browser.png) retain the observations. The control is not counted as a passing native composer browser gate.
 
@@ -103,6 +103,6 @@ The helper stops only the recorded units, verifies no root processes remain, che
 
 ## Remaining boundaries
 
-BLOCKED on the native browser production policy fix and its rerun. BLOCKED on the parent's final bundled remote-route walkthrough and interaction video. Native choosers, actual app process restart during work, physical sleep and network changes, keychain denial, delivered OS notifications, and hostile packaged navigation remain unexecuted here. Linux Secret Service and Windows remain unverified.
+The parent corrected and passed the native browser production policy gate in `b6081d2`. The service results above remain the original frozen-source observations. The parent completed the bundled remote-route walkthrough and [interaction video](assets/c02-paired-desktop.mp4). Final independent review of the policy correction remains open. Native choosers, actual app process restart during work, physical sleep and network changes, keychain denial, delivered OS notifications, and hostile packaged navigation remain unexecuted here. Linux Secret Service and Windows remain unverified.
 
 Build the Lever produced the repeatable two-VM driver. Model the Domain kept public fixture control separate from per-gate results. Prove It Works kept the failed native browser gate open despite the successful diagnostic. No subagents or independent review ran, as requested. Parent review remains required. No push, PR, watch, merge, deployment, paid inference, real secrets, or real owner-state mutation occurred.

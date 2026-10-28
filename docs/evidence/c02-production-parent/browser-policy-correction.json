@@ -1,0 +1,18 @@
+{
+  "source_head": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+  "remote_source_sha256": "42d27d4507fd33df398ba50db1b9be5cdf74e17a8fe876715043b188cc93a831",
+  "before_resource_policy": {
+    "processes": 64,
+    "memory_bytes": 536870912
+  },
+  "after_resource_policy": {
+    "processes": 128,
+    "memory_bytes": 1073741824
+  },
+  "route": "bore.pub:34155",
+  "initial_attempt": "The retained relay was unavailable; that attempt failed at native confirmation and did not test browser policy.",
+  "native_before_exit": 1,
+  "native_after_exit": 0,
+  "native_after_source": "The source_head commit records the two resource changes tested in the working tree. The exact binary hash is in browser-policy-after.json.",
+  "manager_source": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed with the documented test-only overlays. Production manager, agent, and link source remained unchanged."
+}
