@@ -1,6 +1,6 @@
 # C02 acceptance record
 
-The macOS paired desktop workflow passed in the packaged app over the public relay with the real production worker. Journal and lifecycle corrections passed independent review at `d5ecb8c`. Final independent delta review reproduced no production policy defect. It found a verification-helper cleanup defect, now corrected with passing regressions. Independent recheck of that helper correction remains open. No production deployment or merge occurred.
+The macOS paired desktop workflow passed in the packaged app over the public relay with the real production worker. Journal and lifecycle corrections passed independent review at `d5ecb8c`. Final independent delta review reproduced no production policy defect. Its verification-helper cleanup finding was corrected and passed a fresh independent recheck at `f8846da`. All reproduced review findings are resolved. No production deployment or merge occurred.
 
 ## Paired workflow
 
@@ -10,7 +10,7 @@ Each composer message starts a separate durable M04 run. Actual assistant turns 
 
 All 15 M05 actual-binary contracts passed, including a run with the retained pre-extraction probe. Its SHA-256 matches the M05 identity record, `938da41b8a3329dbc6fbaa966dca365edc54c06d0fac70ad138eb512f3f4086b`. Shared-client regressions and six manager workspace and approval boundaries passed. [Original implementation verification](evidence/c02/verification-implementation.json) and [parent verification](evidence/c02/verification.json) retain commands, exits and source identities.
 
-`make verify-desktop` passed after the journal corrections. It includes 25 frontend tests, seven deterministic lifecycle tests, four isolated actual-manager journal contracts, local administration, Clippy and the bundled-interface build. The separate actual-manager contract with real macOS Keychain and renderer parser passed. Final `make verify` and `make verify-desktop` both passed after production fixture integration and the browser-policy correction. Their complete command logs and exits are retained in the parent verification record.
+`make verify-desktop` passed after the journal corrections. It includes 25 frontend tests, seven deterministic lifecycle tests, four isolated actual-manager journal contracts, local administration, Clippy and the bundled-interface build. The separate actual-manager contract with real macOS Keychain and renderer parser passed. Final `make verify` and `make verify-desktop` both passed after production fixture integration and the browser-policy correction. Their complete command logs and exits are retained in the parent verification record. The later helper-only cleanup correction passed three targeted regressions, eight independent neighboring cases, and the original reproduction. The three regressions are now part of desktop verification.
 
 The native journal validates before installing client authority. Missing or invalid storage preserves original bytes and blocks new mutations and pairing bypasses. All writes share reader byte and record bounds. Compaction retains unknown, pending and attention records. Concurrent sign-out callers serialize complete cleanup. A durable tombstone prevents authentication when native deletion fails. [Independent review and correction details](c02-review.md) retain the failure and correction evidence.
 

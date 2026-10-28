@@ -1,0 +1,92 @@
+# C02 helper cleanup recheck
+
+The goal is the complete packaged paired desktop workflow with secure manager WSS, OS keychain storage, durable runs, exact approval, real worker cancellation, and verified exports. This independent recheck releases only the P2 browser verification-helper cleanup hold. No finding survives in the helper correction or its regression integration. This verdict grants no deployment or merge approval.
+
+## Exact source and scope
+
+Reviewed by `gpt-6.1-sol` with high reasoning effort on 2026-10-28 in `/Users/nallen/.t3/worktrees/Botstral/t3-25886df0`. Python reports `Python 3.9.6`.
+
+The checkout remained `f8846daa23fc8d4d06381b22f4c81e349e3ab43c`. Its merge base with the requested base is exactly `6c2b70b03295cdc8a5f69411f0bb0628f383c7fd`. The correction is `b75e7aa79190d2e978d06dab72481e3c3d282233`. The final commit adds documentation and evidence only. A component and shared-build comparison between the correction and HEAD exits 0 with no differences.
+
+This review owns only `manager/tests/c02_browser.py`, the constructor change in `manager/tests/c02_production.py`, `manager/tests/c02_browser_cleanup.py`, and its integration in `scripts/verify-desktop.sh`. These are the only changed component or verification files after `b6081d2`. Earlier security, lifecycle, production-policy, native binary, and GUI evidence retain their original source attribution. They were not rerun or expanded here.
+
+I read project `AGENTS.md` and the requested poteto-mode skill in full. The user's explicit prohibition on subagents overrides the skills' delegation steps. I worked alone. The throughput checkpoint is not applicable to this read-only investigation. The Prove It Works principle required executing the original reproduction, checking the regression against the old helper, and observing actual local subprocess termination.
+
+## Original reproduction
+
+I read the retained final-delta report, its original report in `t3-0ba48559`, and the original `probe_browser_cleanup.py`. I copied the reproduction byte for byte into [the local evidence directory](c02-helper-cleanup/probe_browser_cleanup.py). Its SHA-256 is `808bf46655c6f5db0e9b532ee534ce853c7f6c109521eaddeca4764231d1cfe0`.
+
+Both original cases now exit 0. Each invokes the actual corrected `c02_browser.main`, `Native.close`, and `Native.call` with synthetic administration responses and a local protocol subprocess. Each helper invocation returns 1 because send failure is intentional. The timeout case produces this exact observation in [check-04.log](c02-helper-cleanup/check-04.log).
+
+```json
+{"case": "cleanup-error", "escaped_error": null, "helper_return": 1, "invitation_exists": false, "private_directory_exists": false, "results_exists": true}
+```
+
+For an independent negative control, [probe_before.py](c02-helper-cleanup/probe_before.py) loads the exact pre-correction browser helper from `b75e7aa^`, which resolves to `35f1e8d9fd14a0c1e904cd05044775a9b95e2828`. It compiles that source in memory and runs the unchanged original reproduction. It does not change the checkout. It retains the current `c02_production.Native` constructor; `Native.close` and `Native.call` are unchanged by the correction.
+
+The negative control exits 1 at `AssertionError: Cleanup failure must not discard results.json`. Its [exact observation](c02-helper-cleanup/before-independent.log) reproduces the original defect.
+
+```json
+{"case": "cleanup-error", "escaped_error": "native command timed out quit", "helper_return": null, "invitation_exists": true, "private_directory_exists": true, "results_exists": false}
+```
+
+The probe records these values before its own safety cleanup removes the synthetic leftovers and reaps the subprocess.
+
+## Regression and neighboring failures
+
+`python3 -W error::ResourceWarning manager/tests/c02_browser_cleanup.py` exits 0. The [output](c02-helper-cleanup/check-05.log) reports `Ran 3 tests` and `OK`. The cases cover send failure, shutdown timeout, and private removal failure. They assert an unsuccessful helper result, the preserved original send error, cleanup-error fields, invitation removal or explicit removal failure, persisted results, and a stopped local subprocess before test teardown.
+
+The same regression against the pre-correction browser helper exits 1. [The negative-control output](c02-helper-cleanup/regression-before.log) reports `FAILED (failures=1, errors=1)`. The shutdown case raises `AssertionError: native command timed out quit`. The removal case raises `OSError: injected private removal failure`. The ordinary send-failure case passes. These are the expected old control-flow failures.
+
+[probe_neighbors.py](c02-helper-cleanup/probe_neighbors.py) adds eight local cases and exits 0 under resource warnings as errors. The [full output](c02-helper-cleanup/neighbors.log) ends with `PASS 8 narrowly scoped helper neighbors`.
+
+| Executed case | Observed outcome |
+| --- | --- |
+| Simultaneous shutdown and removal failures. | The helper returns 1, records the send error and both cleanup errors, and persists results. The synthetic invitation remains with an explicit removal error. The subprocess is stopped. |
+| A subprocess that ignores quit. | The fallback kills and reaps the actual scoped child. The private directory is removed and results persist. |
+| Injected fallback kill failure. | `native_process_cleanup_error` equals `injected kill failure`. Results persist and private files are removed. The child remains alive at observation, as expected when kill itself is injected to fail. The probe then kills and reaps it. |
+| Injected fallback wait failure. | The helper records `Command 'synthetic native' timed out after 15 seconds`, removes private files, and persists results. The actual child is stopped. |
+| Synthetic successful body. | The helper closes native exactly once, returns 0, removes private files, and persists `PASS`. |
+| Synthetic successful body followed by shutdown timeout. | The helper closes native exactly once, changes `PASS` to `ISSUES`, returns 1, and persists the shutdown error. |
+| Synthetic successful body followed by removal failure. | The helper closes native exactly once, changes `PASS` to `ISSUES`, returns 1, and persists the removal error. |
+| Results write failure after both cleanup failures. | The helper still attempts the results write after shutdown and removal. The injected write error escapes. No result file can persist when its write is deliberately refused. The subprocess is stopped. |
+
+Every neighbor asserts exactly one native close. The successful-body cases use synthetic task and export data solely to exercise finalizer behavior. Their console `PASS` output is not evidence of actual browser execution or verified production exports.
+
+The [integration check](c02-helper-cleanup/check_integration.py) also verifies the parent log handle after real successful `Popen` and injected failed `Popen`. Both handles are closed. The real child can still write `synthetic log\n` to its inherited stderr. This directly checks the constructor correction.
+
+## Commands and exits
+
+All commands ran from the exact checkout. The [runner](c02-helper-cleanup/run_checks.py) retains the first nine commands, exits, and complete output paths in [commands.json](c02-helper-cleanup/commands.json). The additional commands below retain their complete output in the named logs.
+
+| Command | Exit | Result or log |
+| --- | ---: | --- |
+| `git rev-parse HEAD` | 0 | Exact requested HEAD. |
+| `git merge-base HEAD 6c2b70b03295cdc8a5f69411f0bb0628f383c7fd` | 0 | Exact requested base. |
+| `git diff --exit-code b75e7aa..HEAD -- agent manager link desktop scripts .github Cargo.toml Cargo.lock Makefile package.json package-lock.json rust-toolchain.toml` | 0 | No component or shared-build delta. |
+| `python3 .audit/c02-helper-cleanup/probe_browser_cleanup.py --case control` | 0 | [check-03.log](c02-helper-cleanup/check-03.log). |
+| `python3 .audit/c02-helper-cleanup/probe_browser_cleanup.py --case cleanup-error` | 0 | [check-04.log](c02-helper-cleanup/check-04.log). |
+| `python3 -W error::ResourceWarning manager/tests/c02_browser_cleanup.py` | 0 | Three tests pass. [check-05.log](c02-helper-cleanup/check-05.log). |
+| `python3 desktop/fixtures/c02_source_record.py --check-controls` | 0 | `C02 source manifest matches 223 files.` All three controls pass. [check-06.log](c02-helper-cleanup/check-06.log). |
+| `sh -n scripts/verify-desktop.sh` | 0 | No syntax errors. |
+| `git diff --check 6c2b70b03295cdc8a5f69411f0bb0628f383c7fd..HEAD` | 0 | No whitespace errors. |
+| `python3 -W error::ResourceWarning .audit/c02-helper-cleanup/probe_neighbors.py > .audit/c02-helper-cleanup/neighbors.log 2>&1` | 0 | Eight cases pass. |
+| `python3 .audit/c02-helper-cleanup/probe_before.py --case cleanup-error > .audit/c02-helper-cleanup/before-independent.log 2>&1` | 1 | Expected original missing-results assertion. |
+| `python3 .audit/c02-helper-cleanup/probe_regression_before.py > .audit/c02-helper-cleanup/regression-before.log 2>&1` | 1 | Expected old shutdown and removal failures. |
+| `python3 -W error::ResourceWarning .audit/c02-helper-cleanup/check_integration.py > .audit/c02-helper-cleanup/integration.log 2>&1` | 0 | Python compile, verification wiring, source identity, changed-file scope, and log-handle checks pass. |
+| `git diff b75e7aa^ b75e7aa --check` | 0 | No correction whitespace errors. |
+| `git diff --exit-code` | 0 | No tracked working-tree changes. |
+
+The integration check compiles the browser helper, regression, production helper, and manifest verifier without executing their entry points. It verifies that `make verify-desktop` invokes the script, and the script invokes the regression once under `set -eu` before the final desktop build. The full desktop verification was not run here.
+
+The current manifest names exactly `b75e7aa79190d2e978d06dab72481e3c3d282233`. It matches all 223 current tracked component, shared-build, script, and workflow files in its declared scope. Its negative controls report `PASS rejects changed_hash`, `PASS rejects missing_file`, and `PASS rejects extra_file`. Historical production source manifests and evidence hashes were not rewritten.
+
+## Findings and limits
+
+No surviving finding was proved. The corrected finalizer preserves the original failure, records shutdown and removal errors separately, attempts scoped process cleanup, attempts private removal regardless of shutdown outcome, and then attempts evidence persistence. Cleanup errors make the outcome unsuccessful, including after an otherwise successful body. The specific P2 helper hold can be released at this source.
+
+This is a helper failure-injection verdict. It does not certify OS credential cleanup after an actual native shutdown failure. Actual OS refusal of process termination or file removal remains observable failure, not a cleanup success. The injected results-write refusal verifies an attempt, not persistence under an unwritable destination.
+
+I did not run `make verify` or `make verify-desktop` at this HEAD. Their parent passes at `b6081d2` remain historical and do not cover the later helper correction. Current targeted regression, neighbors, and manifest checks provide the evidence for this verdict.
+
+I did not rerun production security, lifecycle, public relay, native binary, worker cancellation, export, GUI, or keychain acceptance. Platform denial, physical sleep, and hostile navigation remain unrun limits. No historical fixture was contacted or cleaned. No production file, branch, checkout, installed runtime, real owner state, or OS credential changed. No subagent, push, pull request, watch, merge, deployment, GUI interaction, or SSH was used. Only local audit artifacts, synthetic fixtures, and temporary subprocesses were created. All test subprocesses were reaped and synthetic private directories removed by helper or probe cleanup.

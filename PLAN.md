@@ -395,7 +395,7 @@ Depends on C01, M04, and M05.
 - [x] Complete chat, task progress, an exact-action approval, cancellation, and result retrieval in the desktop app for first acceptance.
 - [x] Verify the paired desktop app over the configured remote route, including reconnect and immediate loss of access after revocation.
 
-The packaged macOS workflow passed over the configured public relay with the production worker, real Keychain, exact approval, browser/file work, cancellation, app and manager runtime restart, retention-gap recovery, lost-reply reconciliation and current and future revocation. Final independent review of the browser-policy correction remains open. See [C02 acceptance](docs/c02-acceptance.md).
+The packaged macOS workflow passed over the configured public relay with the production worker, real Keychain, exact approval, browser/file work, cancellation, app and manager runtime restart, retention-gap recovery, lost-reply reconciliation and current and future revocation. All reproduced independent review findings were corrected and independently rechecked. See [C02 acceptance](docs/c02-acceptance.md).
 
 Complete when the desktop app completes the first-acceptance workflow, pairs and reconnects over the configured route, and loses current and future access after revocation.
 

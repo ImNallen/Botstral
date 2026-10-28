@@ -99,7 +99,6 @@
     "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
-    "independent recheck of the browser verification helper cleanup correction",
     "platform and operating-system observations listed in docs/c02-acceptance.md"
   ],
   "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",
@@ -109,5 +108,35 @@
     "journal_validation": "Independent gpt-6-astra recheck passed at d5ecb8c with original reproductions and adversarial neighbors.",
     "journal_size": "Independent gpt-6-astra recheck passed at d5ecb8c, including exact 1MiB status-growth and protected-record compaction boundaries."
   },
-  "production_parent": "../c02-production-parent/packaged-identity.json"
+  "production_parent": "../c02-production-parent/packaged-identity.json",
+  "independent_reviews": [
+    {
+      "model": "gpt-6-astra",
+      "scope": "journal security correction",
+      "source": "d5ecb8c",
+      "outcome": "no surviving findings",
+      "report": "security-independent-recheck.txt"
+    },
+    {
+      "model": "gpt-6-luna",
+      "scope": "concurrent sign-out correction",
+      "source": "d5ecb8c",
+      "outcome": "no surviving lifecycle findings; renderer wrapper unavailable in reviewer checkout",
+      "report": "lifecycle-independent-recheck.txt"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "scope": "production policy and test-support delta",
+      "source": "d2aa248",
+      "outcome": "one helper finding; no production defect reproduced",
+      "report": "final-delta-independent-review.txt"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "scope": "helper cleanup correction",
+      "source": "f8846da",
+      "outcome": "no surviving findings; original, three regression and eight neighboring cases passed",
+      "report": "helper-independent-recheck.txt"
+    }
+  ]
 }

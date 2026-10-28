@@ -16,7 +16,7 @@ Sign-out clears both local administration and paired renderer views immediately.
 
 Each composer submission is a separate durable M04 run. The renderer receives projected user prompts, actual assistant turns, linked task identities, exact normalized task actions, and verified artifact declarations. It does not invent conversation context between runs. Voice and attachments remain unavailable.
 
-Native and graphical acceptance boundaries are recorded in [c02-acceptance.md](c02-acceptance.md). Full milestone completion requires the parent's independent review and packaged remote-route walkthrough.
+Native and graphical acceptance boundaries are recorded in [c02-acceptance.md](c02-acceptance.md). The packaged remote-route walkthrough and independent reviews passed, with exact platform and operating-system limits retained in the acceptance record.
 
 
 The native journal has matching 1 MiB reader and writer limits and at most 128 admitted records. Admission reserves status-growth space and compacts only confirmed or refused operations. Restoration validates the complete journal before installing client authority. Missing or invalid journals block recovery and pairing without changing their bytes. Concurrent sign-out callers serialize before changing lifecycle state and wait for credential deletion. It does not use the 64 KiB secret-file reader. Staging opens reject symlinks, hard links, wrong ownership, and wrong permissions before truncation. Complete workspace images retain their installed cursor across process restart.
