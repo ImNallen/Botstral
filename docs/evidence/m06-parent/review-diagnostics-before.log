@@ -1,0 +1,3 @@
+valid configured connector diagnostic: []
+modified configured connector diagnostic: []
+FAIL: diagnostic accepted interpreter bytes that violate connector.json

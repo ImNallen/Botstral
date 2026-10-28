@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "binary_sha256": "3e04a1bd428badbf2f993910de6460f0db6a9a217be734d11f04a441b4e57071",
+  "checks": [
+    "actual manager binary",
+    "protected install and secret entry",
+    "no implicit bot grants",
+    "immutable rotation",
+    "locked restart",
+    "reconnect",
+    "revocation",
+    "encrypted SQLite",
+    "redacted audit"
+  ],
+  "external_services": false
+}

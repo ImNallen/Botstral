@@ -1,6 +1,6 @@
 # M06 recovery and packaging acceptance
 
-Recovery and packaging are implemented and verified independently of the connector work. This record does not close M06.
+Recovery and packaging are implemented and verified independently of the connector work. The [completion index](m06-completion.md) records combined milestone acceptance.
 
 ## Observed checks
 
@@ -24,14 +24,14 @@ Both corrected images were rebuilt and accepted on Docker Linux arm64. [The summ
 
 After connector integration, [both final images](evidence/m06-parent/integrated-images.json) were rebuilt and accepted again. The installed worker binary contains the current embedded connector helper. Its production scope-stop and journal restoration checks passed. The earlier retained Proxmox staging roots were subsequently [verified quiescent and removed](evidence/m06-parent/proxmox-cleanup.json).
 
-A final installer check reproduced both packages being accepted into one installation root. The two-order regression [failed before correction](evidence/m06-parent/cohost-install-before.log). The installer now rejects that unsupported layout before writing the second package, and [all 13 packaging checks pass](evidence/m06-parent/cohost-install-after.log). [Issue 33](https://github.com/ImNallen/Botstral/issues/33) tracks this correction. Both images were rebuilt and accepted again after it; final image identities are recorded separately.
+A final installer check reproduced both packages being accepted into one installation root. The two-order regression [failed before correction](evidence/m06-parent/cohost-install-before.log). The installer now rejects that unsupported layout before writing the second package, and [all 13 packaging checks pass](evidence/m06-parent/cohost-install-after.log). [Issue 33](https://github.com/ImNallen/Botstral/issues/33) tracks this correction. Both images were rebuilt and accepted again after it; image identities are recorded in the [final installation record](evidence/m06-parent/final-images.json). Subsequent [review-corrected images](evidence/m06-parent/review-images.json) also pass and prove connector interpreter coverage, tampering refusal, and restoration.
 
 The manager runs as user 10001 with dropped capabilities and a read-only root filesystem. Its actual TLS and file-configuration startup passed. The worker runs systemd 255 and the production Process backend. Its scope-stop proof, concurrent selected-root refusal, production journal backup, original-path restoration, retained incarnation, and certificate-byte recovery passed. [The worker result](evidence/m06-parent/docker-worker.json) retains those observations.
 
 The initial worker rerun [failed in the fixture](evidence/m06-parent/docker-worker-before-fixture.json) when OverlayFS refused renaming an image-layer directory. A fresh fixture directory fixes that harness assumption. The production recovery implementation and image were unchanged for the passing rerun. The failed record remains failed.
 
-## Remaining gates
+## Integrated acceptance and limits
 
-[Integrated Linux acceptance](m06-integrated-acceptance.md) subsequently verified retained connector credentials after restored vault unlock, authenticated remote execution, actual Vibe stdio, and scope cancellation across the Proxmox pair. That run restores the manager bundle and restarts the retained worker. It does not claim a second worker restoration. Final whole-branch review remains open. The pinned official filesystem server's [reference setup evidence](evidence/m06-parent/reference-connector.json) remains distinct from the integrated official-SDK filesystem backend.
+[Integrated Linux acceptance](m06-integrated-acceptance.md) subsequently verified retained connector credentials after restored vault unlock, authenticated remote execution, actual Vibe stdio, and scope cancellation across the Proxmox pair. That run restores the manager bundle and restarts the retained worker. It does not claim a second worker restoration. [Independent review and corrections](m06-review.md) records the final review and resolved findings. The pinned official filesystem server's [reference setup evidence](evidence/m06-parent/reference-connector.json) remains distinct from the integrated official-SDK filesystem backend.
 
 Podman and Docker x86_64 were not exercised. Full Computer and Vibe runtime installation is outside this packaging subset's evidence. Selected runtime roots must satisfy the documented regular-file recovery policy. Retained worker identity still requires the operator to retire the original instance. Multi-root restoration does not provide atomic publication across filesystems.

@@ -43,3 +43,5 @@ The initial checkout is `4483b183671aec5bc36a65fa11c25308fb127423`. Its workspac
 ## Decision trail
 
 The canonical trail is [m06-decisions.tsv](m06-decisions.tsv). Each unit records its hypothesis, source evidence, verification result, and remaining limitations.
+
+The [completion index](m06-completion.md) records the resulting implementation, observed gates, independent review corrections, and supported deployment limits.

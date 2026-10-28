@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "binary_sha256": "3e04a1bd428badbf2f993910de6460f0db6a9a217be734d11f04a441b4e57071",
+  "owner_protocol": 2,
+  "checks": [
+    "actual TLS WebSocket enrollment",
+    "install and list",
+    "protected secret entry",
+    "local API parity",
+    "reconnect",
+    "revocation",
+    "redacted audit",
+    "snapshot summary"
+  ]
+}

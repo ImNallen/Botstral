@@ -1,0 +1,28 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.83s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-f2044e44b93bf885)
+
+running 20 tests
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+test manager::state::connectors::tests::discovery_arguments_and_schema_are_bounded_and_denials_are_audited ... ok
+test manager::state::connectors::tests::schema_bounds::recursive_and_scope_changing_schema_references_are_refused ... ok
+test manager::state::connectors::tests::revoke_and_regrant_cannot_revive_an_approved_task_or_release ... ok
+test manager::state::connectors::tests::authentication_failure_hides_tools_and_large_secret_entry_is_atomic ... ok
+test manager::state::connectors::tests::possible_marker_and_audit_commit_atomically_before_any_permit ... ok
+test manager::state::connectors::tests::local_permit_is_one_shot_including_lost_reply_and_duplicate_settlement ... ok
+test manager::state::connectors::tests::in_flight_revoke_keeps_unknown_and_audits_late_evidence ... ok
+test manager::state::connectors::tests::restart_retains_possible_effects_and_late_results_do_not_reopen_authority ... ok
+test manager::state::connectors::tests::rotation_and_ciphertext_binding_keep_secrets_out_of_views_audit_and_results ... ok
+test manager::state::connectors::tests::runs::run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt ... ok
+test manager::state::connectors::tests::runs::stale_model_turn_cannot_create_a_child_after_regrant ... ok
+test manager::state::connectors::tests::runs::connector_policy_call_limit_counts_finished_children ... ok
+test manager::state::connectors::tests::schema_bounds::schema_expansion_is_bounded_at_discovery_and_call_admission ... ok
+test manager::state::connectors::tests::vibe_catalog_coding_requests_and_cached_calls_share_current_grants ... ok
+test manager::state::connectors::tests::runs::unknown_connector_stops_parent_and_late_evidence_never_resumes_it ... ok
+test manager::state::connectors::tests::reopening_sqlite_preserves_effect_identity_and_never_releases_again ... ok
+test manager::state::connectors::tests::every_release_rechecks_permission_fence_approval_and_worker_generation ... ok
+test manager::state::connectors::tests::runs::catalog_bounds::oversized_connector_catalog_is_rejected_and_legacy_runs_do_not_block_healthy_work ... ok
+test manager::state::connectors::tests::runs::dynamic_model_tool_schema_and_binding_reach_an_exact_approved_task ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 0.27s
+

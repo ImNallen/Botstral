@@ -179,24 +179,26 @@ M05 protocol acceptance passed with the reusable native owner client on the LAN 
 
 Depends on M04 and M05.
 
-- [ ] Install Model Context Protocol connections once for the owner.
-- [ ] Add connection discovery, authentication, reconnection, credential rotation, and revocation.
-- [ ] Remove revoked tools from bot and Vibe discovery and reject further calls, including stale cached requests.
-- [ ] Keep remote account tokens in the manager's protected connection store. Give local plugins only the credentials required for their connection.
-- [ ] Keep account authorization separate from each bot's tool permissions.
-- [ ] Support remote Streamable HTTP servers and local standard-input and standard-output servers.
-- [ ] Run local plugin processes inside the shared virtual machine.
-- [ ] Record tool discovery, permission decisions, calls, and results.
-- [ ] Expose permitted plugin tools to Vibe through the manager's gateway.
-- [ ] Define the handling of in-flight connector calls during revocation.
-- [ ] Add installation, diagnostics, and consistent backup and restore procedures for SQLite state, Markdown memory, the encrypted credential store, and durable artifacts.
-- [ ] Define which Computer VM files, browser sessions, and installed tools each backup preserves. Restore them according to that policy.
-- [ ] Package the manager and worker as separate Linux services and OCI images for Docker or Podman. Installation must preserve the two-VM boundary.
-- [ ] Verify installation on Proxmox-hosted Linux and another compatible Linux environment.
+- [x] Install Model Context Protocol connections once for the owner.
+- [x] Add connection discovery, authentication, reconnection, credential rotation, and revocation.
+- [x] Remove revoked tools from bot and Vibe discovery and reject further calls, including stale cached requests.
+- [x] Keep remote account tokens in the manager's protected connection store. Give local plugins only the credentials required for their connection.
+- [x] Keep account authorization separate from each bot's tool permissions.
+- [x] Support remote Streamable HTTP servers and local standard-input and standard-output servers.
+- [x] Run local plugin processes inside the shared virtual machine.
+- [x] Record tool discovery, permission decisions, calls, and results.
+- [x] Expose permitted plugin tools to Vibe through the manager's gateway.
+- [x] Define the handling of in-flight connector calls during revocation.
+- [x] Add installation, diagnostics, and consistent backup and restore procedures for SQLite state, Markdown memory, the encrypted credential store, and durable artifacts.
+- [x] Define which Computer VM files, browser sessions, and installed tools each backup preserves. Restore them according to that policy.
+- [x] Package the manager and worker as separate Linux services and OCI images for Docker or Podman. Installation must preserve the two-VM boundary.
+- [x] Verify installation on Proxmox-hosted Linux and another compatible Linux environment.
 
 Complete when one bot uses a real connector and a backup restores its history, memory, credentials, and deliverables. Verify that connection revocation blocks further calls from the bot and Vibe. Before v1 multi-bot acceptance, verify two bots reuse one connected account with different tool permissions and revocation blocks both.
 
 Tool permissions govern calls through the gateway. Bots with shared computer access also share its credentials. Per-bot tool settings are not a security boundary between bots.
+
+M06 acceptance is recorded in the [completion index](docs/m06-completion.md). The coordinator reproduced and corrected all four final review findings and added regression checks. Proxmox staging and Docker Linux arm64 passed. Podman, Docker x86_64, OAuth browser flows, and replacement-machine cutover remain unverified.
 
 ### First acceptance milestone
 

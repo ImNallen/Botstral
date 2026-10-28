@@ -1,0 +1,695 @@
+./scripts/verify.sh
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+    Checking rustls-webpki v0.103.16
+    Checking rcgen v0.13.2
+    Checking rusqlite v0.38.0
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+    Checking tokio-rustls v0.26.6
+    Checking hyper-rustls v0.27.10
+    Checking reqwest v0.12.28
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.29s
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rusqlite v0.38.0
+   Compiling rustls-webpki v0.103.16
+   Compiling rustls v0.23.46
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.07s
+test_connector_interpreter_is_verified_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) ... ok
+test_real_manager_uses_file_configuration_and_private_tls (test_install.InstallationTests) ... ok
+test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_separate_install_layout_and_refusal (test_install.InstallationTests) ... ok
+test_staging_symlink_cannot_escape_install_root (test_install.InstallationTests) ... ok
+test_available_ledger_bytes_are_required (test_recovery.RecoveryTests) ... ok
+test_backup_links_and_extra_content_are_refused (test_recovery.RecoveryTests) ... ok
+test_flock_matches_service (test_recovery.RecoveryTests) ... ok
+test_future_database_schema_is_refused (test_recovery.RecoveryTests) ... ok
+test_link_and_source_change_refusals (test_recovery.RecoveryTests) ... ok
+test_malicious_manifest_refusals_before_destination (test_recovery.RecoveryTests) ... ok
+test_wal_restore_and_locked_state (test_recovery.RecoveryTests) ... ok
+test_selected_guest_roots_identity_evidence_and_no_clone (test_recovery.WorkerRecoveryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.061s
+
+OK
+......
+----------------------------------------------------------------------
+Ran 6 tests in 1.669s
+
+OK
+   Compiling rusqlite v0.38.0
+   Compiling hyper-rustls v0.27.10
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling rcgen v0.13.2
+   Compiling reqwest v0.12.28
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.59s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-9457351d9c8fbb0a)
+
+running 9 tests
+test connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command ... ok
+test connector::tests::runtime_identity_binds_the_helper_and_exact_interpreter_bytes ... ok
+test journal::artifacts::tests::spool_capacity_is_reserved_before_authority_and_released_only_when_not_admitted ... ok
+test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
+test journal::process_storage_tests::populated_v1_journal_migrates_without_replacing_records ... ok
+test journal::process_storage_tests::reserved_terminal_report_survives_unrelated_report_exhaustion ... ok
+test journal::tests::journal_opens_and_preserves_incarnation ... ok
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+test connector::tests::generated_configuration_loads_in_the_production_worker ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_agent-6d8a1de3f28db782)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/botstral-agent-supervisor-check.rs (target/debug/deps/botstral_agent_supervisor_check-8dbeb6cc22f2703b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-46ddd23c8ed9390f)
+
+running 14 tests
+test artifact_acceptance::w01_manager_store_reservation_refuses_authority_at_the_finite_byte_limit ... ok
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... ok
+test process_acceptance::w01_crash_runtime_bound ... ignored, Verifies the independent runtime ceiling after an uncatchable daemon crash.
+test process_acceptance::w01_journal_replacement ... ignored, Verifies that a replacement journal cannot prove an old process scope empty.
+test process_acceptance::w01_production_contract ... ignored, Runs the opt-in production process contract on Linux with a systemd user manager.
+test process_acceptance::w01_review_interrupted_probe ... ignored, Verifies interrupted capability probes on Linux with the production daemon.
+test process_acceptance::w01_review_reconnect_confirmation ... ignored, Verifies reconnect confirmation waits for the previous process scope to stop.
+test process_acceptance::w01_unsupported_host ... ignored, Checks production capability refusal on an unsupported host.
+test enrollment::enrollment_tls_negotiation_and_lifecycle_use_actual_binaries ... ok
+test recovery::conversation_append_order_survives_restart_and_retries ... ok
+Schema creation succeeded; cache rewrite failed with database disk image is malformed.
+test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
+test recovery::durable_task_survives_manager_restart ... ok
+test recovery::markdown_sources_conversations_and_event_snapshots_recover ... ok
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded has been running for over 60 seconds
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded ... ok
+
+test result: ok. 8 passed; 0 failed; 6 ignored; 0 measured; 0 filtered out; finished in 100.68s
+
+     Running unittests src/lib.rs (target/debug/deps/botstral_link-1f998dd1d927d51d)
+
+running 9 tests
+test durable::binding_tests::authority_binds_the_actual_adapter_arguments ... ok
+test durable::tests::cancellation_and_terminal_states_do_not_regress ... ok
+test connector::tests::worker_and_manager_share_canonical_digest_vectors ... ok
+test durable::tests::typed_argument_normalization_rejects_unknown_fields ... ok
+test owner::tests::notification_and_local_administration_cannot_become_remote_authority ... ok
+test process::tests::process_inputs_are_bounded_and_every_field_is_bound ... ok
+test tests::negotiation_and_strict_messages ... ok
+test tests::schema_has_no_drift ... ok
+maximum retained output report=4459 task=10972 task_snapshot=1404545
+test process::tests::maximum_process_encoding_fits_pages_and_snapshots ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running unittests src/bin/export-schema.rs (target/debug/deps/export_schema-151aaaedfb128387)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/computer.rs (target/debug/deps/computer-0f52fc975575c133)
+
+running 3 tests
+test computer_bounds_and_immutable_inputs_preserve_process_ceilings ... ok
+test owner_computer_command_is_first_class_and_strict ... ok
+test bounded_artifact_chunks_fit_the_existing_transport_envelope ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-6da6cb77e5f32fe6)
+
+running 89 tests
+test local_state::tests::rejects_unsafe_state_and_second_owner ... ok
+test manager::connectors::http::tests::json_and_sse_negotiate_correlate_and_refuse_server_sampling ... ok
+test manager::devices::tests::remote_model_admission_preserves_shutdown_and_revocation_fences ... ok
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ignored, Requires Linux systemd, BOTSTRAL_VIBE_RUNTIME=Vibe 2.24.2 and BOTSTRAL_RUN_AGENT_BIN=production agent.
+test manager::inference::tests::integrated_fixture::m06_integrated_remote_fixture ... ignored, Requires manager/tests/m06_integrated.py and isolated Linux VMs.
+test manager::crypto::tests::vault_round_trip_and_authenticated_tampering ... ok
+test manager::inference::tests::m04_before_sending_cancellation_and_authority_rechecks ... ok
+test manager::inference::tests::m04_admission_configuration_vault_and_budget_refusals ... ok
+test manager::inference::tests::m04_completion_waits_for_state_queue_capacity ... ok
+test manager::inference::tests::m04_capacity_wait_expires_without_sending ... ok
+test manager::inference::tests::m04_concurrency_cancellation_disconnect_and_shutdown ... ok
+test manager::inference::tests::m04_crash_marks_sending_uncertain_and_never_replaces_call ... ok
+test manager::inference::tests::m04_documented_token_details_settle_and_reject_invalid_subsets ... ok
+test manager::inference::tests::m04_http_success_idempotency_replay_and_restart ... ok
+test manager::inference::tests::m05_provider_verification_keeps_other_owner_operations_available ... ok
+test manager::inference::tests::run_tests::desktop_fixture::c02_desktop_fixture ... ignored, Starts the isolated C02 graphical fixture until its stop file appears.
+test manager::inference::tests::m04_unknown_responses_retain_reservations_without_retry ... ok
+test manager::inference::tests::run_tests::m04_run_capacity_backpressure_and_bounded_shutdown ... ok
+test manager::inference::tests::run_tests::m04_run_function_capability_and_owner_authentication ... ok
+test manager::inference::tests::run_tests::m04_run_deadlines_reconcile_while_provider_slots_are_full ... ok
+test manager::inference::tests::run_tests::m04_run_late_usage_cancellation_and_crash ... ok
+test manager::inference::tests::run_tests::m04_run_recorded_browser_file_approval_result_artifact_and_followup ... ok
+test manager::inference::tests::run_tests::m04_run_truncated_final_is_stopped_and_persisted ... ok
+test manager::inference::tests::run_tests::production::m04_run_production_worker_browser_file_process_and_artifact ... ignored, Requires Linux x86_64, a systemd user manager, and BOTSTRAL_RUN_RUNTIME prepared by agent/runtime/setup.sh.
+test manager::inference::tests::run_tests::production_fixture::c02_production_remote_fixture ... ignored, Requires the isolated two-VM C02 production acceptance driver.
+test manager::inference::tests::run_tests::m04_run_unsupported_proposals_settle_valid_usage_without_children ... ok
+test manager::state::connectors::tests::authentication_failure_hides_tools_and_large_secret_entry_is_atomic ... ok
+test manager::state::connectors::tests::discovery_arguments_and_schema_are_bounded_and_denials_are_audited ... ok
+test manager::state::connectors::tests::every_release_rechecks_permission_fence_approval_and_worker_generation ... ok
+test manager::state::connectors::tests::in_flight_revoke_keeps_unknown_and_audits_late_evidence ... ok
+test manager::state::connectors::tests::local_permit_is_one_shot_including_lost_reply_and_duplicate_settlement ... ok
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+test manager::state::connectors::tests::possible_marker_and_audit_commit_atomically_before_any_permit ... ok
+test manager::state::connectors::tests::reopening_sqlite_preserves_effect_identity_and_never_releases_again ... ok
+test manager::state::connectors::tests::restart_retains_possible_effects_and_late_results_do_not_reopen_authority ... ok
+test manager::state::connectors::tests::revoke_and_regrant_cannot_revive_an_approved_task_or_release ... ok
+test manager::state::connectors::tests::rotation_and_ciphertext_binding_keep_secrets_out_of_views_audit_and_results ... ok
+test manager::state::connectors::tests::runs::catalog_bounds::oversized_connector_catalog_is_rejected_and_legacy_runs_do_not_block_healthy_work ... ok
+test manager::state::connectors::tests::runs::connector_policy_call_limit_counts_finished_children ... ok
+test manager::state::connectors::tests::runs::dynamic_model_tool_schema_and_binding_reach_an_exact_approved_task ... ok
+test manager::state::connectors::tests::runs::run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt ... ok
+test manager::state::connectors::tests::runs::stale_model_turn_cannot_create_a_child_after_regrant ... ok
+test manager::state::connectors::tests::runs::unknown_connector_stops_parent_and_late_evidence_never_resumes_it ... ok
+test manager::state::connectors::tests::schema_bounds::recursive_and_scope_changing_schema_references_are_refused ... ok
+test manager::state::connectors::tests::schema_bounds::schema_expansion_is_bounded_at_discovery_and_call_admission ... ok
+test manager::state::connectors::tests::vibe_catalog_coding_requests_and_cached_calls_share_current_grants ... ok
+test manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart ... ok
+test manager::state::backup_tests::offline_restore_reopens_owner_history_markdown_credentials_and_artifacts ... ok
+test manager::state::devices::tests::invitations_expire_and_attempt_limits_persist ... ok
+test manager::state::inference::tests::m04_ledger_transitions_and_events_commit_together_and_settle_once ... ok
+test manager::state::inference::tests::m04_price_rounding_overflow_and_verification_authority ... ok
+test manager::state::devices::tests::rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials ... ok
+test manager::state::runs::tests::artifact_tests::collection_validates_files_and_exposes_only_bounded_untrusted_text ... ok
+test manager::state::runs::tests::artifact_tests::transcript_retention_and_replay_are_bounded ... ok
+test manager::state::runs::tests::child_claim_and_publication_recheck_parent_without_consuming_ineligible_approval ... ok
+test manager::state::runs::tests::coding_tests::abandoned_coding_caller_during_state_admission_releases_known_unsent_hold ... ok
+test manager::state::runs::tests::coding_tests::coding_child_uses_the_earlier_policy_or_parent_deadline ... ok
+test manager::state::runs::tests::coding_tests::coding_helpers_retry_and_parent_limits_use_recorded_http_and_prior_durable_holds ... ok
+test manager::state::runs::tests::coding_tests::coding_uncertainty_recovery_cancellation_and_identity_never_restore_authority ... ok
+test manager::state::runs::tests::coding_tests::coding_validation_rejects_model_switches_tools_urls_and_unknown_options ... ok
+test manager::state::runs::tests::coding_tests::pinned_vibe_wire_requests_pass_the_production_boundary_except_forbidden_tool_history ... ok
+test manager::state::runs::tests::coding_tests::resume_requires_confirmed_exit_same_owner_workspace_policy_and_exact_session ... ok
+test manager::state::runs::tests::cumulative_limits_stop_tools_after_settling_the_model_turn ... ok
+test manager::state::runs::tests::provider_uncertainty_retains_reservation_and_late_cancelled_usage_settles_once ... ok
+test manager::state::runs::tests::recovery_tests::cancellation_requires_stop_evidence_and_reconciliation_is_idempotent ... ok
+test manager::state::runs::tests::recovery_tests::duplicate_call_ids_and_new_call_authority_cannot_create_replacement_work ... ok
+test manager::state::runs::tests::recovery_tests::revised_authority_is_checked_at_permit_publication ... ok
+test manager::state::runs::tests::registry_preserves_owner_policy_and_rejects_persistent_tab_assumptions ... ok
+test manager::state::runs::tests::restart_tests::admission_rollback_cannot_count_or_send_an_uncommitted_turn ... ok
+test manager::state::runs::tests::restart_tests::reopening_at_committed_boundaries_preserves_call_child_and_result_identity ... ok
+test manager::state::runs::tests::results_are_durable_and_reconciled_without_replacement_effects ... ok
+test manager::state::runs::tests::run_intent_task_command_accounting_and_events_commit_together ... ok
+test manager::state::runs::tests::vision_tests::old_text_request_still_decodes ... ok
+test manager::state::runs::tests::vision_tests::vision_rejects_wrong_ownership_digest_capability_billing_and_corrupt_png_before_admission ... ok
+test manager::state::runs::tests::vision_tests::vision_sends_exact_authorized_png_bytes_and_retains_artifact_identity ... ok
+test manager::state::tasks::tests::approval_mutations_require_owner_and_survive_login_changes ... ok
+test manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session ... ok
+test manager::state::tasks::tests::task_outbox_and_event_roll_back_together ... ok
+test manager::state::tests::credential_budget_resets_only_after_window ... ok
+test manager::state::migration_tests::populated_v1_preserves_owner_bot_and_encrypted_credentials ... ok
+test manager::state::tests::migrations_are_atomic_and_refuse_future_versions ... ok
+test manager::state::tests::expiry_and_revocation_are_checked_at_operation_time ... ok
+test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
+test manager::state::workers::tests::invitation_binding_expiry_atomicity_and_replay ... ok
+test manager::state::workers::tests::pending_takeover_blocks_input_and_fences_queued_delivery ... ok
+test manager::state::workers::tests::snapshots_generations_late_disconnect_and_full_channels ... ok
+test manager::tests::credential_admission_is_released_before_completion_wakes_the_caller ... ok
+test manager::tests::queue_saturation_and_credential_admission_are_bounded ... ok
+test manager::state::tests::setup_and_provider_replacement_roll_back_without_losing_values ... ok
+
+test result: ok. 84 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 105.19s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_manager-3dfd7f7c57d8ef7a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/owner-probe.rs (target/debug/deps/owner_probe-083ac7711ed7f9e5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m01_local.rs (target/debug/deps/m01_local-5f98c94bcb501ec9)
+
+running 1 test
+Manager stopped with exit status: 0.
+Setup is atomic, capability protected, and isolated from the regular listener.
+Bots, sessions, revocation, explicit locking, protected replacement, and read refusal pass over TCP.
+Browser boundaries, strict JSON, body and header limits, deadlines, and credential limits pass.
+Refused startup with exit status: 1.
+Manager stopped with signal: 9 (SIGKILL).
+Manager stopped with exit status: 0.
+Graceful shutdown completes with an unread bot-list response.
+Manager stopped with exit status: 0.
+A forced restart preserves the full bot and encrypted metadata, invalidates sessions, and locks the vault. Tampering fails unlock.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Private permissions, second-process exclusion, unsafe binds and state rejection, migration refusal, and complete secret scans pass.
+test m01_real_binary_over_tcp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 40.80s
+
+     Running tests/m05_bounds.rs (target/debug/deps/m05_bounds-8f9898e977b2672e)
+
+running 1 test
+snapshot serialized=64350208 decoded=67338240 owner recovery peak<1GiB client temporary storage<=161MiB
+test admitted_snapshot_and_temporary_storage_fit_recovery_budgets ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/botstral_owner_client-77dbbeba750dfb3d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_agent
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_link
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_manager
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests botstral_owner_client
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.87s
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.37s
+   Compiling ring v0.17.14
+   Compiling rustls-webpki v0.103.16
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.03s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-5cffae00fccd19ff)
+
+running 9 tests
+test connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command ... ok
+test connector::tests::runtime_identity_binds_the_helper_and_exact_interpreter_bytes ... ok
+test journal::artifacts::tests::spool_capacity_is_reserved_before_authority_and_released_only_when_not_admitted ... ok
+test journal::corruption_tests::corrupt_or_linked_journals_never_become_empty_replacements ... ok
+test journal::process_storage_tests::populated_v1_journal_migrates_without_replacing_records ... ok
+test journal::process_storage_tests::reserved_terminal_report_survives_unrelated_report_exhaustion ... ok
+test journal::tests::journal_opens_and_preserves_incarnation ... ok
+test session::tests::receiver_fences_generations_revisions_and_cross_worker_control ... ok
+test connector::tests::generated_configuration_loads_in_the_production_worker ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.38s
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-d884245ae047dcbd)
+
+running 28 tests
+test artifact_acceptance::w01_manager_store_reservation_refuses_authority_at_the_finite_byte_limit ... ok
+test fencing::actual_daemon_rejects_stale_frames_and_queued_receipts ... ok
+test process_acceptance::w01_crash_boundaries ... ignored, Uses existing debug-only fault injection with real Linux production-agent processes.
+test process_acceptance::w01_crash_runtime_bound ... ignored, Verifies the independent runtime ceiling after an uncatchable daemon crash.
+test process_acceptance::w01_journal_replacement ... ignored, Verifies that a replacement journal cannot prove an old process scope empty.
+test process_acceptance::w01_production_contract ... ignored, Runs the opt-in production process contract on Linux with a systemd user manager.
+test process_acceptance::w01_review_interrupted_probe ... ignored, Verifies interrupted capability probes on Linux with the production daemon.
+test process_acceptance::w01_review_reconnect_confirmation ... ignored, Verifies reconnect confirmation waits for the previous process scope to stop.
+test process_acceptance::w01_unsupported_host ... ignored, Checks production capability refusal on an unsupported host.
+test artifact_acceptance::w01_artifact_protocol_uses_durable_admitted_scope_and_idempotent_bytes ... ok
+test recovery::conversation_append_order_survives_restart_and_retries ... ok
+test recovery::delayed_claim_rejects_revocation_policy_and_expiry ... ok
+Schema creation succeeded; cache rewrite failed with database disk image is malformed.
+test recovery::derived_index_data_corruption_recovers_without_touching_sources ... ok
+test recovery::durable_task_survives_manager_restart ... ok
+test recovery::every_approval_binding_field_and_single_use_identity_are_checked ... ok
+test recovery::journal_replacement_after_unacknowledged_acceptance_never_restarts_work ... ok
+
+thread 'recovery::manager_claim_and_outbox_crashes_preserve_original_intent' (615606480) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery::manager_claim_and_outbox_crashes_preserve_original_intent ... ok
+test recovery::markdown_sources_conversations_and_event_snapshots_recover ... ok
+test recovery::independent_effect_ledger_recovers_every_worker_crash_boundary ... ok
+test recovery::offline_cancellation_preserves_effects_until_stopped_confirmation ... ok
+test recovery::permits::actual_worker_report_pages_respect_count_and_byte_limits ... ok
+test recovery::permits::invalid_permit_preserves_another_sessions_pending_claim ... ok
+test recovery::permits::renewed_approval_survives_denial_of_older_pending_claim ... ok
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (615611119) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+test recovery::recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent ... ok
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (615611119) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+test recovery::regrants::identical_regrant_is_delivered_after_denial_before_delayed_report ... ok
+
+thread 'recovery::published_markdown_recovers_each_file_index_event_crash_window' (615611119) panicked at agent/tests/m02_transport.rs:118:63:
+called `Result::unwrap()` on an `Err` value: hyper::Error(IncompleteMessage)
+test recovery::published_markdown_recovers_each_file_index_event_crash_window ... ok
+test sessions::confirmed_takeover_two_sessions_cancellation_and_results ... ok
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded has been running for over 60 seconds
+test recovery::snapshots::aggregate_admission_limits_keep_complete_snapshots_bounded ... ok
+
+test result: ok. 21 passed; 0 failed; 7 ignored; 0 measured; 1 filtered out; finished in 150.04s
+
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling libc v0.2.191
+   Compiling cfg-if v1.0.5
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling subtle v2.6.1
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling serde_core v1.0.229
+   Compiling stable_deref_trait v1.2.1
+   Compiling pin-project-lite v0.2.17
+   Compiling futures-core v0.3.34
+   Compiling smallvec v1.16.4
+   Compiling serde v1.0.229
+   Compiling once_cell v1.21.4
+   Compiling find-msvc-tools v0.1.15
+   Compiling thiserror v2.0.21
+   Compiling bytes v1.12.1
+   Compiling shlex v2.0.1
+   Compiling generic-array v0.14.7
+   Compiling cc v1.10.0
+   Compiling zerocopy v0.8.63
+   Compiling futures-sink v0.3.34
+   Compiling futures-io v0.3.34
+   Compiling futures-channel v0.3.34
+   Compiling slab v0.4.12
+   Compiling futures-task v0.3.34
+   Compiling log v0.4.34
+   Compiling zmij v1.0.23
+   Compiling http v1.5.0
+   Compiling getrandom v0.3.4
+   Compiling serde_json v1.0.154
+   Compiling httparse v1.10.1
+   Compiling percent-encoding v2.3.2
+   Compiling ref-cast v1.0.27
+   Compiling autocfg v1.5.1
+   Compiling getrandom v0.2.17
+   Compiling cpufeatures v0.2.17
+   Compiling errno v0.3.14
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling signal-hook-registry v1.4.8
+   Compiling rand_core v0.6.4
+   Compiling untrusted v0.9.0
+   Compiling parking_lot_core v0.9.12
+   Compiling hybrid-array v0.4.15
+   Compiling ring v0.17.14
+   Compiling syn v3.0.9
+   Compiling syn v2.0.119
+   Compiling num-traits v0.2.19
+   Compiling http-body v1.1.0
+   Compiling tracing-core v0.1.36
+   Compiling rustls v0.23.46
+   Compiling tower-service v0.3.3
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling thiserror v1.0.69
+   Compiling getrandom v0.4.3
+   Compiling unicase v2.10.0
+   Compiling tracing v0.1.44
+   Compiling const-oid v0.10.2
+   Compiling cpufeatures v0.3.1
+   Compiling mime_guess v2.0.5
+   Compiling try-lock v0.2.5
+   Compiling foldhash v0.2.0
+   Compiling writeable v0.6.4
+   Compiling bitflags v2.13.2
+   Compiling litemap v0.8.3
+   Compiling same-file v1.0.6
+   Compiling digest v0.11.3
+   Compiling walkdir v2.5.0
+   Compiling want v0.3.2
+   Compiling rand_core v0.9.5
+   Compiling sha2 v0.11.1
+   Compiling httpdate v1.0.3
+   Compiling opaque-debug v0.3.1
+   Compiling const-oid v0.9.6
+   Compiling icu_properties_data v2.4.0
+   Compiling rustversion v1.0.23
+   Compiling mime v0.3.17
+   Compiling atomic-waker v1.1.2
+   Compiling icu_normalizer_data v2.4.0
+   Compiling utf8_iter v1.0.4
+   Compiling num-integer v0.1.47
+   Compiling uuid v1.29.0
+   Compiling ff v0.13.1
+   Compiling base16ct v0.2.0
+   Compiling rust-embed-utils v8.13.0
+   Compiling pkg-config v0.3.34
+   Compiling base64 v0.23.1
+   Compiling dyn-clone v1.0.20
+   Compiling rustc-hash v2.1.3
+   Compiling data-encoding v2.11.1
+   Compiling vcpkg v0.2.15
+   Compiling ipnet v2.12.2
+   Compiling type-map v0.5.1
+   Compiling group v0.13.0
+   Compiling http-body-util v0.1.5
+   Compiling scopeguard v1.2.0
+   Compiling utf-8 v0.7.6
+   Compiling core-foundation-sys v0.8.7
+   Compiling synstructure v0.14.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling serde_derive_internals v0.30.0
+   Compiling libsqlite3-sys v0.36.0
+   Compiling semver v1.0.28
+   Compiling rand_chacha v0.9.0
+   Compiling lock_api v0.4.14
+   Compiling rand v0.9.5
+   Compiling rustc_version v0.4.1
+   Compiling num-bigint v0.4.8
+   Compiling hashbrown v0.16.1
+   Compiling form_urlencoded v1.2.2
+   Compiling ahash v0.8.12
+   Compiling sync_wrapper v1.0.2
+   Compiling tower-layer v0.3.3
+   Compiling simd-adler32 v0.3.10
+   Compiling self_cell v1.3.0
+   Compiling regex-syntax v0.8.11
+   Compiling curve25519-dalek v4.1.3
+   Compiling hashlink v0.11.1
+   Compiling parking_lot v0.12.5
+   Compiling rand_chacha v0.3.1
+   Compiling security-framework-sys v2.17.0
+   Compiling core-foundation v0.10.1
+   Compiling num-iter v0.1.46
+   Compiling num-complex v0.4.6
+   Compiling zeroize_derive v1.5.0
+   Compiling serde_derive v1.0.229
+   Compiling displaydoc v0.2.7
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+   Compiling zerovec-derive v0.11.7
+   Compiling thiserror-impl v2.0.21
+   Compiling futures-macro v0.3.34
+   Compiling zeroize v1.9.1
+   Compiling tokio-macros v2.7.2
+   Compiling tinystr v0.8.5
+   Compiling ref-cast-impl v1.0.27
+   Compiling rustls-pki-types v1.15.1
+   Compiling tokio v1.54.1
+   Compiling thiserror-impl v1.0.69
+   Compiling futures-util v0.3.34
+   Compiling der v0.7.10
+   Compiling schemars_derive v1.2.3
+   Compiling zerofrom v0.1.8
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling inout v0.1.4
+   Compiling digest v0.10.7
+   Compiling cipher v0.4.4
+   Compiling yoke v0.8.4
+   Compiling sha2 v0.10.9
+   Compiling hmac v0.12.1
+   Compiling universal-hash v0.5.1
+   Compiling hkdf v0.12.4
+   Compiling sec1 v0.7.3
+   Compiling sha1 v0.10.7
+   Compiling rustls-pemfile v2.2.0
+   Compiling crypto-bigint v0.5.5
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling rust-embed-impl v8.13.0
+   Compiling tungstenite v0.28.0
+   Compiling fluent-syntax v0.12.0
+   Compiling rustls-webpki v0.103.16
+   Compiling polyval v0.6.2
+   Compiling aead v0.5.2
+   Compiling ghash v0.5.1
+   Compiling elliptic-curve v0.13.8
+   Compiling poly1305 v0.8.0
+   Compiling aes v0.8.4
+   Compiling potential_utf v0.1.6
+   Compiling unic-langid-impl v0.9.6
+   Compiling icu_locale_core v2.4.0
+   Compiling icu_collections v2.4.0
+   Compiling schemars v1.2.3
+   Compiling unic-langid v0.9.6
+   Compiling basic-toml v0.1.10
+   Compiling toml v0.5.11
+   Compiling intl-memoizer v0.5.3
+   Compiling intl_pluralrules v7.0.2
+   Compiling fluent-langneg v0.13.1
+   Compiling i18n-config v0.4.8
+   Compiling fluent-bundle v0.16.0
+   Compiling icu_provider v2.4.0
+   Compiling find-crate v0.6.3
+   Compiling futures-executor v0.3.34
+   Compiling icu_properties v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling primeorder v0.13.6
+   Compiling chacha20 v0.9.1
+   Compiling i18n-embed-impl v0.8.4
+   Compiling ctr v0.9.2
+   Compiling num-rational v0.4.2
+   Compiling aho-corasick v1.1.5
+   Compiling crc32fast v1.5.3
+   Compiling base64 v0.22.1
+   Compiling adler2 v2.0.1
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling fallible-iterator v0.3.0
+   Compiling idna_adapter v1.2.2
+   Compiling hyper v1.12.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tower v0.5.3
+   Compiling idna v1.1.0
+   Compiling regex-automata v0.4.18
+   Compiling num v0.4.3
+   Compiling aes-gcm v0.10.3
+   Compiling p256 v0.13.2
+   Compiling chacha20poly1305 v0.10.1
+   Compiling futures v0.3.34
+   Compiling fluent v0.17.0
+   Compiling rust-embed v8.13.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling hyper-util v0.1.21
+   Compiling security-framework v3.7.0
+   Compiling rand v0.8.8
+   Compiling arc-swap v1.9.3
+   Compiling proc-macro-error-attr3 v3.1.1
+   Compiling keccak v0.1.6
+   Compiling allocator-api2 v0.2.21
+   Compiling ryu v1.0.23
+   Compiling equivalent v1.0.3
+   Compiling heck v0.5.0
+   Compiling bit-vec v0.8.0
+   Compiling jsonschema-value v0.58.6
+   Compiling borrow-or-share v0.2.4
+   Compiling unicode-general-category v1.1.0
+   Compiling fluent-uri v0.4.1
+   Compiling strum_macros v0.28.0
+   Compiling bit-set v0.8.0
+   Compiling serde_urlencoded v0.7.1
+   Compiling hashbrown v0.17.1
+   Compiling proc-macro-error3 v3.1.1
+   Compiling i18n-embed v0.16.0
+   Compiling sha3 v0.10.9
+   Compiling rustls-native-certs v0.8.5
+   Compiling hpke v0.12.0
+   Compiling cookie-factory v0.3.3
+   Compiling url v2.5.8
+   Compiling fraction v0.17.0
+   Compiling miniz_oxide v0.9.1
+   Compiling secrecy v0.10.3
+   Compiling pbkdf2 v0.12.2
+   Compiling salsa20 v0.10.2
+   Compiling webpki-roots v1.0.11
+   Compiling kem v0.3.0-pre.0
+   Compiling pin-project-internal v1.1.13
+   Compiling hybrid-array v0.2.3
+   Compiling nom v8.0.0
+   Compiling bech32 v0.11.1
+   Compiling base64ct v1.8.3
+   Compiling micromap v0.3.0
+   Compiling strsim v0.11.1
+   Compiling vsimd v0.8.0
+   Compiling outref v0.5.2
+   Compiling bytecount v0.6.9
+   Compiling num-cmp v0.1.0
+   Compiling io_tee v0.1.1
+   Compiling uuid-simd v0.8.0
+   Compiling axum-core v0.5.6
+   Compiling i18n-embed-fl v0.10.1
+   Compiling ml-kem v0.2.3
+   Compiling referencing v0.58.6
+   Compiling password-hash v0.5.0
+   Compiling pin-project v1.1.13
+   Compiling tower-http v0.6.11
+   Compiling flate2 v1.1.10
+   Compiling scrypt v0.11.0
+   Compiling hyper-rustls v0.27.10
+   Compiling strum v0.28.0
+   Compiling x25519-dalek v2.0.1
+   Compiling regex v1.13.1
+   Compiling fancy-regex v0.19.2
+   Compiling tokio-util v0.7.20
+   Compiling miniz_oxide v0.8.9
+   Compiling email_address v0.2.9
+   Compiling blake2 v0.10.6
+   Compiling age-core v0.12.0
+   Compiling jsonschema-regex v0.58.6
+   Compiling fdeflate v0.3.7
+   Compiling serde_path_to_error v0.1.20
+   Compiling lazy_static v1.5.1
+   Compiling bitflags v1.3.2
+   Compiling matchit v0.8.4
+   Compiling age v0.12.1
+   Compiling png v0.17.16
+   Compiling jsonschema v0.58.4
+   Compiling axum v0.8.9
+   Compiling argon2 v0.5.3
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+   Compiling rusqlite v0.38.0
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `release` profile [optimized] target(s) in 46.55s
+botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT --worker-tls-cert PATH --worker-tls-key PATH --worker-client-ca PATH]
+botstral-agent identity --client-cert PATH
+botstral-agent enroll --state-dir PATH --manager wss://HOST:PORT --manager-ca PATH --client-cert PATH --client-key PATH --invitation-file PATH
+botstral-agent run|check --state-dir PATH
+Verified default production binaries and both nonproduction release refusals.

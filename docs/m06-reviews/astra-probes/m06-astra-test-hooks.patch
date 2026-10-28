@@ -1,0 +1,21 @@
+diff --git a/agent/src/connector.rs b/agent/src/connector.rs
+index 4043498..a3d3edf 100644
+--- a/agent/src/connector.rs
++++ b/agent/src/connector.rs
+@@ -316,3 +316,6 @@ mod tests {
+         assert!(config.verify().is_err());
+     }
+ }
++
++#[cfg(test)]
++include!(concat!(env!("CARGO_MANIFEST_DIR"), "/../.audit/m06-astra-worker-probe.rs"));
+diff --git a/manager/src/manager/state/connectors/tests.rs b/manager/src/manager/state/connectors/tests.rs
+index 829ca54..66ff933 100644
+--- a/manager/src/manager/state/connectors/tests.rs
++++ b/manager/src/manager/state/connectors/tests.rs
+@@ -802,3 +802,5 @@ fn authentication_failure_hides_tools_and_large_secret_entry_is_atomic() {
+     );
+     assert!(after.version.revision > before.version.revision);
+ }
++
++include!(concat!(env!("CARGO_MANIFEST_DIR"), "/../.audit/m06-astra-probes.rs"));

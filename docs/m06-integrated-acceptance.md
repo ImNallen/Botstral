@@ -1,6 +1,6 @@
 # M06 integrated Linux acceptance
 
-The integrated acceptance harness proves authenticated connector use, retained credentials after manager restoration, and Vibe stdio supervision on the existing separate Proxmox guests. It does not close M06 or replace the coordinator's independent reviews.
+The integrated acceptance harness proves authenticated connector use, retained credentials after manager restoration, and Vibe stdio supervision on the existing separate Proxmox guests. The [completion index](m06-completion.md) combines this evidence with independent reviews and coordinator corrections.
 
 ## Throughput checkpoint
 
@@ -59,4 +59,4 @@ The ordinary connector task and Vibe calls are exercised live. Durable run orche
 
 A pre-existing admission test used `now()+121` as an invalid deadline. Under a loaded run it became valid before the manager checked it. The test now uses `now()+3600` to preserve the intended refusal without the one-second race. The original failing workspace log was overwritten by the passing rerun. Other failed setup attempts corrected module placement, npm's macOS symlink-path handling, fixture resource ceilings, approval expiry, snapshot pagination, workspace identity reuse, and the differing owner and gateway authorization status codes. These were acceptance-driver errors. Their [retained attempt records](evidence/m06-integrated-84b6d2fb/attempts.json) remain failures or partial observations.
 
-Installed services, real owner state, global trust stores, shared runtimes, and system packages were unchanged. The report records stopped fixture units, absent fixture processes, and removal of both fixture roots. Parent-owned desktop proof, independent final reviews, the pull request, and milestone checkbox closure remain open. Delegation was prohibited for this test owner, so this report and its [decision trail](../.audit/m06-integrated-84b6d2fb.tsv) have no independent review in this run.
+Installed services, real owner state, global trust stores, shared runtimes, and system packages were unchanged. The report records stopped fixture units, absent fixture processes, and removal of both fixture roots. The coordinator subsequently added [desktop proof](m06-desktop-proof.md) and [independent final reviews with corrections](m06-review.md). Delegation was prohibited for this test owner. Its [decision trail](../.audit/m06-integrated-84b6d2fb.tsv) remains separate from the coordinator review and completion record.
