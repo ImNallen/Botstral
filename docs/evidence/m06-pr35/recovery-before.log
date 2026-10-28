@@ -1,0 +1,25 @@
+   Compiling ring v0.17.14
+   Compiling rustls-webpki v0.103.16
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.93s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-fd38ad643e5b84d4)
+
+running 1 test
+
+thread 'connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command' (615681681) panicked at agent/src/connector.rs:325:14:
+durably unknown call must leave the replay queue: Custom { kind: Other, error: "connector settlement pending" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command ... FAILED
+
+failures:
+
+failures:
+    connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p botstral-agent --lib`

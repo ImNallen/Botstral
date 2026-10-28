@@ -263,7 +263,7 @@ async fn settle_connector(
             .map_err(io::Error::other)?;
         let body = serde_json::to_vec(&ConnectorGatewayRequest::Settle {
             id: settlement.id,
-            outcome: settlement.outcome,
+            outcome: settlement.outcome.clone(),
         })?;
         let request = Request::builder()
             .method("POST")
@@ -292,20 +292,7 @@ async fn settle_connector(
             }
             let value: serde_json::Value = serde_json::from_slice(&bytes)?;
             let call: ConnectorCallView = serde_json::from_value(value["call"].clone())?;
-            if call.id != settlement.id
-                || call.task != settlement.task
-                || call.execution != settlement.execution
-                || !matches!(
-                    call.state,
-                    ConnectorCallState::Resolved {
-                        outcome: ConnectorOutcome::Finished { .. }
-                            | ConnectorOutcome::NotSent { .. }
-                    }
-                ) && call.late_result.is_none()
-            {
-                return Err(io::Error::other("connector settlement pending"));
-            }
-            crate::process::write(&settlement.acknowledgment, &true)
+            settlement.acknowledge(&call)
         };
         let (result, _) = tokio::join!(exchange, connection);
         result

@@ -3,8 +3,8 @@ use super::{
     *,
 };
 use crate::manager::connectors::{
-    ConnectorAdmission, ConnectorDispatch, redact, secret_bytes, secret_values, validate_arguments,
-    validate_catalog,
+    ConnectorAdmission, ConnectorDispatch, redact_result, secret_bytes, secret_values,
+    validate_arguments, validate_catalog,
 };
 use botstral_link::*;
 

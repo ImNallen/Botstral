@@ -334,15 +334,28 @@ pub(super) fn secret_values(secret: &ConnectionSecretInput) -> Vec<&str> {
         }
     }
 }
-pub(super) fn redact(value: &mut serde_json::Value, secrets: &[&str]) {
-    match value {
-        serde_json::Value::String(s) => {
-            for secret in secrets {
-                if !secret.is_empty() {
-                    *s = s.replace(secret, "[redacted]");
-                }
+pub(super) fn redact_result(result: &mut ConnectorResult, secrets: &[&str]) {
+    match result {
+        ConnectorResult::Catalog { tools } => {
+            for tool in tools {
+                redact_text(&mut tool.name, secrets);
+                redact_text(&mut tool.description, secrets);
+                redact(&mut tool.input_schema, secrets);
             }
         }
+        ConnectorResult::Tool { value } => redact(value, secrets),
+    }
+}
+fn redact_text(value: &mut String, secrets: &[&str]) {
+    for secret in secrets {
+        if !secret.is_empty() {
+            *value = value.replace(secret, "[redacted]");
+        }
+    }
+}
+fn redact(value: &mut serde_json::Value, secrets: &[&str]) {
+    match value {
+        serde_json::Value::String(s) => redact_text(s, secrets),
         serde_json::Value::Array(a) => {
             for v in a {
                 redact(v, secrets);

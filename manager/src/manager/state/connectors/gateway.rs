@@ -425,11 +425,7 @@ impl State {
         if let ConnectorOutcome::Finished { result } = &mut outcome {
             match self.connection_secret(&old_view) {
                 Ok(secret) => {
-                    let mut value =
-                        serde_json::to_value(&result).map_err(|_| OperationError::Internal)?;
-                    redact(&mut value, &secret_values(&secret));
-                    *result =
-                        serde_json::from_value(value).map_err(|_| OperationError::Internal)?;
+                    redact_result(result, &secret_values(&secret));
                     let valid = match &result {
                         ConnectorResult::Catalog { tools } => {
                             call.tool.is_none() && validate_catalog(tools).is_ok()

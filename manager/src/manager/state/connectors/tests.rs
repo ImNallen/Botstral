@@ -804,3 +804,74 @@ fn authentication_failure_hides_tools_and_large_secret_entry_is_atomic() {
 }
 
 mod schema_bounds;
+
+#[test]
+fn credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes() {
+    let mut f = fixture();
+    let connection = f.install(false);
+    let connection = f
+        .state
+        .replace_connection_secret(
+            token(),
+            connection.id,
+            ReplaceConnectionSecret {
+                expected_revision: connection.version.revision,
+                secret: ConnectionSecretInput::Bearer {
+                    value: ConnectorSecretEntry("tool".into()),
+                },
+            },
+        )
+        .unwrap();
+    let discovery = f.task(ConnectorOperation::Discover {
+        connection: connection.version,
+    });
+    let discovery = f.approve(discovery.id);
+    let id = ConnectorCallId::new();
+    f.reserve(&discovery, id);
+    f.state.dispatch_connector(id).unwrap().unwrap();
+    let discovered = f
+        .state
+        .finish_connector(
+            id,
+            ConnectorOutcome::Finished {
+                result: ConnectorResult::Catalog {
+                    tools: vec![tool("read")],
+                },
+            },
+        )
+        .expect("redaction must preserve the typed catalog envelope");
+    assert!(matches!(
+        discovered.state,
+        ConnectorCallState::Resolved {
+            outcome: ConnectorOutcome::Finished { .. }
+        }
+    ));
+    f.finish_task(discovery.id);
+    let connection = f.state.load_connection(connection.id).unwrap();
+    let task = f.call(&connection);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    f.state.dispatch_connector(id).unwrap().unwrap();
+    let call = f
+        .state
+        .finish_connector(
+            id,
+            ConnectorOutcome::Finished {
+                result: ConnectorResult::Tool {
+                    value: json!({"content":[{"type":"text","text":"tool"}], "tool":"tool"}),
+                },
+            },
+        )
+        .expect("redaction must preserve the typed tool envelope");
+    let ConnectorCallState::Resolved {
+        outcome:
+            ConnectorOutcome::Finished {
+                result: ConnectorResult::Tool { value },
+            },
+    } = call.state
+    else {
+        panic!("finished typed result")
+    };
+    assert_eq!(value["content"][0]["text"], "[redacted]");
+    assert_eq!(value["[redacted]"], "[redacted]");
+}

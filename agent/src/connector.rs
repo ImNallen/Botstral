@@ -147,6 +147,30 @@ pub(crate) struct Settlement {
     pub outcome: ConnectorOutcome,
     pub acknowledgment: PathBuf,
 }
+impl Settlement {
+    pub(crate) fn acknowledge(&self, call: &ConnectorCallView) -> io::Result<()> {
+        let settled = match &call.state {
+            ConnectorCallState::Resolved {
+                outcome: ConnectorOutcome::Finished { .. } | ConnectorOutcome::NotSent { .. },
+            } => true,
+            ConnectorCallState::Resolved {
+                outcome: ConnectorOutcome::Unknown { .. },
+            } => {
+                !matches!(self.outcome, ConnectorOutcome::Finished { .. })
+                    || call.late_result.is_some()
+            }
+            ConnectorCallState::Reserved | ConnectorCallState::DispatchPossible => false,
+        };
+        if call.id != self.id
+            || call.task != self.task
+            || call.execution != self.execution
+            || !settled
+        {
+            return Err(io::Error::other("connector settlement pending"));
+        }
+        process::write(&self.acknowledgment, &true)
+    }
+}
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Captured {
@@ -279,7 +303,70 @@ mod tests {
             (body.task, body.execution, id)
         );
         assert_eq!(saved[0].outcome, outcome);
-        process::write(&saved[0].acknowledgment, &true).unwrap();
+        let mut call = ConnectorCallView {
+            id,
+            task: body.task,
+            execution: body.execution,
+            connection: operation.connection().clone(),
+            tool: None,
+            argument_digest: operation.digest(),
+            state: ConnectorCallState::Resolved {
+                outcome: ConnectorOutcome::Unknown {
+                    reason: ConnectorFailure::Restart,
+                },
+            },
+            created_at: 1,
+            revoked_during_call_at: None,
+            late_result: None,
+        };
+        assert!(saved[0].acknowledge(&call).is_err());
+        assert!(!saved[0].acknowledgment.exists());
+        let unknown = ConnectorOutcome::Unknown {
+            reason: ConnectorFailure::Transport,
+        };
+        write(json!({"digest":operation.digest(),"phase":"captured","outcome":unknown}));
+        let pending = captured(root.path(), &body).unwrap();
+        assert_eq!(pending.len(), 1);
+        let durable_state = call.state.clone();
+        for state in [
+            ConnectorCallState::Reserved,
+            ConnectorCallState::DispatchPossible,
+        ] {
+            call.state = state;
+            assert!(pending[0].acknowledge(&call).is_err());
+        }
+        call.state = durable_state;
+        let task = call.task;
+        call.task = TaskId::new();
+        assert!(pending[0].acknowledge(&call).is_err());
+        call.task = task;
+        let execution = call.execution;
+        call.execution = ExecutionId::new();
+        assert!(pending[0].acknowledge(&call).is_err());
+        call.execution = execution;
+        call.id = ConnectorCallId::new();
+        assert!(pending[0].acknowledge(&call).is_err());
+        call.id = id;
+        assert!(!pending[0].acknowledgment.exists());
+        pending[0]
+            .acknowledge(&call)
+            .expect("durably unknown call must leave the replay queue");
+        assert_eq!(
+            call.state,
+            ConnectorCallState::Resolved {
+                outcome: ConnectorOutcome::Unknown {
+                    reason: ConnectorFailure::Restart
+                }
+            }
+        );
+        assert!(captured(root.path(), &body).unwrap().is_empty());
+        fs::remove_file(&saved[0].acknowledgment).unwrap();
+        write(json!({"digest":operation.digest(),"phase":"captured","outcome":outcome}));
+        call.late_result = Some(match &outcome {
+            ConnectorOutcome::Finished { result } => result.clone(),
+            _ => unreachable!(),
+        });
+        saved[0].acknowledge(&call).unwrap();
         assert!(captured(root.path(), &body).unwrap().is_empty());
         fs::remove_file(&saved[0].acknowledgment).unwrap();
         write(

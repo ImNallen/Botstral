@@ -51,6 +51,16 @@ class Contract(unittest.TestCase):
                 effects = (root / 'effects.jsonl').read_text().splitlines() if (root / 'effects.jsonl').exists() else []
                 self.assertEqual(len(effects), int(mode != 'wrong-version'))
 
+    def test_credentials_matching_envelope_fields_preserve_the_saved_outcome(self):
+        for secret in ('type', 'tool', 'value'):
+            with self.subTest(secret=secret), tempfile.TemporaryDirectory() as directory:
+                launch = permit(Path(directory))
+                launch['secret']['values']['FIXTURE_TOKEN'] = secret
+                outcome = runtime.Stdio(launch).execute()
+                self.assertEqual(outcome['type'], 'finished')
+                self.assertEqual(outcome['result']['type'], 'tool')
+                self.assertEqual(outcome['result']['value']['content'][0]['text'], '[redacted]hello')
+
     def test_recheck_after_discovery_prevents_the_tool_effect(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -1,0 +1,11 @@
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.75s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-fd38ad643e5b84d4)
+
+running 3 tests
+test connector::tests::runtime_identity_binds_the_helper_and_exact_interpreter_bytes ... ok
+test connector::tests::recovery_returns_only_saved_outcomes_bound_to_the_original_command ... ok
+test connector::tests::generated_configuration_loads_in_the_production_worker ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.07s
+

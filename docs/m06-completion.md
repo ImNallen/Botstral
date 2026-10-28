@@ -21,6 +21,8 @@ M06 implements reusable owner connections, independent bot grants, recoverable m
 
 ## Review and verification
 
+[Pull request review follow-up](m06-pr35-review.md) records two additional reproduced corrections and focused validation after the milestone review.
+
 `RUST_TEST_THREADS=2 make verify` and `RUST_TEST_THREADS=2 make verify-desktop` passed after the review corrections. The [check manifest](evidence/m06-parent/review-checks.json) records commands, source identities, and retained log digests. Both [review-corrected images](evidence/m06-parent/review-images.json) passed Docker acceptance. Actual updated-manager [local](evidence/m06-parent/review-owner-local.json) and [owner WSS](evidence/m06-parent/review-owner-wss.json) administration checks passed.
 
 [Independent review and corrections](m06-review.md) preserves all three original verdicts, four reproduced defects, focused corrections, and failed-before evidence. The reviewers examined the integrated source before the coordinator corrections. Their original reports are not approvals of later commits.

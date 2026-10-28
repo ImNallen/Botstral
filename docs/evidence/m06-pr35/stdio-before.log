@@ -1,0 +1,32 @@
+......
+======================================================================
+ERROR: test_credentials_matching_envelope_fields_preserve_the_saved_outcome (__main__.Contract) (secret='type')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent/tests/m06_connector_contract.py", line 61, in test_credentials_matching_envelope_fields_preserve_the_saved_outcome
+    self.assertEqual(outcome['result']['type'], 'tool')
+KeyError: 'type'
+
+======================================================================
+ERROR: test_credentials_matching_envelope_fields_preserve_the_saved_outcome (__main__.Contract) (secret='value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent/tests/m06_connector_contract.py", line 62, in test_credentials_matching_envelope_fields_preserve_the_saved_outcome
+    self.assertEqual(outcome['result']['value']['content'][0]['text'], '[redacted]hello')
+KeyError: 'value'
+
+======================================================================
+FAIL: test_credentials_matching_envelope_fields_preserve_the_saved_outcome (__main__.Contract) (secret='tool')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/agent/tests/m06_connector_contract.py", line 61, in test_credentials_matching_envelope_fields_preserve_the_saved_outcome
+    self.assertEqual(outcome['result']['type'], 'tool')
+AssertionError: '[redacted]' != 'tool'
+- [redacted]
++ tool
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.846s
+
+FAILED (failures=1, errors=2)

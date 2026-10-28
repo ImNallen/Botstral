@@ -100,6 +100,13 @@ def redact(value, secrets):
     return value
 
 
+def redact_result(result, secrets):
+    if result['type'] == 'catalog':
+        tools = [{key: redact(tool[key], secrets) for key in ('name', 'description', 'input_schema')} for tool in result['tools']]
+        return {'type': 'catalog', 'tools': tools}
+    return {'type': 'tool', 'value': redact(result['value'], secrets)}
+
+
 class Stdio:
     def __init__(self, permit, alive=lambda: True, before_call=lambda: True):
         self.permit = permit
@@ -237,7 +244,7 @@ class Stdio:
                 if not isinstance(value, dict) or not isinstance(value.get('content'), list) or len(encoded(value)) > self.permit['max_result_bytes']:
                     raise ConnectorError('bound', True)
                 result = {'type': 'tool', 'value': value}
-            return {'type': 'finished', 'result': redact(result, secrets.values())}
+            return {'type': 'finished', 'result': redact_result(result, secrets.values())}
         except ConnectorError as error:
             return {'type': 'unknown' if error.possible else 'not_sent', 'reason': error.reason}
         except (OSError, ValueError, TypeError, KeyError):
