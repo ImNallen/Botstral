@@ -1,0 +1,36 @@
+{
+  "after": {
+    "candidate": null,
+    "generation": 1,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": {
+      "action": "Run connector operation\n{\n  \"type\": \"call\",\n  \"proposal\": {\n    \"tool\": {\n      \"connection\": {\n        \"connection\": \"00000000-0000-4000-8000-000000000002\",\n        \"revision\": 2,\n        \"credential_epoch\": 2\n      },\n      \"catalog_revision\": 1,\n      \"grant_revision\": 7,\n      \"name\": \"write_receipt\",\n      \"schema_digest\": \"0c515a49efc585cd9caff33ea097617b1b8bce10355771051ba86bae7fb64990\"\n    },\n    \"arguments\": {\n      \"name\": \"report.txt\",\n      \"text\": \"Verified connector output\"\n    }\n  }\n}\n\nExecution target\nWorker 00000000-0000-4000-8000-000000000001\nSession 00000000-0000-4000-8000-000000000001\n\nComplete execution details\n{\n  \"id\": \"00000000-0000-4000-8000-000000000001\",\n  \"owner\": \"00000000-0000-4000-8000-000000000001\",\n  \"task\": \"00000000-0000-4000-8000-000000000001\",\n  \"bot\": \"00000000-0000-4000-8000-000000000001\",\n  \"worker\": \"00000000-0000-4000-8000-000000000001\",\n  \"session\": \"00000000-0000-4000-8000-000000000001\",\n  \"operation\": \"00000000-0000-4000-8000-000000000001\",\n  \"execution\": \"00000000-0000-4000-8000-000000000001\",\n  \"work\": {\n    \"type\": \"connector\",\n    \"spec\": {\n      \"operation\": {\n        \"type\": \"call\",\n        \"proposal\": {\n          \"tool\": {\n            \"connection\": {\n              \"connection\": \"00000000-0000-4000-8000-000000000002\",\n              \"revision\": 2,\n              \"credential_epoch\": 2\n            },\n            \"catalog_revision\": 1,\n            \"grant_revision\": 7,\n            \"name\": \"write_receipt\",\n            \"schema_digest\": \"0c515a49efc585cd9caff33ea097617b1b8bce10355771051ba86bae7fb64990\"\n          },\n          \"arguments\": {\n            \"name\": \"report.txt\",\n            \"text\": \"Verified connector output\"\n          }\n        }\n      },\n      \"runner\": {\n        \"runtime\": \"1b6260455fcbf7fbc109cfefe5fe7a3b176c91adca8cc83fb0a21979eff9f260\",\n        \"account\": {\n          \"uid\": 1000,\n          \"gid\": 1000\n        },\n        \"limits\": {\n          \"runtime_seconds\": 60,\n          \"output_bytes\": 4096,\n          \"processes\": 16,\n          \"memory_bytes\": 134217728\n        }\n      },\n      \"deadline\": 2000000000,\n      \"result\": {\n        \"slot\": \"connector\",\n        \"name\": \"connector.json\",\n        \"media_type\": \"text_plain\",\n        \"max_bytes\": 4096\n      }\n    }\n  }\n}",
+      "expires_at": 2000000000,
+      "id": "00000000-0000-4000-8000-000000000001",
+      "permission_revision": 7,
+      "task": "00000000-0000-4000-8000-000000000001"
+    },
+    "revision": 1,
+    "status": "online",
+    "workspace": null
+  },
+  "before": {
+    "candidate": null,
+    "generation": 1,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": {
+      "action": "Run program \"/usr/bin/printf\"\nExact arguments: [\"Verified file output\\\\n\"]\nWorking directory: \"/home/botstral/workspace\"\n\nExecution target\nWorker 00000000-0000-4000-8000-000000000001\nSession 00000000-0000-4000-8000-000000000001\n\nComplete execution details\n{\n  \"id\": \"00000000-0000-4000-8000-000000000001\",\n  \"owner\": \"00000000-0000-4000-8000-000000000001\",\n  \"task\": \"00000000-0000-4000-8000-000000000001\",\n  \"bot\": \"00000000-0000-4000-8000-000000000001\",\n  \"worker\": \"00000000-0000-4000-8000-000000000001\",\n  \"session\": \"00000000-0000-4000-8000-000000000001\",\n  \"operation\": \"00000000-0000-4000-8000-000000000001\",\n  \"execution\": \"00000000-0000-4000-8000-000000000001\",\n  \"work\": {\n    \"type\": \"process\",\n    \"spec\": {\n      \"profile\": \"linux_systemd_v1\",\n      \"account\": {\n        \"uid\": 1000,\n        \"gid\": 1000\n      },\n      \"executable\": \"/usr/bin/printf\",\n      \"args\": [\n        \"Verified file output\\\\n\"\n      ],\n      \"environment\": {},\n      \"cwd\": \"/home/botstral/workspace\",\n      \"deadline\": 2000000000,\n      \"limits\": {\n        \"runtime_seconds\": 60,\n        \"output_bytes\": 4096,\n        \"processes\": 16,\n        \"memory_bytes\": 134217728\n      }\n    }\n  }\n}",
+      "expires_at": 2000000000,
+      "id": "00000000-0000-4000-8000-000000000001",
+      "permission_revision": 7,
+      "task": "00000000-0000-4000-8000-000000000001"
+    },
+    "revision": 1,
+    "status": "online",
+    "workspace": null
+  }
+}

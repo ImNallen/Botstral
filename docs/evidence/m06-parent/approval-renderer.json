@@ -1,0 +1,24 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 1100
+  },
+  "browser": "156.0.8078.4",
+  "source": "Actual native RemoteSnapshot review serialization and unmodified React approval component.",
+  "before": "Existing process action supported before M06.",
+  "after": "New M06 connector action.",
+  "authority": "Read-only fixture. Every mutation is rejected.",
+  "errors": [],
+  "screenshots": [
+    {
+      "stage": "before",
+      "path": "docs/assets/m06-approval-before.png",
+      "sha256": "eb4aa6a2cb7efc3a39c69db65c6d8199a8385ed4c6b6cdb4abb03088b0efae18"
+    },
+    {
+      "stage": "after",
+      "path": "docs/assets/m06-approval-after.png",
+      "sha256": "bbe0e1b78d03f55312abe86c0044b683d79c6d20cf9206a57624b10766c7ee13"
+    }
+  ]
+}
