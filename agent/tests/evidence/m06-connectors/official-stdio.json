@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "server": "@modelcontextprotocol/server-filesystem",
+  "version": "2.0.1",
+  "entry_sha256": "ed5efae0e3597236ba1f170ce8d903280c1f58b36dd7a7ad53891ed634c7e996",
+  "node": "v26.12.1",
+  "protocol": "2025-06-18",
+  "discovered_tools": 14,
+  "tool": "write_file",
+  "checks": [
+    "real official server",
+    "exact protocol negotiation",
+    "discovery",
+    "schema digest",
+    "observed temporary file effect"
+  ],
+  "external_secrets": false,
+  "authenticated_remote_acceptance": false
+}
