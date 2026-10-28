@@ -1,0 +1,8 @@
+test_budget_evidence_remains_immutable_after_report_update (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_missing_comparison_key_does_not_claim_a_secret_scan (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_native_timeout_preserves_remote_shutdown_key_deletion_and_report (test_first_acceptance.AcceptanceCleanupTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

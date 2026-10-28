@@ -1,2 +1,5 @@
 agent/tests/evidence/m04-completion/*.log -whitespace
 docs/evidence/c02-production/*.log -whitespace
+docs/evidence/first-acceptance/*.log -whitespace linguist-generated=true
+docs/evidence/first-acceptance/*.json linguist-generated=true
+docs/evidence/first-acceptance/budget-snapshots/*.json linguist-generated=true
