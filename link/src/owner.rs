@@ -469,7 +469,7 @@ impl WorkspaceRun {
             }
             (Some(value[..end].into()), true)
         }
-        Self {
+        let mut projected = Self {
             summary: view.summary,
             request: view.request,
             turns: view
@@ -498,7 +498,22 @@ impl WorkspaceRun {
                     }
                 })
                 .collect(),
-        }
+        };
+        projected
+            .turns
+            .extend(view.archived_turns.into_iter().map(|turn| {
+                let (content, truncated) = text(turn.text, preview);
+                WorkspaceRunTurn {
+                    id: turn.id,
+                    ordinal: turn.ordinal,
+                    text: content,
+                    task: None,
+                    result: Some("Older execution details were compacted.".into()),
+                    truncated,
+                }
+            }));
+        projected.turns.sort_by_key(|turn| turn.ordinal);
+        projected
     }
 }
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

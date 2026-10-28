@@ -903,7 +903,6 @@ async fn p03_manager_loop_executes_without_owner_clients_and_recovers_inbox() {
         })
         .await
         .unwrap();
-    // Remove every owner session before the due instant. Only the manager and worker remain.
     app.manager.sign_out(app.session()).await.unwrap();
     let result = tokio::time::timeout(Duration::from_secs(8), async {
         loop {

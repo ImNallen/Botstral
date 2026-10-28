@@ -151,6 +151,12 @@ impl State {
             configuration: parse(config)?,
             summary: parse(summary)?,
             turns,
+            archived_turns: self
+                .connection
+                .prepare("SELECT receipt FROM run_turn_receipts WHERE run=?1 ORDER BY json_extract(receipt,'$.ordinal')")?
+                .query_map([id.to_string()], |r| r.get::<_, String>(0))?
+                .map(|row| parse(row?))
+                .collect::<Result<Vec<_>, _>>()?,
         };
         if json(&view)?.len() > MAX_RUN_VIEW_BYTES {
             return Err(OperationError::Internal);
@@ -277,6 +283,7 @@ impl State {
             request,
             configuration: config,
             turns: Vec::new(),
+            archived_turns: Vec::new(),
         };
         if next_call_stop(&view)?.is_some() {
             return Err(OperationError::InferenceBudget);

@@ -141,6 +141,16 @@ fn p03_atomic_admission_restart_identity_and_more_than_sixteen_completions() {
         assert_eq!(receipt["provider_request_id"], "recorded-response");
         assert_eq!(receipt["text"], "Recorded response");
     }
+    let oldest = history(&f, id).last().unwrap().run.unwrap();
+    let archived = WorkspaceRun::project(f.state.run(token(), oldest).unwrap(), false);
+    assert_eq!(
+        archived
+            .turns
+            .iter()
+            .filter_map(|turn| turn.text.as_deref())
+            .collect::<Vec<_>>(),
+        ["Recorded response"]
+    );
 
     f.state.test_time = Some(1000);
     command(
@@ -171,6 +181,55 @@ fn p03_atomic_admission_restart_identity_and_more_than_sixteen_completions() {
         .unwrap();
     assert_eq!(admitted, 20);
 }
+#[test]
+fn p03_archived_owner_run_preserves_ordered_text_and_preview() {
+    let mut f = fixture();
+    let first = f.input.id;
+    let mut last = first;
+    for index in 0..17 {
+        let mut input = f.input.clone();
+        if index > 0 {
+            input.id = RunId::new();
+        }
+        last = input.id;
+        f.state.submit_run(token(), input).unwrap();
+        finish(&mut f, last);
+    }
+    let mut view = f.state.run(token(), first).unwrap();
+    assert!(view.turns.is_empty());
+    assert_eq!(view.archived_turns.len(), 1);
+    assert_eq!(
+        view.archived_turns[0].text.as_deref(),
+        Some("Recorded response")
+    );
+    assert_eq!(
+        view.archived_turns[0].provider_request_id.as_deref(),
+        Some("recorded-response")
+    );
+    let long_response = "🦀".repeat(600);
+    view.archived_turns[0].text = Some(long_response.clone());
+    let mut live = f.state.run(token(), last).unwrap().turns.remove(0);
+    live.ordinal = 2;
+    view.turns.push(live);
+    let preview = WorkspaceRun::project(view.clone(), true);
+    assert_eq!(
+        preview
+            .turns
+            .iter()
+            .map(|turn| turn.ordinal)
+            .collect::<Vec<_>>(),
+        [1, 2]
+    );
+    assert_eq!(
+        preview.turns[0].text.as_deref(),
+        Some("🦀".repeat(256).as_str())
+    );
+    assert!(preview.turns[0].truncated);
+    let full = WorkspaceRun::project(view, false);
+    assert_eq!(full.turns[0].text.as_deref(), Some(long_response.as_str()));
+    assert!(!full.turns[0].truncated);
+}
+
 #[test]
 fn p03_locked_vault_stale_bindings_budget_and_pause_missed_overlap() {
     let mut f = fixture();

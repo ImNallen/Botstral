@@ -391,5 +391,3 @@ impl State {
         }
     }
 }
-
-impl State {}

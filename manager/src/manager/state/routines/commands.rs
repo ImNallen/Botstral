@@ -398,7 +398,6 @@ impl State {
             if definition.bot != bot {
                 return Err(OperationError::Unauthorized);
             }
-            // The request identifier also identifies a retried conversation creation.
             RoutineAction::Create {
                 id: RoutineId(id.0),
                 definition: Box::new(definition),

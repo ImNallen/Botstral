@@ -291,21 +291,3 @@ impl State {
         })
     }
 }
-
-#[derive(serde::Serialize)]
-struct ArchivedRunTurn {
-    id: RunTurnId,
-    ordinal: u32,
-    attempt: RunAttemptId,
-    messages_sha256: String,
-    request_sha256: String,
-    response_sha256: String,
-    tool_call_id: Option<String>,
-    text: Option<String>,
-    accounting: InferenceAccounting,
-    reservation: InferenceReservation,
-    usage: Option<InferenceUsage>,
-    finish_reason: Option<InferenceFinishReason>,
-    provider_request_id: Option<String>,
-    phase: RunTurnPhase,
-}

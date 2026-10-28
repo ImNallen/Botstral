@@ -1024,6 +1024,21 @@ export type EventReplay =
       type: 'snapshot';
     };
 export type RunAttemptId = string;
+export type RunTurnPhase =
+  | {
+      type: 'sending';
+    }
+  | {
+      type: 'responded';
+    }
+  | {
+      reason: InferenceNotSentReason;
+      type: 'not_sent';
+    }
+  | {
+      reason: InferenceAttentionReason;
+      type: 'awaiting_attention';
+    };
 export type ToolProposal =
   | {
       arguments: ComputerProposal;
@@ -1064,21 +1079,6 @@ export type RunMessage =
       content: string;
       role: 'tool';
       tool_call_id: string;
-    };
-export type RunTurnPhase =
-  | {
-      type: 'sending';
-    }
-  | {
-      type: 'responded';
-    }
-  | {
-      reason: InferenceNotSentReason;
-      type: 'not_sent';
-    }
-  | {
-      reason: InferenceAttentionReason;
-      type: 'awaiting_attention';
     };
 export type TaskEvent =
   | {
@@ -1950,10 +1950,27 @@ export interface AuthoritativeEvent {
   sequence: number;
 }
 export interface RunView {
+  archived_turns?: ArchivedRunTurn[];
   configuration: InferenceConfiguration;
   request: SubmitRun;
   summary: RunSummary;
   turns: RunTurn[];
+}
+export interface ArchivedRunTurn {
+  accounting: InferenceAccounting;
+  attempt: RunAttemptId;
+  finish_reason?: InferenceFinishReason | null;
+  id: RunTurnId;
+  messages_sha256: string;
+  ordinal: number;
+  phase: RunTurnPhase;
+  provider_request_id?: string | null;
+  request_sha256: string;
+  reservation: InferenceReservation;
+  response_sha256: string;
+  text?: string | null;
+  tool_call_id?: string | null;
+  usage?: InferenceUsage | null;
 }
 export interface RunTurn {
   accounting: InferenceAccounting;

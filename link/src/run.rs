@@ -234,4 +234,25 @@ pub struct RunView {
     pub request: SubmitRun,
     pub configuration: InferenceConfiguration,
     pub turns: Vec<RunTurn>,
+    #[serde(default)]
+    pub archived_turns: Vec<ArchivedRunTurn>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ArchivedRunTurn {
+    pub id: RunTurnId,
+    pub ordinal: u32,
+    pub attempt: RunAttemptId,
+    pub messages_sha256: String,
+    pub request_sha256: String,
+    pub response_sha256: String,
+    pub tool_call_id: Option<String>,
+    pub text: Option<String>,
+    pub accounting: InferenceAccounting,
+    pub reservation: InferenceReservation,
+    pub usage: Option<InferenceUsage>,
+    pub finish_reason: Option<InferenceFinishReason>,
+    pub provider_request_id: Option<String>,
+    pub phase: RunTurnPhase,
 }

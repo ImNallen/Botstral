@@ -173,6 +173,90 @@
         "consumed"
       ]
     },
+    "ArchivedRunTurn": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/InferenceAccounting"
+        },
+        "attempt": {
+          "$ref": "#/$defs/RunAttemptId"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceFinishReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/RunTurnId"
+        },
+        "messages_sha256": {
+          "type": "string"
+        },
+        "ordinal": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "phase": {
+          "$ref": "#/$defs/RunTurnPhase"
+        },
+        "provider_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request_sha256": {
+          "type": "string"
+        },
+        "reservation": {
+          "$ref": "#/$defs/InferenceReservation"
+        },
+        "response_sha256": {
+          "type": "string"
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tool_call_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "attempt",
+        "messages_sha256",
+        "request_sha256",
+        "response_sha256",
+        "accounting",
+        "reservation",
+        "phase"
+      ]
+    },
     "ArgumentDigest": {
       "type": "string"
     },
@@ -7495,6 +7579,13 @@
     "RunView": {
       "type": "object",
       "properties": {
+        "archived_turns": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ArchivedRunTurn"
+          }
+        },
         "configuration": {
           "$ref": "#/$defs/InferenceConfiguration"
         },
