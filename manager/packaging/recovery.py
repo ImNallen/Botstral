@@ -1,4 +1,3 @@
-"""Private offline recovery bundles. This module is shared by both installers."""
 import argparse
 import contextlib
 from dataclasses import asdict, dataclass
@@ -442,6 +441,7 @@ def restore(component, bundle, destination, retired=False):
             finally:
                 connection.close()
             worker_quiet([Path(root['path']) for root in manifest.roots])
+        require(component != 'agent' or absolute(destination) == original, 'worker restore requires the original state path; configuration and process evidence contain absolute paths')
         return restore_validated(component, bundle, destination, manifest)
 
 

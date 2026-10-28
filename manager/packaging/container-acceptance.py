@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Exercise the installed manager image and its file-based launch configuration."""
 import argparse
 import json
 import subprocess

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Run offline worker recovery without starting the service."""
 import sys
 from pathlib import Path
 location = Path(__file__).resolve().parent

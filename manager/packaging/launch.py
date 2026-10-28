@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Translate private file configuration into the supported manager CLI."""
 import argparse
 import ipaddress
 import os

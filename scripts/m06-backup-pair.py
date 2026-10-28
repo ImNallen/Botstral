@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Stop a two-host installation and publish both offline recovery identities."""
 import argparse
 import datetime
 import json

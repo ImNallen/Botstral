@@ -1,4 +1,3 @@
-"""Drive staged installation and manager configuration with actual executables."""
 import json
 import os
 from pathlib import Path
@@ -11,11 +10,27 @@ import unittest
 
 import install
 import launch
+import diagnose
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class InstallationTests(unittest.TestCase):
+    def test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            runtime = root / 'vibe'
+            runtime.mkdir(mode=0o700)
+            executable = runtime / 'vibe.py'
+            executable.write_text('print("pinned runtime")\n')
+            manifest = root / 'vibe-manifest.json'
+            manifest.write_text(json.dumps({'version': '2.24.2', 'distributions': {'mistral-vibe': '2.24.2'}, 'files': [['vibe.py', diagnose.digest(executable)]]}))
+            (root / 'vibe.json').write_text(json.dumps({'directory': str(runtime), 'manifest': str(manifest), 'runtime': diagnose.digest(manifest)}))
+            self.assertEqual(diagnose.runtime_hashes(root), ['vibe.json'])
+            executable.write_text('modified runtime\n')
+            with self.assertRaisesRegex(ValueError, 'digest mismatch'):
+                diagnose.runtime_hashes(root)
+
     def test_separate_install_layout_and_refusal(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()

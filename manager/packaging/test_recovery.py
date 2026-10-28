@@ -1,4 +1,3 @@
-"""Exercise recovery against WAL, malicious bundles, and real service locks."""
 import copy
 import fcntl
 import json
@@ -176,7 +175,11 @@ class WorkerRecoveryTests(unittest.TestCase):
                 (path / 'bytes').write_text(kind + ' retained bytes')
                 (path / 'bytes').chmod(0o700 if kind == 'tool' else 0o600)
                 selected.append({'label': kind, 'kind': kind, 'path': str(path)})
-            certificate = root / 'certificate/bytes'
+            internal_certificates = state / 'certificates'
+            internal_certificates.mkdir(mode=0o700)
+            certificate = internal_certificates / 'identity.pem'
+            certificate.write_text('retained worker identity certificate')
+            certificate.chmod(0o600)
             (state / 'config.json').write_text(json.dumps({'manager_ca': str(certificate), 'client_cert': str(certificate), 'client_key': str(certificate)}))
             (state / 'config.json').chmod(0o600)
             processes = state / 'processes'
@@ -194,14 +197,21 @@ class WorkerRecoveryTests(unittest.TestCase):
                     r.restore('agent', root / 'backup', root / 'restored', retired=True)
             for selected_root in selected:
                 Path(selected_root['path']).rename(selected_root['path'] + '-retired')
+            state.rename(root / 'retired-state')
             with patch.object(r, 'worker_quiet'):
-                r.restore('agent', root / 'backup', root / 'restored', retired=True)
-            self.assertEqual((root / 'restored/processes/retained-evidence').read_text(), 'scope stop evidence')
+                with self.assertRaisesRegex(ValueError, 'original state path'):
+                    r.restore('agent', root / 'backup', root / 'restored', retired=True)
+                self.assertFalse((root / 'restored').exists())
+                r.restore('agent', root / 'backup', state, retired=True)
+            self.assertEqual((state / 'processes/retained-evidence').read_text(), 'scope stop evidence')
+            restored_config = r.read_json(state / 'config.json')
+            self.assertEqual(Path(restored_config['client_cert']).read_text(), 'retained worker identity certificate')
             for selected_root in selected:
                 self.assertEqual((Path(selected_root['path']) / 'bytes').read_text(), selected_root['kind'] + ' retained bytes')
             self.assertEqual((root / 'tool/bytes').stat().st_mode & 0o777, 0o700)
-            with sqlite3.connect(root / 'restored/agent.sqlite3') as db:
+            with sqlite3.connect(state / 'agent.sqlite3') as db:
                 self.assertEqual(db.execute('SELECT incarnation FROM metadata').fetchone()[0], incarnation)
+            (state / 'agent.lock').touch(mode=0o600)
             with sqlite3.connect(state / 'agent.sqlite3') as db:
                 db.execute('UPDATE executions SET record=?', (json.dumps({'process': {'lifecycle': {'type': 'launch_intent'}}}),))
             with patch.object(r, 'worker_quiet'):

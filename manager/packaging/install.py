@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Install one component into a new layout without enabling services."""
 import argparse
 import hashlib
 import json

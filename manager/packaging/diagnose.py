@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Check recovery coverage and the exact production Linux supervisor boundary."""
 import argparse
 import json
 import os
@@ -44,7 +43,7 @@ def runtime_hashes(state):
         value = read_json(manifest)
         if name == 'vibe.json':
             require(value['version'] == '2.24.2' and value['distributions']['mistral-vibe'] == '2.24.2', 'pinned Vibe version required')
-            files = value['files'].items()
+            files = value['files']
         else:
             files = value
         count = 0

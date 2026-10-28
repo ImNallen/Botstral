@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Prove the packaged production supervisor and worker recovery on an isolated OCI host."""
 import argparse
 import json
 import os
@@ -44,7 +43,8 @@ finally:
 subprocess.run(['/usr/bin/botstral-agent-backup', 'create', '--state-dir', str(state), '--plan', str(plan), '--destination', str(backup)], check=True)
 subprocess.run(['/usr/bin/botstral-agent-backup', 'verify', '--backup', str(backup)], check=True)
 certs.rename(home / 'retired-certificates')
-restored = home / 'fixture-restored'
+state.rename(home / 'retired-state')
+restored = state
 subprocess.run(['/usr/bin/botstral-agent-backup', 'restore', '--backup', str(backup), '--destination', str(restored), '--original-instance-retired'], check=True)
 with sqlite3.connect(restored / 'agent.sqlite3') as db:
     assert db.execute('SELECT incarnation FROM metadata').fetchone()[0] == identity
