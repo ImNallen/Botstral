@@ -11,6 +11,9 @@ import sys
 def install(component, binary, root, source=None):
     from recovery import absolute, require
     root = Path('/') if str(root) == '/' else absolute(root)
+    other = 'agent' if component == 'manager' else 'manager'
+    other_library = absolute(root / ('usr/lib/botstral-' + other))
+    require(not other_library.exists(), 'manager and worker require separate installation roots')
     binary = absolute(binary)
     source = source or Path(__file__).resolve().parent
     require(binary.is_file() and not binary.is_symlink(), 'regular built binary required')

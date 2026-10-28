@@ -16,6 +16,20 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class InstallationTests(unittest.TestCase):
+    def test_manager_and_worker_cannot_share_an_installation_root(self):
+        for first, second in [('manager', 'agent'), ('agent', 'manager')]:
+            with self.subTest(first=first), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                binary = root / 'binary'
+                binary.write_text('#!/bin/sh\nexit 0\n')
+                binary.with_name('botstral-agent-supervisor-check').write_text('#!/bin/sh\nexit 0\n')
+                destination = root / 'staged'
+                destination.mkdir(mode=0o700)
+                install.install(first, binary, destination, ROOT / first / 'packaging')
+                with self.assertRaisesRegex(ValueError, 'separate installation roots'):
+                    install.install(second, binary, destination, ROOT / second / 'packaging')
+                self.assertFalse((destination / ('usr/lib/botstral-' + second)).exists())
+
     def test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
