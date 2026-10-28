@@ -28,6 +28,6 @@ The initial worker rerun [failed in the fixture](evidence/m06-parent/docker-work
 
 ## Remaining gates
 
-Connector credential use after restored vault unlock, real connector execution through Botstral and Vibe, the combined two-VM connector workflow, and final integrated review remain open. The pinned official filesystem server has only [reference setup evidence](evidence/m06-parent/reference-connector.json), not Botstral acceptance.
+[Integrated Linux acceptance](m06-integrated-acceptance.md) subsequently verified retained connector credentials after restored vault unlock, authenticated remote execution, actual Vibe stdio, and scope cancellation across the Proxmox pair. That run restores the manager bundle and restarts the retained worker. It does not claim a second worker restoration. Final whole-branch review remains open. The pinned official filesystem server's [reference setup evidence](evidence/m06-parent/reference-connector.json) remains distinct from the integrated official-SDK filesystem backend.
 
 Podman and Docker x86_64 were not exercised. Full Computer and Vibe runtime installation is outside this packaging subset's evidence. Selected runtime roots must satisfy the documented regular-file recovery policy. Retained worker identity still requires the operator to retire the original instance. Multi-root restoration does not provide atomic publication across filesystems.

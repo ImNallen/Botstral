@@ -334,6 +334,10 @@ This document is the implementation contract. Do not replace task-bound stdio ex
 
 The coordinator accepted standalone Python standard-library maintenance commands in place of main-binary backup subcommands. They acquire the same service locks and use SQLite's backup API. The actual manager-state restoration test proves lock exclusion, locked startup, original credential decryption, history, Markdown, and artifact retrieval. This keeps maintenance separate from runtime entry points and adds no Rust dependencies. The recovery implementation and its packaging remain under their component directories.
 
+The coordinator accepted `ConnectorToolPolicy.runner` to bind the helper identity, guest account, and resource limits when an ordinary connector task is created. Remote discovery retains the ordinary-task path and requires an available worker, as allowed by the independent verdict. Shared typed JSON digest vectors replace serializer-dependent hashing across Rust and Python.
+
+Integrated HTTPS acceptance required explicit private-CA trust for a self-hosted connector. The manager enables system certificate roots alongside bundled WebPKI roots. A process-scoped `SSL_CERT_FILE` can name public CA material before startup. Certificate and hostname validation remain enabled. This applies to the manager's reqwest clients and adds no per-connection trust bypass. The [live acceptance record](m06-integrated-acceptance.md) proves authenticated use after a real manager backup and restoration, plus Vibe execution and cancellation in one production worker scope.
+
 The coordinator accepted the independent judge's two corrections before implementation. `ConnectorToolBinding.grant_revision` is included in the exact provider turn, Connector work, and Vibe policy approval digest. Revoke and regrant cannot revive an older snapshot. Local execution material is released once per durable invocation, including across response loss and worker reconnection. The pinned Vibe adapter must demonstrate local stdio execution within its occupied supervising scope.
 
 ## Open questions and risks
