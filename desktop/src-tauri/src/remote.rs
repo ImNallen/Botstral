@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::{
     fs,
     io::{Read, Write},
-    os::unix::fs::{MetadataExt, OpenOptionsExt},
+    os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
     path::{Path, PathBuf},
     sync::{
         Arc, Mutex,
@@ -361,17 +361,19 @@ impl RemoteService {
             return Ok(self.inspect());
         };
         self.shutdown().await;
-        if !self.root.exists() {
-            self.signing_out.store(false, Ordering::Release);
-            return Ok(self.inspect());
-        }
-        let written = storage(&self.root, "signed-out.json", &true);
+        let written = fs::DirBuilder::new()
+            .recursive(true)
+            .mode(0o700)
+            .create(&self.root)
+            .map_err(|_| "sign_out_storage_failed".to_string())
+            .and_then(|()| storage(&self.root, "signed-out.json", &true));
+        let deleted = self.store.delete();
         if written.is_err() {
             self.view
                 .send_modify(|v| v.issue = Some("sign_out_storage_failed".into()));
             return Err("sign_out_storage_failed".into());
         }
-        if self.store.delete().is_err() {
+        if deleted.is_err() {
             self.view
                 .send_modify(|v| v.issue = Some("credential_deletion_failed".into()));
         }

@@ -107,6 +107,46 @@ fn pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths() {
     assert!(botstral_desktop::remote::parse_pairing_link(&"a".repeat(65537)).is_err());
 }
 
+#[tokio::test]
+async fn sign_out_clears_native_authority_when_the_profile_directory_was_removed() {
+    for deletion_fails in [false, true] {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("owner");
+        let store = Arc::new(TestStore::default());
+        let service = RemoteService::new(root.clone(), store.clone());
+        service
+            .command(IntentCommand::Begin {
+                label: "Missing profile".into(),
+            })
+            .await
+            .unwrap();
+        service.shutdown().await;
+        std::fs::remove_dir_all(&root).unwrap();
+        assert!(store.read().unwrap().is_some());
+        store.delete_fails.store(deletion_fails, Ordering::SeqCst);
+
+        let signed_out = service.sign_out().await.unwrap();
+        assert_eq!(signed_out.status, "signed_out");
+        assert!(signed_out.workspace.is_none());
+        if deletion_fails {
+            assert_eq!(
+                signed_out.issue.as_deref(),
+                Some("credential_deletion_failed")
+            );
+            let reopened = RemoteService::new(root, store.clone());
+            let restored = reopened.restore().await.unwrap();
+            assert_eq!(restored.status, "signed_out");
+            assert!(restored.workspace.is_none());
+            reopened.shutdown().await;
+        } else {
+            assert!(
+                store.read().unwrap().is_none(),
+                "Successful sign-out must delete the native credential after profile removal"
+            );
+        }
+    }
+}
+
 async fn wait(
     service: &RemoteService,
     predicate: impl Fn(&OwnerWorkspace) -> bool,
