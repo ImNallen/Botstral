@@ -24,3 +24,5 @@ The native journal has a separate 1 MiB reader and at most 128 admitted records.
 The first unit's approval operation compared the approval identity. Implementation tightened this to the complete prior `ApprovalView` after tracing a revoke-between-review-and-grant race. The actual-manager contract proves changed arguments, changed permission revision, and intervening approval revocation all refuse the stale grant.
 
 The macOS debug build supports an explicit `BOTSTRAL_DESKTOP_PROFILE` directory for isolated native acceptance. Release builds always use the application's profile directory. Neither build has a file-backed credential fallback.
+
+Independent lifecycle review found that an absent profile directory caused sign-out to return before deleting the native credential. Sign-out now recreates the private marker directory and attempts credential deletion even if marker persistence fails. A regression covers both successful deletion and failed deletion after profile removal. The failed-deletion case preserves a durable signed-out marker across restoration.

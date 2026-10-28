@@ -1,65 +1,60 @@
 {
-  "recorded_at": "2026-10-28T08:35:27.726557+00:00",
-  "platform": {
-    "system": "macOS",
-    "version": "27.0.1",
-    "build": "26A434",
-    "architecture": "arm64"
-  },
-  "commands": [
-    {
-      "command": "make verify",
-      "exit_code": 0
-    },
+  "recorded_at": "2026-10-28T09:20:18.243851+00:00",
+  "source_head": "0ea4de9de7337f532ecb7647b305f04c6fa1bc3f",
+  "implementation_verification": "verification-implementation.json",
+  "unchanged_server_worker_protocol_source_since": "96c4bb3",
+  "parent_checks": [
     {
       "command": "make verify-desktop",
-      "exit_code": 0
+      "exit_code": 0,
+      "frontend_tests": 25,
+      "evidence": "desktop-parent.log",
+      "source": "6aee65d"
     },
     {
-      "command": "npm run desktop -- build --debug --bundles app",
-      "exit_code": 0
+      "command": "python3 manager/tests/m05_acceptance.py --manager-bin target/debug/botstral-manager --probe-bin /Users/nallen/.t3/worktrees/Botstral/t3-06c17af9/target/debug/owner-probe --agent-bin target/debug/botstral-agent --output .audit/c02/old-probe-final",
+      "exit_code": 0,
+      "checks": 15,
+      "evidence": "old-probe-parent.json"
     },
     {
       "command": "python3 desktop/fixtures/paired_manager.py --verify-native",
-      "exit_code": 0
+      "exit_code": 0,
+      "evidence": "native-parent.log",
+      "source": "6aee65d"
     },
     {
-      "command": "python3 manager/tests/c02_workspace.py --output /tmp/c02-workspace-verified",
-      "exit_code": 0
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test remote",
+      "exit_code": 0,
+      "passed": 6,
+      "ignored": 1,
+      "evidence": "signout-after.log"
     },
     {
-      "command": "python3 manager/tests/m05_client_regressions.py --output /tmp/c02-client-verified",
-      "exit_code": 0
-    },
-    {
-      "command": "python3 manager/tests/m05_acceptance.py --manager-bin target/debug/botstral-manager --probe-bin target/debug/owner-probe --agent-bin target/debug/botstral-agent --output /tmp/c02-m05-verified",
-      "exit_code": 0
+      "command": "python3 desktop/fixtures/c02_source_record.py --check-controls",
+      "exit_code": 0,
+      "negative_controls": 3,
+      "evidence": "source-controls.log"
     }
   ],
-  "native_fixture": {
-    "local": "127.0.0.1:49373",
-    "route": "wss://127.0.0.1:49385/owner/v1/connect",
-    "manager": "037479c2-c6ea-4fd0-bc06-f0d4026e6cbc",
-    "leaf": "e99ea572ba5554d8db8901bddaf6ae4b6b2f5ac9617589df32174f1cdae10407",
-    "provider": "recorded M04 provider",
-    "worker": "synthetic",
+  "packaged_walkthrough": {
+    "manager": "2515d3c6-d9e6-4040-8dbc-d556623ffa7c",
+    "route": "wss://127.0.0.1:49716/owner/v1/connect",
+    "leaf": "86dca0dce31ce6113e70ff35d349e438d870120e6a3a008c22c87a66e7b41dbd",
     "secret_store": "real macOS Keychain",
-    "paid_inference": false,
-    "cleanup": "Fixture processes, temporary roots, and synthetic keychain entry removed."
-  },
-  "bundle": {
-    "path": "desktop/src-tauri/target/debug/bundle/macos/Botstral.app/Contents",
-    "binary_sha256": "f0f40106f307846e2b7b1a73ed038dea21479d573066537634f96ecd260951a1",
-    "graphical_acceptance": "pending parent"
+    "provider": "recorded M04 provider",
+    "worker": "explicitly synthetic",
+    "evidence": "walkthrough-frames.json",
+    "result": "pairing, assistant turns, exact action, verified export, synthetic cancellation, pause/resume, same-binary relaunch and revocation passed",
+    "export_sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906",
+    "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
-    "independent final review",
-    "packaged graphical workflow and interaction video",
-    "configured remote route and production Computer VM worker",
-    "production process cancellation and browser execution",
-    "packaged hostile-origin and deep-link observation",
-    "physical sleep, network changes, keychain denial and failed deletion, and delivered notifications",
-    "pre-extraction probe binary compatibility",
-    "Linux Secret Service and Windows acceptance"
-  ]
+    "independent review of sign-out correction",
+    "security review",
+    "production two-VM acceptance and packaged remote route",
+    "final layout capture and video",
+    "platform checks outside macOS remain unverified"
+  ],
+  "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained."
 }

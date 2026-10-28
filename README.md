@@ -47,4 +47,4 @@ Use local administration to sign in and manage bots and device grants. In the pa
 
 Each message starts a durable run with real assistant turns and linked tasks. Select the worker account and bounded execution settings, review exact actions before approval, cancel work, and save verified artifacts through a native chooser. Inference configuration, vault unlock, and an approved worker remain explicit prerequisites. Earlier runs stay in history without implying shared model context.
 
-See the [C02 architecture](docs/c02-architecture.md), [native fixture workflow](docs/c02-native-workflow.md), and [acceptance record](docs/c02-acceptance.md). Run `make verify-desktop` for desktop checks. Full C02 acceptance still needs the packaged graphical walkthrough and configured remote route.
+See the [C02 architecture](docs/c02-architecture.md), [native fixture workflow](docs/c02-native-workflow.md), and [acceptance record](docs/c02-acceptance.md). Run `make verify-desktop` for desktop checks. The packaged walkthrough passed with a synthetic worker. Full C02 acceptance still needs the configured remote route and production worker checks.
