@@ -630,9 +630,26 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
         .acquire_many_owned(MAX_INFERENCE_CALLS as u32)
         .await
         .unwrap();
+    let clock = now();
+    app.manager
+        .queue
+        .call_wait(move |state| {
+            state.test_time = Some(clock);
+            Ok(())
+        })
+        .await
+        .unwrap();
     let mut expired = request(&app, worker.session.id);
-    expired.limits.deadline = now() + 1;
+    expired.limits.deadline = clock + 1;
     app.call("POST", "/v1/runs", json!(expired), 200).await;
+    app.manager
+        .queue
+        .call_wait(move |state| {
+            state.test_time = Some(clock + 1);
+            Ok(())
+        })
+        .await
+        .unwrap();
     let expired = phase(&app, expired.id, RunPhase::terminal).await;
     assert_eq!(
         expired.summary.phase,
@@ -642,6 +659,14 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     );
     assert!(expired.turns.is_empty());
     assert_eq!(fixture.chats(), 0);
+    app.manager
+        .queue
+        .call_wait(|state| {
+            state.test_time = None;
+            Ok(())
+        })
+        .await
+        .unwrap();
     drop(capacity);
     let gate = Arc::new(Semaphore::new(0));
     fixture.reply(Reply {

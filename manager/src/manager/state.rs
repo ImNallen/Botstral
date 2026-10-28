@@ -65,7 +65,7 @@ pub(super) struct State {
     owner_connections:
         std::collections::HashMap<botstral_link::OwnerConnectionId, devices::DeviceConnection>,
     #[cfg(test)]
-    test_time: Option<i64>,
+    pub(in crate::manager) test_time: Option<i64>,
 }
 
 impl From<rusqlite::Error> for OperationError {
