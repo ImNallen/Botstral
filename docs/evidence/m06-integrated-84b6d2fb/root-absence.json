@@ -1,0 +1,12 @@
+[
+  {
+    "host": "botstral-manager",
+    "root": "/home/botstral/botstral-m06-integrated-136c3796c049",
+    "absence_check_exit_code": 0
+  },
+  {
+    "host": "botstral-computer",
+    "root": "/home/botstral/botstral-m06-integrated-136c3796c049",
+    "absence_check_exit_code": 0
+  }
+]

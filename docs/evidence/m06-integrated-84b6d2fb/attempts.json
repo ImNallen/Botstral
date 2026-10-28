@@ -1,0 +1,61 @@
+[
+  {
+    "name": "attempt-01.json",
+    "accepted_for_closure": false,
+    "error": "TimeoutError actual worker readiness",
+    "completed_observations": [],
+    "cleanup_errors": []
+  },
+  {
+    "name": "attempt-02.json",
+    "accepted_for_closure": false,
+    "error": "CalledProcessError Command '['ssh', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', 'botstral-manager', 'env XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus python3 /home/botstral/botstral-m06-integrated-136c3796c049/run-8c1f3fae/m06_remote.py']' returned non-zero exit status 1.",
+    "completed_observations": [],
+    "cleanup_errors": []
+  },
+  {
+    "name": "attempt-03.json",
+    "accepted_for_closure": false,
+    "error": "AssertionError ('PUT', '/v1/tasks/fa93cf25-63b8-4746-b7f6-bfa4537b0b7f/approval', {'status': 409, 'body': {'error': 'conflict'}})",
+    "completed_observations": [],
+    "cleanup_errors": []
+  },
+  {
+    "name": "attempt-04.json",
+    "accepted_for_closure": false,
+    "error": "AssertionError ('GET', '/v1/events/0/128', {'status': 400, 'body': {'error': 'invalid_input'}})",
+    "completed_observations": [
+      "authenticated_remote_production_worker_exact_approval_distinct_grants"
+    ],
+    "cleanup_errors": []
+  },
+  {
+    "name": "attempt-05.json",
+    "accepted_for_closure": false,
+    "error": "AssertionError ('POST', '/v1/tasks', {'status': 409, 'body': {'error': 'conflict'}})",
+    "completed_observations": [
+      "authenticated_remote_production_worker_exact_approval_distinct_grants",
+      "offline_backup_restore_locked_unlock_retained_authenticated_credential",
+      "actual_pinned_vibe_production_manager_and_local_stdio_complete"
+    ],
+    "cleanup_errors": []
+  },
+  {
+    "name": "attempt-06.json",
+    "accepted_for_closure": false,
+    "error": "AssertionError {'status': 403, 'body': {'error': 'unauthorized'}}",
+    "completed_observations": [
+      "authenticated_remote_production_worker_exact_approval_distinct_grants",
+      "offline_backup_restore_locked_unlock_retained_authenticated_credential",
+      "actual_pinned_vibe_production_manager_and_local_stdio_complete",
+      "one_task_scope_local_child_and_cancellation"
+    ],
+    "cleanup_errors": []
+  },
+  {
+    "name": "first-cleanup",
+    "accepted_for_closure": false,
+    "error": "The strict procfs scan refused the unreadable verified systemd user-manager process. No root was deleted.",
+    "correction": "Exclude the verified user-manager PID and its proven PAM helper, matching production recovery."
+  }
+]

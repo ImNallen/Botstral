@@ -1,0 +1,1 @@
+{"name":"botstral-m06-integrated-connector","private":true,"type":"module","dependencies":{"@modelcontextprotocol/sdk":"1.32.2","zod":"3.25.76"}}

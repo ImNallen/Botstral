@@ -2,6 +2,9 @@ use super::*;
 use std::os::unix::fs::PermissionsExt;
 
 pub(in super::super) fn response(body: &Value, config: &Value) -> String {
+    if let Some(path) = config["m06"].as_str() {
+        return super::super::integrated_fixture::response(body, path);
+    }
     let messages = body["messages"].as_array().unwrap();
     let prompt = messages.iter().find(|m| m["role"] == "user").unwrap()["content"]
         .as_str()
