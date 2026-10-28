@@ -1,0 +1,19 @@
+Schema reference depth 0
+exit: 0
+
+running 1 test
+schema bytes: 70
+catalog persisted and exact grant created; submitting empty arguments
+task submission returned: 272c6edd-389b-4ab2-b47f-44bf9c344609
+test manager::state::connectors::tests::astra_reference_fanout_is_bounded ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 89 filtered out; finished in 0.05s
+
+
+Schema reference depth 32
+TIMEOUT after 10 seconds inside test; killed only probe process group
+
+running 1 test
+schema bytes: 2090
+catalog persisted and exact grant created; submitting empty arguments
+

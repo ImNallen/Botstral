@@ -1,0 +1,20 @@
+[
+  {
+    "original": "/tmp/botstral-m06-baseline.log",
+    "retained": "docs/evidence/m06-parent/botstral-m06-baseline.log",
+    "sha256": "3aee0272576a8fd99c9f19aba52654c30f99718ea5eb79785ba46a64153edea5",
+    "bytes": 22027
+  },
+  {
+    "original": "/tmp/botstral-m06-integrated-restore.log",
+    "retained": "docs/evidence/m06-parent/botstral-m06-integrated-restore.log",
+    "sha256": "d9bf0534629f71a454b22ee4ff53954b8de9dba00f7e55edcb4a42783d780e38",
+    "bytes": 1185
+  },
+  {
+    "original": "/tmp/botstral-m06-integrated-connectors.log",
+    "retained": "docs/evidence/m06-parent/botstral-m06-integrated-connectors.log",
+    "sha256": "96a27f3554d7e5dc22fb2cb1c02804d77274c11278e1dd1031f97ba290af76d3",
+    "bytes": 4710
+  }
+]

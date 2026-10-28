@@ -1,20 +1,22 @@
 use crate::*;
 
 identifiers!(ManagerId, DeviceId, OwnerConnectionId, TransferId);
-pub const OWNER_VERSION: u16 = 1;
+pub const OWNER_VERSION: u16 = 2;
 pub const OWNER_CHUNK_BYTES: usize = 24 * 1024;
 pub const OWNER_TRANSFER_BYTES: usize = 80 * 1024 * 1024;
 pub const OWNER_TRANSFER_SECONDS: u64 = 120;
 pub const MAX_OWNER_DEVICES: usize = 128;
 pub const MAX_OWNER_CONNECTIONS: usize = 8;
-pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_TASKS * 24 * 1024
+pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_CONNECTIONS * 1024
+    + MAX_TASKS * 24 * 1024
     + MAX_RUNS * 4096
     + MAX_INFERENCES
         * (6 * (MAX_INFERENCE_PROMPT_BYTES + MAX_INFERENCE_OUTPUT_BYTES + 200) + 32768 + 4096)
     + MAX_INFERENCE_CONFIGURATIONS * 32768
     + MAX_RECORDS * (128 + (6 * 4096 + 256) + (6 * (4096 + 8 * 512) + 2048) + 128)
     + 4096;
-pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_TASKS * 256 * 1024
+pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_CONNECTIONS * 2048
+    + MAX_TASKS * 256 * 1024
     + MAX_RUNS * 4096
     + MAX_INFERENCES * 128 * 1024
     + MAX_INFERENCE_CONFIGURATIONS * 16 * 1024
@@ -121,9 +123,49 @@ pub enum OwnerHello {
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    InstallConnection {
+        input: InstallConnection,
+    },
+    Connections,
+    Connection {
+        id: ConnectionId,
+    },
+    DiscoverConnection {
+        input: DiscoverConnection,
+    },
+    ReplaceConnectionSecret {
+        id: ConnectionId,
+        input: ReplaceConnectionSecret,
+    },
+    ReconnectConnection {
+        id: ConnectionId,
+        expected_revision: u64,
+    },
+    RevokeConnection {
+        id: ConnectionId,
+        expected_revision: u64,
+    },
+    ConnectorGrants {
+        bot: BotId,
+        connection: ConnectionId,
+    },
+    SetConnectorGrants {
+        bot: BotId,
+        input: SetConnectorGrants,
+    },
+    ConnectorTools {
+        bot: BotId,
+    },
+    ConnectorCalls {
+        task: TaskId,
+    },
+    ConnectorAudit {
+        connection: ConnectionId,
+        after: u64,
+    },
     Workspace,
     GrantReviewedApproval {
         id: TaskId,
@@ -228,7 +270,7 @@ pub enum OwnerOperation {
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerClientMessage {
     Call {
@@ -262,6 +304,12 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    Connection(ConnectionView),
+    Connections(Vec<ConnectionView>),
+    ConnectorGrants(BotConnectorGrants),
+    ConnectorTools(Vec<ConnectorToolDefinition>),
+    ConnectorCalls(Vec<ConnectorCallView>),
+    ConnectorAudit(Vec<ConnectorAudit>),
     Workspace(Box<OwnerWorkspace>),
     Replay(Box<EventReplay>),
     Task(Box<TaskView>),

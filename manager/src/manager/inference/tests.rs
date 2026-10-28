@@ -745,7 +745,7 @@ async fn m04_admission_configuration_vault_and_budget_refusals() {
         json!({"max_total_tokens":1}),
         json!({"max_cost_microusd":1}),
         json!({"deadline":now()-1}),
-        json!({"deadline":now()+121}),
+        json!({"deadline":now()+3600}),
         json!({"max_output_tokens":0}),
         json!({"prompt":"x".repeat(MAX_INFERENCE_PROMPT_BYTES+1)}),
     ] {
@@ -1249,3 +1249,6 @@ mod run_tests;
 
 #[path = "coding_production.rs"]
 mod coding_production;
+
+#[path = "integrated_fixture.rs"]
+mod integrated_fixture;

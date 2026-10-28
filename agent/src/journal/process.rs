@@ -82,6 +82,11 @@ impl Journal {
         {
             self.vibe = Some(config);
         }
+        if let Some(config) = crate::connector::Configuration::read(&self.directory)?
+            && self.process_capable()
+        {
+            self.connector = Some(config);
+        }
         for mut e in self.executions()? {
             if let Some(process) = e.process.clone()
                 && !matches!(process.lifecycle, Lifecycle::Stopped { .. })
@@ -103,6 +108,28 @@ impl Journal {
             }
         }
         Ok(())
+    }
+    pub fn connector_settlements(&self) -> io::Result<Vec<crate::connector::Settlement>> {
+        let mut settlements = Vec::new();
+        for e in self.executions()? {
+            if !stopped(&e)
+                || !matches!(
+                    e.body.work,
+                    WorkSpec::Connector { .. } | WorkSpec::Vibe { .. }
+                )
+            {
+                continue;
+            }
+            settlements.extend(crate::connector::captured(
+                &process::directory(&self.directory, e.body.execution),
+                &e.body,
+            )?);
+            if settlements.len() >= 32 {
+                settlements.truncate(32);
+                break;
+            }
+        }
+        Ok(settlements)
     }
     pub fn process_capable(&self) -> bool {
         self.backend.as_ref().is_some_and(|backend| {
@@ -131,13 +158,39 @@ impl Journal {
                     == Some(c)
             })
     }
+    pub fn connector_capable(&self) -> bool {
+        self.process_capable()
+            && self.connector.as_ref().is_some_and(|c| {
+                crate::connector::Configuration::read(&self.directory)
+                    .ok()
+                    .flatten()
+                    .as_ref()
+                    == Some(c)
+            })
+    }
     fn permits_work(&self, work: &WorkSpec) -> bool {
         match work {
+            WorkSpec::Connector { spec } => {
+                self.connector_capable()
+                    && spec.validate().is_ok()
+                    && spec.deadline > now()
+                    && self
+                        .connector
+                        .as_ref()
+                        .is_some_and(|c| c.permits(&spec.runner))
+            }
             WorkSpec::Vibe { spec } => {
                 self.vibe_capable()
                     && spec.validate().is_ok()
                     && self.vibe.as_ref().is_some_and(|c| c.permits(spec))
                     && spec.limits.deadline > now()
+                    && spec.policy.connectors.as_ref().is_none_or(|p| {
+                        self.connector_capable()
+                            && self
+                                .connector
+                                .as_ref()
+                                .is_some_and(|c| c.permits(&p.runner))
+                    })
             }
             WorkSpec::Process { spec } => {
                 self.process_capable()
@@ -227,8 +280,8 @@ impl Journal {
         }
         let backend = self.backend.as_ref().unwrap().clone();
         let directory = process::directory(&self.directory, e.body.execution);
-        let (spec, computer, vibe) = match &e.body.work {
-            WorkSpec::Process { spec } => (*spec.clone(), None, None),
+        let (spec, computer, vibe, connector) = match &e.body.work {
+            WorkSpec::Process { spec } => (*spec.clone(), None, None, None),
             WorkSpec::Computer { spec } => {
                 let launch = self.computer.as_ref().unwrap().launch(
                     spec,
@@ -237,7 +290,7 @@ impl Journal {
                     false,
                 );
                 launch.prepare()?;
-                (launch.lower(), Some(launch), None)
+                (launch.lower(), Some(launch), None, None)
             }
             WorkSpec::Vibe { spec } => {
                 let launch =
@@ -246,7 +299,17 @@ impl Journal {
                         .unwrap()
                         .launch(spec, &self.directory, &directory, &e.body);
                 launch.prepare()?;
-                (launch.lower(), None, Some(launch))
+                (launch.lower(), None, Some(launch), None)
+            }
+            WorkSpec::Connector { spec } => {
+                let launch = self.connector.as_ref().unwrap().launch(
+                    spec,
+                    &self.directory,
+                    &directory,
+                    &e.body,
+                );
+                launch.prepare()?;
+                (launch.lower(), None, None, Some(launch))
             }
             _ => unreachable!(),
         };
@@ -258,6 +321,7 @@ impl Journal {
             spec,
             computer,
             vibe,
+            connector,
             expires_at: binding.expires_at,
         };
         std::fs::remove_file(directory.join("reserved"))?;
@@ -491,7 +555,11 @@ impl Journal {
                     && p.manifest
                         .vibe
                         .as_ref()
-                        .is_none_or(|v| v.verify(&p.manifest.spec).is_ok());
+                        .is_none_or(|v| v.verify(&p.manifest.spec).is_ok())
+                    && p.manifest
+                        .connector
+                        .as_ref()
+                        .is_none_or(|c| c.verify(&p.manifest.spec).is_ok());
                 if !authorized {
                     self.request_stop(&mut e, StopReason::Control)?;
                     return Ok(());

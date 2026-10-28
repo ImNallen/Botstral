@@ -1,0 +1,38 @@
+{
+  "workspace": {
+    "command": "cargo test --workspace --all-features --locked",
+    "exit_code": 0,
+    "passed": 125,
+    "ignored": 12
+  },
+  "clippy": {
+    "command": "cargo clippy --workspace --all-targets --all-features --locked -- -D warnings",
+    "exit_code": 0
+  },
+  "packaging": {
+    "command": "python3 -m unittest discover -s manager/packaging -p test_*.py -v",
+    "exit_code": 0,
+    "passed": 12
+  },
+  "connector-contract": {
+    "command": "python3 agent/tests/m06_connector_contract.py",
+    "exit_code": 0,
+    "passed": 6
+  },
+  "format": {
+    "command": "cargo fmt --all --check",
+    "exit_code": 0
+  },
+  "python-syntax": {
+    "command": "python3 -m py_compile manager/tests/m06_integrated.py manager/tests/m06_remote.py",
+    "exit_code": 0
+  },
+  "native-restoration": {
+    "exit_code": 0,
+    "passed": 1
+  },
+  "native-authority": {
+    "exit_code": 0,
+    "passed": 17
+  }
+}

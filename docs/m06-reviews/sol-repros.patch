@@ -1,0 +1,368 @@
+diff --git a/manager/src/manager/state/connectors/tests/runs.rs b/manager/src/manager/state/connectors/tests/runs.rs
+index b7f0ed3..e9a4c08 100644
+--- a/manager/src/manager/state/connectors/tests/runs.rs
++++ b/manager/src/manager/state/connectors/tests/runs.rs
+@@ -304,3 +304,6 @@ fn run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt(
+         }
+     }
+ }
++
++#[path = "audit_sol.rs"]
++mod audit_sol;
+diff --git a/agent/tests/m06_diagnostics_audit_sol.rs b/agent/tests/m06_diagnostics_audit_sol.rs
+new file mode 100644
+index 0000000..cc91592
+--- /dev/null
++++ b/agent/tests/m06_diagnostics_audit_sol.rs
+@@ -0,0 +1,95 @@
++use botstral_agent::{Config, transport};
++use sha2::{Digest, Sha256};
++use std::{fs, os::unix::fs::PermissionsExt};
++
++#[tokio::test]
++async fn audit_sol_worker_refuses_the_interpreter_ignored_by_diagnostics() {
++    let temporary = tempfile::tempdir().unwrap();
++    let root = temporary.path();
++    fs::set_permissions(root, fs::Permissions::from_mode(0o700)).unwrap();
++    let interpreter = root.join("python");
++    fs::write(&interpreter, b"pinned interpreter bytes").unwrap();
++    let digest = format!("{:x}", Sha256::digest(fs::read(&interpreter).unwrap()));
++    let mut identity = Sha256::new();
++    identity.update(include_bytes!("../connector/runtime.py"));
++    identity.update(digest.as_bytes());
++    let configuration = serde_json::json!({
++        "python": interpreter, "python_sha256": digest,
++        "runtime": format!("{:x}", identity.finalize()),
++        "account": {"uid": unsafe { libc::geteuid() }, "gid": unsafe { libc::getegid() }},
++        "ceilings": {"runtime_seconds": 60, "output_bytes": 1024, "processes": 32, "memory_bytes": 268435456}
++    });
++    fs::write(root.join("connector.json"), configuration.to_string()).unwrap();
++    fs::set_permissions(
++        root.join("connector.json"),
++        fs::Permissions::from_mode(0o600),
++    )
++    .unwrap();
++    let config = Config {
++        manager: "wss://127.0.0.1:9".into(),
++        manager_ca: root.join("absent-ca"),
++        client_cert: root.join("absent-cert"),
++        client_key: root.join("absent-key"),
++    };
++    let initial = transport::run(config.clone(), root, false, true)
++        .await
++        .unwrap_err();
++    println!(
++        "valid interpreter passes runtime verification, then fails on the intentionally absent TLS file: {initial}"
++    );
++    assert_ne!(initial.to_string(), "connector runtime changed");
++    for file in fs::read_dir(root).unwrap() {
++        let path = file.unwrap().path();
++        if path.is_file() {
++            fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
++        }
++    }
++    fs::write(interpreter, b"changed interpreter bytes").unwrap();
++    let changed = transport::run(config, root, false, true).await.unwrap_err();
++    println!("production worker startup after interpreter mutation: {changed}");
++    assert_eq!(changed.to_string(), "connector runtime changed");
++}
++
++#[tokio::test]
++async fn audit_sol_documented_generator_configuration_is_usable() {
++    let temporary = tempfile::tempdir().unwrap();
++    let root = temporary.path();
++    fs::set_permissions(root, fs::Permissions::from_mode(0o700)).unwrap();
++    let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("connector/configure.py");
++    let python = std::process::Command::new("python3")
++        .args(["-c", "import sys; print(sys.executable)"])
++        .output()
++        .unwrap();
++    assert!(python.status.success());
++    let configured = std::process::Command::new("python3")
++        .arg(script)
++        .arg("--python")
++        .arg(String::from_utf8(python.stdout).unwrap().trim())
++        .output()
++        .unwrap();
++    assert!(configured.status.success());
++    let value: serde_json::Value = serde_json::from_slice(&configured.stdout).unwrap();
++    println!(
++        "documented configure.py output ceilings: {}",
++        value["ceilings"]
++    );
++    fs::write(root.join("connector.json"), configured.stdout).unwrap();
++    fs::set_permissions(
++        root.join("connector.json"),
++        fs::Permissions::from_mode(0o600),
++    )
++    .unwrap();
++    let config = Config {
++        manager: "wss://127.0.0.1:9".into(),
++        manager_ca: root.join("absent-ca"),
++        client_cert: root.join("absent-cert"),
++        client_key: root.join("absent-key"),
++    };
++    let result = transport::run(config, root, false, true).await.unwrap_err();
++    println!("production worker loading documented configuration: {result}");
++    assert_ne!(
++        result.to_string(),
++        "InvalidMessage",
++        "configure.py must generate resource ceilings accepted by the production worker"
++    );
++}
+diff --git a/manager/src/manager/state/connectors/tests/audit_sol.rs b/manager/src/manager/state/connectors/tests/audit_sol.rs
+new file mode 100644
+index 0000000..999cc10
+--- /dev/null
++++ b/manager/src/manager/state/connectors/tests/audit_sol.rs
+@@ -0,0 +1,161 @@
++use super::*;
++
++#[tokio::test]
++async fn audit_sol_large_valid_catalog_blocks_run_admission() {
++    let mut f = fixture();
++    let mut bindings = Vec::new();
++    for _ in 0..10 {
++        let connection = f.install(false);
++        let task = f.task(ConnectorOperation::Discover {
++            connection: connection.version,
++        });
++        let task = f.approve(task.id);
++        let id = ConnectorCallId::new();
++        f.reserve(&task, id);
++        assert!(f.state.dispatch_connector(id).unwrap().is_some());
++        let large_tool = McpTool {
++            name: "large".into(),
++            description: "A valid tool with a bounded documented input schema.".into(),
++            input_schema: json!({"type":"object","description":"x".repeat(7000)}),
++        };
++        let call = f
++            .state
++            .finish_connector(
++                id,
++                ConnectorOutcome::Finished {
++                    result: ConnectorResult::Catalog {
++                        tools: vec![large_tool],
++                    },
++                },
++            )
++            .unwrap();
++        assert!(matches!(
++            call.state,
++            ConnectorCallState::Resolved {
++                outcome: ConnectorOutcome::Finished { .. }
++            }
++        ));
++        f.finish_task(task.id);
++        let connection = f.state.load_connection(connection.id).unwrap();
++        bindings.push(f.grant(&connection, f.bot, &["large"]).tools.remove(0));
++    }
++    let mut request = input(&f, bindings[0].clone());
++    request.execution_policy.connectors.as_mut().unwrap().tools = bindings.clone();
++    let oversized = f.state.submit_run(token(), request).unwrap();
++    let healthy = f
++        .state
++        .submit_run(token(), input(&f, bindings[0].clone()))
++        .unwrap();
++    println!(
++        "accepted runs: large catalog {}, healthy {}",
++        oversized.request.id, healthy.request.id
++    );
++    let mut prepared = crate::manager::provider::PreparedChat::new(
++        &oversized.configuration.policy,
++        oversized.request.limits.max_output_tokens,
++        &[RunMessage::User {
++            content: oversized.request.prompt.clone(),
++        }],
++        Some(&oversized.request.execution_policy),
++    );
++    prepared.connector_tools(
++        f.state
++            .permitted_connector_catalog(
++                f.bot,
++                oversized
++                    .request
++                    .execution_policy
++                    .connectors
++                    .as_ref()
++                    .unwrap(),
++            )
++            .unwrap(),
++    );
++    println!(
++        "provider request bytes: {}, limit: {}",
++        prepared.encoded().len(),
++        crate::manager::provider::MAX_PROVIDER_REQUEST
++    );
++    for attempt in 1..=2 {
++        let result = f.state.claim_run_work(&HashSet::new(), true);
++        println!(
++            "claim attempt {attempt}: {}",
++            match result {
++                Err(ref error) => format!("Err({error:?})"),
++                Ok(Some(_)) => "Ok(Some(job))".into(),
++                Ok(None) => "Ok(None)".into(),
++            }
++        );
++        println!(
++            "healthy run phase: {:?}",
++            f.state.load_run(healthy.request.id).unwrap().summary.phase
++        );
++    }
++    let (sender, mut receiver) = mpsc::channel::<crate::manager::Job>(32);
++    let mut state = f.state;
++    let state_thread = std::thread::spawn(move || {
++        while let Some(job) = receiver.blocking_recv() {
++            job(&mut state);
++        }
++    });
++    let queue = crate::manager::Queue {
++        sender,
++        credential: std::sync::Arc::new(tokio::sync::Semaphore::new(1)),
++    };
++    let control = std::sync::Arc::new(crate::manager::inference::InferenceControl::default());
++    let stop = control.stop.clone();
++    let job = crate::manager::runs::start(
++        queue.clone(),
++        Provider::fixture("http://127.0.0.1:9".into()),
++        control.clone(),
++        stop,
++    );
++    let result = tokio::time::timeout(std::time::Duration::from_secs(2), job)
++        .await
++        .unwrap()
++        .unwrap();
++    let stopping = control.stopping.load(std::sync::atomic::Ordering::Acquire);
++    println!("production run pump result: {result:?}");
++    println!("shared inference stopping: {stopping}");
++    drop(queue);
++    state_thread.join().unwrap();
++    assert!(
++        !stopping,
++        "a valid connector catalog must not stop shared inference for every run"
++    );
++}
++
++#[test]
++fn audit_sol_connection_summaries_fit_snapshot_increment() {
++    let mut f = fixture();
++    for _ in 0..MAX_CONNECTIONS {
++        f.state
++            .install_connection(
++                token(),
++                InstallConnection {
++                    id: ConnectionId::new(),
++                    label: "\"".repeat(100),
++                    transport: ConnectionTransport::RemoteHttp {
++                        endpoint: "https://example.com/mcp".into(),
++                    },
++                },
++            )
++            .unwrap();
++    }
++    let EventReplay::Snapshot { state, .. } = f.state.resume(token(), 0, 64).unwrap() else {
++        panic!("snapshot");
++    };
++    assert_eq!(state.connections.len(), MAX_CONNECTIONS);
++    let serialized = serde_json::to_vec(&state.connections).unwrap().len();
++    let allocation = state.connections.capacity() * std::mem::size_of::<ConnectionSummary>()
++        + state
++            .connections
++            .iter()
++            .map(|c| c.label.capacity())
++            .sum::<usize>();
++    println!(
++        "32 maximally escaped connection labels use {serialized} serialized bytes and {allocation} allocated bytes"
++    );
++    assert!(serialized <= MAX_CONNECTIONS * 1024);
++    assert!(allocation <= MAX_CONNECTIONS * 2048);
++}
+diff --git a/.audit/m06-final-review-sol-diagnostics.py b/.audit/m06-final-review-sol-diagnostics.py
+new file mode 100644
+index 0000000..4a7fc2b
+--- /dev/null
++++ b/.audit/m06-final-review-sol-diagnostics.py
+@@ -0,0 +1,36 @@
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++
++repo = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(repo / 'manager/packaging'))
++import diagnose
++
++with tempfile.TemporaryDirectory() as directory:
++    root = Path(directory).resolve()
++    interpreter = root / 'python'
++    interpreter.write_bytes(Path(sys.executable).resolve().read_bytes())
++    configuration = subprocess.check_output([
++        sys.executable, str(repo / 'agent/connector/configure.py'),
++        '--python', str(interpreter), '--uid', '1000', '--gid', '1000',
++    ])
++    value = json.loads(configuration)
++    value['ceilings'].update(output_bytes=1024, memory_bytes=268435456)
++    (root / 'connector.json').write_text(json.dumps(value))
++    pin = value['python_sha256']
++    assert hashlib.sha256(interpreter.read_bytes()).hexdigest() == pin
++    print('valid configured connector diagnostic:', diagnose.runtime_hashes(root))
++    interpreter.write_bytes(b'changed interpreter bytes\n')
++    assert hashlib.sha256(interpreter.read_bytes()).hexdigest() != pin
++    try:
++        result = diagnose.runtime_hashes(root)
++    except ValueError as error:
++        print('modified connector refused:', error)
++    else:
++        print('modified configured connector diagnostic:', result)
++        print('FAIL: diagnostic accepted interpreter bytes that violate connector.json')
++        sys.exit(1)
+diff --git a/.audit/m06-final-review-sol-evidence.py b/.audit/m06-final-review-sol-evidence.py
+new file mode 100644
+index 0000000..2f2439d
+--- /dev/null
++++ b/.audit/m06-final-review-sol-evidence.py
+@@ -0,0 +1,41 @@
++import csv
++import hashlib
++import json
++from pathlib import Path
++import re
++import subprocess
++
++root = Path(__file__).resolve().parents[1]
++head = '48bf1bb2cc917499a6889f24519426f5f0666755'
++manifest = json.loads((root / 'docs/evidence/m06-integrated-84b6d2fb/source-files.json').read_text())
++changed = []
++for name, expected in manifest.items():
++    value = subprocess.run(['git', 'show', head + ':' + name], cwd=root, capture_output=True)
++    if value.returncode or hashlib.sha256(value.stdout).hexdigest() != expected:
++        changed.append(name)
++print('Exact-head source manifest entries:', len(manifest))
++print('Differences:', json.dumps(changed))
++assert set(changed) == {'docs/m06-architecture.md', 'docs/m06-connectors.md', 'docs/m06-decisions.tsv', 'docs/m06-recovery-acceptance.md'}
++for row in csv.DictReader((root / 'docs/m06-decisions.tsv').open(), delimiter='\t'):
++    print('Decision', row['phase'], row['ts'])
++    for value in row['evidence'].split(';'):
++        value = value.strip()
++        if re.fullmatch('[0-9a-f]{7,40}', value):
++            result = subprocess.check_output(['git', 'cat-file', '-t', value], cwd=root, text=True).strip()
++            assert result == 'commit'
++            print('  Commit exists', value)
++            continue
++        path = value.split(':')[0]
++        file = Path(path) if path.startswith('/') else root / path
++        assert file.is_file(), value
++        print('  Evidence exists', path, file.stat().st_size)
++        if file.suffix == '.log':
++            lines = [line for line in file.read_text().splitlines() if re.search(r'test result:|^Ran |^OK$|^FAILED|^Verified', line)]
++            for line in lines:
++                print('   ', line)
++report = json.loads((root / 'docs/evidence/m06-integrated-84b6d2fb/report.json').read_text())
++print('Integrated gates:', report['gates'])
++print('Integrated checks:', [check['name'] for check in report['checks']])
++print('Cleanup errors:', report['cleanup_errors'])
++print('Fixtures retained:', report['fixtures_retained'])
++assert report['passed'] and not report['cleanup_errors'] and not report['fixtures_retained']

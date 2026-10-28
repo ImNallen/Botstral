@@ -6,6 +6,20 @@ use std::{fs, io::Read, os::unix::fs::OpenOptionsExt};
 
 pub(in crate::manager) fn collect(permit: CollectPermit) -> Result<String, ()> {
     let mut artifacts = Vec::new();
+    let connector = if matches!(permit.task.command.work, WorkSpec::Connector { .. }) {
+        if permit.connectors.len() != 1 {
+            return Err(());
+        }
+        let call = &permit.connectors[0];
+        match &call.state {
+            ConnectorCallState::Resolved {
+                outcome: ConnectorOutcome::Finished { .. } | ConnectorOutcome::NotSent { .. },
+            } => Some(call),
+            _ => return Err(()),
+        }
+    } else {
+        None
+    };
     let mut text_budget = MAX_RUN_TEXT_BYTES;
     for output in &permit.task.outputs {
         let mut artifact = json!(output);
@@ -61,6 +75,12 @@ pub(in crate::manager) fn collect(permit: CollectPermit) -> Result<String, ()> {
                 {
                     let text = String::from_utf8(bytes).map_err(|_| ())?;
                     text_budget -= text.len();
+                    if let Some(call) = connector {
+                        let reference: Value = serde_json::from_str(&text).map_err(|_| ())?;
+                        if reference != json!({"call":call.id}) {
+                            return Err(());
+                        }
+                    }
                     artifact["untrusted_text"] = text.into();
                 }
             }
@@ -75,7 +95,7 @@ pub(in crate::manager) fn collect(permit: CollectPermit) -> Result<String, ()> {
         };
         json!({"effect":evidence.effect,"result": evidence.result.as_ref().map(|r|json!({"exit":r.exit,"stdout":output(&r.stdout),"stderr":output(&r.stderr)}))})
     });
-    let value: Value = json!({"untrusted_tool_result":{"task":permit.task.id,"state":permit.task.state,"outcome":permit.task.outcome,"process":process,"artifacts":artifacts}});
+    let value: Value = json!({"untrusted_tool_result":{"task":permit.task.id,"state":permit.task.state,"outcome":permit.task.outcome,"process":process,"artifacts":artifacts,"connector":connector}});
     if reflects_secret(&value, permit.secret.expose_secret()) {
         return Err(());
     }

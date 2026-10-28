@@ -1,4 +1,5 @@
 use super::*;
+use botstral_link::WorkSpec;
 
 impl State {
     pub(in crate::manager) fn set_input_owner(
@@ -156,6 +157,11 @@ impl State {
                 self.check_input_fence(lease.worker, *fence)?;
                 let task = self.load_task(binding.task)?;
                 let permission = self.permission(task.command.bot)?;
+                self.validate_connector_work(
+                    task.command.bot,
+                    task.command.worker,
+                    &task.command.work,
+                )?;
                 let current: String = self.connection.query_row(
                     "SELECT incarnation FROM worker_journals WHERE worker=?1",
                     [lease.worker.to_string()],
@@ -180,6 +186,13 @@ impl State {
                     || binding.expires_at <= self.now()
                 {
                     return Err(ErrorCode::WrongPhase.into());
+                }
+                if matches!(
+                    task.command.work,
+                    WorkSpec::Connector { .. } | WorkSpec::Vibe { .. }
+                ) {
+                    self.connection.execute("INSERT INTO connector_leases VALUES(?1,?2,?3,?4) ON CONFLICT(task) DO UPDATE SET execution=excluded.execution,generation=excluded.generation,fence=excluded.fence",
+                        params![task.id.to_string(),task.command.execution.to_string(),lease.generation.get() as i64,serde_json::to_string(fence).map_err(|_|OperationError::Internal)?])?;
                 }
             }
             _ => {}

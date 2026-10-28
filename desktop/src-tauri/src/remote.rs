@@ -1093,6 +1093,7 @@ impl Actor {
                         configuration_revision: config.revision,
                         prompt: input.text,
                         execution_policy: RunExecutionPolicy {
+                            connectors: None,
                             vision: None,
                             vibe: None,
                             computer,
@@ -1303,6 +1304,11 @@ fn describe_action(command: &CommandBody) -> String {
         WorkSpec::Vibe { spec } => format!(
             "Edit files in {:?}\nExact instruction: {:?}",
             spec.policy.workspace.path, spec.prompt,
+        ),
+        WorkSpec::Connector { spec } => format!(
+            "Run connector operation\n{}",
+            serde_json::to_string_pretty(&spec.operation)
+                .expect("typed connector operation serializes")
         ),
         WorkSpec::TestInput { steps } => format!("Synthetic input fixture with {steps} steps"),
         WorkSpec::TestEffect { value, observable } => {

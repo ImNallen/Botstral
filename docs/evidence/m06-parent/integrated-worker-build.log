@@ -1,0 +1,263 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.97kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/rust:1.93.0-bookworm@sha256:d0a4aa3ca2e1088ac0c81690914a0d810f2eee188197034edf366ed010a2b382
+#3 DONE 0.0s
+
+#4 [build 1/7] FROM docker.io/library/rust:1.93.0-bookworm@sha256:d0a4aa3ca2e1088ac0c81690914a0d810f2eee188197034edf366ed010a2b382
+#4 resolve docker.io/library/rust:1.93.0-bookworm@sha256:d0a4aa3ca2e1088ac0c81690914a0d810f2eee188197034edf366ed010a2b382 done
+#4 DONE 0.0s
+
+#5 [stage-1 1/8] FROM docker.io/library/ubuntu:24.04@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c
+#5 resolve docker.io/library/ubuntu:24.04@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 1.44MB 0.0s done
+#6 DONE 0.0s
+
+#7 [build 2/7] WORKDIR /source
+#7 CACHED
+
+#8 [build 3/7] COPY Cargo.toml Cargo.lock ./
+#8 DONE 0.0s
+
+#9 [build 4/7] COPY manager ./manager
+#9 DONE 0.0s
+
+#10 [build 5/7] COPY agent ./agent
+#10 DONE 0.0s
+
+#11 [build 6/7] COPY link ./link
+#11 DONE 0.0s
+
+#12 [build 7/7] RUN cargo build --locked --release -p botstral-agent --bin botstral-agent --bin botstral-agent-supervisor-check
+#12 0.092     Updating crates.io index
+#12 3.656  Downloading crates ...
+#12 3.709   Downloaded atomic-waker v1.1.2
+#12 3.729   Downloaded try-lock v0.2.5
+#12 3.735   Downloaded tokio-rustls v0.26.6
+#12 3.740   Downloaded hashlink v0.11.1
+#12 3.745   Downloaded futures-sink v0.3.34
+#12 3.751   Downloaded generic-array v0.14.7
+#12 3.753   Downloaded block-buffer v0.10.4
+#12 3.754   Downloaded futures-task v0.3.34
+#12 3.756   Downloaded untrusted v0.9.0
+#12 3.758   Downloaded subtle v2.6.1
+#12 3.760   Downloaded cfg-if v1.0.5
+#12 3.762   Downloaded pin-project-lite v0.2.17
+#12 3.768   Downloaded futures-macro v0.3.34
+#12 3.769   Downloaded ref-cast-impl v1.0.27
+#12 3.770   Downloaded tokio-macros v2.7.2
+#12 3.771   Downloaded http-body v1.1.0
+#12 3.772   Downloaded quote v1.0.47
+#12 3.775   Downloaded fallible-iterator v0.3.0
+#12 3.777   Downloaded cpufeatures v0.2.17
+#12 3.778   Downloaded serde_derive_internals v0.30.0
+#12 3.781   Downloaded ref-cast v1.0.27
+#12 3.783   Downloaded dyn-clone v1.0.20
+#12 3.785   Downloaded digest v0.10.7
+#12 3.787   Downloaded fallible-streaming-iterator v0.1.9
+#12 3.788   Downloaded itoa v1.0.18
+#12 3.789   Downloaded tokio-tungstenite v0.28.0
+#12 3.791   Downloaded schemars_derive v1.2.3
+#12 3.793   Downloaded version_check v0.9.5
+#12 3.794   Downloaded bitflags v2.13.2
+#12 3.797   Downloaded want v0.3.2
+#12 3.798   Downloaded foldhash v0.2.0
+#12 3.799   Downloaded utf-8 v0.7.6
+#12 3.800   Downloaded ppv-lite86 v0.2.21
+#12 3.801   Downloaded zmij v1.0.23
+#12 3.803   Downloaded smallvec v1.16.4
+#12 3.804   Downloaded zeroize v1.9.1
+#12 3.805   Downloaded slab v0.4.12
+#12 3.806   Downloaded signal-hook-registry v1.4.8
+#12 3.807   Downloaded shlex v2.0.1
+#12 3.809   Downloaded pkg-config v0.3.34
+#12 3.810   Downloaded sha1 v0.10.7
+#12 3.812   Downloaded thiserror-impl v2.0.21
+#12 3.813   Downloaded thiserror v2.0.21
+#12 3.816   Downloaded sha2 v0.10.9
+#12 3.819   Downloaded unicode-ident v1.0.27
+#12 3.821   Downloaded getrandom v0.4.3
+#12 3.824   Downloaded serde_core v1.0.229
+#12 3.827   Downloaded getrandom v0.3.4
+#12 3.829   Downloaded data-encoding v2.11.1
+#12 3.830   Downloaded rustls-pki-types v1.15.1
+#12 3.832   Downloaded rustls-pemfile v2.2.0
+#12 3.834   Downloaded serde_derive v1.0.229
+#12 3.836   Downloaded getrandom v0.2.17
+#12 3.838   Downloaded memchr v2.8.3
+#12 3.843   Downloaded log v0.4.34
+#12 3.845   Downloaded uuid v1.29.0
+#12 3.847   Downloaded rusqlite v0.38.0
+#12 3.852   Downloaded rand v0.9.5
+#12 3.855   Downloaded serde v1.0.229
+#12 3.857   Downloaded typenum v1.20.1
+#12 3.860   Downloaded http v1.5.0
+#12 3.863   Downloaded hashbrown v0.16.1
+#12 3.866   Downloaded hyper-util v0.1.21
+#12 3.872   Downloaded futures-util v0.3.34
+#12 3.880   Downloaded schemars v1.2.3
+#12 3.887   Downloaded serde_json v1.0.154
+#12 3.893   Downloaded hyper v1.12.0
+#12 3.899   Downloaded cc v1.10.0
+#12 3.902   Downloaded vcpkg v0.2.15
+#12 3.928   Downloaded rustls-webpki v0.103.16
+#12 3.931   Downloaded mio v1.2.4
+#12 3.936   Downloaded bytes v1.12.1
+#12 3.938   Downloaded syn v3.0.9
+#12 3.945   Downloaded zerocopy v0.8.63
+#12 3.957   Downloaded tungstenite v0.28.0
+#12 3.959   Downloaded socket2 v0.6.5
+#12 3.961   Downloaded httparse v1.10.1
+#12 3.963   Downloaded rustls v0.23.46
+#12 3.971   Downloaded rand_chacha v0.9.0
+#12 3.972   Downloaded once_cell v1.21.4
+#12 3.974   Downloaded proc-macro2 v1.0.107
+#12 3.976   Downloaded find-msvc-tools v0.1.15
+#12 3.977   Downloaded http-body-util v0.1.5
+#12 3.979   Downloaded rand_core v0.9.5
+#12 3.980   Downloaded crypto-common v0.1.7
+#12 3.981   Downloaded errno v0.3.14
+#12 3.982   Downloaded futures-core v0.3.34
+#12 3.984   Downloaded libc v0.2.191
+#12 4.035   Downloaded tokio v1.54.1
+#12 4.064   Downloaded ring v0.17.14
+#12 4.095   Downloaded libsqlite3-sys v0.36.0
+#12 4.187    Compiling libc v0.2.191
+#12 4.187    Compiling proc-macro2 v1.0.107
+#12 4.187    Compiling unicode-ident v1.0.27
+#12 4.187    Compiling quote v1.0.47
+#12 4.187    Compiling cfg-if v1.0.5
+#12 4.189    Compiling shlex v2.0.1
+#12 4.189    Compiling find-msvc-tools v0.1.15
+#12 4.193    Compiling version_check v0.9.5
+#12 4.194    Compiling itoa v1.0.18
+#12 4.195    Compiling typenum v1.20.1
+#12 4.196    Compiling bytes v1.12.1
+#12 4.196    Compiling serde_core v1.0.229
+#12 4.198    Compiling getrandom v0.3.4
+#12 4.199    Compiling pin-project-lite v0.2.17
+#12 4.202    Compiling zerocopy v0.8.63
+#12 4.205    Compiling zeroize v1.9.1
+#12 4.211    Compiling httparse v1.10.1
+#12 4.214    Compiling untrusted v0.9.0
+#12 4.232    Compiling cc v1.10.0
+#12 4.238    Compiling getrandom v0.4.3
+#12 4.253    Compiling futures-core v0.3.34
+#12 4.256    Compiling zmij v1.0.23
+#12 4.278    Compiling rustls-pki-types v1.15.1
+#12 4.288    Compiling thiserror v2.0.21
+#12 4.297    Compiling generic-array v0.14.7
+#12 4.300    Compiling serde_json v1.0.154
+#12 4.306    Compiling serde v1.0.229
+#12 4.311    Compiling rustls v0.23.46
+#12 4.320    Compiling vcpkg v0.2.15
+#12 4.361    Compiling pkg-config v0.3.34
+#12 4.373    Compiling ref-cast v1.0.27
+#12 4.381    Compiling http v1.5.0
+#12 4.426    Compiling once_cell v1.21.4
+#12 4.441    Compiling subtle v2.6.1
+#12 4.483    Compiling foldhash v0.2.0
+#12 4.524    Compiling memchr v2.8.3
+#12 4.527    Compiling smallvec v1.16.4
+#12 4.538    Compiling try-lock v0.2.5
+#12 4.555    Compiling syn v3.0.9
+#12 4.566    Compiling want v0.3.2
+#12 4.574    Compiling hashbrown v0.16.1
+#12 4.580    Compiling dyn-clone v1.0.20
+#12 4.586    Compiling data-encoding v2.11.1
+#12 4.588    Compiling futures-sink v0.3.34
+#12 4.603    Compiling log v0.4.34
+#12 4.614    Compiling slab v0.4.12
+#12 4.618    Compiling futures-task v0.3.34
+#12 4.625    Compiling utf-8 v0.7.6
+#12 4.633    Compiling atomic-waker v1.1.2
+#12 4.673    Compiling rustls-pemfile v2.2.0
+#12 4.677    Compiling http-body v1.1.0
+#12 4.680    Compiling fallible-iterator v0.3.0
+#12 4.690    Compiling block-buffer v0.10.4
+#12 4.691    Compiling crypto-common v0.1.7
+#12 4.704    Compiling errno v0.3.14
+#12 4.711    Compiling cpufeatures v0.2.17
+#12 4.718    Compiling mio v1.2.4
+#12 4.732    Compiling digest v0.10.7
+#12 4.736    Compiling socket2 v0.6.5
+#12 4.747    Compiling signal-hook-registry v1.4.8
+#12 4.763    Compiling getrandom v0.2.17
+#12 4.791    Compiling rand_core v0.9.5
+#12 4.810    Compiling sha1 v0.10.7
+#12 4.817    Compiling sha2 v0.10.9
+#12 4.853    Compiling hashlink v0.11.1
+#12 4.856    Compiling fallible-streaming-iterator v0.1.9
+#12 4.862    Compiling ring v0.17.14
+#12 4.865    Compiling libsqlite3-sys v0.36.0
+#12 4.870    Compiling bitflags v2.13.2
+#12 4.883    Compiling http-body-util v0.1.5
+#12 5.177    Compiling uuid v1.29.0
+#12 5.285    Compiling serde_derive_internals v0.30.0
+#12 5.397    Compiling tokio-macros v2.7.2
+#12 5.397    Compiling ref-cast-impl v1.0.27
+#12 5.397    Compiling serde_derive v1.0.229
+#12 5.397    Compiling thiserror-impl v2.0.21
+#12 5.397    Compiling futures-macro v0.3.34
+#12 5.487    Compiling schemars_derive v1.2.3
+#12 5.631    Compiling ppv-lite86 v0.2.21
+#12 5.671    Compiling futures-util v0.3.34
+#12 5.674    Compiling tokio v1.54.1
+#12 5.698    Compiling rand_chacha v0.9.0
+#12 5.745    Compiling rand v0.9.5
+#12 5.931    Compiling tungstenite v0.28.0
+#12 6.366    Compiling schemars v1.2.3
+#12 7.067    Compiling hyper v1.12.0
+#12 7.067    Compiling tokio-tungstenite v0.28.0
+#12 7.370    Compiling hyper-util v0.1.21
+#12 7.964    Compiling rustls-webpki v0.103.16
+#12 9.314    Compiling botstral-link v0.1.0 (/source/link)
+#12 9.314    Compiling tokio-rustls v0.26.6
+#12 27.08    Compiling rusqlite v0.38.0
+#12 27.35    Compiling botstral-agent v0.1.0 (/source/agent)
+#12 34.07     Finished `release` profile [optimized] target(s) in 33.99s
+#12 DONE 34.4s
+
+#13 [stage-1 2/8] COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+#13 CACHED
+
+#14 [stage-1 3/8] RUN sed -i -E 's|http://[^ ]+/ubuntu(-ports)?/|https://snapshot.ubuntu.com/ubuntu/20261020T000000Z/|g' /etc/apt/sources.list.d/ubuntu.sources     && apt-get -o Acquire::Check-Valid-Until=false -o APT::Update::Error-Mode=any update     && apt-get install -y --no-install-recommends systemd systemd-sysv dbus-user-session python3 ca-certificates     && systemd --version | head -1 | grep '^systemd 255 '     && dpkg-query -W > /usr/share/botstral-image-packages.txt     && rm -rf /var/lib/apt/lists/*
+#14 CACHED
+
+#15 [stage-1 4/8] COPY --from=build /source/manager/packaging /source/manager/packaging
+#15 CACHED
+
+#16 [stage-1 5/8] COPY --from=build /source/agent/packaging /source/agent/packaging
+#16 DONE 0.0s
+
+#17 [stage-1 6/8] COPY --from=build /source/target/release/botstral-agent /tmp/botstral-agent
+#17 DONE 0.0s
+
+#18 [stage-1 7/8] COPY --from=build /source/target/release/botstral-agent-supervisor-check /tmp/botstral-agent-supervisor-check
+#18 DONE 0.0s
+
+#19 [stage-1 8/8] RUN python3 /source/agent/packaging/install.py --binary /tmp/botstral-agent --root /     && groupadd --gid 10001 botstral-agent     && useradd --uid 10001 --gid 10001 --create-home --home-dir /home/botstral-agent --shell /bin/bash botstral-agent     && chmod 0700 /home/botstral-agent     && install -d -m 0700 -o 10001 -g 10001 /home/botstral-agent/.local/share/botstral-agent /home/botstral-agent/.config/systemd/user/default.target.wants     && install -d /etc/systemd/user/default.target.wants     && ln -s /usr/lib/systemd/user/botstral-agent.service /etc/systemd/user/default.target.wants/botstral-agent.service     && install -d /var/lib/systemd/linger /etc/systemd/system/multi-user.target.wants     && touch /var/lib/systemd/linger/botstral-agent     && ln -s /usr/lib/systemd/system/user@.service /etc/systemd/system/multi-user.target.wants/user@10001.service     && chown -R 10001:10001 /home/botstral-agent     && rm -rf /source /tmp/botstral-agent /tmp/botstral-agent-supervisor-check
+#19 0.096 {"component": "agent", "binary_sha256": "06d75ba06d83b1998c29a4951616db291353d70ecea8e9c6bfd3c4ae3b50cbb6", "version": "0.1.0", "services_enabled": false, "runtime": {"python": "3.9 or newer", "sqlite": "3.37 or newer", "systemd": "255 for worker", "rust_build": "1.93.0", "dependencies": "Cargo.lock"}}
+#19 DONE 0.1s
+
+#20 exporting to image
+#20 exporting layers
+#20 exporting layers 0.3s done
+#20 exporting manifest sha256:3b70cb7e63c6e1307766308f769170d495d2ed7b2810c9ce29f6d418d18deebc done
+#20 exporting config sha256:075098ad419f8e703a807abfa03c3557d3f8b0c9c00d74f0b85280af3c3c657f done
+#20 exporting attestation manifest sha256:3e11859d5c528c5ff333e84394dd54409a8a4536e2494f44f5ac9196dcfd46f8 done
+#20 exporting manifest list sha256:932ab596e79d5494b444d2c22e48bb7a5649384367d5a3cc78430ad4eb4f9f59 done
+#20 naming to docker.io/library/botstral-agent:m06-integrated done
+#20 unpacking to docker.io/library/botstral-agent:m06-integrated 0.1s done
+#20 DONE 0.4s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ijv6y901ui5gvra8ya6cohqj0

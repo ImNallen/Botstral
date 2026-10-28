@@ -8,7 +8,7 @@ Botstral is a self-hosted bot manager built around Mistral-developed models. It 
 
 ## Run the manager
 
-Use Rust 1.93.0 on Linux or macOS with a C compiler for bundled SQLite.
+Use Rust 1.93.0 on Linux or macOS with Python 3.9 or newer, OpenSSL, and a C compiler for bundled SQLite.
 
 ```sh
 make verify
@@ -32,7 +32,11 @@ See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) f
 
 The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor.
 
-[M04 is complete](docs/m04-completion.md). Model turns use exactly approved browser, file, process and Vibe operations, with bounded PNG vision and durable artifacts. Acceptance combines live EU Mistral work across two VMs with repeatable recorded-provider checks. M05 supplies owner-device pairing and remote access. Packaged desktop acceptance over the configured remote route remains open.
+[M04 is complete](docs/m04-completion.md). Model turns use exactly approved browser, file, process and Vibe operations, with bounded PNG vision and durable artifacts. Acceptance combines live EU Mistral work across two VMs with repeatable recorded-provider checks. M05 supplies owner-device pairing and remote access. C02 verifies the packaged macOS workflow over the configured remote route.
+
+Owner-installed Model Context Protocol connections provide tools to bot tasks and Vibe through manager-enforced permissions. Remote HTTPS servers and worker-local standard-input servers share the same approval, revocation, and durable outcome rules. See the [connector guide](docs/m06-connectors.md).
+
+Use the [Linux installation and recovery guide](docs/m06-recovery.md) for separate services, Docker images, diagnostics, and offline backups. Manager restoration retains encrypted credentials and requires the original vault passphrase. Computer recovery preserves the explicit roots selected by the owner.
 
 ## Run the desktop
 

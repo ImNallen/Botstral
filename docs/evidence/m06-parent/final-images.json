@@ -1,0 +1,24 @@
+{
+  "source": "2cdcfe2d0360568cc6676b4402467d8fda9aeaa5",
+  "manager": {
+    "nonroot_uid": 10001,
+    "file_configuration_and_private_tls": true,
+    "manager_started": true
+  },
+  "worker": {
+    "ok": true,
+    "supervisor": "production systemd backend launch and empty-scope stop proved",
+    "recovery": "{\"component\": \"agent\", \"operation\": \"create\", \"backup_id\": \"b64afc35-3a42-4a5c-9da2-9a5b46a51b9e\", \"ok\": true}\n{\"component\": \"agent\", \"operation\": \"verify\", \"backup_id\": \"b64afc35-3a42-4a5c-9da2-9a5b46a51b9e\", \"ok\": true}\n{\"component\": \"agent\", \"operation\": \"restore\", \"backup_id\": \"b64afc35-3a42-4a5c-9da2-9a5b46a51b9e\", \"ok\": true}\n{\"production_journal_identity_preserved\": true, \"selected_certificate_bytes_restored\": true}"
+  },
+  "images": {
+    "manager": {
+      "id": "sha256:a51873ce09b6ac1e26896bf84c5a3757eae86fddbc7244e1c4a17ed86bc43d11",
+      "architecture": "arm64"
+    },
+    "agent": {
+      "id": "sha256:71c3ea4b424a15422d26e3348cd3c515ce39ae23cb702f40769d6c64aae9b49a",
+      "architecture": "arm64"
+    }
+  },
+  "installer_sha256": "e17cac002e12e2d86af614e471ef62531c423e83a19aec0ebf4d310548564d54"
+}

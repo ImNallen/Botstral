@@ -31,6 +31,8 @@ pub(crate) struct Launch {
     pub outputs: PathBuf,
     pub transport: PathBuf,
     pub directory: PathBuf,
+    #[serde(default)]
+    pub connector: Option<crate::connector::Configuration>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -84,6 +86,7 @@ impl Configuration {
             outputs: directory.join("outputs"),
             transport: root.join("config.json"),
             directory: directory.to_owned(),
+            connector: crate::connector::Configuration::read(root).ok().flatten(),
         }
     }
 }
@@ -97,6 +100,10 @@ impl Launch {
         if !root.try_exists()? {
             fs::DirBuilder::new().mode(0o700).create(root)?;
         }
+        fs::write(
+            self.directory.join("connector-runtime.py"),
+            crate::connector::SCRIPT,
+        )?;
         fs::write(
             self.directory.join("vibe-runtime.py"),
             include_bytes!("../vibe/runtime.py"),
@@ -143,6 +150,19 @@ impl Launch {
         let stored: Self = process::read(&self.directory.join("vibe-launch.json"))?;
         if serde_json::to_vec(&stored)? != serde_json::to_vec(self)? {
             return Err(io::Error::other("coding launch changed"));
+        }
+        if fs::read(self.directory.join("connector-runtime.py"))? != crate::connector::SCRIPT {
+            return Err(io::Error::other("connector helper changed"));
+        }
+        if let Some(policy) = &self.spec.policy.connectors {
+            let config = self
+                .connector
+                .as_ref()
+                .ok_or_else(|| io::Error::other("connector configuration missing"))?;
+            if !config.permits(&policy.runner) {
+                return Err(io::Error::other("connector policy mismatch"));
+            }
+            config.verify()?;
         }
         verify(&self.runtime, &self.manifest, &self.spec.policy.runtime)
     }

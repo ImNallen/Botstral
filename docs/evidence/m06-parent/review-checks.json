@@ -1,0 +1,43 @@
+{
+  "production_correction_commit": "290421d355d44d743196bd15e347766cacc129fa",
+  "linux_acceptance_driver_commit": "761722b",
+  "checks": [
+    {
+      "command": "RUST_TEST_THREADS=2 make verify",
+      "exit_code": 0,
+      "log": "docs/evidence/m06-parent/review-core.log",
+      "sha256": "53afb8bcc25acea59a5d6e27d37390243f466a8436b1259959154963af8f5b16"
+    },
+    {
+      "command": "RUST_TEST_THREADS=2 make verify-desktop",
+      "exit_code": 0,
+      "log": "docs/evidence/m06-parent/review-desktop.log",
+      "sha256": "8ab0a811e09c1bcd53cd1eac147cc605fed3019ddd6f753e381d2ca5e96d0e59"
+    },
+    {
+      "command": "cargo test --locked -p botstral-manager --lib manager::state::connectors -- --nocapture",
+      "exit_code": 0,
+      "log": "docs/evidence/m06-parent/review-authority-after.log",
+      "sha256": "e28199b43b2c57c9e8ad0d1a764d376eea3362201c17f100633a5b4f7b0bb4e2"
+    },
+    {
+      "command": "python3 -m unittest discover -s manager/packaging -p 'test_*.py' -v",
+      "exit_code": 0,
+      "log": "docs/evidence/m06-parent/review-packaging-after.log",
+      "sha256": "ee90af92fe49bc7d0438107ae662b210fbe006b68ef853603fda3a28f33561e2"
+    }
+  ],
+  "independent_review_head": "48bf1bb2cc917499a6889f24519426f5f0666755",
+  "independent_verdicts": {
+    "astra": "ISSUES",
+    "sol": "ISSUES",
+    "luna": "PASS"
+  },
+  "coordinator_resolution": "Four distinct findings independently reproduced and corrected. No claim of independent approval of the later corrections.",
+  "preserved_failed_runs": [
+    "review-core-concurrent-failed.log",
+    "review-desktop-concurrent-failed.log",
+    "review-core-shared-target-failed.log",
+    "review-docker-worker-before-fixture.json"
+  ]
+}

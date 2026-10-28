@@ -1,0 +1,19 @@
+test_connector_interpreter_is_verified_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) ... ok
+test_real_manager_uses_file_configuration_and_private_tls (test_install.InstallationTests) ... ok
+test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_separate_install_layout_and_refusal (test_install.InstallationTests) ... ok
+test_staging_symlink_cannot_escape_install_root (test_install.InstallationTests) ... ok
+test_available_ledger_bytes_are_required (test_recovery.RecoveryTests) ... ok
+test_backup_links_and_extra_content_are_refused (test_recovery.RecoveryTests) ... ok
+test_flock_matches_service (test_recovery.RecoveryTests) ... ok
+test_future_database_schema_is_refused (test_recovery.RecoveryTests) ... ok
+test_link_and_source_change_refusals (test_recovery.RecoveryTests) ... ok
+test_malicious_manifest_refusals_before_destination (test_recovery.RecoveryTests) ... ok
+test_wal_restore_and_locked_state (test_recovery.RecoveryTests) ... ok
+test_selected_guest_roots_identity_evidence_and_no_clone (test_recovery.WorkerRecoveryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.427s
+
+OK

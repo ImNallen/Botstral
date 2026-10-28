@@ -1,0 +1,36 @@
+{
+  "image_source_commit": "290421d355d44d743196bd15e347766cacc129fa",
+  "engine": "docker",
+  "images": {
+    "manager": {
+      "id": "sha256:c7d7423cd0ae2715fddc366b93227ec984deee3bc960d7e0841fbf6386f87da4",
+      "architecture": "arm64"
+    },
+    "agent": {
+      "id": "sha256:e0a5987b7edd90467c68ffd5882423f156452483cfbd8d70efdac0030cf5f46a",
+      "architecture": "arm64"
+    }
+  },
+  "acceptance": {
+    "manager": {
+      "nonroot_uid": 10001,
+      "file_configuration_and_private_tls": true,
+      "manager_started": true
+    },
+    "agent": {
+      "ok": true,
+      "supervisor": "production systemd backend launch and empty-scope stop proved",
+      "recovery": "{\"component\": \"agent\", \"operation\": \"create\", \"backup_id\": \"b6dbd37a-b890-4df6-96f9-a9a7620d38ee\", \"ok\": true}\n{\"component\": \"agent\", \"operation\": \"verify\", \"backup_id\": \"b6dbd37a-b890-4df6-96f9-a9a7620d38ee\", \"ok\": true}\n{\"component\": \"agent\", \"operation\": \"restore\", \"backup_id\": \"b6dbd37a-b890-4df6-96f9-a9a7620d38ee\", \"ok\": true}\n{\"production_journal_identity_preserved\": true, \"selected_certificate_bytes_restored\": true, \"connector_interpreter_restored\": true, \"connector_tampering_refused\": true, \"omitted_connector_runtime_refused\": true}"
+    }
+  },
+  "worker_acceptance_driver_sha256": "1d0ece59ad841f16d58fa603b1b354266d99b2a4a7fbb8bb8fd2a4b2b9063d1a",
+  "driver_deviation": "The coordinator added a production worker check after restoration to recreate the intentionally excluded service lock before diagnostics. This host-side acceptance change does not change installed image files.",
+  "source_files": {
+    "agent/connector/configure.py": "d6d34c20d7f65ab19b62145a4dd2116085178db73250c8b7e6c69b00728eb2fc",
+    "agent/connector/runtime.py": "7eb84617e9dcb78277689f8c095e20b8844aed7033e315274e5d94912ddcbc51",
+    "manager/packaging/diagnose.py": "61838ac6774ef469b251104aa35978c4c42d920d7b12a663db8a18757b65d132",
+    "manager/packaging/recovery.py": "32e11b431595faafe1691957b2b3ae529687762d7b8b0bb1e45ecd5da12c4b74",
+    "manager/src/manager/connectors.rs": "0de7864c7f7cdbda3ca9e5d980f5785e92abe6e2430f63a976c43407a3342011",
+    "manager/src/manager/state/runs.rs": "337c71c5ad42173cb97a33fec6f2f7f2806013ae47d53eb8ad4f99d6bacc462b"
+  }
+}

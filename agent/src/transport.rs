@@ -218,6 +218,8 @@ async fn connection(config: &Config, once: bool, worker: &mut Worker) -> io::Res
     }
     let mut ticks = tokio::time::interval(Duration::from_millis(20));
     let mut heartbeat = tokio::time::interval(Duration::from_secs(10));
+    let mut settlement_tick = tokio::time::interval(Duration::from_secs(5));
+    let mut settlements = tokio::task::JoinSet::new();
     let idle = tokio::time::sleep(Duration::from_secs(30));
     tokio::pin!(idle);
     loop {
@@ -234,8 +236,67 @@ async fn connection(config: &Config, once: bool, worker: &mut Worker) -> io::Res
             _ = ticks.tick() => {
                 for report in worker.tick(true).await? { send(&mut socket, report.request_id, report.message).await?; }
             }
+            _ = settlement_tick.tick(), if settlements.is_empty() => {
+                let pending = worker.connector_settlements()?;
+                if !pending.is_empty() {
+                    let config=config.clone();
+                    settlements.spawn(async move {
+                        for settlement in pending { let _=settle_connector(&config,settlement).await; }
+                    });
+                }
+            }
+            _ = settlements.join_next(), if !settlements.is_empty() => {}
             _ = &mut idle => return Err(io::Error::other("manager idle")),
             _ = heartbeat.tick() => { send(&mut socket, RequestId::new(), WorkerMessage::Heartbeat { generation }).await?; }
         }
     }
+}
+
+async fn settle_connector(
+    config: &Config,
+    settlement: crate::connector::Settlement,
+) -> io::Result<()> {
+    let stream = connect_tls(config).await?;
+    tokio::time::timeout(DEADLINE, async {
+        let (mut sender, connection) = hyper::client::conn::http1::handshake(TokioIo::new(stream))
+            .await
+            .map_err(io::Error::other)?;
+        let body = serde_json::to_vec(&ConnectorGatewayRequest::Settle {
+            id: settlement.id,
+            outcome: settlement.outcome.clone(),
+        })?;
+        let request = Request::builder()
+            .method("POST")
+            .uri(format!(
+                "/worker/v1/connectors/{}/{}",
+                settlement.task, settlement.execution
+            ))
+            .header("host", config.manager.trim_start_matches("wss://"))
+            .header("content-type", "application/json")
+            .header("connection", "close")
+            .body(Full::new(Bytes::from(body)))
+            .map_err(io::Error::other)?;
+        let exchange = async {
+            let response = sender
+                .send_request(request)
+                .await
+                .map_err(io::Error::other)?;
+            let status = response.status();
+            let bytes = Limited::new(response.into_body(), MAX_CONNECTOR_BYTES)
+                .collect()
+                .await
+                .map_err(io::Error::other)?
+                .to_bytes();
+            if status != 200 {
+                return Err(io::Error::other("connector settlement refused"));
+            }
+            let value: serde_json::Value = serde_json::from_slice(&bytes)?;
+            let call: ConnectorCallView = serde_json::from_value(value["call"].clone())?;
+            settlement.acknowledge(&call)
+        };
+        let (result, _) = tokio::join!(exchange, connection);
+        result
+    })
+    .await
+    .map_err(io::Error::other)?
 }

@@ -195,6 +195,7 @@ impl State {
                 return Err(OperationError::InvalidInput);
             }
         }
+        self.validate_connector_work(session.bot_id, session.worker_id, &input.work)?;
         match &input.work {
             WorkSpec::TestInput { steps } if !(1..=10000).contains(steps) => {
                 return Err(OperationError::InvalidInput);
@@ -221,6 +222,18 @@ impl State {
                 self.validate_coding_task(session.bot_id, session.worker_id, input.id, spec)?;
                 if spec.limits.deadline != input.settings.deadline {
                     return Err(OperationError::InvalidInput);
+                }
+            }
+            WorkSpec::Connector { spec } => {
+                if spec.deadline != input.settings.deadline
+                    || !self
+                        .worker_connections
+                        .get(&session.worker_id)
+                        .is_some_and(|c| {
+                            c.recovered && c.capabilities.contains(&Capability::ConnectorV1)
+                        })
+                {
+                    return Err(ErrorCode::UnsupportedExecution.into());
                 }
             }
             WorkSpec::Process { spec } => {
@@ -325,6 +338,7 @@ impl State {
         {
             return Err(OperationError::Conflict);
         }
+        self.validate_connector_work(task.command.bot, task.command.worker, &task.command.work)?;
         task.approval.binding = Some(ExecutionBinding {
             owner: task.command.owner,
             bot: task.command.bot,
@@ -674,6 +688,12 @@ impl State {
                 .collect::<Result<Vec<_>, OperationError>>()?;
             return Ok(EventReplay::Snapshot {
                 state: OwnerSnapshot {
+                    connections: self
+                        .connection
+                        .prepare("SELECT view FROM connections ORDER BY id")?
+                        .query_map([], |r| r.get::<_, String>(0))?
+                        .map(|r| parse::<ConnectionView>(r?).map(ConnectionSummary::from))
+                        .collect::<Result<Vec<_>, OperationError>>()?,
                     tasks,
                     inferences: self.inference_views(None)?,
                     runs: self.run_summaries()?,
@@ -835,7 +855,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            8
+            9
         );
     }
 }

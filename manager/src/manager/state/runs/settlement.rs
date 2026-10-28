@@ -90,12 +90,38 @@ impl State {
                             let duplicate = view.turns.iter().any(|turn| matches!(&turn.response,Some(RunMessage::Assistant { tool_call: Some(prior), .. }) if prior.id == call.id));
                             let operations = match &call.proposal {
                                 ToolProposal::Computer(args) => args.operations.len() as u32,
-                                ToolProposal::Process(_) | ToolProposal::Vibe(_) => 1,
+                                ToolProposal::Process(_)
+                                | ToolProposal::Vibe(_)
+                                | ToolProposal::Connector(_) => 1,
                             };
+                            let connector_limit =
+                                if matches!(call.proposal, ToolProposal::Connector(_)) {
+                                    view.request
+                                        .execution_policy
+                                        .connectors
+                                        .as_ref()
+                                        .is_none_or(|policy| {
+                                            view.turns
+                                                .iter()
+                                                .filter(|turn| {
+                                                    turn.intent.as_ref().is_some_and(|i| {
+                                                        matches!(
+                                                            i.call.proposal,
+                                                            ToolProposal::Connector(_)
+                                                        )
+                                                    })
+                                                })
+                                                .count()
+                                                >= policy.max_calls as usize
+                                        })
+                                } else {
+                                    false
+                                };
                             let reason = if duplicate {
                                 Some(RunStopReason::UnsupportedProposal)
-                            } else if view.summary.accounting.admitted_operations + operations
-                                > view.request.limits.max_operations
+                            } else if connector_limit
+                                || view.summary.accounting.admitted_operations + operations
+                                    > view.request.limits.max_operations
                             {
                                 Some(RunStopReason::OperationLimit)
                             } else {

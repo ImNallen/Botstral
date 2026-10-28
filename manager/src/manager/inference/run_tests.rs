@@ -225,7 +225,7 @@ impl SyntheticWorker {
     }
 }
 fn request(app: &App, session: ComputerSessionId) -> SubmitRun {
-    SubmitRun { images: Vec::new(),id:RunId::new(),bot:app.bot,session,configuration_revision:1,prompt:"Read the example page, write and read /srv/shared/m04-note.txt, and explain the result.".into(),limits:RunLimits {deadline:now()+90,max_turns:4,max_total_tokens:200_000,max_cost_microusd:200_000,max_output_tokens:64,max_operations:12,max_concurrent_operations:1},execution_policy:RunExecutionPolicy { vision: None, vibe: None,
+    SubmitRun { images: Vec::new(),id:RunId::new(),bot:app.bot,session,configuration_revision:1,prompt:"Read the example page, write and read /srv/shared/m04-note.txt, and explain the result.".into(),limits:RunLimits {deadline:now()+90,max_turns:4,max_total_tokens:200_000,max_cost_microusd:200_000,max_output_tokens:64,max_operations:12,max_concurrent_operations:1},execution_policy:RunExecutionPolicy { connectors: None, vision: None, vibe: None,
         computer:Some(ComputerToolPolicy {profile:ComputerProfile::LinuxPlaywrightV1,account:ProcessAccount {uid:1000,gid:1000},runtime:ComputerRuntime {sha256:CertificateFingerprint::from_der(b"fixture runtime")},limits:ProcessLimits {runtime_seconds:30,output_bytes:1024,processes:64,memory_bytes:512*1024*1024},viewport:Viewport {width:800,height:600},outputs:[("page","page.txt"),("file","shared.txt")].into_iter().map(|(slot,name)|OutputDeclaration {slot:slot.into(),name:name.into(),media_type:MediaType::TextPlain,max_bytes:8192}).collect()}),
         process:Some(ProcessToolPolicy {profile:ProcessProfile::LinuxSystemdV1,account:ProcessAccount {uid:1000,gid:1000},environment:BTreeMap::new(),limits:ProcessLimits {runtime_seconds:30,output_bytes:1024,processes:8,memory_bytes:64*1024*1024}}),
     }}
@@ -630,9 +630,26 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
         .acquire_many_owned(MAX_INFERENCE_CALLS as u32)
         .await
         .unwrap();
+    let clock = now();
+    app.manager
+        .queue
+        .call_wait(move |state| {
+            state.test_time = Some(clock);
+            Ok(())
+        })
+        .await
+        .unwrap();
     let mut expired = request(&app, worker.session.id);
-    expired.limits.deadline = now() + 1;
+    expired.limits.deadline = clock + 1;
     app.call("POST", "/v1/runs", json!(expired), 200).await;
+    app.manager
+        .queue
+        .call_wait(move |state| {
+            state.test_time = Some(clock + 1);
+            Ok(())
+        })
+        .await
+        .unwrap();
     let expired = phase(&app, expired.id, RunPhase::terminal).await;
     assert_eq!(
         expired.summary.phase,
@@ -642,6 +659,14 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     );
     assert!(expired.turns.is_empty());
     assert_eq!(fixture.chats(), 0);
+    app.manager
+        .queue
+        .call_wait(|state| {
+            state.test_time = None;
+            Ok(())
+        })
+        .await
+        .unwrap();
     drop(capacity);
     let gate = Arc::new(Semaphore::new(0));
     fixture.reply(Reply {

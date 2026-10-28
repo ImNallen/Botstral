@@ -431,6 +431,35 @@
         "height"
       ]
     },
+    "BotConnectorGrants": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "connection": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConnectorToolBinding"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "connection",
+        "revision",
+        "tools"
+      ]
+    },
     "BotId": {
       "type": "string",
       "format": "uuid"
@@ -443,7 +472,8 @@
         "test_input",
         "process_systemd_v1",
         "vibe_v1",
-        "computer_v1"
+        "computer_v1",
+        "connector_v1"
       ]
     },
     "CapturedOutput": {
@@ -1022,6 +1052,687 @@
         "policy"
       ]
     },
+    "ConnectionAvailability": {
+      "type": "string",
+      "enum": [
+        "needs_discovery",
+        "ready",
+        "authentication_required",
+        "unavailable",
+        "revoked"
+      ]
+    },
+    "ConnectionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ConnectionSecretInput": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "none"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "bearer"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "local_environment"
+            },
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "values"
+          ]
+        }
+      ]
+    },
+    "ConnectionSummary": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/ConnectionAvailability"
+        },
+        "catalog_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "id": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "tool_count": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "version": {
+          "$ref": "#/$defs/ConnectionVersion"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "version",
+        "availability",
+        "catalog_revision",
+        "tool_count"
+      ]
+    },
+    "ConnectionTransport": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "remote_http"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "endpoint"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "account": {
+              "$ref": "#/$defs/ProcessAccount"
+            },
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "executable": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "worker_stdio"
+            },
+            "worker": {
+              "$ref": "#/$defs/WorkerId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "worker",
+            "account",
+            "executable",
+            "arguments",
+            "cwd",
+            "environment"
+          ]
+        }
+      ]
+    },
+    "ConnectionVersion": {
+      "type": "object",
+      "properties": {
+        "connection": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "credential_epoch": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "connection",
+        "revision",
+        "credential_epoch"
+      ]
+    },
+    "ConnectionView": {
+      "type": "object",
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/ConnectionAvailability"
+        },
+        "catalog_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "id": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/McpTool"
+          }
+        },
+        "transport": {
+          "$ref": "#/$defs/ConnectionTransport"
+        },
+        "version": {
+          "$ref": "#/$defs/ConnectionVersion"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "version",
+        "transport",
+        "availability",
+        "catalog_revision",
+        "tools"
+      ]
+    },
+    "ConnectorAudit": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "call": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorCallId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "code": {
+          "type": "string"
+        },
+        "connection": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CertificateFingerprint"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "connection",
+        "code",
+        "at"
+      ]
+    },
+    "ConnectorCallId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ConnectorCallState": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "reserved"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "dispatch_possible"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "$ref": "#/$defs/ConnectorOutcome"
+            },
+            "type": {
+              "type": "string",
+              "const": "resolved"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "outcome"
+          ]
+        }
+      ]
+    },
+    "ConnectorCallView": {
+      "type": "object",
+      "properties": {
+        "argument_digest": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        },
+        "connection": {
+          "$ref": "#/$defs/ConnectionVersion"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionId"
+        },
+        "id": {
+          "$ref": "#/$defs/ConnectorCallId"
+        },
+        "late_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorResult"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revoked_during_call_at": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "state": {
+          "$ref": "#/$defs/ConnectorCallState"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorToolBinding"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "task",
+        "execution",
+        "connection",
+        "argument_digest",
+        "state",
+        "created_at"
+      ]
+    },
+    "ConnectorFailure": {
+      "type": "string",
+      "enum": [
+        "authority",
+        "authentication",
+        "catalog_changed",
+        "protocol",
+        "bound",
+        "transport",
+        "deadline",
+        "restart",
+        "interrupted"
+      ]
+    },
+    "ConnectorOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "connection": {
+              "$ref": "#/$defs/ConnectionVersion"
+            },
+            "type": {
+              "type": "string",
+              "const": "discover"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "connection"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "proposal": {
+              "$ref": "#/$defs/ConnectorProposal"
+            },
+            "type": {
+              "type": "string",
+              "const": "call"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "proposal"
+          ]
+        }
+      ]
+    },
+    "ConnectorOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/ConnectorFailure"
+            },
+            "type": {
+              "type": "string",
+              "const": "not_sent"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "result": {
+              "$ref": "#/$defs/ConnectorResult"
+            },
+            "type": {
+              "type": "string",
+              "const": "finished"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "result"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/ConnectorFailure"
+            },
+            "type": {
+              "type": "string",
+              "const": "unknown"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "ConnectorProposal": {
+      "type": "object",
+      "properties": {
+        "arguments": true,
+        "tool": {
+          "$ref": "#/$defs/ConnectorToolBinding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "arguments"
+      ]
+    },
+    "ConnectorResult": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tools": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/McpTool"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "catalog"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "tools"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "tool"
+            },
+            "value": true
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        }
+      ]
+    },
+    "ConnectorRunner": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/$defs/ProcessAccount"
+        },
+        "limits": {
+          "$ref": "#/$defs/ProcessLimits"
+        },
+        "runtime": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "runtime",
+        "account",
+        "limits"
+      ]
+    },
+    "ConnectorSpec": {
+      "type": "object",
+      "properties": {
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "operation": {
+          "$ref": "#/$defs/ConnectorOperation"
+        },
+        "result": {
+          "$ref": "#/$defs/OutputDeclaration"
+        },
+        "runner": {
+          "$ref": "#/$defs/ConnectorRunner"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "runner",
+        "deadline",
+        "result"
+      ]
+    },
+    "ConnectorToolBinding": {
+      "type": "object",
+      "properties": {
+        "catalog_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "connection": {
+          "$ref": "#/$defs/ConnectionVersion"
+        },
+        "grant_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "schema_digest": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "connection",
+        "catalog_revision",
+        "grant_revision",
+        "name",
+        "schema_digest"
+      ]
+    },
+    "ConnectorToolDefinition": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/ConnectorToolBinding"
+        },
+        "description": {
+          "type": "string"
+        },
+        "input_schema": true
+      },
+      "additionalProperties": false,
+      "required": [
+        "binding",
+        "description",
+        "input_schema"
+      ]
+    },
+    "ConnectorToolPolicy": {
+      "type": "object",
+      "properties": {
+        "max_calls": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_result_bytes": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "runner": {
+          "$ref": "#/$defs/ConnectorRunner"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConnectorToolBinding"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tools",
+        "max_calls",
+        "max_result_bytes",
+        "runner"
+      ]
+    },
     "ControlStatus": {
       "type": "string",
       "enum": [
@@ -1082,6 +1793,35 @@
       "enum": [
         "owner",
         "worker"
+      ]
+    },
+    "DiscoverConnection": {
+      "type": "object",
+      "properties": {
+        "deadline": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "expected": {
+          "$ref": "#/$defs/ConnectionVersion"
+        },
+        "runner": {
+          "$ref": "#/$defs/ConnectorRunner"
+        },
+        "session": {
+          "$ref": "#/$defs/ComputerSessionId"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "task",
+        "session",
+        "expected",
+        "runner",
+        "deadline"
       ]
     },
     "Document": {
@@ -2052,6 +2792,26 @@
         "owner"
       ]
     },
+    "InstallConnection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ConnectionId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "transport": {
+          "$ref": "#/$defs/ConnectionTransport"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "transport"
+      ]
+    },
     "JournalEntry": {
       "type": "object",
       "properties": {
@@ -2474,6 +3234,24 @@
         "server_name",
         "ca_pem",
         "leaf"
+      ]
+    },
+    "McpTool": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "input_schema": true,
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description",
+        "input_schema"
       ]
     },
     "MediaType": {
@@ -2948,6 +3726,236 @@
     },
     "OwnerOperation": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/InstallConnection"
+            },
+            "method": {
+              "type": "string",
+              "const": "install_connection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "connections"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "connection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DiscoverConnection"
+            },
+            "method": {
+              "type": "string",
+              "const": "discover_connection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "input": {
+              "$ref": "#/$defs/ReplaceConnectionSecret"
+            },
+            "method": {
+              "type": "string",
+              "const": "replace_connection_secret"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "reconnect_connection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "revoke_connection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "connection": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "connector_grants"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "connection"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "input": {
+              "$ref": "#/$defs/SetConnectorGrants"
+            },
+            "method": {
+              "type": "string",
+              "const": "set_connector_grants"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "method": {
+              "type": "string",
+              "const": "connector_tools"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "connector_calls"
+            },
+            "task": {
+              "$ref": "#/$defs/TaskId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "task"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "after": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "connection": {
+              "$ref": "#/$defs/ConnectionId"
+            },
+            "method": {
+              "type": "string",
+              "const": "connector_audit"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "connection",
+            "after"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -3572,6 +4580,120 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "connection"
+            },
+            "value": {
+              "$ref": "#/$defs/ConnectionView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "connections"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ConnectionView"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "connector_grants"
+            },
+            "value": {
+              "$ref": "#/$defs/BotConnectorGrants"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "connector_tools"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ConnectorToolDefinition"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "connector_calls"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ConnectorCallView"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "connector_audit"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/ConnectorAudit"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "workspace"
             },
             "value": {
@@ -4024,6 +5146,13 @@
     "OwnerSnapshot": {
       "type": "object",
       "properties": {
+        "connections": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ConnectionSummary"
+          }
+        },
         "conversations": {
           "type": "array",
           "items": {
@@ -4506,6 +5635,24 @@
         "experimental"
       ]
     },
+    "ReplaceConnectionSecret": {
+      "type": "object",
+      "properties": {
+        "expected_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "secret": {
+          "$ref": "#/$defs/ConnectionSecretInput"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "expected_revision",
+        "secret"
+      ]
+    },
     "RequestId": {
       "type": "string",
       "format": "uuid"
@@ -4591,6 +5738,17 @@
               "type": "null"
             }
           ]
+        },
+        "connectors": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorToolPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "process": {
           "anyOf": [
@@ -5234,6 +6392,37 @@
         }
       ]
     },
+    "SetConnectorGrants": {
+      "type": "object",
+      "properties": {
+        "catalog_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "connection": {
+          "$ref": "#/$defs/ConnectionVersion"
+        },
+        "expected_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "connection",
+        "catalog_revision",
+        "expected_revision",
+        "tools"
+      ]
+    },
     "SourceReference": {
       "oneOf": [
         {
@@ -5823,6 +7012,23 @@
             "tool",
             "arguments"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/ConnectorProposal"
+            },
+            "tool": {
+              "type": "string",
+              "const": "connector"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
         }
       ]
     },
@@ -5867,6 +7073,17 @@
           "type": "integer",
           "format": "uint64",
           "minimum": 0
+        },
+        "connectors": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectorToolPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "model_id": {
           "type": "string"
@@ -6184,6 +7401,23 @@
             "type": {
               "type": "string",
               "const": "computer"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "spec"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "spec": {
+              "$ref": "#/$defs/ConnectorSpec"
+            },
+            "type": {
+              "type": "string",
+              "const": "connector"
             }
           },
           "additionalProperties": false,

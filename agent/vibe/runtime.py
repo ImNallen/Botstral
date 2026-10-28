@@ -1,6 +1,7 @@
 import fcntl
 import glob
 import http.client
+import importlib.util
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import os
@@ -22,7 +23,8 @@ MAX_RESPONSE = 131072
 MAX_LOG = 1048576
 
 
-def configuration(home, workspace, endpoint, model, token):
+def configuration(home, workspace, endpoint, model, token, connector_names=(), mcp_endpoint=None):
+    enabled = list(TOOLS) + list(connector_names)
     home.mkdir(mode=0o700, parents=True, exist_ok=True)
     agents = home / 'agents'
     agents.mkdir(mode=0o700, exist_ok=True)
@@ -31,7 +33,7 @@ default_agent = "managed"
 enable_telemetry = false
 enable_update_checks = false
 mcp_servers = []
-enabled_tools = {json.dumps(TOOLS)}
+enabled_tools = {json.dumps(enabled)}
 bypass_tool_permissions = false
 [[providers]]
 name = "manager"
@@ -52,10 +54,26 @@ name = {json.dumps(model)}
 alias = "managed-compact"
 provider = "manager"
 '''
+    if mcp_endpoint:
+        text = text.replace('mcp_servers = []\n', '') + f'''
+[[mcp_servers]]
+name = "manager"
+transport = "streamable-http"
+url = {json.dumps(mcp_endpoint)}
+sampling_enabled = false
+startup_timeout_sec = 10.0
+tool_timeout_sec = 65.0
+[mcp_servers.auth]
+type = "static"
+[mcp_servers.auth.headers]
+Authorization = {json.dumps('Bearer ' + token)}
+'''
     (home / 'config.toml').write_text(text)
-    profile = 'display_name = "Managed file edits"\nsafety = "destructive"\nenabled_tools = ' + json.dumps(TOOLS) + '\nbypass_tool_permissions = false\n'
+    profile = 'display_name = "Managed file edits"\nsafety = "destructive"\nenabled_tools = ' + json.dumps(enabled) + '\nbypass_tool_permissions = false\n'
     for tool in TOOLS:
         profile += f'[tools.{tool}]\npermission = "ask"\nallowlist = {json.dumps([glob.escape(str(workspace)) + "/*"])}\n'
+    for tool in connector_names:
+        profile += f'[tools.{tool}]\npermission = "always"\n'
     (agents / 'managed.toml').write_text(profile)
     (home / 'hooks.toml').write_text('')
     for path in (home / 'config.toml', agents / 'managed.toml', home / 'hooks.toml'):
@@ -73,14 +91,14 @@ def native_session(home):
     return session
 
 
-def run_cli(binary, home, workspace, prompt, limits, output, resume=None):
+def run_cli(binary, home, workspace, prompt, limits, output, resume=None, connector_names=(), stopped=lambda: False):
     environment = {'PATH': '/usr/bin:/bin', 'HOME': str(home), 'VIBE_HOME': str(home),
                    'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'LOG_LEVEL': 'ERROR', 'PYTHONDONTWRITEBYTECODE': '1'}
     if resume and native_session(home) != resume:
         raise ValueError('resume session mismatch')
     argv = [str(binary), '--prompt', prompt, '--output', 'json', '--agent', 'managed',
             '--workdir', str(workspace)]
-    for tool in TOOLS:
+    for tool in (*TOOLS, *connector_names):
         argv += ['--enabled-tools', tool]
     if resume:
         argv += ['--resume', resume]
@@ -92,9 +110,14 @@ def run_cli(binary, home, workspace, prompt, limits, output, resume=None):
             os.set_blocking(stream.fileno(), False)
             ready.register(stream, selectors.EVENT_READ)
         while ready.get_map():
-            if time.time() >= limits['deadline']:
+            if time.time() >= limits['deadline'] or stopped():
                 child.terminate()
-                raise TimeoutError('coding deadline')
+                try:
+                    child.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    child.kill()
+                    child.wait(timeout=1)
+                raise TimeoutError('coding stopped')
             for key, _ in ready.select(.1):
                 block = os.read(key.fd, 16384)
                 if not block:
@@ -125,6 +148,11 @@ class Relay(HTTPServer):
         self.token = secrets.token_urlsafe(32)
         self.failed = False
         self.calls = 0
+        self.sessions = {}
+        module = importlib.util.spec_from_file_location('connector_runtime', Path(launch['directory']) / 'connector-runtime.py')
+        self.connector_runtime = importlib.util.module_from_spec(module)
+        module.loader.exec_module(self.connector_runtime)
+        self.connectors = self.connector_runtime.Gateway(launch, transport)
         super().__init__(('127.0.0.1', 0), Handler)
 
 
@@ -132,8 +160,17 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
 
+    def do_GET(self):
+        self.send_error(405)
+
+    def do_DELETE(self):
+        self.send_error(405)
+
     def do_POST(self):
         s = self.server
+        if self.path == '/mcp':
+            self.mcp()
+            return
         self.connection.settimeout(125)
         if self.path != '/v1/chat/completions' or self.headers.get('Authorization') != 'Bearer ' + s.token:
             self.send_error(403)
@@ -177,6 +214,75 @@ class Handler(BaseHTTPRequestHandler):
             connection.close()
 
 
+    def mcp(self):
+        s = self.server
+        if s.failed or self.headers.get('Authorization') != 'Bearer ' + s.token or self.headers.get('Origin'):
+            self.send_error(403)
+            return
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if not 0 < length <= MAX_REQUEST:
+                raise ValueError('MCP request bound')
+            request = json.loads(self.rfile.read(length))
+            if request.get('jsonrpc') != '2.0':
+                raise ValueError('MCP request')
+            method = request.get('method')
+            identity = request.get('id')
+            session = self.headers.get('Mcp-Session-Id')
+            if method == 'initialize':
+                if len(s.sessions) >= 64:
+                    raise ValueError('MCP session bound')
+                session = str(uuid.uuid4())
+                s.sessions[session] = False
+                result = {'protocolVersion': s.connector_runtime.VERSION, 'capabilities': {'tools': {}},
+                          'serverInfo': {'name': 'botstral', 'version': '1'}}
+            else:
+                if session not in s.sessions or self.headers.get('MCP-Protocol-Version') != s.connector_runtime.VERSION:
+                    raise ValueError('MCP session')
+                if method == 'notifications/initialized':
+                    s.sessions[session] = True
+                    self.send_response(202)
+                    self.end_headers()
+                    return
+                if not s.sessions[session]:
+                    raise ValueError('MCP initialization')
+                if method == 'ping':
+                    result = {}
+                elif method == 'tools/list':
+                    definitions = s.connectors.catalog()
+                    result = {'tools': [{'name': s.connector_runtime.public_name(t['binding']), 'description': t['description'],
+                                         'inputSchema': t['input_schema']} for t in definitions]}
+                elif method == 'tools/call':
+                    params = request['params']
+                    definitions = s.connectors.catalog()
+                    definition = next((t for t in definitions if s.connector_runtime.public_name(t['binding']) == params['name']), None)
+                    if definition is None:
+                        raise ValueError('MCP tool authority')
+                    invocation = str(uuid.uuid5(uuid.UUID(session), json.dumps(identity)))
+                    call = s.connectors.execute(invocation, {'type': 'call', 'proposal': {'tool': definition['binding'], 'arguments': params.get('arguments', {})}})
+                    outcome = call['state']['outcome']
+                    if outcome['type'] == 'finished':
+                        result = outcome['result']['value']
+                    else:
+                        result = {'isError': True, 'content': [{'type': 'text', 'text': 'Connector request was not sent.'}]}
+                else:
+                    self.mcp_reply(session, {'jsonrpc': '2.0', 'id': identity, 'error': {'code': -32601, 'message': 'Unsupported method'}})
+                    return
+            self.mcp_reply(session, {'jsonrpc': '2.0', 'id': identity, 'result': result})
+        except Exception:
+            s.failed = True
+            self.send_error(409)
+
+    def mcp_reply(self, session, value):
+        data = json.dumps(value).encode()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Mcp-Session-Id', session)
+        self.end_headers()
+        self.wfile.write(data)
+
+
 def execute(path):
     os.umask(0o077)
     launch = json.loads(Path(path).read_text())
@@ -200,11 +306,14 @@ def execute(path):
     thread.start()
     output = Path(launch['outputs'])
     output.mkdir(mode=0o700)
-    configuration(home, workspace, f'http://127.0.0.1:{relay.server_port}/v1', spec['policy']['model_id'], relay.token)
+    policy = spec['policy'].get('connectors')
+    connector_names = tuple('manager_' + relay.connector_runtime.public_name(t) for t in policy['tools']) if policy else ()
+    configuration(home, workspace, f'http://127.0.0.1:{relay.server_port}/v1', spec['policy']['model_id'], relay.token,
+                  connector_names, f'http://127.0.0.1:{relay.server_port}/mcp' if policy else None)
     try:
         code, session = run_cli(Path(launch['runtime']) / 'bin/vibe', home, workspace,
                                 spec['prompt'], spec['limits'], output / 'transcript.out',
-                                None if new else spec['session']['native_session'])
+                                None if new else spec['session']['native_session'], connector_names, lambda: relay.failed or relay.connectors.failed)
         for declaration in spec['policy']['outputs']:
             slot = declaration['slot']
             if slot == 'transcript':

@@ -62,6 +62,7 @@ fn fixture() -> Fixture {
             max_concurrent_operations: 1,
         },
         execution_policy: RunExecutionPolicy {
+            connectors: None,
             vision: None,
             vibe: None,
             process: Some(ProcessToolPolicy {

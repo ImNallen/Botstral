@@ -1,0 +1,29 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rusqlite v0.38.0
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.57s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-f2044e44b93bf885)
+
+running 1 test
+
+thread 'manager::state::connectors::tests::credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes' (615680886) panicked at manager/src/manager/state/connectors/tests.rs:842:10:
+redaction must preserve the typed catalog envelope: Internal
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::connectors::tests::credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes ... FAILED
+
+failures:
+
+failures:
+    manager::state::connectors::tests::credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 89 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

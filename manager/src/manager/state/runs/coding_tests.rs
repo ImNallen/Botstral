@@ -19,6 +19,7 @@ fn coding(f: &mut Fixture, deadline: Option<i64>) -> TaskView {
         .unwrap();
     f.input.execution_policy.vibe = Some(VibeToolPolicy {
         policy: VibePolicy {
+            connectors: None,
             workspace: CodingWorkspace {
                 id: CodingWorkspaceId::new(),
                 path: "/srv/coding/fixture".into(),
@@ -311,7 +312,7 @@ fn coding_validation_rejects_model_switches_tools_urls_and_unknown_options() {
     assert!(
         serde_json::from_value::<CodingRequest>(value.clone())
             .unwrap()
-            .prepare(&spec)
+            .prepare(&spec, &[])
             .is_err()
     );
     value["model"] = json!(spec.policy.model_id);
@@ -319,7 +320,7 @@ fn coding_validation_rejects_model_switches_tools_urls_and_unknown_options() {
     assert!(
         serde_json::from_value::<CodingRequest>(value.clone())
             .unwrap()
-            .prepare(&spec)
+            .prepare(&spec, &[])
             .is_err()
     );
     value["tools"] = json!([]);
@@ -328,7 +329,7 @@ fn coding_validation_rejects_model_switches_tools_urls_and_unknown_options() {
     assert!(
         serde_json::from_value::<CodingRequest>(value.clone())
             .unwrap()
-            .prepare(&spec)
+            .prepare(&spec, &[])
             .is_err()
     );
     value["response_format"] = json!({"type":"json_object"});
@@ -350,7 +351,7 @@ fn pinned_vibe_wire_requests_pass_the_production_boundary_except_forbidden_tool_
         value["model"] = json!(spec.policy.model_id);
         let request: CodingRequest = serde_json::from_value(value).unwrap();
         assert_eq!(
-            request.prepare(&spec).is_ok(),
+            request.prepare(&spec, &[]).is_ok(),
             index < 4,
             "recorded request {index}"
         );
@@ -448,6 +449,7 @@ async fn abandoned_coding_caller_during_state_admission_releases_known_unsent_ho
         }
     });
     let manager = Manager {
+        connector_capacity: Arc::new(Semaphore::new(4)),
         events: watch::channel(0).1,
         snapshots: Arc::new(Semaphore::new(1)),
         queue: queue.clone(),

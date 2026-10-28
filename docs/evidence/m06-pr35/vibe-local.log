@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "vibe": "2.24.2",
+  "paid_inference": false,
+  "runs": [
+    {
+      "mode": "normal",
+      "effects": 1,
+      "same_wrapper_parent": true,
+      "same_cgroup": false,
+      "inferences": 2,
+      "gateway_operations": [
+        "catalog",
+        "catalog",
+        "execute",
+        "status",
+        "status",
+        "settle",
+        "catalog"
+      ],
+      "outside_file_denied": true
+    },
+    {
+      "mode": "lost",
+      "effects": 1,
+      "same_wrapper_parent": true,
+      "same_cgroup": false,
+      "inferences": 1,
+      "gateway_operations": [
+        "catalog",
+        "catalog",
+        "execute",
+        "status",
+        "status",
+        "settle"
+      ],
+      "outside_file_denied": true
+    }
+  ],
+  "systemd_scope_acceptance": "Required on Linux; this fixture does not create a systemd scope."
+}
+

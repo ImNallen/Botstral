@@ -1,0 +1,78 @@
+{
+  "reviewed_head": "e8b2e49c040d251b5af347e0a93c84c2fd020f7b",
+  "issue": "https://github.com/ImNallen/Botstral/issues/36",
+  "findings": [
+    "typed result envelopes were corrupted by redaction",
+    "durably unknown outcomes could not leave the worker replay queue"
+  ],
+  "before": {
+    "stdio": 1,
+    "manager": 101,
+    "recovery": 101
+  },
+  "after": {
+    "stdio_contract_tests": 7,
+    "manager_connector_tests": 21,
+    "agent_library_tests": 9,
+    "feature_agent_library_tests": 9,
+    "clippy_default": 0,
+    "clippy_feature": 0,
+    "actual_vibe_contract": true,
+    "actual_vibe_local": true
+  },
+  "limits": [
+    "The acknowledgment reproduction extracts the existing predicate into Settlement without changing it before the red run.",
+    "This run proves retirement of captured unknown evidence, not a new live Linux deployment or a new 33-item scheduler acceptance.",
+    "No paid inference or real owner state was used."
+  ],
+  "logs": [
+    {
+      "file": "stdio-before.log",
+      "sha256": "01461cf50083a582434b818e55117b376c9afff5f4fb62d0965de1050594c204"
+    },
+    {
+      "file": "manager-before.log",
+      "sha256": "9e5e94c84b0f59b639957f53fc10dd913e8727cb38c060e078d37b78cd03deca"
+    },
+    {
+      "file": "recovery-before.log",
+      "sha256": "b44ec4e8d7bdea4b82c7ef58b5f178d09e44914486c922778807918fcfcd07e9"
+    },
+    {
+      "file": "stdio-after.log",
+      "sha256": "1e1a56392bb5d4b06e217d34cba2cefe7e48d8e890870275537251392e8b5d4a"
+    },
+    {
+      "file": "manager-after.log",
+      "sha256": "a5c99f93b29312d5186f66c1eaf3538f90a52dbe7bd67f33ca44cf20473e0f1b"
+    },
+    {
+      "file": "recovery-after.log",
+      "sha256": "d440af334948ff9acfc963b0bc54391aaef2c58287e537bc5115337714426525"
+    },
+    {
+      "file": "agent-after.log",
+      "sha256": "cb2f2e09a116b72c6b84466bfe3218342da16d5910ef2ba1a7e787a6048023fb"
+    },
+    {
+      "file": "clippy.log",
+      "sha256": "b8291a5f4296cb3b328e6c989ca680180553c53c2c45589b90976e7fdae4f860"
+    },
+    {
+      "file": "feature-clippy.log",
+      "sha256": "025d9362d733c0955ae3d0a4f73b7de883e4c5e01e10064fcab62746fc926848"
+    },
+    {
+      "file": "feature-agent.log",
+      "sha256": "943a3f4c003157bbd5c4e0ac278e8b4c4448a7b819ef45ac7db31c5545e7671e"
+    },
+    {
+      "file": "vibe-contract.log",
+      "sha256": "bd1b5fec9c492c5e988003da2dd7f842a6223306252bae6328d22bd27dd5ab50"
+    },
+    {
+      "file": "vibe-local.log",
+      "sha256": "a7f329c44ba97550931ac540c2cfdf2743f6351a9c40fee4b06e5f30e67c0c85"
+    }
+  ]
+}

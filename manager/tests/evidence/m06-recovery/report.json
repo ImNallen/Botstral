@@ -1,0 +1,170 @@
+{
+  "base": "4483b183671aec5bc36a65fa11c25308fb127423",
+  "changed_paths": [
+    "agent/packaging/Dockerfile",
+    "agent/packaging/Dockerfile.dockerignore",
+    "agent/packaging/backup.py",
+    "agent/packaging/botstral-agent.service",
+    "agent/packaging/container-acceptance.py",
+    "agent/packaging/install.py",
+    "agent/packaging/recovery-plan.example.json",
+    "agent/packaging/run-container.sh",
+    "agent/src/bin/botstral-agent-supervisor-check.rs",
+    "agent/src/lib.rs",
+    "agent/src/maintenance.rs",
+    "docs/m06-recovery.md",
+    "manager/packaging/Dockerfile",
+    "manager/packaging/Dockerfile.dockerignore",
+    "manager/packaging/backup.py",
+    "manager/packaging/botstral-manager.service",
+    "manager/packaging/container-acceptance.py",
+    "manager/packaging/diagnose.py",
+    "manager/packaging/install.py",
+    "manager/packaging/launch.py",
+    "manager/packaging/recovery.py",
+    "manager/packaging/run-container.sh",
+    "manager/packaging/service.example.json",
+    "manager/packaging/test_install.py",
+    "manager/packaging/test_recovery.py",
+    "manager/src/manager/state.rs",
+    "manager/src/manager/state/backup_tests.rs",
+    "scripts/m06-accept-linux.sh",
+    "scripts/m06-backup-pair.py"
+  ],
+  "commands": [
+    {
+      "command": "cargo test --locked --workspace",
+      "evidence": "workspace-tests.log",
+      "result": "passed; 90 passed and 10 explicitly ignored across test binaries"
+    },
+    {
+      "command": "cargo test --locked -p botstral-manager offline_restore_reopens -- --nocapture",
+      "evidence": [
+        "manager-restore.log",
+        "manager-restore-linux.log"
+      ],
+      "result": "passed on macOS and Linux arm64; actual owner login, locked startup, credential decryption, history, memory and artifact download"
+    },
+    {
+      "command": "python3 -m unittest discover -s manager/packaging -p 'test_*.py' -v",
+      "evidence": [
+        "packaging-macos.log",
+        "packaging-linux.log"
+      ],
+      "result": "11 passed on macOS and Linux arm64"
+    },
+    {
+      "command": "cargo build --locked -p botstral-agent --bins",
+      "result": "passed"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile manager/packaging/*.py agent/packaging/*.py scripts/m06-backup-pair.py",
+      "result": "passed"
+    },
+    {
+      "command": "sh -n scripts/m06-accept-linux.sh manager/packaging/run-container.sh agent/packaging/run-container.sh",
+      "result": "passed"
+    },
+    {
+      "command": "docker build -f manager/packaging/Dockerfile -t botstral-manager:m06 .",
+      "result": "passed; Linux arm64 image built locally"
+    },
+    {
+      "command": "docker build -f agent/packaging/Dockerfile -t botstral-agent:m06 .",
+      "result": "passed; Linux arm64 image built locally"
+    },
+    {
+      "command": "python3 manager/packaging/container-acceptance.py --engine docker --image botstral-manager:m06",
+      "evidence": "docker-manager.log",
+      "result": "passed; UID 10001, read-only root filesystem, all capabilities dropped, private configuration and TLS files"
+    },
+    {
+      "command": "python3 agent/packaging/container-acceptance.py --engine docker --image botstral-agent:m06 --evidence .audit/m06-docker-worker-verified.json",
+      "evidence": "../../../../agent/tests/evidence/m06-recovery/docker-worker.json",
+      "result": "passed; production Backend::probe launch/empty-scope stop, selected-root concurrent process refusal, production Journal backup/restore, original incarnation and certificate bytes retained"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "commits": [
+    {
+      "head": "ee7e1fa",
+      "unit": "Offline manager and worker recovery bundles."
+    },
+    {
+      "head": "a6c5ef09bbdeed06827a48518ca19b53691af598",
+      "unit": "Separate Linux services, installers, diagnostics, images and production supervisor acceptance."
+    }
+  ],
+  "deviations": [
+    "Standalone Python stdlib maintenance commands replace proposed main-binary subcommands. This avoids manager main.rs and agent config.rs conflicts and adds no Cargo dependencies. Services and maintenance acquire the same flock; the Rust integration test proves exclusion.",
+    "The shared private filesystem recovery implementation lives in manager/packaging/recovery.py and is copied into each separate installed component library. No shared link protocol schema is introduced.",
+    "Coordinated backup stops the manager first to freeze admission because no admission-freeze endpoint exists in the baseline. It then stops the worker, verifies both bundles and only restarts on explicit --restart-after-success.",
+    "The source SQLite connection uses existing-file read-write mode under the exclusive service lock, because read-only WAL reopening without sidecars failed on the system SQLite. Snapshot verification uses immutable read-only mode.",
+    "The procfs observer excludes the systemd-reported user-manager PID and only its matching-parent, matching-cgroup PAM helper. Both are nondumpable infrastructure on Ubuntu; every other inaccessible same-account process fails closed."
+  ],
+  "docker_host": {
+    "architecture": "aarch64",
+    "cgroup_driver": "cgroupfs",
+    "cgroup_version": 2,
+    "engine": "Docker 29.7.2",
+    "os": "Linux"
+  },
+  "goal": "Implement the M06 recovery and separate Linux packaging workstream without touching connector ownership or real owner state.",
+  "implementation_head": "a6c5ef09bbdeed06827a48518ca19b53691af598",
+  "incomplete_gates": [
+    "Independent review is assigned to the parent. No subagents or self-review substitute was used.",
+    "Connector credential decryption/use after restore awaits connector-owner integration. The whole SQLite database is included, but the standalone test proves provider credential usability rather than inventing connector APIs.",
+    "No real Proxmox service was altered. Native installation and acceptance on the existing x86_64 Proxmox pair remain parent-owned.",
+    "Rootful Podman is not installed locally. Its profile is supplied but unverified and is not claimed supported without running container-acceptance.py.",
+    "Docker Linux x86_64 acceptance, complete Computer and Vibe runtime installation, and actual authenticated connector execution remain parent-owned.",
+    "The coordinated pair script was syntax/help checked but was not executed against remote services.",
+    "Manager TLS/service files outside the state root remain separate private deployment inputs. Bundles do not encrypt plaintext history, Markdown or artifact content.",
+    "Worker external roots restore only to original absolute paths. Publication across roots is not atomic; partial publication is reported and services must remain stopped.",
+    "Worker retained-identity cutover requires retiring the original instance; the flag cannot prove a disconnected VM is off. Unselected tools/OS/host state are excluded, while selected tool bytes and executable modes are restored."
+  ],
+  "linux_commands": [
+    "docker run --rm --mount type=bind,src=$PWD,dst=/source,readonly --workdir /source --env CARGO_TARGET_DIR=/tmp/botstral-target --env PYTHONDONTWRITEBYTECODE=1 rust:1.93.0-bookworm bash -c 'set -e; cargo test --locked -p botstral-manager offline_restore_reopens -- --nocapture; cargo build --locked -p botstral-manager --bin botstral-manager; BOTSTRAL_MANAGER_BINARY=/tmp/botstral-target/debug/botstral-manager python3 -m unittest discover -s manager/packaging -p \"test_*.py\" -v'",
+    "docker run --rm --mount type=bind,src=$PWD,dst=/source,readonly --env PYTHONDONTWRITEBYTECODE=1 --env BOTSTRAL_MANAGER_BINARY=/usr/bin/botstral-manager --workdir /source --entrypoint python3 botstral-manager:m06 -m unittest discover -s manager/packaging -p 'test_*.py' -v"
+  ],
+  "local_images": [
+    "[botstral-manager:m06] sha256:a6ca7733b0ead9cb9ac3c4ca7be26585f7b81c50f612dacc8f68d9b95c8131aa",
+    "[botstral-agent:m06] sha256:248ad14654aebaebe5cbc4c466c8f4efbc22d2509a91cf468eccdfea2d3db594"
+  ],
+  "principles": [
+    {
+      "choice": "One versioned private BackupManifest expresses identity, schema, roots, file integrity and recovery policy.",
+      "name": "Model the Domain"
+    },
+    {
+      "choice": "Validate manifests and paths at maintenance boundaries; never evaluate shell commands from a manifest.",
+      "name": "Boundary Discipline"
+    },
+    {
+      "choice": "Reopen actual manager state and run the existing production systemd backend inside the worker image.",
+      "name": "Prove It Works"
+    },
+    {
+      "choice": "Commit tested recovery before packaging and keep acceptance evidence separate.",
+      "name": "Sequence Work into Verifiable Units"
+    },
+    {
+      "choice": "Assert restored owner login, credential decryption, history, memory and artifact downloads through actual manager state behavior.",
+      "name": "Test Behavior, Not Implementation"
+    }
+  ],
+  "recorded_at": "2026-10-28T12:49:00.046445+00:00",
+  "runtime_integration": {
+    "Cargo.toml": "Unchanged throughout the workspace.",
+    "agent/src/lib.rs": "Added pub mod maintenance; no other edits.",
+    "entry_points": "manager main.rs and agent config.rs unchanged.",
+    "manager/src/lib.rs": "Unchanged.",
+    "manager/src/manager/state.rs": "Added #[cfg(test)] mod backup_tests; no other edits."
+  }
+}

@@ -1,0 +1,26 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-f2044e44b93bf885)
+
+running 1 test
+accepted runs: large catalog 6679ca7b-cc1a-4fec-899e-75e8afe1ddcd, healthy 23ba4bee-64d2-428b-9d6f-f36eaa468d25
+provider request bytes: 72325, limit: 65536
+claim attempt 1: Err(Internal)
+healthy run phase: Ready
+claim attempt 2: Err(Internal)
+healthy run phase: Ready
+production run pump result: Err(Internal)
+shared inference stopping: true
+
+thread 'manager::state::connectors::tests::runs::audit_sol::audit_sol_large_valid_catalog_blocks_run_admission' (615400878) panicked at manager/src/manager/state/connectors/tests/audit_sol.rs:122:5:
+a valid connector catalog must not stop shared inference for every run
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::connectors::tests::runs::audit_sol::audit_sol_large_valid_catalog_blocks_run_admission ... FAILED
+
+failures:
+
+failures:
+    manager::state::connectors::tests::runs::audit_sol::audit_sol_large_valid_catalog_blocks_run_admission
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 89 filtered out; finished in 0.24s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "version": "vibe 2.24.2",
+  "binary_sha256": "1ffaf2dd0540ce5d42faa3c8713b166b9943524c411863153b3d7b32b2e925a2",
+  "checks": [
+    "dynamic discovery",
+    "Streamable HTTP negotiation",
+    "exact tool permission",
+    "MCP denial callback",
+    "file denial callback",
+    "same native session"
+  ],
+  "initialization_versions_offered": [
+    "2025-11-25",
+    "2025-11-25",
+    "2025-11-25",
+    "2025-11-25"
+  ],
+  "effects": 1,
+  "paid_inference": false
+}

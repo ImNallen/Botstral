@@ -120,34 +120,20 @@ impl State {
         let WorkSpec::Vibe { spec } = &task.command.work else {
             return Err(OperationError::InvalidInput);
         };
-        let binding = task
-            .approval
-            .binding
-            .as_ref()
-            .ok_or(OperationError::Unauthorized)?;
-        let leased: bool = self.connection.query_row("SELECT EXISTS(SELECT 1 FROM coding_leases WHERE task=?1 AND execution=?2 AND generation=?3 AND closed=0)",
-            params![task.id.to_string(),task.command.execution.to_string(),generation.get() as i64], |r| r.get(0))?;
-        let policy = self.permission(task.command.bot)?;
-        let session = self.find_computer_session(task.command.session)?;
-        if self
-            .inference_control
-            .as_ref()
-            .is_some_and(|c| c.stopping.load(std::sync::atomic::Ordering::Acquire))
-            || !leased
-            || !matches!(task.state, TaskState::Running)
-            || !task.approval.consumed
-            || task.approval.revoked
-            || !task.command.matches_authority(binding)
-            || !policy.allow
-            || policy.revision != binding.permission_revision
-            || binding.expires_at <= self.now()
-            || spec.limits.deadline <= self.now()
-            || !self
-                .worker_connections
-                .get(&task.command.worker)
-                .is_some_and(|c| c.recovered && c.generation == generation)
-            || session.owner != InputOwner::Bot
-            || session.status != ControlStatus::Confirmed
+        self.task_gateway_authority(task, generation)?;
+        let leased: bool = self.connection.query_row("SELECT EXISTS(SELECT 1 FROM coding_leases WHERE task=?1 AND execution=?2 AND generation=?3 AND closed=0)",params![task.id.to_string(),task.command.execution.to_string(),generation.get() as i64],|r|r.get(0))?;
+        if !leased {
+            return Err(OperationError::Unauthorized);
+        }
+        if spec.limits.deadline <= self.now()
+            || self.task_connector_calls(task.id)?.iter().any(|c| {
+                matches!(
+                    c.state,
+                    ConnectorCallState::Resolved {
+                        outcome: ConnectorOutcome::Unknown { .. }
+                    }
+                )
+            })
         {
             return Err(OperationError::Unauthorized);
         }
@@ -157,26 +143,7 @@ impl State {
             return Err(OperationError::InferenceUnverified);
         }
         self.provider_secret()?;
-        if let Some(parent) = self.coding_parent(task.id)?
-            && (parent.summary.cancellation_requested_at.is_some()
-                || parent.request.limits.deadline <= self.now()
-                || !matches!(parent.summary.phase, RunPhase::WaitingForTool { task: child, .. } if child == task.id))
-        {
-            return Err(OperationError::Unauthorized);
-        }
         Ok(*spec.clone())
-    }
-    fn coding_parent(&self, task: TaskId) -> Result<Option<RunView>, OperationError> {
-        let run: Option<String> = self
-            .connection
-            .query_row(
-                "SELECT run FROM run_children WHERE task=?1",
-                [task.to_string()],
-                |r| r.get(0),
-            )
-            .optional()?;
-        run.map(|id| self.load_run(id.parse().map_err(|_| OperationError::Internal)?))
-            .transpose()
     }
     pub(in crate::manager) fn admit_coding(
         &mut self,
@@ -201,7 +168,14 @@ impl State {
             .ok_or(OperationError::Unauthorized)?
             .generation;
         let spec = self.coding_authority(&task, generation)?;
-        let prepared = request.prepare(&spec)?;
+        let catalog = spec
+            .policy
+            .connectors
+            .as_ref()
+            .map(|p| self.permitted_connector_catalog(task.command.bot, p))
+            .transpose()?
+            .unwrap_or_default();
+        let prepared = request.prepare(&spec, &catalog)?;
         let encoded = prepared.encoded();
         let previous: Option<(String, String, String, Option<String>)> = self
             .connection
@@ -244,7 +218,7 @@ impl State {
             }
         }
         check_budget(&accounting, &spec.limits, &reservation)?;
-        let mut parent = self.coding_parent(task.id)?;
+        let mut parent = self.parent_run(task.id)?;
         if let Some(parent) = &mut parent {
             check_budget(
                 &parent.summary.accounting,
@@ -358,7 +332,17 @@ impl State {
                 };
                 view.usage = Some(usage);
                 view.provider_request_id = Some(request_id);
-                if completion(&value).is_ok() {
+                let task = self.load_task(view.task)?;
+                let catalog = match &task.command.work {
+                    WorkSpec::Vibe { spec } => spec
+                        .policy
+                        .connectors
+                        .as_ref()
+                        .map(|p| self.permitted_connector_catalog(task.command.bot, p))
+                        .transpose(),
+                    _ => Err(OperationError::InvalidInput),
+                };
+                if catalog.is_ok_and(|c| completion(&value, &c.unwrap_or_default()).is_ok()) {
                     view.phase = CodingCallPhase::Settled;
                     Some(value)
                 } else {
@@ -377,7 +361,7 @@ impl State {
                 None
             }
         };
-        let mut parent = self.coding_parent(view.task)?;
+        let mut parent = self.parent_run(view.task)?;
         if let Some(parent) = &mut parent {
             if view.accounting != InferenceAccounting::Held {
                 parent.summary.accounting.held_tokens -= view.reservation.total_tokens;
@@ -434,7 +418,7 @@ impl State {
                     "UPDATE coding_calls SET view=?1 WHERE id=?2",
                     params![json(&call)?, call.id.to_string()],
                 )?;
-                if let Some(mut parent) = self.coding_parent(call.task)? {
+                if let Some(mut parent) = self.parent_run(call.task)? {
                     parent.summary.phase = RunPhase::AwaitingAttention {
                         reason: RunAttentionReason::Restart,
                     };

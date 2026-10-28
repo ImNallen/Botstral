@@ -239,6 +239,7 @@ impl Provider {
         capacity: Option<tokio::sync::OwnedSemaphorePermit>,
     ) -> ModelOutcome {
         let tools = request.prepared.tools;
+        let connectors = request.prepared.connectors.clone();
         match self.envelope(request, secret, capacity).await {
             EnvelopeOutcome::NotSent { reason } => ModelOutcome::NotSent { reason },
             EnvelopeOutcome::Unknown { reason, request_id } => {
@@ -257,7 +258,7 @@ impl Provider {
                 ModelOutcome::Billed {
                     usage,
                     request_id,
-                    response: parse_assistant(&value["choices"], tools),
+                    response: parse_assistant(&value["choices"], tools, &connectors),
                     finish_reason,
                 }
             }
@@ -369,10 +370,15 @@ fn valid_request_id(id: &str) -> bool {
 pub(super) struct PreparedChat {
     pub(super) body: serde_json::Value,
     tools: bool,
+    connectors: Vec<ConnectorToolDefinition>,
 }
 impl PreparedChat {
     pub(super) fn coding(body: serde_json::Value) -> Self {
-        Self { body, tools: true }
+        Self {
+            body,
+            tools: true,
+            connectors: vec![],
+        }
     }
     pub(super) fn new(
         policy: &InferencePolicy,
@@ -397,7 +403,22 @@ impl PreparedChat {
         Self {
             body,
             tools: has_tools,
+            connectors: vec![],
         }
+    }
+    pub(super) fn connector_tools(&mut self, definitions: Vec<ConnectorToolDefinition>) {
+        if !definitions.is_empty() {
+            if !self.body["tools"].is_array() {
+                self.body["tools"] = serde_json::json!([]);
+            }
+            for tool in &definitions {
+                self.body["tools"].as_array_mut().unwrap().push(serde_json::json!({"type":"function","function":{"name":tool.binding.public_name(),"description":tool.description,"parameters":tool.input_schema}}));
+            }
+            self.tools = true;
+            self.body["tool_choice"] = "auto".into();
+            self.body["parallel_tool_calls"] = false.into();
+        }
+        self.connectors = definitions;
     }
     pub(super) fn materialize_images(
         &mut self,
@@ -567,6 +588,7 @@ fn parse_completion(
 fn parse_assistant(
     choices: &serde_json::Value,
     tools: bool,
+    connectors: &[ConnectorToolDefinition],
 ) -> Result<RunMessage, InferenceAttentionReason> {
     use InferenceAttentionReason::InvalidResponse as Invalid;
     if choices.as_array().is_none_or(|choices| choices.len() != 1) {
@@ -613,11 +635,20 @@ fn parse_assistant(
                 return Err(Invalid);
             }
             let function = &call["function"];
-            let proposal = super::runs::tools::decode(
-                function["name"].as_str().ok_or(Invalid)?,
-                function["arguments"].as_str().ok_or(Invalid)?,
-            )
-            .map_err(|_| Invalid)?;
+            let name = function["name"].as_str().ok_or(Invalid)?;
+            let arguments = function["arguments"].as_str().ok_or(Invalid)?;
+            let proposal =
+                if let Some(tool) = connectors.iter().find(|t| t.binding.public_name() == name) {
+                    let arguments = serde_json::from_str(arguments).map_err(|_| Invalid)?;
+                    super::connectors::validate_arguments(&tool.input_schema, &arguments)
+                        .map_err(|_| Invalid)?;
+                    ToolProposal::Connector(ConnectorProposal {
+                        tool: tool.binding.clone(),
+                        arguments,
+                    })
+                } else {
+                    super::runs::tools::decode(name, arguments).map_err(|_| Invalid)?
+                };
             Some(RunToolCall {
                 id: id.into(),
                 proposal,

@@ -204,6 +204,7 @@ async fn m04_coding_production_worker_pinned_vibe() {
     *fixture.state.coding_path.lock().unwrap() = Some(file.to_string_lossy().into_owned());
     let spec = VibeSpec {
         policy: VibePolicy {
+            connectors: None,
             workspace: CodingWorkspace {
                 id: CodingWorkspaceId::new(),
                 path: workspace.to_string_lossy().into_owned(),

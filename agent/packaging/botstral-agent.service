@@ -1,0 +1,17 @@
+[Unit]
+Description=Botstral Computer worker
+After=network-online.target
+
+[Service]
+Type=simple
+UMask=0077
+ExecStart=/usr/bin/botstral-agent run --state-dir %h/.local/share/botstral-agent
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+KillMode=control-group
+Delegate=yes
+LimitCORE=0
+
+[Install]
+WantedBy=default.target

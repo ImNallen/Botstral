@@ -25,12 +25,16 @@ pub(super) struct StreamOptions {
     pub include_usage: bool,
 }
 impl CodingRequest {
-    pub fn prepare(&self, spec: &VibeSpec) -> Result<PreparedChat, OperationError> {
+    pub fn prepare(
+        &self,
+        spec: &VibeSpec,
+        catalog: &[ConnectorToolDefinition],
+    ) -> Result<PreparedChat, OperationError> {
         let invalid = OperationError::InvalidInput;
         if self.model != spec.policy.model_id
             || self.messages.is_empty()
             || self.messages.len() > 128
-            || self.tools.len() > VIBE_TOOLS.len()
+            || self.tools.len() > VIBE_TOOLS.len() + catalog.len()
             || self.n.is_some_and(|n| n != 1)
             || self
                 .temperature
@@ -66,7 +70,7 @@ impl CodingRequest {
             }
             if let Some(calls) = object.get("tool_calls") {
                 for call in calls.as_array().filter(|a| a.len() <= 4).ok_or(invalid)? {
-                    validate_tool_call(call)?;
+                    validate_tool_call(call, catalog)?;
                 }
             }
         }
@@ -74,7 +78,11 @@ impl CodingRequest {
         for tool in &self.tools {
             let name = tool["function"]["name"].as_str().ok_or(invalid)?;
             if tool["type"] != "function"
-                || !VIBE_TOOLS.contains(&name)
+                || (!VIBE_TOOLS.contains(&name)
+                    && !catalog.iter().any(|t| {
+                        t.binding.vibe_name() == name
+                            && t.input_schema == tool["function"]["parameters"]
+                    }))
                 || !names.insert(name)
                 || !tool["function"]["parameters"].is_object()
             {
@@ -97,23 +105,41 @@ impl CodingRequest {
         Ok(PreparedChat::coding(body))
     }
 }
-fn validate_tool_call(call: &Value) -> Result<(), OperationError> {
+fn validate_tool_call(
+    call: &Value,
+    catalog: &[ConnectorToolDefinition],
+) -> Result<(), OperationError> {
     if call["type"] != "function"
         || call["id"]
             .as_str()
             .is_none_or(|s| s.is_empty() || s.len() > 128)
-        || call["function"]["name"]
-            .as_str()
-            .is_none_or(|s| !VIBE_TOOLS.contains(&s))
+        || call["function"]["name"].as_str().is_none_or(|s| {
+            !VIBE_TOOLS.contains(&s) && !catalog.iter().any(|t| t.binding.vibe_name() == s)
+        })
         || call["function"]["arguments"]
             .as_str()
             .is_none_or(|s| s.len() > 32768 || serde_json::from_str::<Value>(s).is_err())
     {
         return Err(OperationError::InvalidInput);
     }
+    if let Some(tool) = catalog
+        .iter()
+        .find(|t| call["function"]["name"].as_str() == Some(t.binding.vibe_name().as_str()))
+    {
+        let arguments: Value = serde_json::from_str(
+            call["function"]["arguments"]
+                .as_str()
+                .ok_or(OperationError::InvalidInput)?,
+        )
+        .map_err(|_| OperationError::InvalidInput)?;
+        super::connectors::validate_arguments(&tool.input_schema, &arguments)?;
+    }
     Ok(())
 }
-pub(super) fn completion(value: &Value) -> Result<(), OperationError> {
+pub(super) fn completion(
+    value: &Value,
+    catalog: &[ConnectorToolDefinition],
+) -> Result<(), OperationError> {
     let invalid = OperationError::InvalidInput;
     if value["choices"].as_array().is_none_or(|v| v.len() != 1)
         || value["choices"][0]["index"] != 0
@@ -131,7 +157,7 @@ pub(super) fn completion(value: &Value) -> Result<(), OperationError> {
     }
     if let Some(calls) = message.get("tool_calls").filter(|v| !v.is_null()) {
         for call in calls.as_array().filter(|a| a.len() <= 4).ok_or(invalid)? {
-            validate_tool_call(call)?;
+            validate_tool_call(call, catalog)?;
         }
     }
     Ok(())

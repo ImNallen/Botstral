@@ -28,6 +28,8 @@ pub enum VibeAccess {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct VibePolicy {
+    #[serde(default)]
+    pub connectors: Option<ConnectorToolPolicy>,
     pub workspace: CodingWorkspace,
     pub runtime: CertificateFingerprint,
     pub account: ProcessAccount,
@@ -91,6 +93,12 @@ impl VibeSpec {
         let p = &self.policy;
         let l = &self.limits;
         p.resources.validate()?;
+        if let Some(connectors) = &p.connectors {
+            connectors.validate()?;
+            if connectors.runner.account != p.account {
+                return Err(ErrorCode::InvalidMessage);
+            }
+        }
         if p.account.uid == 0
             || p.configuration_revision == 0
             || p.model_id.is_empty()

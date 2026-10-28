@@ -221,6 +221,7 @@ impl Backend {
             },
             computer: None,
             vibe: None,
+            connector: None,
             expires_at: now() + 30,
         };
         write(&probes.join("manifest.json"), &manifest)?;

@@ -1,0 +1,17 @@
+{
+  "id": "136c3796c049",
+  "root": "/home/botstral/botstral-m06-integrated-136c3796c049",
+  "hosts": {
+    "manager": "botstral-manager",
+    "agent": "botstral-computer"
+  },
+  "base": "6b4dfe9392b85af1c3c14c466faf059158b7a5bd",
+  "source_archive_sha256": "8b3084113efb743aa9c5a65274d4e07d915628cc113fd73e0ba40f629eedaf6b",
+  "binary_sha256": {
+    "manager-fixture": "e4dfadfdc5f4583c0236d79b43dad4afdbb3a4fd0f243394fe0ee4c6d96c8f81",
+    "botstral-agent": "6949fb01bb7186d208b8335ef335fe3d9cf524ff8287318d2c0eca0e33c87295"
+  },
+  "fixture_executable": "/home/botstral/botstral-m06-integrated-136c3796c049/target/debug/deps/botstral_manager-9b0a999b4a613b4a",
+  "node_sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+  "dependency_lock_sha256": "335c9821fb46f18f55236e63191cad3dd8caed4b20108e49541ad314ecd4edc8"
+}

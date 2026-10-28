@@ -3,9 +3,11 @@ compile_error!("nonproduction-test-worker is forbidden in release builds");
 
 mod computer;
 mod config;
+mod connector;
 #[cfg(feature = "nonproduction-test-worker")]
 mod effect_provider;
 mod journal;
+pub mod maintenance;
 mod process;
 mod session;
 #[cfg(feature = "nonproduction-test-worker")]

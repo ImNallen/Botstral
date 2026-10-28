@@ -1,0 +1,1379 @@
+{
+  "deployment": {
+    "id": "136c3796c049",
+    "root": "/home/botstral/botstral-m06-integrated-136c3796c049",
+    "hosts": {
+      "manager": "botstral-manager",
+      "agent": "botstral-computer"
+    },
+    "base": "6b4dfe9392b85af1c3c14c466faf059158b7a5bd",
+    "source_archive_sha256": "8b3084113efb743aa9c5a65274d4e07d915628cc113fd73e0ba40f629eedaf6b",
+    "binary_sha256": {
+      "manager-fixture": "e4dfadfdc5f4583c0236d79b43dad4afdbb3a4fd0f243394fe0ee4c6d96c8f81",
+      "botstral-agent": "6949fb01bb7186d208b8335ef335fe3d9cf524ff8287318d2c0eca0e33c87295"
+    },
+    "fixture_executable": "/home/botstral/botstral-m06-integrated-136c3796c049/target/debug/deps/botstral_manager-9b0a999b4a613b4a",
+    "node_sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "dependency_lock_sha256": "335c9821fb46f18f55236e63191cad3dd8caed4b20108e49541ad314ecd4edc8"
+  },
+  "fixture_root": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2",
+  "checks": [
+    {
+      "name": "real_https_server_rejects_absent_and_wrong_bearer"
+    },
+    {
+      "name": "authenticated_remote_production_worker_exact_approval_distinct_grants",
+      "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+      "task_view": {
+        "id": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+        "request": {
+          "id": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+          "session_id": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "conversation_id": null,
+          "settings": {
+            "model": "mistral-small-2506",
+            "max_turns": 3,
+            "max_tokens": 200000,
+            "deadline": 1793196938,
+            "max_cost_micros": 200000
+          },
+          "work": {
+            "type": "connector",
+            "spec": {
+              "operation": {
+                "type": "call",
+                "proposal": {
+                  "tool": {
+                    "connection": {
+                      "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+                      "revision": 3,
+                      "credential_epoch": 2
+                    },
+                    "catalog_revision": 1,
+                    "grant_revision": 1,
+                    "name": "write_receipt",
+                    "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                  },
+                  "arguments": {
+                    "name": "remote-before.txt",
+                    "text": "Authenticated before restore."
+                  }
+                }
+              },
+              "runner": {
+                "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "limits": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              },
+              "deadline": 1793196938,
+              "result": {
+                "slot": "connector",
+                "name": "connector.json",
+                "media_type": "text_plain",
+                "max_bytes": 8192
+              }
+            }
+          }
+        },
+        "command": {
+          "id": "5d07ae3d-dc8b-4390-9543-3920586abec6",
+          "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+          "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+          "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+          "worker": "e283b39a-a408-4df5-bda7-82f23ecc39c1",
+          "session": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "operation": "804db82a-4ec5-4dac-a82e-80467ac15309",
+          "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+          "work": {
+            "type": "connector",
+            "spec": {
+              "operation": {
+                "type": "call",
+                "proposal": {
+                  "tool": {
+                    "connection": {
+                      "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+                      "revision": 3,
+                      "credential_epoch": 2
+                    },
+                    "catalog_revision": 1,
+                    "grant_revision": 1,
+                    "name": "write_receipt",
+                    "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                  },
+                  "arguments": {
+                    "name": "remote-before.txt",
+                    "text": "Authenticated before restore."
+                  }
+                }
+              },
+              "runner": {
+                "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "limits": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                }
+              },
+              "deadline": 1793196938,
+              "result": {
+                "slot": "connector",
+                "name": "connector.json",
+                "media_type": "text_plain",
+                "max_bytes": 8192
+              }
+            }
+          }
+        },
+        "state": "completed",
+        "progress": 0,
+        "outcome": {
+          "type": "process_finished",
+          "reason": "result",
+          "success": true,
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "a7f12e1aa612495fa43f838d76dbf676",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-8cd29e08-0d5f-4581-b267-9c1a509c8424.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-8cd29e08-0d5f-4581-b267-9c1a509c8424.service"
+          }
+        },
+        "effect_evidence": [],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "type": "exited",
+              "code": 0
+            },
+            "stdout": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            },
+            "stderr": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            }
+          }
+        },
+        "outputs": [
+          {
+            "declaration": {
+              "slot": "connector",
+              "name": "connector.json",
+              "media_type": "text_plain",
+              "max_bytes": 8192
+            },
+            "state": {
+              "type": "available",
+              "id": "a1685268-ddd7-4b32-8e7a-df022a30cdb0",
+              "content": {
+                "sha256": "d7466240365bf2ba255552fa525ab19162f6987304a591f60a89b7dab7163ff2",
+                "length": 47
+              }
+            }
+          }
+        ],
+        "approval": {
+          "id": "2b868c5c-04b6-478b-ab92-ece2c2b8368e",
+          "binding": {
+            "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+            "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+            "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+            "operation": "804db82a-4ec5-4dac-a82e-80467ac15309",
+            "arguments": "b0c5d99f24cfa1e7668e0c2ea365ae3fbeb0ab461729a3783ef23a494714e5ac",
+            "permission_revision": 2,
+            "approval": "2b868c5c-04b6-478b-ab92-ece2c2b8368e",
+            "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+            "expires_at": 1793196879
+          },
+          "permission_revision": 2,
+          "revoked": false,
+          "consumed": true
+        }
+      },
+      "ledger": [
+        {
+          "id": "5c328666-9949-5998-b6f4-971382fdcf5a",
+          "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+          "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+          "connection": {
+            "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+            "revision": 3,
+            "credential_epoch": 2
+          },
+          "tool": {
+            "connection": {
+              "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+              "revision": 3,
+              "credential_epoch": 2
+            },
+            "catalog_revision": 1,
+            "grant_revision": 1,
+            "name": "write_receipt",
+            "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+          },
+          "argument_digest": "fff92e310f761100858f923385d212c01b219cddee241944d023842929588263",
+          "state": {
+            "type": "resolved",
+            "outcome": {
+              "type": "finished",
+              "result": {
+                "type": "tool",
+                "value": {
+                  "content": [
+                    {
+                      "text": "Authenticated before restore.",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "created_at": 1793196700,
+          "revoked_during_call_at": null,
+          "late_result": null
+        }
+      ],
+      "artifact": {
+        "status": 200,
+        "sha256": "d7466240365bf2ba255552fa525ab19162f6987304a591f60a89b7dab7163ff2",
+        "bytes": 47,
+        "base64": "eyJjYWxsIjoiNWMzMjg2NjYtOTk0OS01OTk4LWI2ZjQtOTcxMzgyZmRjZjVhIn0="
+      },
+      "effect_count": 1
+    },
+    {
+      "name": "offline_backup_restore_locked_unlock_retained_authenticated_credential",
+      "backup": {
+        "component": "manager",
+        "operation": "create",
+        "backup_id": "dea65b12-e70c-40e4-9220-5b3754845f95",
+        "ok": true
+      },
+      "owner": {
+        "name": "M04 owner"
+      },
+      "worker_before": {
+        "id": "e283b39a-a408-4df5-bda7-82f23ecc39c1",
+        "fingerprint": "f40d486e87c821d3589aa3c40849f245ff3bf4991e25a5bdf5146362fc122382",
+        "revoked": false,
+        "generation": 1,
+        "phase": "ready"
+      },
+      "worker_after": {
+        "id": "e283b39a-a408-4df5-bda7-82f23ecc39c1",
+        "fingerprint": "f40d486e87c821d3589aa3c40849f245ff3bf4991e25a5bdf5146362fc122382",
+        "revoked": false,
+        "generation": 2,
+        "phase": "ready"
+      },
+      "history_message": "86fe303e-efdd-4e69-b2e5-605de64f3757",
+      "memory": {
+        "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+        "kind": "memory",
+        "revision": 1,
+        "sources": [
+          {
+            "type": "message",
+            "id": "86fe303e-efdd-4e69-b2e5-605de64f3757"
+          }
+        ],
+        "markdown": "M06 retained memory."
+      },
+      "artifact_sha256": "d7466240365bf2ba255552fa525ab19162f6987304a591f60a89b7dab7163ff2",
+      "before_effects": 1,
+      "after_effects": 2
+    },
+    {
+      "name": "actual_pinned_vibe_production_manager_and_local_stdio_complete",
+      "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+      "ledger": [
+        {
+          "id": "37807bfa-0e8b-55fa-8868-edef23eb595c",
+          "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+          "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+          "connection": {
+            "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+            "revision": 2,
+            "credential_epoch": 1
+          },
+          "tool": {
+            "connection": {
+              "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+              "revision": 2,
+              "credential_epoch": 1
+            },
+            "catalog_revision": 1,
+            "grant_revision": 1,
+            "name": "write_receipt",
+            "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+          },
+          "argument_digest": "d6322b727a816fe75a25446c7aa019b87dd03d817ae3fe2aeed56af71a101c7a",
+          "state": {
+            "type": "resolved",
+            "outcome": {
+              "type": "finished",
+              "result": {
+                "type": "tool",
+                "value": {
+                  "content": [
+                    {
+                      "text": "Actual Vibe local effect.",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "created_at": 1793196724,
+          "revoked_during_call_at": null,
+          "late_result": null
+        }
+      ],
+      "task_view": {
+        "id": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+        "request": {
+          "id": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+          "session_id": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "conversation_id": null,
+          "settings": {
+            "model": "mistral-small-2506",
+            "max_turns": 3,
+            "max_tokens": 200000,
+            "deadline": 1793196959,
+            "max_cost_micros": 200000
+          },
+          "work": {
+            "type": "vibe",
+            "spec": {
+              "policy": {
+                "connectors": {
+                  "tools": [
+                    {
+                      "connection": {
+                        "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+                        "revision": 2,
+                        "credential_epoch": 1
+                      },
+                      "catalog_revision": 1,
+                      "grant_revision": 1,
+                      "name": "write_receipt",
+                      "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                    }
+                  ],
+                  "max_calls": 1,
+                  "max_result_bytes": 8192,
+                  "runner": {
+                    "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "limits": {
+                      "runtime_seconds": 180,
+                      "output_bytes": 1024,
+                      "processes": 32,
+                      "memory_bytes": 268435456
+                    }
+                  }
+                },
+                "workspace": {
+                  "id": "0bcd6437-50ca-47ca-ac9b-3d9055270985",
+                  "path": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-complete"
+                },
+                "runtime": "d43c144b2450da8e8d861a44e532cc4087fe423ced8765bf4c7a78f6eaa8fdb4",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "resources": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                },
+                "configuration_revision": 1,
+                "model_id": "mistral-small-2506",
+                "access": "edit_files_as_guest_account",
+                "outputs": []
+              },
+              "session": {
+                "type": "new"
+              },
+              "prompt": "Use the approved connector.",
+              "limits": {
+                "deadline": 1793196959,
+                "max_turns": 3,
+                "max_total_tokens": 200000,
+                "max_cost_microusd": 200000,
+                "max_output_tokens": 64,
+                "max_operations": 1,
+                "max_concurrent_operations": 1
+              }
+            }
+          }
+        },
+        "command": {
+          "id": "d30d6544-4447-479a-8287-f2ac2dce7689",
+          "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+          "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+          "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+          "worker": "e283b39a-a408-4df5-bda7-82f23ecc39c1",
+          "session": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "operation": "6acb7e92-46c2-47a2-9ee6-ee57948251c4",
+          "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+          "work": {
+            "type": "vibe",
+            "spec": {
+              "policy": {
+                "connectors": {
+                  "tools": [
+                    {
+                      "connection": {
+                        "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+                        "revision": 2,
+                        "credential_epoch": 1
+                      },
+                      "catalog_revision": 1,
+                      "grant_revision": 1,
+                      "name": "write_receipt",
+                      "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                    }
+                  ],
+                  "max_calls": 1,
+                  "max_result_bytes": 8192,
+                  "runner": {
+                    "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "limits": {
+                      "runtime_seconds": 180,
+                      "output_bytes": 1024,
+                      "processes": 32,
+                      "memory_bytes": 268435456
+                    }
+                  }
+                },
+                "workspace": {
+                  "id": "0bcd6437-50ca-47ca-ac9b-3d9055270985",
+                  "path": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-complete"
+                },
+                "runtime": "d43c144b2450da8e8d861a44e532cc4087fe423ced8765bf4c7a78f6eaa8fdb4",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "resources": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                },
+                "configuration_revision": 1,
+                "model_id": "mistral-small-2506",
+                "access": "edit_files_as_guest_account",
+                "outputs": []
+              },
+              "session": {
+                "type": "new"
+              },
+              "prompt": "Use the approved connector.",
+              "limits": {
+                "deadline": 1793196959,
+                "max_turns": 3,
+                "max_total_tokens": 200000,
+                "max_cost_microusd": 200000,
+                "max_output_tokens": 64,
+                "max_operations": 1,
+                "max_concurrent_operations": 1
+              }
+            }
+          }
+        },
+        "state": "completed",
+        "progress": 0,
+        "outcome": {
+          "type": "process_finished",
+          "reason": "result",
+          "success": true,
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "2a4da5aacbb3412d9f4ecd69481814d3",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-54b0103b-88a2-4683-ae80-8f847a865181.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-54b0103b-88a2-4683-ae80-8f847a865181.service"
+          }
+        },
+        "effect_evidence": [],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "type": "exited",
+              "code": 0
+            },
+            "stdout": {
+              "hex": "7b226e61746976655f73657373696f6e223a202262363166343630362d346466612d663266652d663639342d303364633636656130376330222c2022657869745f636f6465223a20302c202263616c6c73223a20322c2022617070726f76616c5f64656e696564223a20302c2022746f6f6c5f6572726f7273223a20307d0a",
+              "truncated": false,
+              "complete": true
+            },
+            "stderr": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            }
+          }
+        },
+        "outputs": [],
+        "approval": {
+          "id": "cfcd3037-8068-4f39-9db4-81471ec1478e",
+          "binding": {
+            "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+            "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+            "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+            "operation": "6acb7e92-46c2-47a2-9ee6-ee57948251c4",
+            "arguments": "bf92e4738a3e9950083efb4b7b0a5604e40b62dd2a3d50fa84cc5193fe2b8b59",
+            "permission_revision": 2,
+            "approval": "cfcd3037-8068-4f39-9db4-81471ec1478e",
+            "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+            "expires_at": 1793196899
+          },
+          "permission_revision": 2,
+          "revoked": false,
+          "consumed": true
+        }
+      }
+    },
+    {
+      "name": "one_task_scope_local_child_and_cancellation",
+      "task": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+      "active_scope": {
+        "ready": {
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "5f45de1711074fb1aef94050461c0503",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service"
+          },
+          "manifest": "d11543dfc9bbf48184a29cb7cfa7e6091825cea0a5e8452cd1ad9bc31efa596c"
+        },
+        "pids": [
+          455485,
+          456186,
+          456188,
+          456374,
+          456384
+        ],
+        "proc_cgroups": {
+          "455485": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service\n",
+          "456186": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service\n",
+          "456188": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service\n",
+          "456374": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service\n",
+          "456384": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service\n"
+        },
+        "commands": {
+          "455485": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/bin/botstral-agent process-helper /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/280eca87-7a86-48b4-be44-12ca6b3689e1 ",
+          "456186": "/home/botstral/m04-vibe-2.24.2/bin/python3 /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/280eca87-7a86-48b4-be44-12ca6b3689e1/vibe-runtime.py /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/280eca87-7a86-48b4-be44-12ca6b3689e1/vibe-launch.json ",
+          "456188": "/home/botstral/m04-vibe-2.24.2/bin/python3 /home/botstral/m04-vibe-2.24.2/bin/vibe --prompt Use the approved connector. --output json --agent managed --workdir /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel --enabled-tools read_file --enabled-tools grep --enabled-tools write_file --enabled-tools edit --enabled-tools manager_connector_19fd0dea8c0e092671f0a354670263273a2da698 ",
+          "456374": "/home/botstral/w01-runtime-76b03bf1/node/bin/node /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/sdk/server.mjs stdio /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2 ",
+          "456384": "/usr/bin/sleep 120 "
+        },
+        "survivors": []
+      },
+      "stopped_scope": {
+        "ready": {
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "5f45de1711074fb1aef94050461c0503",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service"
+          },
+          "manifest": "d11543dfc9bbf48184a29cb7cfa7e6091825cea0a5e8452cd1ad9bc31efa596c"
+        },
+        "pids": [],
+        "proc_cgroups": {},
+        "commands": {},
+        "survivors": []
+      },
+      "journal_before": {
+        "incarnation": "2273db06-da9d-495a-bc7e-09e39dbad067",
+        "executions": [
+          {
+            "task": "bcf62e43-848c-45ab-855c-ed55813df777",
+            "execution": "981ec84b-6bd0-453b-9f15-dc9001f3effb",
+            "work": "connector"
+          },
+          {
+            "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+            "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+            "work": "connector"
+          },
+          {
+            "task": "5adcfe84-42ae-4fc6-9e11-582bf547280c",
+            "execution": "68a68a15-6fc8-48b6-9e46-18ac1c836e01",
+            "work": "connector"
+          },
+          {
+            "task": "9aa8d2cb-6565-4626-8485-5fd208f8207a",
+            "execution": "0711a6f1-d710-498f-b9c5-8aa966fc32ad",
+            "work": "connector"
+          },
+          {
+            "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+            "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+            "work": "vibe"
+          }
+        ]
+      },
+      "journal_active": {
+        "incarnation": "2273db06-da9d-495a-bc7e-09e39dbad067",
+        "executions": [
+          {
+            "task": "bcf62e43-848c-45ab-855c-ed55813df777",
+            "execution": "981ec84b-6bd0-453b-9f15-dc9001f3effb",
+            "work": "connector"
+          },
+          {
+            "task": "f194704b-c04b-47f2-a53d-e6f7d5b55808",
+            "execution": "8cd29e08-0d5f-4581-b267-9c1a509c8424",
+            "work": "connector"
+          },
+          {
+            "task": "5adcfe84-42ae-4fc6-9e11-582bf547280c",
+            "execution": "68a68a15-6fc8-48b6-9e46-18ac1c836e01",
+            "work": "connector"
+          },
+          {
+            "task": "9aa8d2cb-6565-4626-8485-5fd208f8207a",
+            "execution": "0711a6f1-d710-498f-b9c5-8aa966fc32ad",
+            "work": "connector"
+          },
+          {
+            "task": "9e797d02-f023-4a72-a761-fe8426d8ab4a",
+            "execution": "54b0103b-88a2-4683-ae80-8f847a865181",
+            "work": "vibe"
+          },
+          {
+            "task": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+            "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+            "work": "vibe"
+          }
+        ]
+      },
+      "actual_vibe_policy": {
+        "enabled_tools": [
+          "read_file",
+          "grep",
+          "write_file",
+          "edit",
+          "manager_connector_19fd0dea8c0e092671f0a354670263273a2da698"
+        ],
+        "profile_bypass": false,
+        "config_bypass": false,
+        "tools": {
+          "read_file": {
+            "permission": "ask",
+            "allowlist": [
+              "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel/*"
+            ]
+          },
+          "grep": {
+            "permission": "ask",
+            "allowlist": [
+              "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel/*"
+            ]
+          },
+          "write_file": {
+            "permission": "ask",
+            "allowlist": [
+              "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel/*"
+            ]
+          },
+          "edit": {
+            "permission": "ask",
+            "allowlist": [
+              "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel/*"
+            ]
+          },
+          "manager_connector_19fd0dea8c0e092671f0a354670263273a2da698": {
+            "permission": "always"
+          }
+        },
+        "mcp_servers": [
+          {
+            "name": "manager",
+            "transport": "streamable-http",
+            "sampling_enabled": false
+          }
+        ]
+      },
+      "task_view": {
+        "id": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+        "request": {
+          "id": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+          "session_id": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "conversation_id": null,
+          "settings": {
+            "model": "mistral-small-2506",
+            "max_turns": 3,
+            "max_tokens": 200000,
+            "deadline": 1793196966,
+            "max_cost_micros": 200000
+          },
+          "work": {
+            "type": "vibe",
+            "spec": {
+              "policy": {
+                "connectors": {
+                  "tools": [
+                    {
+                      "connection": {
+                        "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+                        "revision": 2,
+                        "credential_epoch": 1
+                      },
+                      "catalog_revision": 1,
+                      "grant_revision": 1,
+                      "name": "write_receipt",
+                      "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                    }
+                  ],
+                  "max_calls": 1,
+                  "max_result_bytes": 8192,
+                  "runner": {
+                    "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "limits": {
+                      "runtime_seconds": 180,
+                      "output_bytes": 1024,
+                      "processes": 32,
+                      "memory_bytes": 268435456
+                    }
+                  }
+                },
+                "workspace": {
+                  "id": "1da144b5-82e8-4349-a163-d643b9058a5e",
+                  "path": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel"
+                },
+                "runtime": "d43c144b2450da8e8d861a44e532cc4087fe423ced8765bf4c7a78f6eaa8fdb4",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "resources": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                },
+                "configuration_revision": 1,
+                "model_id": "mistral-small-2506",
+                "access": "edit_files_as_guest_account",
+                "outputs": []
+              },
+              "session": {
+                "type": "new"
+              },
+              "prompt": "Use the approved connector.",
+              "limits": {
+                "deadline": 1793196966,
+                "max_turns": 3,
+                "max_total_tokens": 200000,
+                "max_cost_microusd": 200000,
+                "max_output_tokens": 64,
+                "max_operations": 1,
+                "max_concurrent_operations": 1
+              }
+            }
+          }
+        },
+        "command": {
+          "id": "f94a05a1-15d2-4294-9d05-42f0a07e19f3",
+          "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+          "task": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+          "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+          "worker": "e283b39a-a408-4df5-bda7-82f23ecc39c1",
+          "session": "a80e1552-db96-4dbe-a15e-ac54c48a4977",
+          "operation": "34e7e698-9b1f-4ad0-8360-ceed778e88d5",
+          "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+          "work": {
+            "type": "vibe",
+            "spec": {
+              "policy": {
+                "connectors": {
+                  "tools": [
+                    {
+                      "connection": {
+                        "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+                        "revision": 2,
+                        "credential_epoch": 1
+                      },
+                      "catalog_revision": 1,
+                      "grant_revision": 1,
+                      "name": "write_receipt",
+                      "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+                    }
+                  ],
+                  "max_calls": 1,
+                  "max_result_bytes": 8192,
+                  "runner": {
+                    "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+                    "account": {
+                      "uid": 1000,
+                      "gid": 1000
+                    },
+                    "limits": {
+                      "runtime_seconds": 180,
+                      "output_bytes": 1024,
+                      "processes": 32,
+                      "memory_bytes": 268435456
+                    }
+                  }
+                },
+                "workspace": {
+                  "id": "1da144b5-82e8-4349-a163-d643b9058a5e",
+                  "path": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-cancel"
+                },
+                "runtime": "d43c144b2450da8e8d861a44e532cc4087fe423ced8765bf4c7a78f6eaa8fdb4",
+                "account": {
+                  "uid": 1000,
+                  "gid": 1000
+                },
+                "resources": {
+                  "runtime_seconds": 180,
+                  "output_bytes": 1024,
+                  "processes": 32,
+                  "memory_bytes": 268435456
+                },
+                "configuration_revision": 1,
+                "model_id": "mistral-small-2506",
+                "access": "edit_files_as_guest_account",
+                "outputs": []
+              },
+              "session": {
+                "type": "new"
+              },
+              "prompt": "Use the approved connector.",
+              "limits": {
+                "deadline": 1793196966,
+                "max_turns": 3,
+                "max_total_tokens": 200000,
+                "max_cost_microusd": 200000,
+                "max_output_tokens": 64,
+                "max_operations": 1,
+                "max_concurrent_operations": 1
+              }
+            }
+          }
+        },
+        "state": "cancelled",
+        "progress": 0,
+        "outcome": {
+          "type": "stopped",
+          "applied": 0,
+          "evidence": {
+            "systemd_scope_empty": {
+              "scope": {
+                "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+                "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+                "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+                "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+                "invocation": "5f45de1711074fb1aef94050461c0503",
+                "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service",
+                "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-280eca87-7a86-48b4-be44-12ca6b3689e1.service"
+              }
+            }
+          }
+        },
+        "effect_evidence": [],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "type": "signalled",
+              "signal": 15
+            },
+            "stdout": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            },
+            "stderr": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            }
+          }
+        },
+        "outputs": [],
+        "approval": {
+          "id": "d2459839-7a9f-4cc1-a121-733513de5100",
+          "binding": {
+            "owner": "41678041-f439-4c18-a52f-9e5d7e99b417",
+            "bot": "fbd5ad68-8491-4f50-9b66-a67be11b5059",
+            "task": "648f2dee-ab49-48cf-913e-b5f67feb84c1",
+            "operation": "34e7e698-9b1f-4ad0-8360-ceed778e88d5",
+            "arguments": "4832a4a369560680ba9be4f4dc9dc28d15d1d55908866eb0d6124f9b40844271",
+            "permission_revision": 2,
+            "approval": "d2459839-7a9f-4cc1-a121-733513de5100",
+            "execution": "280eca87-7a86-48b4-be44-12ca6b3689e1",
+            "expires_at": 1793196907
+          },
+          "permission_revision": 2,
+          "revoked": false,
+          "consumed": true
+        }
+      }
+    },
+    {
+      "name": "revoked_live_vibe_rejects_stale_gateway_call",
+      "task": "b5b3b0c4-7edf-440b-980f-f67db6ebf5a9",
+      "stale_gateway": {
+        "status": 403,
+        "body": {
+          "error": "unauthorized"
+        }
+      },
+      "ledger": [
+        {
+          "id": "bf7176c4-4373-53b8-8b8d-0780063d4663",
+          "task": "b5b3b0c4-7edf-440b-980f-f67db6ebf5a9",
+          "execution": "698facf1-6623-49ff-9c42-dfdd71e45635",
+          "connection": {
+            "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+            "revision": 2,
+            "credential_epoch": 1
+          },
+          "tool": {
+            "connection": {
+              "connection": "470bd494-ece0-47bc-9757-e80e545b2d88",
+              "revision": 2,
+              "credential_epoch": 1
+            },
+            "catalog_revision": 1,
+            "grant_revision": 1,
+            "name": "write_receipt",
+            "schema_digest": "f597f28d876da6d7a433ba656133dbb8be8d02c0291e4811ea823ca682581e04"
+          },
+          "argument_digest": "257a67f5882a42239f8803d771a794760f0b4f7fe6f2360e9e1cf61dee0cd29a",
+          "state": {
+            "type": "resolved",
+            "outcome": {
+              "type": "unknown",
+              "reason": "authority"
+            }
+          },
+          "created_at": 1793196740,
+          "revoked_during_call_at": 1793196741,
+          "late_result": null
+        }
+      ],
+      "active_scope": {
+        "ready": {
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "698facf1-6623-49ff-9c42-dfdd71e45635",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "2a3369c690d34da3b5d26c5c20b73a4a",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service"
+          },
+          "manifest": "9f254625a30ebed222f9fc0e4629707203bdf936b885d2d1629f2c3ecf623309"
+        },
+        "pids": [
+          456740,
+          457403,
+          457452,
+          457591,
+          457647
+        ],
+        "proc_cgroups": {
+          "456740": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service\n",
+          "457403": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service\n",
+          "457452": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service\n",
+          "457591": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service\n",
+          "457647": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service\n"
+        },
+        "commands": {
+          "456740": "/home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/bin/botstral-agent process-helper /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/698facf1-6623-49ff-9c42-dfdd71e45635 ",
+          "457403": "/home/botstral/m04-vibe-2.24.2/bin/python3 /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/698facf1-6623-49ff-9c42-dfdd71e45635/vibe-runtime.py /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/agent/processes/698facf1-6623-49ff-9c42-dfdd71e45635/vibe-launch.json ",
+          "457452": "/home/botstral/m04-vibe-2.24.2/bin/python3 /home/botstral/m04-vibe-2.24.2/bin/vibe --prompt Use the approved connector. --output json --agent managed --workdir /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/workspace-vibe-revoke --enabled-tools read_file --enabled-tools grep --enabled-tools write_file --enabled-tools edit --enabled-tools manager_connector_19fd0dea8c0e092671f0a354670263273a2da698 ",
+          "457591": "/home/botstral/w01-runtime-76b03bf1/node/bin/node /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2/sdk/server.mjs stdio /home/botstral/botstral-m06-integrated-136c3796c049/run-49e709d2 ",
+          "457647": "/usr/bin/sleep 120 "
+        },
+        "survivors": []
+      },
+      "stopped_scope": {
+        "ready": {
+          "scope": {
+            "journal": "2273db06-da9d-495a-bc7e-09e39dbad067",
+            "execution": "698facf1-6623-49ff-9c42-dfdd71e45635",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "invocation": "2a3369c690d34da3b5d26c5c20b73a4a",
+            "unit": "botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-2273db06-da9d-495a-bc7e-09e39dbad067-698facf1-6623-49ff-9c42-dfdd71e45635.service"
+          },
+          "manifest": "9f254625a30ebed222f9fc0e4629707203bdf936b885d2d1629f2c3ecf623309"
+        },
+        "pids": [],
+        "proc_cgroups": {},
+        "commands": {},
+        "survivors": []
+      }
+    },
+    {
+      "name": "connection_revocation_rejects_cached_task_approval_and_submission",
+      "audit": [
+        {
+          "sequence": 1,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": null,
+          "code": "installed",
+          "digest": null,
+          "at": 1793196695
+        },
+        {
+          "sequence": 2,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": null,
+          "code": "credential_rotated",
+          "digest": null,
+          "at": 1793196695
+        },
+        {
+          "sequence": 3,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "bbb50116-31c8-56ee-9df8-1978aa26d6e5",
+          "code": "reserved",
+          "digest": "a36158b0092531921efac7abb1279fefdc5117e266e31773ed7c61437858b5cd",
+          "at": 1793196697
+        },
+        {
+          "sequence": 4,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "bbb50116-31c8-56ee-9df8-1978aa26d6e5",
+          "code": "dispatch_possible",
+          "digest": null,
+          "at": 1793196697
+        },
+        {
+          "sequence": 5,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "bbb50116-31c8-56ee-9df8-1978aa26d6e5",
+          "code": "resolved",
+          "digest": "6cecd700e62848ca27c868e215f148a093616940be10192fcfb4eaed97d3d27f",
+          "at": 1793196697
+        },
+        {
+          "sequence": 6,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": null,
+          "code": "grants_changed",
+          "digest": "9aa412973e79a9ff4cf75db1dadcbf952f4358c795fad2cf0caa1161b2e6c178",
+          "at": 1793196697
+        },
+        {
+          "sequence": 7,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "5c328666-9949-5998-b6f4-971382fdcf5a",
+          "code": "reserved",
+          "digest": "fff92e310f761100858f923385d212c01b219cddee241944d023842929588263",
+          "at": 1793196700
+        },
+        {
+          "sequence": 8,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "5c328666-9949-5998-b6f4-971382fdcf5a",
+          "code": "dispatch_possible",
+          "digest": null,
+          "at": 1793196700
+        },
+        {
+          "sequence": 9,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "5c328666-9949-5998-b6f4-971382fdcf5a",
+          "code": "resolved",
+          "digest": "64dbfa15c8962884bf0b22d2e68c7fb1f67d565fcfdb8882c53886edc2f5477f",
+          "at": 1793196700
+        },
+        {
+          "sequence": 10,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "58558c29-145b-55e8-a0b9-33c7989c1859",
+          "code": "reserved",
+          "digest": "9ca06dcc941c3f069a69f16152fc06d9c535ee7fa0dc7a58bafc47ef6abf2d6a",
+          "at": 1793196715
+        },
+        {
+          "sequence": 11,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "58558c29-145b-55e8-a0b9-33c7989c1859",
+          "code": "dispatch_possible",
+          "digest": null,
+          "at": 1793196715
+        },
+        {
+          "sequence": 12,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": "58558c29-145b-55e8-a0b9-33c7989c1859",
+          "code": "resolved",
+          "digest": "69262e531b668ac39b50f85ec3068aa00762d4a8e5ee1f051044e73729d81e44",
+          "at": 1793196715
+        },
+        {
+          "sequence": 29,
+          "connection": "fa8d38d2-80d3-4daa-8477-00db60c1e476",
+          "call": null,
+          "code": "revoked",
+          "digest": null,
+          "at": 1793196742
+        }
+      ]
+    },
+    {
+      "name": "remote_bearer_absent_from_worker_launch_material"
+    }
+  ],
+  "gates": {
+    "remote": "VERIFIED",
+    "restore": "VERIFIED",
+    "vibe": "VERIFIED"
+  },
+  "cleanup": [
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m06-136c3796c049-manager",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "321293",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "321293",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m06-136c3796c049-worker",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "454943",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "454943",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m06-136c3796c049-manager",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "325308",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "325308",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m06-136c3796c049-worker-restored",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "455135",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "455135",
+        "ExecMainCode": "1",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m06-136c3796c049-https",
+      "before": {
+        "Result": "success",
+        "ExecMainPID": "321084",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      },
+      "exited": {
+        "Result": "success",
+        "ExecMainPID": "321084",
+        "ExecMainCode": "2",
+        "ExecMainStatus": "15",
+        "ActiveState": "active",
+        "SubState": "exited"
+      },
+      "stopped": {
+        "Result": "success",
+        "ExecMainPID": "0",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "inactive",
+        "SubState": "dead"
+      },
+      "pid_absent": true,
+      "reset_failed": false,
+      "final_unit_state": "inactive"
+    },
+    {
+      "host": "botstral-manager",
+      "root_removed": "/home/botstral/botstral-m06-integrated-136c3796c049",
+      "selected_root_processes": []
+    },
+    {
+      "host": "botstral-computer",
+      "root_removed": "/home/botstral/botstral-m06-integrated-136c3796c049",
+      "selected_root_processes": []
+    }
+  ],
+  "botstral-manager": {
+    "machine_sha256": "ca094c14f8c5c29e98154ddc4bb7d768377360ee4cc8039e4819ab7e495ba274",
+    "kernel": "6.8.0-147-generic",
+    "architecture": "x86_64"
+  },
+  "botstral-computer": {
+    "machine_sha256": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+    "kernel": "6.8.0-147-generic",
+    "architecture": "x86_64"
+  },
+  "runtimes": {
+    "vibe_version": "2.24.2",
+    "runner": {
+      "runtime": "76b4b4c253b32b05af53b106c6cfc3d5ce933cb59e569322972ce18aec90f11a",
+      "account": {
+        "uid": 1000,
+        "gid": 1000
+      },
+      "limits": {
+        "runtime_seconds": 180,
+        "output_bytes": 1024,
+        "processes": 32,
+        "memory_bytes": 268435456
+      }
+    },
+    "vibe": "d43c144b2450da8e8d861a44e532cc4087fe423ced8765bf4c7a78f6eaa8fdb4",
+    "python_sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+    "vibe_binary_sha256": "f4cd77e20b8586742ab7601dcc6056614b72dd0fb488b215a304679ca50e6bbc"
+  },
+  "rust": "rustc 1.93.0 (254b59607 2026-01-19)",
+  "node": "v24.22.1",
+  "passed": true,
+  "cleanup_errors": [],
+  "fixtures_retained": false
+}

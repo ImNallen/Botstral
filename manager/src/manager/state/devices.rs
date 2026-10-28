@@ -297,6 +297,52 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::InstallConnection { input } => Ok(OwnerReply::Connection(
+                self.install_connection(lease, input)?,
+            )),
+            OwnerOperation::Connections => Ok(OwnerReply::Connections(self.connections(lease)?)),
+            OwnerOperation::Connection { id } => {
+                Ok(OwnerReply::Connection(self.connection_view(lease, id)?))
+            }
+            OwnerOperation::ReplaceConnectionSecret { id, input } => Ok(OwnerReply::Connection(
+                self.replace_connection_secret(lease, id, input)?,
+            )),
+            OwnerOperation::ReconnectConnection {
+                id,
+                expected_revision,
+            } => Ok(OwnerReply::Connection(self.change_connection(
+                lease,
+                id,
+                expected_revision,
+                false,
+            )?)),
+            OwnerOperation::RevokeConnection {
+                id,
+                expected_revision,
+            } => Ok(OwnerReply::Connection(self.change_connection(
+                lease,
+                id,
+                expected_revision,
+                true,
+            )?)),
+            OwnerOperation::DiscoverConnection { input } => Ok(OwnerReply::Task(Box::new(
+                self.discover_connection(lease, input)?,
+            ))),
+            OwnerOperation::ConnectorGrants { bot, connection } => Ok(OwnerReply::ConnectorGrants(
+                self.connector_grants(lease, bot, connection)?,
+            )),
+            OwnerOperation::SetConnectorGrants { bot, input } => Ok(OwnerReply::ConnectorGrants(
+                self.set_connector_grants(lease, bot, input)?,
+            )),
+            OwnerOperation::ConnectorTools { bot } => Ok(OwnerReply::ConnectorTools(
+                self.connector_tools(lease, bot)?,
+            )),
+            OwnerOperation::ConnectorCalls { task } => Ok(OwnerReply::ConnectorCalls(
+                self.connector_calls(lease, task)?,
+            )),
+            OwnerOperation::ConnectorAudit { connection, after } => Ok(OwnerReply::ConnectorAudit(
+                self.connector_audit(lease, connection, after)?,
+            )),
             OwnerOperation::Workspace => {
                 Ok(OwnerReply::Workspace(Box::new(self.workspace(lease)?)))
             }

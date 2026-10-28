@@ -31,6 +31,8 @@ pub struct ProcessToolPolicy {
 #[serde(deny_unknown_fields)]
 pub struct RunExecutionPolicy {
     #[serde(default)]
+    pub connectors: Option<ConnectorToolPolicy>,
+    #[serde(default)]
     pub vision: Option<VisionPolicy>,
     #[serde(default)]
     pub vibe: Option<VibeToolPolicy>,
@@ -85,6 +87,7 @@ pub enum ToolProposal {
     Computer(ComputerProposal),
     Process(ProcessProposal),
     Vibe(VibeProposal),
+    Connector(ConnectorProposal),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]

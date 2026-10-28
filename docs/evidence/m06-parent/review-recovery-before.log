@@ -1,0 +1,11 @@
+Connector Python included in references: False
+Production worker configuration accepted: true
+Configured interpreter digest matches: False
+Production runtime diagnostics returned: []
+Production worker configuration accepted: false
+Production worker configuration error: connector runtime changed
+Backup with no interpreter root verifies: True
+Restored configured interpreter exists: False
+Restored runtime diagnostics returned: []
+Production worker configuration accepted: false
+Production worker configuration error: No such file or directory (os error 2)

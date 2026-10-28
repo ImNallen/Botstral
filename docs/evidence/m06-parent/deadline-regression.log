@@ -1,0 +1,36 @@
+   Compiling hyper-rustls v0.27.10
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/link/client)
+   Compiling reqwest v0.12.28
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.49s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-f2044e44b93bf885)
+
+running 1 test
+test manager::inference::tests::run_tests::m04_run_capacity_backpressure_and_bounded_shutdown ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 85 filtered out; finished in 8.15s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_manager-e36052946487eba6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/owner-probe.rs (target/debug/deps/owner_probe-3b24f9a79f68222e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m01_local.rs (target/debug/deps/m01_local-0abe131c72b039cf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/m05_bounds.rs (target/debug/deps/m05_bounds-c9687a2eff2c4018)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
