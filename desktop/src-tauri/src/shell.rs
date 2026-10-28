@@ -107,9 +107,18 @@ async fn create_bot(
 async fn sign_out(
     window: WebviewWindow,
     service: tauri::State<'_, LocalManager>,
+    remote: tauri::State<'_, RemoteService>,
 ) -> Result<Snapshot, CommandFailure> {
     authorize(&window)?;
-    Ok(service.sign_out())
+    let snapshot = service.sign_out();
+    let result = remote.sign_out().await;
+    if result.is_err() || remote.inspect().issue.is_some() {
+        return Err(CommandFailure::Operation(Failure {
+            code: ErrorCode::NativeStorage,
+            snapshot: Box::new(snapshot),
+        }));
+    }
+    Ok(snapshot)
 }
 
 #[tauri::command]
@@ -301,8 +310,10 @@ async fn acknowledge_uncertainty(
 async fn remote_sign_out(
     window: WebviewWindow,
     service: tauri::State<'_, RemoteService>,
+    local: tauri::State<'_, LocalManager>,
 ) -> Result<RemoteSnapshot, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
+    local.sign_out();
     service.sign_out().await
 }
 #[tauri::command]
@@ -499,8 +510,6 @@ pub fn run() {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
                 let _ = window.hide();
-                let service = window.state::<RemoteService>().inner().clone();
-                tauri::async_runtime::spawn(async move { let _ = service.command(IntentCommand::Suspend).await; });
             }
         })
         .setup(|app| {
@@ -534,7 +543,7 @@ pub fn run() {
                 loop {
                     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
                     let current = std::time::SystemTime::now();
-                    if current.duration_since(previous).unwrap_or_default() > std::time::Duration::from_secs(10) {
+                    if current.duration_since(previous).unwrap_or_default() > std::time::Duration::from_secs(10) && wake_service.inspect().status != "suspended" {
                         let _ = wake_service.command(IntentCommand::Suspend).await;
                         let _ = wake_service.command(IntentCommand::Resume).await;
                     }

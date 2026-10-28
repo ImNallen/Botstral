@@ -1,0 +1,47 @@
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { z } from 'zod';
+import { remoteSnapshotSchema, deviceSchema, type PairedApplication } from './paired-domain';
+async function call(command: string, args?: Record<string, unknown>): Promise<unknown> {
+  try {
+    return await invoke<unknown>(command, args);
+  } catch (error: unknown) {
+    throw new Error(typeof error === 'string' ? error : 'native_unavailable');
+  }
+}
+async function snapshot(command: string, args?: Record<string, unknown>) {
+  return remoteSnapshotSchema.parse(await call(command, args));
+}
+export const pairedApplication: PairedApplication = {
+  inspect: () => snapshot('remote_inspect'),
+  observe: (receive) =>
+    listen<unknown>('workspace-changed', (event) => {
+      const result = remoteSnapshotSchema.safeParse(event.payload);
+      if (result.success) receive(result.data);
+    }),
+  beginPairing: (label) => snapshot('begin_pairing', { label }),
+  importPairing: () => snapshot('import_pairing'),
+  importTrust: () => snapshot('import_trust'),
+  pairLocal: () => snapshot('pair_local'),
+  confirmPairing: (candidate) => snapshot('confirm_pairing', { candidate }),
+  refresh: () => snapshot('remote_refresh'),
+  send: (input) => snapshot('send_run', { input }),
+  openSession: (bot, worker) => snapshot('open_session', { bot, worker }),
+  permission: (bot, expected, allow) => snapshot('set_permission', { bot, expected, allow }),
+  review: (task) => snapshot('review_approval', { task }),
+  approve: (review) => snapshot('approve_action', { review }),
+  cancelTask: (task) => snapshot('cancel_task', { task }),
+  cancelRun: (run) => snapshot('cancel_run', { run }),
+  revokeApproval: (task) => snapshot('revoke_approval', { task }),
+  acknowledgeUncertainty: (intent) => snapshot('acknowledge_uncertainty', { intent }),
+  signOut: () => snapshot('remote_sign_out'),
+  lifecycle: (suspended) => snapshot('remote_lifecycle', { suspended }),
+  exportArtifact: async (task, artifact) =>
+    z.boolean().parse(await call('export_artifact', { task, artifact })),
+  devices: async () => z.array(deviceSchema).parse(await call('list_devices')),
+  revokeDevice: async (device) => {
+    await call('revoke_device', { device });
+  },
+  issueInvitation: async (fingerprint, label) =>
+    z.boolean().parse(await call('issue_invitation', { fingerprint, label })),
+};

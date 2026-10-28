@@ -166,16 +166,14 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
     let bundle = local.invite_device(request.clone(), trust).await.unwrap();
     let invitation = Zeroizing::new(bundle.invitation.clone());
-    let candidate = service
-        .command(IntentCommand::Stage(bundle))
-        .await
-        .unwrap()
-        .candidate
-        .unwrap();
+    let candidate_view = service.command(IntentCommand::Stage(bundle)).await.unwrap();
+    let candidate = candidate_view.candidate.as_ref().unwrap().clone();
+    let mut public_views = vec![serde_json::to_value(&candidate_view).unwrap()];
     let online = service
         .command(IntentCommand::Confirm(candidate.id))
         .await
         .unwrap();
+    public_views.push(serde_json::to_value(&online).unwrap());
     assert_eq!(online.status, "online");
     assert!(!root.join("device.json").exists());
     let secret = store.read().unwrap().unwrap();
@@ -241,6 +239,7 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap()
         .review
         .unwrap();
+    public_views.push(serde_json::to_value(service.inspect()).unwrap());
     service
         .command(IntentCommand::Approve(review.id))
         .await
@@ -255,6 +254,7 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         })
     })
     .await;
+    public_views.push(serde_json::to_value(service.inspect()).unwrap());
     let task = completed
         .state
         .tasks
@@ -382,6 +382,21 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
     assert!(restored.inspect().workspace.is_none());
     let signed_out = restored.sign_out().await.unwrap();
     assert!(signed_out.workspace.is_none());
+    public_views.push(serde_json::to_value(&signed_out).unwrap());
+    if let Some(output) = std::env::var_os("BOTSTRAL_C02_VIEW_OUTPUT") {
+        let bytes = serde_json::to_vec_pretty(&public_views).unwrap();
+        assert!(
+            !bytes
+                .windows(credential.len())
+                .any(|v| v == credential.as_bytes())
+        );
+        assert!(
+            !bytes
+                .windows(invitation.len())
+                .any(|v| v == invitation.as_bytes())
+        );
+        std::fs::write(output, bytes).unwrap();
+    }
     assert!(store.read().unwrap().is_none());
     local.sign_out();
     println!(

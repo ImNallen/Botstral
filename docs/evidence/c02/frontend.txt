@@ -1,0 +1,2 @@
+ Test Files  4 passed | 1 skipped (5)
+      Tests  24 passed | 1 skipped (25)

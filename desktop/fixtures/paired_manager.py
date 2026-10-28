@@ -28,7 +28,7 @@ def main():
     if (root/'fixture.json').exists():
         raise RuntimeError('Choose a fresh fixture directory.')
     m.certificates(root)
-    env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root))
+    env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root), BOTSTRAL_C02_VIEW_OUTPUT=str(root/'desktop-view.json'))
     with (root/'manager.log').open('w') as log:
         process = subprocess.Popen(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'c02_desktop_fixture', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env, stdout=log, stderr=log, start_new_session=True)
         try:
@@ -38,8 +38,12 @@ def main():
                     raise RuntimeError('Fixture startup failed. Inspect '+str(root/'manager.log'))
                 time.sleep(.1)
             fixture = json.loads((root/'fixture.json').read_text())
+            trust = json.loads((root/'trust.json').read_text())
             print('Fixture root: '+str(root), flush=True)
             print('Local manager: '+fixture['local'], flush=True)
+            print('Paired WSS route: wss://'+fixture['public']+'/owner/v1/connect', flush=True)
+            print('Manager identity: '+trust['manager'], flush=True)
+            print('Manager leaf: '+trust['leaf'], flush=True)
             print('Synthetic password: '+fixture['password'], flush=True)
             print('Trusted export: '+str(root/'trust.json'), flush=True)
             print('Browser runtime digest: '+fixture['runtime'], flush=True)
@@ -51,6 +55,9 @@ def main():
                 result = subprocess.run(['cargo', 'test', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--no-default-features', '--locked', '--test', 'remote', 'actual_manager_native', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env)
                 if result.returncode:
                     raise RuntimeError('The native contract failed.')
+                boundary = subprocess.run(['npm', 'test', '--', 'src/paired-contract.test.ts'], cwd=ROOT, env=env)
+                if boundary.returncode:
+                    raise RuntimeError('The native renderer boundary contract failed.')
                 return
             until = time.monotonic()+args.duration
             while process.poll() is None and time.monotonic() < until and not (root/'stop').exists():

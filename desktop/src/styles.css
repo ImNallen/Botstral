@@ -813,3 +813,248 @@ dd {
     transition: none;
   }
 }
+.paired-conversation {
+  padding: 20px clamp(24px, 7vw, 100px);
+}
+.paired-conversation p {
+  line-height: 1.6;
+}
+.connection-label {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.pairing-panel {
+  max-width: 640px;
+  margin: 35px auto;
+}
+.pairing-panel h1 {
+  font-size: 27px;
+  letter-spacing: -0.7px;
+}
+.pairing-panel h2 {
+  font-size: 16px;
+  margin-top: 26px;
+}
+.pairing-panel form,
+.details-section form {
+  display: grid;
+  gap: 16px;
+}
+.pairing-panel label,
+.execution-settings label,
+.details-section label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.pairing-panel input,
+.execution-settings input,
+.details-section input {
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--input);
+  color: var(--text);
+}
+.fingerprint,
+.trust-review dd {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.trust-review {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 24px 0;
+  background: var(--panel);
+}
+.trust-review dt {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 14px;
+}
+.trust-review dd {
+  margin: 5px 0;
+}
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.action-row button,
+.task-card button,
+.execution-settings button,
+.details-section button {
+  padding: 7px 11px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 12px;
+}
+.thread-explanation {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 32px;
+}
+.empty-chat {
+  text-align: center;
+  margin: 60px auto;
+  max-width: 410px;
+  color: var(--muted);
+}
+.empty-chat .avatar {
+  margin: auto;
+}
+.empty-chat h1 {
+  color: var(--text);
+  font-size: 25px;
+  letter-spacing: -0.7px;
+}
+.run-thread {
+  margin: 28px 0 40px;
+}
+.run-thread > header,
+.task-card > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+.run-thread > header button {
+  border: none;
+  background: none;
+  text-decoration: underline;
+  font-size: 12px;
+}
+.owner-message {
+  background: var(--bubble);
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin: 18px 0 22px 12%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.assistant-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 20px 0;
+}
+.task-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 18px 0;
+  background: var(--panel);
+}
+.task-card strong {
+  color: var(--text);
+}
+.state-label {
+  text-transform: capitalize;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.6;
+  background: var(--bubble);
+  border-radius: 8px;
+  padding: 12px;
+}
+summary {
+  cursor: pointer;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.artifact-row,
+.device-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  align-items: center;
+}
+.artifact-row span,
+.device-row span {
+  min-width: 0;
+  font-size: 12px;
+}
+.artifact-row small,
+.device-row small {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.paired-composer-wrap {
+  padding: 0 clamp(24px, 7vw, 100px) 24px;
+}
+.paired-composer-wrap .composer {
+  margin: 10px 0 0;
+  width: 100%;
+}
+.composer textarea {
+  resize: vertical;
+  min-height: 38px;
+  max-height: 180px;
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 2px;
+  font: inherit;
+}
+.composer-blocker {
+  font-size: 12px;
+  color: var(--muted);
+}
+.execution-settings {
+  max-height: 240px;
+  overflow: auto;
+  font-size: 12px;
+}
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.execution-settings .checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.action-review {
+  border: 1px solid var(--border);
+  color: var(--text);
+  max-width: 720px;
+  width: 80vw;
+  max-height: 85vh;
+  overflow: auto;
+  padding: 28px;
+  background: var(--main);
+  border-radius: 16px;
+  box-shadow: 0 12px 70px #0003;
+}
+.action-review pre {
+  max-height: 48vh;
+  overflow: auto;
+}
+.action-review::backdrop {
+  background: #0005;
+  backdrop-filter: blur(2px);
+}
+.action-review .pairing-panel {
+  margin: 0;
+}

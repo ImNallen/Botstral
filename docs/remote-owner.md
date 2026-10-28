@@ -12,7 +12,7 @@ M05 provides the native `owner-probe` and reusable `manager::owner_client` libra
 
 Invitations are long random secrets. There is no short-code flow. A stolen invitation cannot enroll another credential. A stolen device credential can impersonate that device until revocation. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body.
 
-The reference client uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. One client admits one live session, and that session retains the directory lock until it ends. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
+The owner probe uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. The desktop uses the same extracted transport with an injected native Keychain or Secret Service record. It never creates `device.json`. One client admits one live session, and that session retains the directory lock until it ends. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
 
 ## Configure the public listener
 
@@ -94,3 +94,20 @@ Run the native client review regressions after building their contract executabl
 cargo build -p botstral-manager --locked --bins --example m05-client-contract
 python3 manager/tests/m05_client_regressions.py --output .audit/m05-client-regressions
 ```
+
+
+## Use the paired desktop
+
+Open the paired workspace and create a device request. Its public fingerprint appears only after native protected storage has persisted and read back the credential. Authorize that fingerprint through trusted local administration. Import the protected invitation file through the native chooser, or sign in locally and choose **Authorize with local manager** with the authenticated trust export. Compare the displayed manager identity, endpoint, server name, owner role, device fingerprint, and exact certificate pin before confirming.
+
+The desktop requests the additive version 1 `Workspace` image. The manager constructs its roster, sessions, run details, existing snapshot, and cursor under one serialized authority. `Resume` and its strict snapshot shape remain unchanged for existing clients. An unsupported Workspace reply blocks the app and requires a manager upgrade. Remote tasks never fall back to local HTTP.
+
+The graphical composer starts separate durable M04 runs. Select the approved worker account, process policy, browser runtime digest, and budgets in execution settings. Browser outputs use the `text` and `image` slots. Missing configuration, locked vault, absent worker, unconfirmed session, disabled permission, and unresolved mutations block submission explicitly.
+
+Action review displays the normalized task command and target. `GrantReviewedApproval` compares that exact command, complete prior approval state, and current permission revision at the manager boundary. A changed action, revoked approval, or stale permission revision refuses the grant. Existing `GrantApproval` remains available to older clients.
+
+Notifications are hints. The app recovers a complete image before enabling actions. Cancellation remains pending until authoritative terminal evidence. A lost mutation reply retains its saved identity without replay. An owner can leave an uncertain identity unresolved and explicitly continue with other work after acknowledging the duplication risk.
+
+Sign-out removes local access. A durable tombstone blocks automatic authentication even if native deletion fails. Server revocation remains a separate local administration action. Admitted effects may finish. To replace a certificate, import an authenticated replacement trust export in workspace details and confirm the same durable manager identity and new pin. Connection failures never change pins.
+
+The [native workflow](c02-native-workflow.md) provides a recorded-provider fixture. The [acceptance record](c02-acceptance.md) separates service checks from packaged and production-worker acceptance.

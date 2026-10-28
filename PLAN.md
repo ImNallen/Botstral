@@ -395,6 +395,8 @@ Depends on C01, M04, and M05.
 - [ ] Complete chat, task progress, an exact-action approval, cancellation, and result retrieval in the desktop app for first acceptance.
 - [ ] Verify the paired desktop app over the configured remote route, including reconnect and immediate loss of access after revocation.
 
+The implementation and repeatable synthetic native fixture are available. Actual-manager and macOS Keychain service checks passed. The checkboxes remain open until the packaged graphical workflow and configured remote route pass. See [C02 acceptance](docs/c02-acceptance.md).
+
 Complete when the desktop app completes the first-acceptance workflow, pairs and reconnects over the configured route, and loses current and future access after revocation.
 
 ### C03. Verify the daily desktop experience

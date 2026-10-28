@@ -56,6 +56,7 @@ export const errorCodeSchema = z.enum([
   'protocol',
   'manager_error',
   'stale',
+  'native_storage',
 ]);
 export const failureSchema = z.strictObject({ code: errorCodeSchema, snapshot: snapshotSchema });
 export const notificationSchema = z.enum(['submitted', 'denied', 'unavailable']);
@@ -76,6 +77,7 @@ export class ApplicationError extends Error {
 }
 
 export interface Application {
+  paired?: import('./paired-domain').PairedApplication;
   inspect(): Promise<Snapshot>;
   signIn(input: { endpoint: string; password: string }): Promise<Snapshot>;
   refresh(): Promise<Snapshot>;
@@ -98,6 +100,8 @@ export const errorMessages: Record<ErrorCode, string> = {
     'The manager returned an unsupported response. Check that your manager and app versions match.',
   manager_error: 'The manager could not complete the request. Try again.',
   stale: 'The session changed. Refresh to see its current state.',
+  native_storage:
+    'Signed out. Native credential storage could not finish cleanup. Resolve the storage error before quitting or pairing again.',
   native_unavailable: 'The native app connection is unavailable. Restart Botstral and try again.',
   invalid_response: 'The native app returned an unsupported response. Restart Botstral.',
 };

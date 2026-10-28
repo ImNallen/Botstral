@@ -1,0 +1,8 @@
+Local manager: 127.0.0.1:49373
+Paired WSS route: wss://127.0.0.1:49385/owner/v1/connect
+Manager identity: 037479c2-c6ea-4fd0-bc06-f0d4026e6cbc
+Manager leaf: e99ea572ba5554d8db8901bddaf6ae4b6b2f5ac9617589df32174f1cdae10407
+PASS actual manager, real native keychain, durable chat and linked task, exact review, verified export, suspension, restoration, credential scan, and revocation
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 5.66s
+ Test Files  1 passed (1)
+      Tests  1 passed (1)

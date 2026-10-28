@@ -1,6 +1,6 @@
 # Botstral
 
-Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app manages the local owner session and bot roster. The manager supports explicitly configured text inference and durable tool runs.
+Botstral is a self-hosted bot manager built around Mistral-developed models. It retains one owner's bots and encrypted provider credentials. A separate Rust daemon connects through mutual TLS WebSockets and tracks logical bot sessions. Durable tasks, approval claims and Markdown memory recover through manager and worker restarts. A Tauri desktop app pairs through the owner WSS protocol and retains its device credential in the native keychain. The manager supports explicitly configured text inference and durable tool runs.
 
 ## Repository layout
 
@@ -32,7 +32,7 @@ See [DESIGN.md](DESIGN.md) for the product architecture and [PLAN.md](PLAN.md) f
 
 The Linux worker can run one explicitly approved guest command through the task API. Execution requires opt-in configuration and systemd 255. [The process guide](docs/w01-process-acceptance.md) explains setup and verification. [The verification record](docs/w01-verification.md) covers bounded output, descendant cancellation, and recovery across both VMs. [Computer work](docs/w01-computer.md) adds typed browser and file commands, shared persistent login state, and durable owner-downloadable artifacts through the same supervisor.
 
-[M04 is complete](docs/m04-completion.md). Model turns use exactly approved browser, file, process and Vibe operations, with bounded PNG vision and durable artifacts. Acceptance combines live EU Mistral work across two VMs with repeatable recorded-provider checks. Owner-device pairing and remote access remain open.
+[M04 is complete](docs/m04-completion.md). Model turns use exactly approved browser, file, process and Vibe operations, with bounded PNG vision and durable artifacts. Acceptance combines live EU Mistral work across two VMs with repeatable recorded-provider checks. M05 supplies owner-device pairing and remote access. Packaged desktop acceptance over the configured remote route remains open.
 
 ## Run the desktop
 
@@ -43,4 +43,8 @@ npm ci
 make desktop
 ```
 
-Sign in with the local owner password. The app lists and creates real bots and shows manager connection details. Messaging and task execution are unavailable. See the [desktop architecture and verification guide](docs/c01-architecture.md) for packaging, native UI fixtures, and acceptance gaps. Run `make verify-desktop` for desktop checks.
+Use local administration to sign in and manage bots and device grants. In the paired workspace, create a native fingerprint, import a protected invitation or authorize it with the local manager, and confirm the manager identity and certificate pin. Paired work uses WSS throughout.
+
+Each message starts a durable run with real assistant turns and linked tasks. Select the worker account and bounded execution settings, review exact actions before approval, cancel work, and save verified artifacts through a native chooser. Inference configuration, vault unlock, and an approved worker remain explicit prerequisites. Earlier runs stay in history without implying shared model context.
+
+See the [C02 architecture](docs/c02-architecture.md), [native fixture workflow](docs/c02-native-workflow.md), and [acceptance record](docs/c02-acceptance.md). Run `make verify-desktop` for desktop checks. Full C02 acceptance still needs the packaged graphical walkthrough and configured remote route.

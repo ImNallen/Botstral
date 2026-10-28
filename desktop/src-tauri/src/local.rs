@@ -28,6 +28,7 @@ pub enum ErrorCode {
     Protocol,
     ManagerError,
     Stale,
+    NativeStorage,
 }
 
 #[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
