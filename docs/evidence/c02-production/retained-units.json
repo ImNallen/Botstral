@@ -1,0 +1,79 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "states": [
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-page",
+      "state": {
+        "Result": "success",
+        "ExecMainPID": "413945",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      }
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-manager",
+      "state": {
+        "Result": "success",
+        "ExecMainPID": "255862",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      }
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-worker",
+      "state": {
+        "Result": "success",
+        "ExecMainPID": "414219",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      }
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-bore",
+      "state": {
+        "Result": "success",
+        "ExecMainPID": "257528",
+        "ExecMainCode": "0",
+        "ExecMainStatus": "0",
+        "ActiveState": "active",
+        "SubState": "running"
+      }
+    },
+    {
+      "host": "botstral-manager",
+      "processes": [
+        {
+          "pid": 255862,
+          "command": "/home/botstral/c02-production-e305079cbc4e/bin/manager-fixture --ignored --nocapture c02_production_remote_fixture "
+        },
+        {
+          "pid": 257528,
+          "command": "/home/botstral/c02-production-e305079cbc4e/bin/bore local 34691 --to bore.pub "
+        }
+      ]
+    },
+    {
+      "host": "botstral-computer",
+      "processes": [
+        {
+          "pid": 413945,
+          "command": "/usr/bin/python3 /home/botstral/c02-production-e305079cbc4e/bin/page.py "
+        },
+        {
+          "pid": 414219,
+          "command": "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent run --state-dir /home/botstral/c02-production-e305079cbc4e/agent "
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "root": "/home/botstral/c02-production-e305079cbc4e",
+  "manager_alias": "botstral-manager",
+  "computer_alias": "botstral-computer",
+  "units": [
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-page",
+      "log": "page.log"
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-manager",
+      "log": "manager.log"
+    },
+    {
+      "host": "botstral-computer",
+      "unit": "botstral-m05-c02-e305079cbc4e-worker",
+      "log": "worker.log"
+    },
+    {
+      "host": "botstral-manager",
+      "unit": "botstral-m05-c02-e305079cbc4e-bore",
+      "log": "bore.log"
+    }
+  ],
+  "endpoints": [
+    "192.168.1.40:34691",
+    "bore.pub:51870"
+  ],
+  "trust": {
+    "manager": "f416297c-97a3-47e1-af70-77ca55ca436a",
+    "endpoint": "bore.pub:51870",
+    "server_name": "bore.pub",
+    "ca_pem": "-----BEGIN CERTIFICATE-----\nMIIDFzCCAf+gAwIBAgIUZLMmL4AvbxiUJvD8h3dObTuhC2AwDQYJKoZIhvcNAQEL\nBQAwGzEZMBcGA1UEAwwQU3ludGhldGljIE0wNSBDQTAeFw0yNjEwMjgwOTIzMDZa\nFw0yNjEwMzAwOTIzMDZaMBsxGTAXBgNVBAMMEFN5bnRoZXRpYyBNMDUgQ0EwggEi\nMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCuMelVdnRVWOL0ilnRKYN3sxWX\nvP86cTgeiOTgyRE/QkSdGPRSCy9ky9LS2XqUuPt3rh/QDXVNdhYS+DjgzbZMKc9M\nwqnnRnsrjqCojeQtu/gVaoB6AJzOqN9jcaDWPW/H0ImNHRHdB96KWZZCO1GdJp7S\nflwCbhGqwK9wLTudeRPimttiOdW4qkJD2HRABiPiFh1nL8qqemYQjR8Na+17D7++\n1KfcNIQdXdc3SiuMcjmAPWQb04RDdHxr+UtYr4SG1wgbR8Pn2eGUXCmXkxha8etJ\nUUMcGOBA6kTtsS+FYjM5c8xBL1Zhu8VQEoeMYMOCJR+68AlKLmvA782JP8dZAgMB\nAAGjUzBRMB0GA1UdDgQWBBQBIwCEm2UdczELDs6UyvRgekn84TAfBgNVHSMEGDAW\ngBQBIwCEm2UdczELDs6UyvRgekn84TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3\nDQEBCwUAA4IBAQAuO2JZLc6Rf064zCP0WPWRMVPHCxCq4U8lRweM2G7bumUtdlw/\nsXXkzGN+DaLvG1cxdimtw98CM4pevJzktl+z13Gcs1hpx3tqsPl0+XAU4A6XUZy0\nX+L5gflTYplgpS56ATsbIqM+bQEFT3E3YqSyruGJ3IVNP+gkq8L7qsu8ka1Eage+\nwjvBcmBcfYjjNpcKD6aKoSc6ik25d+HCoCbvMNViyxFgI2Z+UrGBGaSFr79/TU6T\nysxiEQmvVzOKyfXlSSKYHeEMMlpzw1nCQSu2dRbYtWWz/7aXaLn6h1zONntTeEUc\nO/ONgYRWyB3gKT3gtN8NZqDL+3zGrqrqnLZE\n-----END CERTIFICATE-----\n",
+    "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7"
+  },
+  "runtime": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061",
+  "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+  "session": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "profile": "/Users/nallen/.t3/worktrees/Botstral/t3-d08be483/.audit/c02-production/run-5/desktop-profile"
+}

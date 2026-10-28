@@ -1,0 +1,145 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "build": {
+    "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+    "overlays": {
+      "manager/src/manager/inference/tests.rs": "79ffb819c33a75b2aafd2e64580fd5338894bfb2bf66b4b3686862821e132146",
+      "manager/src/manager/inference/run_tests.rs": "f8033c65c4928190370b7d4afbbac0ed9ccdececc954097775483a3df871d809",
+      "manager/src/manager/inference/production_fixture.rs": "88ceaf5aa8154b9cd08f7401fed679c4ca4cef8552746c0189eb0187dcdbbcbe"
+    },
+    "archive_sha256": "8bc02330af8988b083c32a8a926e62415218af89dab8c8896266a272f20f7be1",
+    "build_root": "/home/botstral/c02-build-57ee391d19a1",
+    "command": "cargo test -p botstral-manager --locked --lib --no-run --message-format=json",
+    "exit": 0,
+    "artifact": {
+      "binary": "/home/botstral/c02-build-57ee391d19a1/manager-fixture",
+      "sha256": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+      "exit": 0
+    }
+  },
+  "checks": [
+    {
+      "name": "retained_worker_and_every_runtime_file_verified",
+      "status": "PASS",
+      "files": {
+        "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+        "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+      },
+      "verified_runtime_files": 5574
+    }
+  ],
+  "root": "/home/botstral/c02-production-92fee49a19fb",
+  "cleanup": {
+    "units": [
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-92fee49a19fb-worker",
+        "before": {
+          "Result": "exit-code",
+          "ExecMainPID": "410058",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "1",
+          "ActiveState": "failed",
+          "SubState": "failed"
+        },
+        "exited": {
+          "Result": "exit-code",
+          "ExecMainPID": "410058",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "1",
+          "ActiveState": "failed",
+          "SubState": "failed"
+        },
+        "stopped": {
+          "Result": "exit-code",
+          "ExecMainPID": "410058",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "1",
+          "ActiveState": "failed",
+          "SubState": "failed"
+        },
+        "pid_absent": true,
+        "reset_failed": true,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "unit": "botstral-m05-c02-92fee49a19fb-manager",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "232421",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "232421",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-92fee49a19fb-page",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "409793",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "409793",
+          "ExecMainCode": "2",
+          "ExecMainStatus": "15",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "fixture_removed": true
+      },
+      {
+        "host": "botstral-computer",
+        "fixture_removed": true
+      }
+    ],
+    "endpoints_refuse": {
+      "192.168.1.40:35065": true
+    }
+  },
+  "endpoint": "192.168.1.40:35065",
+  "leaf": "d90d3fe6a7049da9439c2fae4b16a575e26719f4a22a65d718010c969626dd29",
+  "status": "ISSUES",
+  "error": "production worker readiness",
+  "retained_after": null
+}

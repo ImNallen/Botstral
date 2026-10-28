@@ -1,0 +1,20 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "manager_files": {
+    "bin/manager-fixture": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+    "bin/bore": "60548b7a145ba334981b19fda7cd0210d24a108a3d0dc113919b33fd2eaa90ab"
+  },
+  "native_sha256": "1c4e11b57af3a3d22adba54ff39eda431f4014fba85e197a209f187c1a8b619e",
+  "retained": {
+    "files": {
+      "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+      "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+    },
+    "verified_runtime_files": 5574
+  },
+  "running_process_sha256": {
+    "botstral-manager:255862": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+    "botstral-manager:257528": "60548b7a145ba334981b19fda7cd0210d24a108a3d0dc113919b33fd2eaa90ab",
+    "botstral-computer:414219": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00"
+  }
+}

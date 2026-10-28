@@ -1,0 +1,192 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "build": {
+    "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+    "overlays": {
+      "manager/src/manager/inference/tests.rs": "79ffb819c33a75b2aafd2e64580fd5338894bfb2bf66b4b3686862821e132146",
+      "manager/src/manager/inference/run_tests.rs": "f8033c65c4928190370b7d4afbbac0ed9ccdececc954097775483a3df871d809",
+      "manager/src/manager/inference/production_fixture.rs": "88ceaf5aa8154b9cd08f7401fed679c4ca4cef8552746c0189eb0187dcdbbcbe"
+    },
+    "archive_sha256": "8bc02330af8988b083c32a8a926e62415218af89dab8c8896266a272f20f7be1",
+    "build_root": "/home/botstral/c02-build-57ee391d19a1",
+    "command": "cargo test -p botstral-manager --locked --lib --no-run --message-format=json",
+    "exit": 0,
+    "artifact": {
+      "binary": "/home/botstral/c02-build-57ee391d19a1/manager-fixture",
+      "sha256": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+      "exit": 0
+    }
+  },
+  "checks": [
+    {
+      "name": "retained_worker_and_every_runtime_file_verified",
+      "status": "PASS",
+      "files": {
+        "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+        "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+      },
+      "verified_runtime_files": 5574
+    },
+    {
+      "name": "macos_remote_service_real_keychain_actual_lan",
+      "status": "PASS",
+      "endpoint": "192.168.1.40:34761",
+      "leaf": "e149ee36a0efab378032f959ad32010b8b5bee79c5095e00d6474ff9ce3fea80",
+      "cursor": 15,
+      "worker": "944d6da9-6b6f-43ed-a122-514fae931e69",
+      "native_sha256": "1c4e11b57af3a3d22adba54ff39eda431f4014fba85e197a209f187c1a8b619e"
+    },
+    {
+      "name": "macos_remote_service_public_relay",
+      "status": "PASS",
+      "endpoint": "bore.pub:50489",
+      "leaf": "e149ee36a0efab378032f959ad32010b8b5bee79c5095e00d6474ff9ce3fea80"
+    }
+  ],
+  "root": "/home/botstral/c02-production-cf4d330b22b2",
+  "cleanup": {
+    "units": [
+      {
+        "host": "botstral-manager",
+        "unit": "botstral-m05-c02-cf4d330b22b2-bore",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "252062",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "252062",
+          "ExecMainCode": "2",
+          "ExecMainStatus": "15",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-cf4d330b22b2-worker",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "411129",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "411129",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "unit": "botstral-m05-c02-cf4d330b22b2-manager",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "250357",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "250357",
+          "ExecMainCode": "1",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-cf4d330b22b2-page",
+        "before": {
+          "Result": "success",
+          "ExecMainPID": "410863",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "exited": {
+          "Result": "success",
+          "ExecMainPID": "410863",
+          "ExecMainCode": "2",
+          "ExecMainStatus": "15",
+          "ActiveState": "active",
+          "SubState": "exited"
+        },
+        "stopped": {
+          "Result": "success",
+          "ExecMainPID": "0",
+          "ExecMainCode": "0",
+          "ExecMainStatus": "0",
+          "ActiveState": "inactive",
+          "SubState": "dead"
+        },
+        "pid_absent": true,
+        "reset_failed": false,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "fixture_removed": true
+      },
+      {
+        "host": "botstral-computer",
+        "fixture_removed": true
+      }
+    ],
+    "endpoints_refuse": {
+      "192.168.1.40:34761": true,
+      "bore.pub:50489": true
+    }
+  },
+  "endpoint": "192.168.1.40:34761",
+  "leaf": "e149ee36a0efab378032f959ad32010b8b5bee79c5095e00d6474ff9ce3fea80",
+  "status": "ISSUES",
+  "error": "production task failed {\"approval\": {\"binding\": {\"approval\": \"e47e9a8a-7032-4da0-9fab-9cc97fa13da7\", \"arguments\": \"59bad663f89792df17999b927e2ca04c545bffe333d5eebfdd2adea9ff242324\", \"bot\": \"5e614624-961d-4358-b4b5-024da9306eb0\", \"execution\": \"6cc0c965-9cf4-4c4a-9c9a-6a4b2b2ff8b5\", \"expires_at\": 1793179087, \"operation\": \"4176e9ca-114e-4954-aa21-6f26a7c03970\", \"owner\": \"ce1166cd-b66a-4860-8fb1-ab37bbe284bd\", \"permission_revision\": 2, \"task\": \"f6a38d18-0054-4386-be76-6fe7a1a6011e\"}, \"consumed\": true, \"id\": \"e47e9a8a-7032-4da0-9fab-9cc97fa13da7\", \"permission_revision\": 2, \"revoked\": false}, \"command\": {\"bot\": \"5e614624-961d-4358-b4b5-024da9306eb0\", \"execution\": \"6cc0c965-9cf4-4c4a-9c9a-6a4b2b2ff8b5\", \"id\": \"990daa0c-a9a0-4564-9422-a1fb5727fd07\", \"operation\": \"4176e9ca-114e-4954-aa21-6f26a7c03970\", \"owner\": \"ce1166cd-b66a-4860-8fb1-ab37bbe284bd\", \"session\": \"3209622e-856f-416d-b227-4631127fcbde\", \"task\": \"f6a38d18-0054-4386-be76-6fe7a1a6011e\", \"work\": {\"spec\": {\"account\": {\"gid\": 1000, \"uid\": 1000}, \"deadline\": 1793179144, \"limits\": {\"memory_bytes\": 536870912, \"output_bytes\": 1024, \"processes\": 64, \"runtime_seconds\": 120}, \"operations\": [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:46573/page.html\"}, {\"selector\": \"#value\", \"text\": \"C02 production browser proof\", \"type\": \"fill\"}, {\"selector\": \"#save\", \"type\": \"click\"}, {\"output\": \"text\", \"selector\": \"#result\", \"type\": \"capture_text\"}, {\"path\": \"/home/botstral/c02-production-cf4d330b22b2/browser.txt\", \"text\": \"C02 production file proof\\n\", \"type\": \"write_file\"}, {\"output\": \"image\", \"type\": \"screenshot\"}], \"outputs\": [{\"max_bytes\": 8192, \"media_type\": \"text_plain\", \"name\": \"result.txt\", \"slot\": \"text\"}, {\"max_bytes\": 1048576, \"media_type\": \"png\", \"name\": \"screenshot.png\", \"slot\": \"image\"}], \"profile\": \"linux_playwright_v1\", \"runtime\": {\"sha256\": \"1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061\"}, \"viewport\": {\"height\": 600, \"width\": 800}}, \"type\": \"computer\"}, \"worker\": \"944d6da9-6b6f-43ed-a122-514fae931e69\"}, \"effect_evidence\": [], \"id\": \"f6a38d18-0054-4386-be76-6fe7a1a6011e\", \"outcome\": {\"reason\": \"result\", \"scope\": {\"boot\": \"a9e5b8c7-8f54-445d-83bc-2e120b765cd9\", \"cgroup\": \"/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-372f2aa9-2ced-4ad4-a3ed-e769dc2c5fe6-6cc0c965-9cf4-4c4a-9c9a-6a4b2b2ff8b5.service\", \"execution\": \"6cc0c965-9cf4-4c4a-9c9a-6a4b2b2ff8b5\", \"host\": \"4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134\", \"invocation\": \"126dd243d0414ee88385aa89d37b951d\", \"journal\": \"372f2aa9-2ced-4ad4-a3ed-e769dc2c5fe6\", \"unit\": \"botstral-372f2aa9-2ced-4ad4-a3ed-e769dc2c5fe6-6cc0c965-9cf4-4c4a-9c9a-6a4b2b2ff8b5.service\"}, \"success\": false, \"type\": \"process_finished\"}, \"outputs\": [{\"declaration\": {\"max_bytes\": 8192, \"media_type\": \"text_plain\", \"name\": \"result.txt\", \"slot\": \"text\"}, \"state\": {\"reason\": \"missing\", \"type\": \"unavailable\"}}, {\"declaration\": {\"max_bytes\": 1048576, \"media_type\": \"png\", \"name\": \"screenshot.png\", \"slot\": \"image\"}, \"state\": {\"reason\": \"missing\", \"type\": \"unavailable\"}}], \"process\": {\"effect\": \"observed\", \"result\": {\"exit\": {\"code\": 1, \"type\": \"exited\"}, \"stderr\": {\"complete\": true, \"hex\": \"636f6d7075746572206f7065726174696f6e206661696c65640a\", \"truncated\": false}, \"stdout\": {\"complete\": true, \"hex\": \"\", \"truncated\": false}}}, \"progress\": 0, \"request\": {\"conversation_id\": null, \"id\": \"f6a38d18-0054-4386-be76-6fe7a1a6011e\", \"session_id\": \"3209622e-856f-416d-b227-4631127fcbde\", \"settings\": {\"deadline\": 1793179144, \"max_cost_micros\": 200000, \"max_tokens\": 1024, \"max_turns\": 1, \"model\": \"mistral-small-2506\"}, \"work\": {\"spec\": {\"account\": {\"gid\": 1000, \"uid\": 1000}, \"deadline\": 1793179144, \"limits\": {\"memory_bytes\": 536870912, \"output_bytes\": 1024, \"processes\": 64, \"runtime_seconds\": 120}, \"operations\": [{\"type\": \"navigate\", \"url\": \"http://127.0.0.1:46573/page.html\"}, {\"selector\": \"#value\", \"text\": \"C02 production browser proof\", \"type\": \"fill\"}, {\"selector\": \"#save\", \"type\": \"click\"}, {\"output\": \"text\", \"selector\": \"#result\", \"type\": \"capture_text\"}, {\"path\": \"/home/botstral/c02-production-cf4d330b22b2/browser.txt\", \"text\": \"C02 production file proof\\n\", \"type\": \"write_file\"}, {\"output\": \"image\", \"type\": \"screenshot\"}], \"outputs\": [{\"max_bytes\": 8192, \"media_type\": \"text_plain\", \"name\": \"result.txt\", \"slot\": \"text\"}, {\"max_bytes\": 1048576, \"media_type\": \"png\", \"name\": \"screenshot.png\", \"slot\": \"image\"}], \"profile\": \"linux_playwright_v1\", \"runtime\": {\"sha256\": \"1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061\"}, \"viewport\": {\"height\": 600, \"width\": 800}}, \"type\": \"computer\"}}, \"state\": \"failed\"}",
+  "retained_after": null
+}

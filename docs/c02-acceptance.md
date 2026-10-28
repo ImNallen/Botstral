@@ -62,3 +62,5 @@ Run `python3 desktop/fixtures/c02_source_record.py --check-controls` to verify t
 
 
 Sanitized [verification results](evidence/c02/verification.json), [source hashes](evidence/c02/source.json), [M05 results](evidence/c02/m05.json), [native results](evidence/c02/native.txt), and the [decision trail](evidence/c02/decisions.tsv) are retained with the implementation. The source manifest excludes generated target directories and contains no credentials.
+
+Additional [two-VM production acceptance](c02-production-acceptance.md) ran against frozen source `e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed`. Actual macOS RemoteService access passed over LAN and the public relay. Production cancellation, retention-gap recovery, runtime restart recovery, and lost-reply reconciliation passed. The native browser resource policy failed. A separately labelled supported M04 policy control completed real browser work and verified exports. The production issue and parent graphical gates remain open.

@@ -46,6 +46,7 @@ struct FixtureState {
     coding_path: Mutex<Option<String>>,
     model_gate: Mutex<Option<Arc<Semaphore>>>,
     desktop: std::sync::atomic::AtomicBool,
+    production: Mutex<Option<Value>>,
 }
 struct Fixture {
     state: Arc<FixtureState>,
@@ -65,6 +66,7 @@ impl Fixture {
             coding_path: Mutex::new(None),
             model_gate: Mutex::new(None),
             desktop: std::sync::atomic::AtomicBool::new(false),
+            production: Mutex::new(None),
         });
         let app = Router::new()
             .route(
@@ -201,6 +203,9 @@ async fn chat(
             });
         }
         reply.body = value.to_string();
+    }
+    if let Some(config) = state.production.lock().unwrap().as_ref() {
+        reply.body = run_tests::production_fixture::response(&body, config);
     }
     state.requests.lock().unwrap().push(body);
     state.chats.fetch_add(1, Ordering::SeqCst);

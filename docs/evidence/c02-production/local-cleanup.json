@@ -1,0 +1,14 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "at": "2026-10-28T09:26:48.421920+00:00",
+  "roots": [
+    {
+      "root": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/c02-production-private-ptxm5s1t",
+      "removed": true
+    },
+    {
+      "root": "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/c02-production-private-6pj4bpz5",
+      "removed": true
+    }
+  ]
+}

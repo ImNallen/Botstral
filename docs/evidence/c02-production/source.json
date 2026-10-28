@@ -1,0 +1,14 @@
+{
+  "production_source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "final_test_support_sha256": {
+    "manager/tests/c02_production.py": "be80342d6604239ecbc47e3ef9b4abcf033390b38ef44983e90b205c3661065a",
+    "manager/tests/c02_production_build.py": "874c1bff3c311821687e2a9b80f291968b3592a27c284fda9df6b2a42ea2e1bb",
+    "manager/tests/c02_production_remote.py": "9d363656ef9c192b96657fa420e7c33166f6feb99909f81ef117a079c8bb9ca4",
+    "manager/tests/c02_reply_proxy.py": "5a438a75be739b7d24898a404b8398835afcedcaf180444012df01a31675667c",
+    "manager/src/manager/inference/production_fixture.rs": "88ceaf5aa8154b9cd08f7401fed679c4ca4cef8552746c0189eb0187dcdbbcbe",
+    "manager/src/manager/inference/tests.rs": "79ffb819c33a75b2aafd2e64580fd5338894bfb2bf66b4b3686862821e132146",
+    "manager/src/manager/inference/run_tests.rs": "f8033c65c4928190370b7d4afbbac0ed9ccdececc954097775483a3df871d809",
+    "desktop/src-tauri/examples/c02-remote-driver.rs": "b5ae32d45afa2cec03b59fc4815a66d0d296bf78fe64a0d83c7dbde6b69ec1b0"
+  },
+  "note": "Run-time support hashes are retained separately in summary.json. Later helper changes tightened invitation creation and cleanup reporting and marked incomplete runs BLOCKED."
+}

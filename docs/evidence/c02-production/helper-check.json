@@ -1,0 +1,26 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "positive": {
+    "exit": 0,
+    "mode": "0600",
+    "fingerprint_matched": true,
+    "secret_printed": false,
+    "private_file_removed": true
+  },
+  "symlink_negative": {
+    "command": [
+      "python3",
+      "manager/tests/c02_production.py",
+      "invite",
+      "--fixture",
+      ".audit/c02-production/run-5/fixture-control.json",
+      "--fingerprint",
+      "63ab78bd62f6ffae3b8a0a80f66fa4c9ed09452bd8ff43be3a036c1ecf67130c",
+      "--output",
+      ".audit/c02-production/run-5/refused-invitation"
+    ],
+    "exit": 1,
+    "target_unchanged": true,
+    "refused_before_authorization": true
+  }
+}
