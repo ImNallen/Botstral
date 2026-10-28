@@ -6,6 +6,7 @@ mod config;
 #[cfg(feature = "nonproduction-test-worker")]
 mod effect_provider;
 mod journal;
+pub mod maintenance;
 mod process;
 mod session;
 #[cfg(feature = "nonproduction-test-worker")]

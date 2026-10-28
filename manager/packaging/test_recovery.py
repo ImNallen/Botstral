@@ -98,6 +98,31 @@ class RecoveryTests(unittest.TestCase):
                 self.create()
         self.assertFalse(self.backup.exists())
 
+    def test_backup_links_and_extra_content_are_refused(self):
+        self.create()
+        memory = self.backup / 'files/state/memory-test.md'
+        original = self.root / 'retained-memory'
+        memory.rename(original)
+        memory.symlink_to(original)
+        with self.assertRaises(ValueError):
+            r.verify('manager', self.backup)
+        memory.unlink()
+        os.link(original, memory)
+        with self.assertRaises(ValueError):
+            r.verify('manager', self.backup)
+        memory.unlink()
+        original.rename(memory)
+        extra = self.backup / 'files/state/unlisted'
+        extra.write_text('unexpected content')
+        with self.assertRaisesRegex(ValueError, 'unexpected'):
+            r.verify('manager', self.backup)
+
+    def test_future_database_schema_is_refused(self):
+        self.db.execute('PRAGMA user_version=999')
+        with self.assertRaisesRegex(ValueError, 'unsupported database'):
+            self.create()
+        self.assertFalse(self.backup.exists())
+
     def test_malicious_manifest_refusals_before_destination(self):
         self.create()
         manifest_path = self.backup / 'manifest.json'
@@ -163,9 +188,14 @@ class WorkerRecoveryTests(unittest.TestCase):
                 self.assertEqual(quiet.call_count, 2)
             with self.assertRaisesRegex(ValueError, 'retired'):
                 r.restore('agent', root / 'backup', root / 'restored')
+            with open(state / 'agent.lock', 'rb') as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                with self.assertRaises(BlockingIOError):
+                    r.restore('agent', root / 'backup', root / 'restored', retired=True)
             for selected_root in selected:
                 Path(selected_root['path']).rename(selected_root['path'] + '-retired')
-            r.restore('agent', root / 'backup', root / 'restored', retired=True)
+            with patch.object(r, 'worker_quiet'):
+                r.restore('agent', root / 'backup', root / 'restored', retired=True)
             self.assertEqual((root / 'restored/processes/retained-evidence').read_text(), 'scope stop evidence')
             for selected_root in selected:
                 self.assertEqual((Path(selected_root['path']) / 'bytes').read_text(), selected_root['kind'] + ' retained bytes')

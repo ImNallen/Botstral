@@ -187,7 +187,10 @@ def worker_quiet(roots):
     result = subprocess.run(['/usr/bin/systemctl', '--user', 'list-units', '--all', '--no-legend', '--plain', 'botstral-*.service'], env=environment, capture_output=True, timeout=10, check=True, text=True)
     require(all(len(line.split()) >= 4 and line.split()[2] in {'inactive', 'failed'} for line in result.stdout.splitlines() if line.strip()), 'worker systemd units still active')
     require(Path('/proc/self/fd').is_dir() and Path('/sys/fs/cgroup/cgroup.controllers').is_file(), 'procfs and cgroup v2 required')
-    ancestors = {os.getpid()}
+    manager_pid = subprocess.run(['/usr/bin/systemctl', 'show', f'user@{uid}.service', '--property=MainPID', '--value'], env=environment, capture_output=True, timeout=10, check=True, text=True).stdout.strip()
+    require(manager_pid.isdecimal() and int(manager_pid) > 0, 'systemd user manager identity unavailable')
+    manager_group = Path(f'/proc/{manager_pid}/cgroup').read_text()
+    ancestors = {os.getpid(), int(manager_pid)}
     parent = os.getppid()
     while parent and parent not in ancestors:
         ancestors.add(parent)
@@ -202,6 +205,11 @@ def worker_quiet(roots):
             if process.stat().st_uid != uid:
                 continue
             name = (process / 'comm').read_text().strip().lower()
+            if name == '(sd-pam)':
+                status = (process / 'status').read_text()
+                parent_line = next((line.split()[1] for line in status.splitlines() if line.startswith('PPid:')), None)
+                if parent_line == manager_pid and (process / 'cgroup').read_text() == manager_group:
+                    continue
             require(not any(word in name for word in ('chrom', 'firefox', 'vibe', 'botstral')), 'guest browser, coding, or worker process still running')
             links = [process / 'cwd', process / 'exe', *list((process / 'fd').iterdir())]
             for link in links:
@@ -424,6 +432,20 @@ def verify(component, bundle):
 def restore(component, bundle, destination, retired=False):
     manifest = verify(component, bundle)
     require(component != 'agent' or retired, 'explicit --original-instance-retired required; never run two copies')
+    with contextlib.ExitStack() as locks:
+        original = Path(manifest.roots[0]['path'])
+        if component == 'agent' and original.exists():
+            locks.enter_context(locked('agent', original))
+            connection, _, _ = database(original / 'agent.sqlite3', 'agent')
+            try:
+                worker_records(connection)
+            finally:
+                connection.close()
+            worker_quiet([Path(root['path']) for root in manifest.roots])
+        return restore_validated(component, bundle, destination, manifest)
+
+
+def restore_validated(component, bundle, destination, manifest):
     destinations = {root['label']: absolute(destination if root['label'] == 'state' else root['path']) for root in manifest.roots}
     for target in destinations.values():
         metadata(target.parent, True)

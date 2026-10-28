@@ -1,0 +1,9 @@
+{
+  "state_dir": "/var/lib/botstral-manager",
+  "listen": "127.0.0.1:43120",
+  "setup_listen": "127.0.0.1:43121",
+  "public_listen": "0.0.0.0:43122",
+  "certificate": "/etc/botstral-manager/tls/server.pem",
+  "key": "/etc/botstral-manager/tls/server.key",
+  "worker_ca": "/etc/botstral-manager/tls/worker-ca.pem"
+}

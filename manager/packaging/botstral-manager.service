@@ -1,0 +1,25 @@
+[Unit]
+Description=Botstral manager
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=botstral-manager
+Group=botstral-manager
+UMask=0077
+StateDirectory=botstral-manager
+StateDirectoryMode=0700
+ExecStart=/usr/lib/botstral-manager/launch.py --config /etc/botstral-manager/service.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/botstral-manager
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

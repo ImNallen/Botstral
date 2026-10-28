@@ -1,0 +1,9 @@
+{
+  "roots": [
+    {"label": "workspace", "kind": "workspace", "path": "/home/botstral-agent/workspaces"},
+    {"label": "profiles", "kind": "browser-profile", "path": "/home/botstral-agent/browser-profiles"},
+    {"label": "certificates", "kind": "certificate", "path": "/home/botstral-agent/certificates"},
+    {"label": "tools", "kind": "tool", "path": "/home/botstral-agent/tools"},
+    {"label": "runtimes", "kind": "runtime", "path": "/home/botstral-agent/runtimes"}
+  ]
+}
