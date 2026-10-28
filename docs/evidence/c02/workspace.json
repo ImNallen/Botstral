@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "consistent_workspace",
+    "legacy_resume_shape",
+    "changed_action_refused",
+    "stale_permission_refused",
+    "revoked_review_refused",
+    "exact_execution_granted"
+  ],
+  "old_probe": false
+}

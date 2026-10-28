@@ -1,0 +1,14 @@
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.48s
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-f1cc92d7b07f5318)
+
+running 7 tests
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ignored, Requires desktop/fixtures/paired_manager.py and the real unlocked OS keychain.
+test pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths ... ok
+test unavailable_native_storage_never_publishes_a_fingerprint ... ok
+test a_journal_larger_than_secret_file_limits_restores_without_credentials_on_disk ... ok
+test sign_out_blocks_new_intents_while_an_admitted_native_call_is_finishing ... ok
+test failed_secret_deletion_leaves_a_durable_signed_out_tombstone ... ok
+test sign_out_clears_native_authority_when_the_profile_directory_was_removed ... ok
+
+test result: ok. 6 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.07s

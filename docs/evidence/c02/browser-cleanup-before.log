@@ -1,0 +1,7 @@
+{"case": "cleanup-error", "escaped_error": "native command timed out quit", "helper_return": null, "invitation_exists": true, "private_directory_exists": true, "results_exists": false}
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/.audit/c02/probe_browser_cleanup.py", line 102, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/.audit/c02/probe_browser_cleanup.py", line 96, in main
+    assert record['results_exists'], 'Cleanup failure must not discard results.json'
+AssertionError: Cleanup failure must not discard results.json

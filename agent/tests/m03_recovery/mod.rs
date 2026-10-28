@@ -1073,9 +1073,6 @@ async fn recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent() {
     assert_eq!(high, 48);
     let manager =
         rusqlite::Connection::open(f.root.path().join("manager/manager.sqlite3")).unwrap();
-    let before: i64 = manager
-        .query_row("SELECT sequence FROM event_head", [], |r| r.get(0))
-        .unwrap();
     let receipts: i64 = manager
         .query_row("SELECT count(*) FROM report_receipts", [], |r| r.get(0))
         .unwrap();
@@ -1125,6 +1122,9 @@ async fn recovery_pages_and_lost_report_receipts_are_bounded_and_idempotent() {
         read(&mut socket).await,
         ManagerMessage::RecoveryReady { .. }
     ));
+    let before: i64 = manager
+        .query_row("SELECT sequence FROM event_head", [], |r| r.get(0))
+        .unwrap();
     let report: DurableReport = serde_json::from_str(
         &manager
             .query_row::<String, _, _>(

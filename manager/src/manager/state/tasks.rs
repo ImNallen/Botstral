@@ -1,5 +1,6 @@
 mod recovery;
 use super::*;
+use crate::manager::devices::DeviceLease;
 use botstral_link::*;
 
 #[derive(PartialEq)]
@@ -515,6 +516,99 @@ impl State {
         event(&tx, "message_appended", input.id)?;
         tx.commit()?;
         Ok(input)
+    }
+    pub(in crate::manager) fn workspace(
+        &mut self,
+        lease: DeviceLease,
+    ) -> Result<OwnerWorkspace, OperationError> {
+        count_bound(&self.connection, "bots", MAX_WORKSPACE_BOTS + 1)?;
+        count_bound(&self.connection, "workers", MAX_WORKSPACE_WORKERS + 1)?;
+        count_bound(
+            &self.connection,
+            "computer_sessions",
+            MAX_WORKSPACE_BOTS + 1,
+        )?;
+        let EventReplay::Snapshot { state, cursor } = self.resume(lease, 0, 64)? else {
+            return Err(OperationError::Internal);
+        };
+        let bots = self
+            .connection
+            .prepare("SELECT id,name,created_at FROM bots ORDER BY id")?
+            .query_map([], |r| {
+                Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get(2)?))
+            })?
+            .map(|r| {
+                let (id, name, created_at) = r?;
+                Ok(WorkspaceBot {
+                    id: id.parse().map_err(|_| OperationError::Internal)?,
+                    name,
+                    created_at,
+                })
+            })
+            .collect::<Result<Vec<_>, OperationError>>()?;
+        let workers = self
+            .connection
+            .prepare("SELECT id,revoked FROM workers ORDER BY id")?
+            .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get(1)?)))?
+            .map(|r| {
+                let (id, revoked) = r?;
+                let id = id.parse().map_err(|_| OperationError::Internal)?;
+                Ok(WorkspaceWorker {
+                    id,
+                    revoked,
+                    phase: self
+                        .worker_connections
+                        .get(&id)
+                        .map_or("disconnected", |c| match c.phase {
+                            WorkerPhase::Disconnected => "disconnected",
+                            WorkerPhase::Synchronizing => "synchronizing",
+                            WorkerPhase::Ready => "ready",
+                        })
+                        .into(),
+                })
+            })
+            .collect::<Result<Vec<_>, OperationError>>()?;
+        let sessions = self
+            .connection
+            .prepare("SELECT id FROM computer_sessions ORDER BY id")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|r| self.find_computer_session(r?.parse().map_err(|_| OperationError::Internal)?))
+            .collect::<Result<Vec<_>, _>>()?;
+        let runs = state
+            .runs
+            .iter()
+            .map(|r| self.run(lease, r.id))
+            .collect::<Result<Vec<_>, _>>()?;
+        let owner = self
+            .connection
+            .query_row("SELECT name FROM owner LIMIT 1", [], |r| r.get(0))?;
+        let run_ready_bots = state
+            .inference_configurations
+            .iter()
+            .filter_map(|c| {
+                self.tools_authorized(c)
+                    .ok()
+                    .filter(|ready| *ready)
+                    .map(|_| c.bot)
+            })
+            .collect();
+        Ok(OwnerWorkspace {
+            manager: self.manager_identity()?,
+            run_ready_bots,
+            vault_unlocked: matches!(
+                self.installation,
+                Installation::Configured {
+                    vault: VaultState::Unlocked { .. }
+                }
+            ),
+            cursor,
+            owner,
+            bots,
+            workers,
+            sessions,
+            runs,
+            state,
+        })
     }
     pub(in crate::manager) fn resume(
         &mut self,

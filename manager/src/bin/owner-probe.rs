@@ -1,4 +1,5 @@
-use botstral_manager::{owner_client::OwnerClient, protect_process};
+use botstral_manager::protect_process;
+use botstral_owner_client::OwnerClient;
 use std::{fs, path::PathBuf, time::Duration};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

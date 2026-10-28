@@ -10,6 +10,7 @@ default = []
 nonproduction-test-worker = []
 
 [dependencies]
+botstral-owner-client = { path = "../link/client", features = ["probe-files"] }
 rustls.workspace = true
 tokio-rustls.workspace = true
 rustls-pemfile.workspace = true

@@ -1,0 +1,6 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "exit": 0,
+  "stdout": "[{\"root\": \"/home/botstral/c02-build-1f400827d3ef\", \"processes\": [], \"removed\": true}, {\"root\": \"/home/botstral/c02-build-57ee391d19a1\", \"processes\": [], \"removed\": true}]\n",
+  "stderr": ""
+}

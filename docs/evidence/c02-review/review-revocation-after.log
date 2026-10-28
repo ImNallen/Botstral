@@ -1,0 +1,21 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-nfn71c84
+Local manager: 127.0.0.1:60192
+Paired WSS route: wss://127.0.0.1:60211/owner/v1/connect
+Manager identity: 94a175e5-158a-4a99-8533-c268a74a1538
+Manager leaf: 76b05cc60c2299928a1217cde253ce1cbeab8160856415b837ff902f014139fd
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-nfn71c84/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-nfn71c84/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.37s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-1225872ef5add004)
+
+running 1 test
+REVOKED_OFFLINE_RESTART result=Err("revoked") cached_activity=false
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 2.81s

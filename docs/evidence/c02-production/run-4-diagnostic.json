@@ -1,0 +1,395 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "build": {
+    "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+    "overlays": {
+      "manager/src/manager/inference/tests.rs": "79ffb819c33a75b2aafd2e64580fd5338894bfb2bf66b4b3686862821e132146",
+      "manager/src/manager/inference/run_tests.rs": "f8033c65c4928190370b7d4afbbac0ed9ccdececc954097775483a3df871d809",
+      "manager/src/manager/inference/production_fixture.rs": "88ceaf5aa8154b9cd08f7401fed679c4ca4cef8552746c0189eb0187dcdbbcbe"
+    },
+    "archive_sha256": "8bc02330af8988b083c32a8a926e62415218af89dab8c8896266a272f20f7be1",
+    "build_root": "/home/botstral/c02-build-57ee391d19a1",
+    "command": "cargo test -p botstral-manager --locked --lib --no-run --message-format=json",
+    "exit": 0,
+    "artifact": {
+      "binary": "/home/botstral/c02-build-57ee391d19a1/manager-fixture",
+      "sha256": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+      "exit": 0
+    }
+  },
+  "checks": [
+    {
+      "name": "retained_worker_and_every_runtime_file_verified",
+      "status": "PASS",
+      "files": {
+        "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+        "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+      },
+      "verified_runtime_files": 5574
+    },
+    {
+      "name": "macos_remote_service_real_keychain_actual_lan",
+      "status": "PASS",
+      "endpoint": "192.168.1.40:41651",
+      "leaf": "55ba4b45f556b7124be7986c7f90a20e76183d5dbfb5feb5b27f900f848d54b6",
+      "cursor": 15,
+      "worker": "93dfe426-794d-49f5-8621-f0ee59af6a65",
+      "native_sha256": "1c4e11b57af3a3d22adba54ff39eda431f4014fba85e197a209f187c1a8b619e"
+    },
+    {
+      "name": "macos_remote_service_public_relay",
+      "status": "PASS",
+      "endpoint": "bore.pub:25188",
+      "leaf": "55ba4b45f556b7124be7986c7f90a20e76183d5dbfb5feb5b27f900f848d54b6"
+    },
+    {
+      "name": "native_composer_production_browser",
+      "status": "ISSUES",
+      "task": {
+        "approval": {
+          "binding": {
+            "approval": "67324ab4-35d0-4edc-8e50-b71c879555b7",
+            "arguments": "d6a1e7a2abba20cd4f16aeb5b7505a86931433e4799319c9aaaa4a6c9372f2a4",
+            "bot": "3aab9d36-c266-4406-8f22-264a8bd75a81",
+            "execution": "ff8a47f5-7561-42de-b629-e37876852d06",
+            "expires_at": 1793179290,
+            "operation": "d5df0a68-9697-4b6c-ba82-ad37977019a7",
+            "owner": "e3e0a634-60c0-4a3d-961b-b7ffb9422f5d",
+            "permission_revision": 2,
+            "task": "c603c561-1889-433a-b9a3-dbd49beb944f"
+          },
+          "consumed": true,
+          "id": "67324ab4-35d0-4edc-8e50-b71c879555b7",
+          "permission_revision": 2,
+          "revoked": false
+        },
+        "command": {
+          "bot": "3aab9d36-c266-4406-8f22-264a8bd75a81",
+          "execution": "ff8a47f5-7561-42de-b629-e37876852d06",
+          "id": "c02e9c4f-92d4-4059-853c-5b5d461233a7",
+          "operation": "d5df0a68-9697-4b6c-ba82-ad37977019a7",
+          "owner": "e3e0a634-60c0-4a3d-961b-b7ffb9422f5d",
+          "session": "662ff729-8b9e-46f6-8f9a-b3dfd4f5f1dd",
+          "task": "c603c561-1889-433a-b9a3-dbd49beb944f",
+          "work": {
+            "spec": {
+              "account": {
+                "gid": 1000,
+                "uid": 1000
+              },
+              "deadline": 1793179346,
+              "limits": {
+                "memory_bytes": 536870912,
+                "output_bytes": 1024,
+                "processes": 64,
+                "runtime_seconds": 120
+              },
+              "operations": [
+                {
+                  "type": "navigate",
+                  "url": "http://127.0.0.1:44269/page.html"
+                },
+                {
+                  "selector": "#value",
+                  "text": "C02 production browser proof",
+                  "type": "fill"
+                },
+                {
+                  "selector": "#save",
+                  "type": "click"
+                },
+                {
+                  "output": "text",
+                  "selector": "#result",
+                  "type": "capture_text"
+                },
+                {
+                  "path": "/home/botstral/c02-production-c238feec84a3/browser.txt",
+                  "text": "C02 production file proof\n",
+                  "type": "write_file"
+                },
+                {
+                  "output": "image",
+                  "type": "screenshot"
+                }
+              ],
+              "outputs": [
+                {
+                  "max_bytes": 8192,
+                  "media_type": "text_plain",
+                  "name": "result.txt",
+                  "slot": "text"
+                },
+                {
+                  "max_bytes": 1048576,
+                  "media_type": "png",
+                  "name": "screenshot.png",
+                  "slot": "image"
+                }
+              ],
+              "profile": "linux_playwright_v1",
+              "runtime": {
+                "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+              },
+              "viewport": {
+                "height": 600,
+                "width": 800
+              }
+            },
+            "type": "computer"
+          },
+          "worker": "93dfe426-794d-49f5-8621-f0ee59af6a65"
+        },
+        "effect_evidence": [],
+        "id": "c603c561-1889-433a-b9a3-dbd49beb944f",
+        "outcome": {
+          "reason": "result",
+          "scope": {
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-ff8a47f5-7561-42de-b629-e37876852d06.service",
+            "execution": "ff8a47f5-7561-42de-b629-e37876852d06",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "invocation": "cf97b84b04ac420f88bec8474d089ee9",
+            "journal": "414d41bb-d334-49ef-879d-a1f8be0a489c",
+            "unit": "botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-ff8a47f5-7561-42de-b629-e37876852d06.service"
+          },
+          "success": false,
+          "type": "process_finished"
+        },
+        "outputs": [
+          {
+            "declaration": {
+              "max_bytes": 8192,
+              "media_type": "text_plain",
+              "name": "result.txt",
+              "slot": "text"
+            },
+            "state": {
+              "reason": "missing",
+              "type": "unavailable"
+            }
+          },
+          {
+            "declaration": {
+              "max_bytes": 1048576,
+              "media_type": "png",
+              "name": "screenshot.png",
+              "slot": "image"
+            },
+            "state": {
+              "reason": "missing",
+              "type": "unavailable"
+            }
+          }
+        ],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "code": 1,
+              "type": "exited"
+            },
+            "stderr": {
+              "complete": true,
+              "hex": "636f6d7075746572206f7065726174696f6e206661696c65640a",
+              "truncated": false
+            },
+            "stdout": {
+              "complete": true,
+              "hex": "",
+              "truncated": false
+            }
+          }
+        },
+        "progress": 0,
+        "request": {
+          "conversation_id": null,
+          "id": "c603c561-1889-433a-b9a3-dbd49beb944f",
+          "session_id": "662ff729-8b9e-46f6-8f9a-b3dfd4f5f1dd",
+          "settings": {
+            "deadline": 1793179346,
+            "max_cost_micros": 200000,
+            "max_tokens": 1024,
+            "max_turns": 1,
+            "model": "mistral-small-2506"
+          },
+          "work": {
+            "spec": {
+              "account": {
+                "gid": 1000,
+                "uid": 1000
+              },
+              "deadline": 1793179346,
+              "limits": {
+                "memory_bytes": 536870912,
+                "output_bytes": 1024,
+                "processes": 64,
+                "runtime_seconds": 120
+              },
+              "operations": [
+                {
+                  "type": "navigate",
+                  "url": "http://127.0.0.1:44269/page.html"
+                },
+                {
+                  "selector": "#value",
+                  "text": "C02 production browser proof",
+                  "type": "fill"
+                },
+                {
+                  "selector": "#save",
+                  "type": "click"
+                },
+                {
+                  "output": "text",
+                  "selector": "#result",
+                  "type": "capture_text"
+                },
+                {
+                  "path": "/home/botstral/c02-production-c238feec84a3/browser.txt",
+                  "text": "C02 production file proof\n",
+                  "type": "write_file"
+                },
+                {
+                  "output": "image",
+                  "type": "screenshot"
+                }
+              ],
+              "outputs": [
+                {
+                  "max_bytes": 8192,
+                  "media_type": "text_plain",
+                  "name": "result.txt",
+                  "slot": "text"
+                },
+                {
+                  "max_bytes": 1048576,
+                  "media_type": "png",
+                  "name": "screenshot.png",
+                  "slot": "image"
+                }
+              ],
+              "profile": "linux_playwright_v1",
+              "runtime": {
+                "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+              },
+              "viewport": {
+                "height": 600,
+                "width": 800
+              }
+            },
+            "type": "computer"
+          }
+        },
+        "state": "failed"
+      }
+    },
+    {
+      "name": "diagnostic_supported_m04_policy_browser_and_native_export",
+      "status": "PASS",
+      "submission": "loopback control with 128 processes and 1 GiB",
+      "task": "05903d6f-b038-4190-b4bc-32c7ca5fa6be",
+      "text_sha256": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205",
+      "declaration": {
+        "declaration": {
+          "max_bytes": 8192,
+          "media_type": "text_plain",
+          "name": "result.txt",
+          "slot": "text"
+        },
+        "state": {
+          "content": {
+            "length": 28,
+            "sha256": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205"
+          },
+          "id": "80f083df-d148-462f-9dde-b96c78501b37",
+          "type": "available"
+        }
+      },
+      "screenshot_sha256": "db764b38a0a6ceed5deaf04c109d734c5411c099134f4cb5b59d34be5848eb83"
+    },
+    {
+      "name": "installed_worker_process_group_cancellation",
+      "status": "PASS",
+      "task": "a0f58d93-e622-4300-994b-32a9dd44b8c6",
+      "pids": [
+        412829,
+        412830
+      ],
+      "running": [
+        {
+          "pid": 412829,
+          "stat": "412829 (python3) S 412827 412827 412827 0 -1 4194304 1395 0 0 0 1 0 0 0 20 0 1 0 14942077 20328448 2976 18446744073709551615 4325376 7352253 140732462252896 0 0 0 0 16781312 2 1 0 0 17 11 0 0 0 0 0 10653128 12216448 851603456 140732462255877 140732462256103 140732462256103 140732462256103 0\n",
+          "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-d3590ef8-1ca9-4960-88c7-89e880ad21e5.service\n"
+        },
+        {
+          "pid": 412830,
+          "stat": "412830 (sleep) S 412829 412827 412827 0 -1 4194304 67 0 0 0 0 0 0 0 20 0 1 0 14942078 6217728 480 18446744073709551615 98779879542784 98779879556785 140726104709776 0 0 0 0 0 0 1 0 0 17 1 0 0 0 0 0 98779879566288 98779879567512 98780519366656 140726104711109 140726104711128 140726104711128 140726104711145 0\n",
+          "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-d3590ef8-1ca9-4960-88c7-89e880ad21e5.service\n"
+        }
+      ],
+      "outcome": {
+        "applied": 0,
+        "evidence": {
+          "systemd_scope_empty": {
+            "scope": {
+              "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-d3590ef8-1ca9-4960-88c7-89e880ad21e5.service",
+              "execution": "d3590ef8-1ca9-4960-88c7-89e880ad21e5",
+              "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+              "invocation": "1a089cf206e446bd922a862566014f97",
+              "journal": "414d41bb-d334-49ef-879d-a1f8be0a489c",
+              "unit": "botstral-414d41bb-d334-49ef-879d-a1f8be0a489c-d3590ef8-1ca9-4960-88c7-89e880ad21e5.service"
+            }
+          }
+        },
+        "type": "stopped"
+      }
+    }
+  ],
+  "root": "/home/botstral/c02-production-c238feec84a3",
+  "cleanup": {
+    "units": [
+      {
+        "host": "botstral-manager",
+        "unit": "botstral-m05-c02-c238feec84a3-bore",
+        "already_absent": true,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-c238feec84a3-worker",
+        "already_absent": true,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "unit": "botstral-m05-c02-c238feec84a3-manager",
+        "already_absent": true,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-computer",
+        "unit": "botstral-m05-c02-c238feec84a3-page",
+        "already_absent": true,
+        "final_unit_state": "inactive"
+      },
+      {
+        "host": "botstral-manager",
+        "fixture_removed": true
+      },
+      {
+        "host": "botstral-computer",
+        "fixture_removed": true
+      }
+    ],
+    "endpoints_refuse": {
+      "192.168.1.40:41651": true,
+      "bore.pub:25188": true
+    }
+  },
+  "endpoint": "192.168.1.40:41651",
+  "leaf": "55ba4b45f556b7124be7986c7f90a20e76183d5dbfb5feb5b27f900f848d54b6",
+  "status": "ISSUES",
+  "error": "Fixture requested 300 messages, exceeding the 256-record bound. Initial cleanup sampled relay closure too early. Repeated cleanup confirmed unloaded units and no remaining processes."
+}

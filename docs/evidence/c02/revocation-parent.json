@@ -1,0 +1,7 @@
+{
+  "device": "0f5abd10-224c-4ec9-a2d3-f11e273a9d49",
+  "fingerprint": "281289628c406d36aa3319e2f1172185de810fd19bc64ceb87ebd69e07d0d892",
+  "revoked": true,
+  "local_manager": "127.0.0.1:49703",
+  "route": "trusted local administration API"
+}

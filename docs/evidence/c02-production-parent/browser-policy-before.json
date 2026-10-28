@@ -1,0 +1,8 @@
+{
+  "status": "ISSUES",
+  "manager_source": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "native_sha256": "606e645f9278fd221cdcb6bf5a6adce5d6f57217e0c45250f5885742719c1e6b",
+  "endpoint": "bore.pub:51870",
+  "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7",
+  "error": "native confirm refused offline"
+}

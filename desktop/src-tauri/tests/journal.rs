@@ -1,0 +1,539 @@
+use botstral_desktop::{
+    local::LocalManager,
+    remote::{Intent, IntentCommand, RemoteService, SendInput},
+};
+use botstral_link::*;
+use botstral_owner_client::{ClientError, OwnerClient, SecretStore};
+use std::{
+    os::unix::fs::PermissionsExt,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+};
+use zeroize::Zeroizing;
+
+#[derive(Default)]
+struct MemorySecrets(Mutex<Option<Zeroizing<Vec<u8>>>>);
+impl SecretStore for MemorySecrets {
+    fn read(&self) -> Result<Option<Zeroizing<Vec<u8>>>, ClientError> {
+        Ok(self.0.lock().unwrap().clone())
+    }
+    fn replace(&self, value: Zeroizing<Vec<u8>>) -> Result<(), ClientError> {
+        *self.0.lock().unwrap() = Some(value);
+        Ok(())
+    }
+    fn delete(&self) -> Result<(), ClientError> {
+        self.0.lock().unwrap().take();
+        Ok(())
+    }
+}
+async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::Value) {
+    let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
+    let fixture: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(fixture_root.join("fixture.json")).unwrap()).unwrap();
+    let store = Arc::new(MemorySecrets::default());
+    let service = RemoteService::new(root.to_owned(), store.clone());
+    let local = LocalManager::new().unwrap();
+    local
+        .sign_in(
+            fixture["local"].as_str().unwrap().into(),
+            Zeroizing::new(fixture["password"].as_str().unwrap().into()),
+        )
+        .await
+        .unwrap();
+    let request = service
+        .command(IntentCommand::Begin {
+            label: "Independent review".into(),
+        })
+        .await
+        .unwrap()
+        .pairing
+        .unwrap();
+    let trust =
+        serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
+    let bundle = local.invite_device(request, trust).await.unwrap();
+    let candidate = service
+        .command(IntentCommand::Stage(bundle))
+        .await
+        .unwrap()
+        .candidate
+        .unwrap();
+    assert_eq!(
+        service
+            .command(IntentCommand::Confirm(candidate.id))
+            .await
+            .unwrap()
+            .status,
+        "online"
+    );
+    local.sign_out();
+    (service, store, fixture)
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn observed_revocation_blocks_cached_activity_after_offline_restart() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    assert!(service.inspect().workspace.is_some());
+    let local = LocalManager::new().unwrap();
+    local
+        .sign_in(
+            fixture["local"].as_str().unwrap().into(),
+            Zeroizing::new(fixture["password"].as_str().unwrap().into()),
+        )
+        .await
+        .unwrap();
+    let device = local.devices().await.unwrap().remove(0);
+    local.revoke_device(device.id).await.unwrap();
+    assert!(service.restore().await.is_err());
+    assert!(service.inspect().workspace.is_none());
+    service.shutdown().await;
+    let mut client = OwnerClient::open_with(&root, store.clone()).unwrap();
+    let mut trust = client.trust().unwrap().clone();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    trust.endpoint = listener.local_addr().unwrap().to_string();
+    drop(listener);
+    client.import_trust(trust).unwrap();
+    drop(client);
+    let restarted = RemoteService::new(root.clone(), store);
+    let result = restarted.restore().await;
+    println!(
+        "REVOKED_OFFLINE_RESTART result={:?} cached_activity={}",
+        result.as_ref().map(|v| v.status.as_str()),
+        restarted.inspect().workspace.is_some()
+    );
+    assert!(
+        restarted.inspect().workspace.is_none(),
+        "A known-revoked profile exposed cached activity after offline restart"
+    );
+    assert_eq!(restarted.inspect().issue.as_deref(), Some("revoked"));
+    assert!(root.join("revoked.json").exists());
+    let request = restarted
+        .command(IntentCommand::Begin {
+            label: "Explicit replacement after revocation".into(),
+        })
+        .await
+        .unwrap()
+        .pairing
+        .unwrap();
+    assert_ne!(request.fingerprint, device.fingerprint);
+    assert!(!root.join("revoked.json").exists());
+    let trust = serde_json::from_slice(
+        &std::fs::read(
+            PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap())
+                .join("trust.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let bundle = local.invite_device(request, trust).await.unwrap();
+    let candidate = restarted
+        .command(IntentCommand::Stage(bundle))
+        .await
+        .unwrap()
+        .candidate
+        .unwrap();
+    assert_eq!(
+        restarted
+            .command(IntentCommand::Confirm(candidate.id))
+            .await
+            .unwrap()
+            .status,
+        "online"
+    );
+    restarted.sign_out().await.unwrap();
+    local.sign_out();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn historical_approval_cannot_confirm_an_unknown_regrant() {
+    let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
+    let pause = fixture_root.join("pause-worker");
+    std::fs::write(&pause, b"").unwrap();
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot = fixture["bot"].as_str().unwrap().parse().unwrap();
+    service
+        .command(IntentCommand::Send(SendInput {
+            bot,
+            session: fixture["session"].as_str().unwrap().parse().unwrap(),
+            text: "Create a file".into(),
+            account: ProcessAccount {
+                uid: 1000,
+                gid: 1000,
+            },
+            runtime: Some(
+                fixture["runtime"]
+                    .as_str()
+                    .unwrap()
+                    .to_owned()
+                    .try_into()
+                    .unwrap(),
+            ),
+            process: true,
+            seconds: 120,
+            turns: 4,
+            tokens: 200_000,
+            cost_microusd: 200_000,
+            output_tokens: 1024,
+        }))
+        .await
+        .unwrap();
+    let mut changes = service.observe();
+    let task = tokio::time::timeout(std::time::Duration::from_secs(10), async {
+        loop {
+            if let Some(task) = changes
+                .borrow()
+                .workspace
+                .as_ref()
+                .and_then(|w| w.state.tasks.first())
+                .cloned()
+            {
+                break task;
+            }
+            changes.changed().await.unwrap();
+        }
+    })
+    .await
+    .unwrap();
+    let review = service
+        .command(IntentCommand::Review(task.id))
+        .await
+        .unwrap()
+        .review
+        .unwrap();
+    service
+        .command(IntentCommand::Approve(review.id))
+        .await
+        .unwrap();
+    let prior = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .tasks
+        .into_iter()
+        .find(|t| t.id == task.id)
+        .unwrap();
+    assert!(!prior.approval.consumed);
+    service
+        .command(IntentCommand::RevokeApproval(task.id))
+        .await
+        .unwrap();
+    let revoked = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .tasks
+        .into_iter()
+        .find(|t| t.id == task.id)
+        .unwrap();
+    assert!(revoked.approval.revoked);
+    let expires_at = prior.approval.binding.as_ref().unwrap().expires_at + 1;
+    let intent = Intent {
+        id: uuid::Uuid::new_v4(),
+        status: "unknown".into(),
+        operation: OwnerOperation::GrantReviewedApproval {
+            id: task.id,
+            command: Box::new(revoked.command),
+            permission_revision: revoked.approval.permission_revision,
+            approval: revoked.approval,
+            expires_at,
+        },
+    };
+    service.shutdown().await;
+    std::fs::write(
+        root.join("intents.json"),
+        serde_json::to_vec(&vec![intent]).unwrap(),
+    )
+    .unwrap();
+    let restored = RemoteService::new(root, store);
+    let current = restored.restore().await.unwrap();
+    println!(
+        "UNKNOWN_REGRANT historical_revoked_status={}",
+        current.intents[0].status
+    );
+    assert_eq!(
+        current.intents[0].status, "unknown",
+        "A historical revoked binding falsely confirmed an uncommitted regrant"
+    );
+    let http = reqwest::Client::new();
+    let endpoint = format!("http://{}", fixture["local"].as_str().unwrap());
+    let auth: serde_json::Value = http
+        .post(format!("{endpoint}/v1/sessions"))
+        .json(&serde_json::json!({"password":fixture["password"]}))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    let token = auth["token"].as_str().unwrap();
+    for (expiry, expected) in [(expires_at - 1, "unknown"), (expires_at, "confirmed")] {
+        http.put(format!("{endpoint}/v1/tasks/{}/approval", task.id))
+            .bearer_auth(token)
+            .json(&serde_json::json!({"expires_at":expiry}))
+            .send()
+            .await
+            .unwrap()
+            .error_for_status()
+            .unwrap();
+        let current = restored.restore().await.unwrap();
+        assert_eq!(current.intents[0].status, expected);
+    }
+    restored.sign_out().await.unwrap();
+    std::fs::remove_file(pause).unwrap();
+}
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn journal_read_failure_must_preserve_unknown_and_block_mutation() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot: BotId = fixture["bot"].as_str().unwrap().parse().unwrap();
+    let permission = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .permissions
+        .into_iter()
+        .find(|p| p.bot == bot)
+        .unwrap();
+    service.shutdown().await;
+    let intent = Intent {
+        id: uuid::Uuid::new_v4(),
+        status: "unknown".into(),
+        operation: OwnerOperation::SetPermission {
+            bot,
+            expected_revision: permission.revision,
+            allow: !permission.allow,
+        },
+    };
+    let journal = root.join("intents.json");
+    let original = serde_json::to_vec(&vec![intent]).unwrap();
+    std::fs::write(&journal, &original).unwrap();
+    std::fs::set_permissions(&journal, std::fs::Permissions::from_mode(0o400)).unwrap();
+    let reopened = RemoteService::new(root, store);
+    let restored = reopened.restore().await;
+    let after_restore = std::fs::read(&journal).unwrap();
+    let begin = reopened
+        .command(IntentCommand::Begin {
+            label: "Do not reset uncertain work".into(),
+        })
+        .await;
+    let mutation = reopened
+        .command(IntentCommand::Permission {
+            bot,
+            expected: permission.revision,
+            allow: !permission.allow,
+        })
+        .await;
+    let current = reopened.inspect();
+    reopened.shutdown().await;
+    let (observer, _, _) = paired(&directory.path().join("observer")).await;
+    let observed = observer.inspect().workspace.unwrap();
+    let resulting_permission = observed
+        .state
+        .permissions
+        .iter()
+        .find(|p| p.bot == bot)
+        .unwrap();
+    println!(
+        "JOURNAL_READ_FAILURE restored_status={:?} restored_disk_records={} pairing_ok={} mutation_ok={} permission_before={} permission_after={} unknown_visible={}",
+        restored.as_ref().map(|v| v.status.as_str()),
+        serde_json::from_slice::<Vec<Intent>>(&after_restore)
+            .unwrap()
+            .len(),
+        begin.is_ok(),
+        mutation.is_ok(),
+        permission.revision,
+        resulting_permission.revision,
+        current
+            .intents
+            .iter()
+            .filter(|i| i.status == "unknown")
+            .count()
+    );
+    observer.shutdown().await;
+    assert!(
+        restored.is_err() && begin.is_err() && mutation.is_err(),
+        "Required storage failure to retain unknown intent and block mutation; actual recovery erased journal and admitted mutation"
+    );
+    assert_eq!(resulting_permission.revision, permission.revision);
+    assert_eq!(after_restore, original);
+    assert_eq!(std::fs::read(&journal).unwrap(), original);
+    std::fs::set_permissions(&journal, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let repaired = reopened.restore().await.unwrap();
+    assert_eq!(repaired.intents.len(), 1);
+    assert_eq!(repaired.intents[0].status, "unknown");
+    reopened.shutdown().await;
+}
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn admitted_journal_must_remain_readable_after_restart() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot = fixture["bot"].as_str().unwrap().parse().unwrap();
+    let session = fixture["session"].as_str().unwrap().parse().unwrap();
+    service.shutdown().await;
+    let attention = uuid::Uuid::new_v4();
+    let retained = Intent {
+        id: attention,
+        status: "attention".into(),
+        operation: OwnerOperation::SetPermission {
+            bot,
+            expected_revision: 1_000_000,
+            allow: false,
+        },
+    };
+    std::fs::write(
+        root.join("intents.json"),
+        serde_json::to_vec(&vec![retained]).unwrap(),
+    )
+    .unwrap();
+    let service = RemoteService::new(root.clone(), store.clone());
+    service.restore().await.unwrap();
+    for _ in 0..45 {
+        let result = service
+            .command(IntentCommand::Send(SendInput {
+                bot,
+                session,
+                text: format!("a{}", "\u{1}".repeat(4095)),
+                account: ProcessAccount {
+                    uid: 1000,
+                    gid: 1000,
+                },
+                runtime: None,
+                process: true,
+                seconds: 120,
+                turns: 4,
+                tokens: 200_000,
+                cost_microusd: 200_000,
+                output_tokens: 1024,
+            }))
+            .await;
+        assert!(
+            matches!(result, Err(ref code) if code == "refused"),
+            "Unexpected native admission result"
+        );
+    }
+    let path = root.join("intents.json");
+    let bytes = std::fs::metadata(&path).unwrap().len();
+    let before: Vec<Intent> = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    service.shutdown().await;
+    let reopened = RemoteService::new(root, store);
+    let restored = reopened.restore().await;
+    let after: Vec<Intent> = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    println!(
+        "JOURNAL_OVERFLOW generated_bytes={bytes} admitted_records={} restore_status={:?} retained_records={}",
+        before.len(),
+        restored.as_ref().map(|v| v.status.as_str()),
+        after.len()
+    );
+    reopened.shutdown().await;
+    assert!(
+        bytes <= 1024 * 1024 && after.len() == before.len(),
+        "Native writer exceeded its own reader bound and restart erased admitted records"
+    );
+    assert!(
+        after
+            .iter()
+            .any(|i| i.id == attention && i.status == "attention")
+    );
+}
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn missing_journal_does_not_become_an_empty_paired_profile() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, _) = paired(&root).await;
+    service.shutdown().await;
+    let journal = root.join("intents.json");
+    std::fs::remove_file(&journal).unwrap();
+    let reopened = RemoteService::new(root, store);
+    assert!(matches!(reopened.restore().await, Err(code) if code == "journal_unavailable"));
+    assert!(
+        reopened
+            .command(IntentCommand::Begin {
+                label: "Do not discard a missing journal".into(),
+            })
+            .await
+            .is_err()
+    );
+    assert!(!journal.exists());
+    assert!(reopened.inspect().workspace.is_none());
+    reopened.shutdown().await;
+}
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn readable_unknown_journal_blocks_mutation_without_replay() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot: BotId = fixture["bot"].as_str().unwrap().parse().unwrap();
+    let permission = service
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .permissions
+        .into_iter()
+        .find(|p| p.bot == bot)
+        .unwrap();
+    service.shutdown().await;
+    let intent = Intent {
+        id: uuid::Uuid::new_v4(),
+        status: "unknown".into(),
+        operation: OwnerOperation::SetPermission {
+            bot,
+            expected_revision: permission.revision,
+            allow: !permission.allow,
+        },
+    };
+    let journal = root.join("intents.json");
+    std::fs::write(&journal, serde_json::to_vec(&vec![intent]).unwrap()).unwrap();
+    std::fs::set_permissions(&journal, std::fs::Permissions::from_mode(0o600)).unwrap();
+    let reopened = RemoteService::new(root, store);
+    let restored = reopened.restore().await.unwrap();
+    assert_eq!(
+        restored
+            .intents
+            .iter()
+            .filter(|i| i.status == "unknown")
+            .count(),
+        1
+    );
+    let mutation = reopened
+        .command(IntentCommand::Permission {
+            bot,
+            expected: permission.revision,
+            allow: !permission.allow,
+        })
+        .await;
+    assert!(matches!(mutation, Err(ref code) if code == "unresolved_intent"));
+    let current = reopened
+        .inspect()
+        .workspace
+        .unwrap()
+        .state
+        .permissions
+        .into_iter()
+        .find(|p| p.bot == bot)
+        .unwrap();
+    assert_eq!(current.revision, permission.revision);
+    let saved: Vec<Intent> = serde_json::from_slice(&std::fs::read(&journal).unwrap()).unwrap();
+    assert_eq!(saved.len(), 1);
+    assert_eq!(saved[0].status, "unknown");
+    println!(
+        "PASS readable unknown journal remains durable, blocks mutations, and leaves manager permission unchanged"
+    );
+    reopened.shutdown().await;
+}

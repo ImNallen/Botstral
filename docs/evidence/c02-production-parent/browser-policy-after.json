@@ -1,0 +1,327 @@
+{
+  "status": "PASS",
+  "native_source": "5a9171979a938ecffb5f3887128baccdf8336267",
+  "manager_source": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "native_sha256": "347f6b2e682427310ba9cbc58de1bfc7493de34ac87efa7a6d29a1fa11a484be",
+  "endpoint": "bore.pub:34155",
+  "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7",
+  "run": {
+    "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+    "configuration_revision": 1,
+    "execution_policy": {
+      "computer": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "limits": {
+          "memory_bytes": 1073741824,
+          "output_bytes": 1024,
+          "processes": 128,
+          "runtime_seconds": 120
+        },
+        "outputs": [
+          {
+            "max_bytes": 8192,
+            "media_type": "text_plain",
+            "name": "result.txt",
+            "slot": "text"
+          },
+          {
+            "max_bytes": 1048576,
+            "media_type": "png",
+            "name": "screenshot.png",
+            "slot": "image"
+          }
+        ],
+        "profile": "linux_playwright_v1",
+        "runtime": {
+          "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+        },
+        "viewport": {
+          "height": 600,
+          "width": 800
+        }
+      },
+      "process": {
+        "account": {
+          "gid": 1000,
+          "uid": 1000
+        },
+        "environment": {},
+        "limits": {
+          "memory_bytes": 67108864,
+          "output_bytes": 1024,
+          "processes": 8,
+          "runtime_seconds": 120
+        },
+        "profile": "linux_systemd_v1"
+      },
+      "vibe": null,
+      "vision": null
+    },
+    "id": "1722d9d1-ed82-4162-9201-8020423c8b30",
+    "images": [],
+    "limits": {
+      "deadline": 1793182298,
+      "max_concurrent_operations": 1,
+      "max_cost_microusd": 200000,
+      "max_operations": 12,
+      "max_output_tokens": 1024,
+      "max_total_tokens": 200000,
+      "max_turns": 4
+    },
+    "prompt": "C02 browser native policy browser-policy-after",
+    "session": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094"
+  },
+  "task": {
+    "approval": {
+      "binding": {
+        "approval": "c17afafe-643d-4604-ad34-9f7e89f43003",
+        "arguments": "e0265dee66b2fc0b4e0f79e356eed41f2a577d05968c10605615fa4c5103f3a6",
+        "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+        "execution": "01c8afde-d3e9-4554-b30a-a94eea2a1f1f",
+        "expires_at": 1793182242,
+        "operation": "1205d6f0-75ee-4e4f-b9e6-91f95a250b01",
+        "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+        "permission_revision": 2,
+        "task": "ca75ef19-7d9e-45aa-af10-8b3151eef726"
+      },
+      "consumed": true,
+      "id": "c17afafe-643d-4604-ad34-9f7e89f43003",
+      "permission_revision": 2,
+      "revoked": false
+    },
+    "command": {
+      "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+      "execution": "01c8afde-d3e9-4554-b30a-a94eea2a1f1f",
+      "id": "9877a11d-0828-4fc1-988e-63dde7c52e3d",
+      "operation": "1205d6f0-75ee-4e4f-b9e6-91f95a250b01",
+      "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+      "session": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+      "task": "ca75ef19-7d9e-45aa-af10-8b3151eef726",
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793182298,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 120
+          },
+          "operations": [
+            {
+              "type": "navigate",
+              "url": "http://127.0.0.1:46709/page.html"
+            },
+            {
+              "selector": "#value",
+              "text": "C02 production browser proof",
+              "type": "fill"
+            },
+            {
+              "selector": "#save",
+              "type": "click"
+            },
+            {
+              "output": "text",
+              "selector": "#result",
+              "type": "capture_text"
+            },
+            {
+              "path": "/home/botstral/c02-production-e305079cbc4e/browser.txt",
+              "text": "C02 production file proof\n",
+              "type": "write_file"
+            },
+            {
+              "output": "image",
+              "type": "screenshot"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 8192,
+              "media_type": "text_plain",
+              "name": "result.txt",
+              "slot": "text"
+            },
+            {
+              "max_bytes": 1048576,
+              "media_type": "png",
+              "name": "screenshot.png",
+              "slot": "image"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      },
+      "worker": "2ab5cc0d-dddc-4537-ab1c-7a93bddaed59"
+    },
+    "effect_evidence": [],
+    "id": "ca75ef19-7d9e-45aa-af10-8b3151eef726",
+    "outcome": {
+      "reason": "result",
+      "scope": {
+        "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+        "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-01c8afde-d3e9-4554-b30a-a94eea2a1f1f.service",
+        "execution": "01c8afde-d3e9-4554-b30a-a94eea2a1f1f",
+        "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+        "invocation": "c4bf037e14d944de9ca6190ca1cc4dd2",
+        "journal": "aee7857a-57c5-4d75-8e3d-b68dd046fc3a",
+        "unit": "botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-01c8afde-d3e9-4554-b30a-a94eea2a1f1f.service"
+      },
+      "success": true,
+      "type": "process_finished"
+    },
+    "outputs": [
+      {
+        "declaration": {
+          "max_bytes": 8192,
+          "media_type": "text_plain",
+          "name": "result.txt",
+          "slot": "text"
+        },
+        "state": {
+          "content": {
+            "length": 28,
+            "sha256": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205"
+          },
+          "id": "7aedf3fd-a53a-46d6-be65-e5b6f610605e",
+          "type": "available"
+        }
+      },
+      {
+        "declaration": {
+          "max_bytes": 1048576,
+          "media_type": "png",
+          "name": "screenshot.png",
+          "slot": "image"
+        },
+        "state": {
+          "content": {
+            "length": 8625,
+            "sha256": "db764b38a0a6ceed5deaf04c109d734c5411c099134f4cb5b59d34be5848eb83"
+          },
+          "id": "1eb6667a-02ce-4867-ab57-b175cf2f13db",
+          "type": "available"
+        }
+      }
+    ],
+    "process": {
+      "effect": "observed",
+      "result": {
+        "exit": {
+          "code": 0,
+          "type": "exited"
+        },
+        "stderr": {
+          "complete": true,
+          "hex": "",
+          "truncated": false
+        },
+        "stdout": {
+          "complete": true,
+          "hex": "",
+          "truncated": false
+        }
+      }
+    },
+    "progress": 0,
+    "request": {
+      "conversation_id": null,
+      "id": "ca75ef19-7d9e-45aa-af10-8b3151eef726",
+      "session_id": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+      "settings": {
+        "deadline": 1793182298,
+        "max_cost_micros": 200000,
+        "max_tokens": 1024,
+        "max_turns": 1,
+        "model": "mistral-small-2506"
+      },
+      "work": {
+        "spec": {
+          "account": {
+            "gid": 1000,
+            "uid": 1000
+          },
+          "deadline": 1793182298,
+          "limits": {
+            "memory_bytes": 1073741824,
+            "output_bytes": 1024,
+            "processes": 128,
+            "runtime_seconds": 120
+          },
+          "operations": [
+            {
+              "type": "navigate",
+              "url": "http://127.0.0.1:46709/page.html"
+            },
+            {
+              "selector": "#value",
+              "text": "C02 production browser proof",
+              "type": "fill"
+            },
+            {
+              "selector": "#save",
+              "type": "click"
+            },
+            {
+              "output": "text",
+              "selector": "#result",
+              "type": "capture_text"
+            },
+            {
+              "path": "/home/botstral/c02-production-e305079cbc4e/browser.txt",
+              "text": "C02 production file proof\n",
+              "type": "write_file"
+            },
+            {
+              "output": "image",
+              "type": "screenshot"
+            }
+          ],
+          "outputs": [
+            {
+              "max_bytes": 8192,
+              "media_type": "text_plain",
+              "name": "result.txt",
+              "slot": "text"
+            },
+            {
+              "max_bytes": 1048576,
+              "media_type": "png",
+              "name": "screenshot.png",
+              "slot": "image"
+            }
+          ],
+          "profile": "linux_playwright_v1",
+          "runtime": {
+            "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+          },
+          "viewport": {
+            "height": 600,
+            "width": 800
+          }
+        },
+        "type": "computer"
+      }
+    },
+    "state": "completed"
+  },
+  "artifacts": {
+    "browser-export.txt": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205",
+    "browser.png": "db764b38a0a6ceed5deaf04c109d734c5411c099134f4cb5b59d34be5848eb83"
+  }
+}

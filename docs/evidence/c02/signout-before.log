@@ -1,0 +1,25 @@
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.21s
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-f1cc92d7b07f5318)
+
+running 1 test
+
+thread 'sign_out_clears_native_authority_when_the_profile_directory_was_removed' (613878067) panicked at tests/remote.rs:139:13:
+Successful sign-out must delete the native credential after profile removal
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test sign_out_clears_native_authority_when_the_profile_directory_was_removed ... FAILED
+
+failures:
+
+failures:
+    sign_out_clears_native_authority_when_the_profile_directory_was_removed
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test remote`

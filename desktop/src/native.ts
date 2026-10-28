@@ -1,3 +1,4 @@
+import { pairedApplication } from './paired-native';
 import { invoke } from '@tauri-apps/api/core';
 import { z } from 'zod';
 import {
@@ -25,6 +26,7 @@ async function snapshot(command: string, args?: Record<string, unknown>) {
   return result.data;
 }
 export const nativeApplication: Application = {
+  paired: pairedApplication,
   inspect: () => snapshot('inspect'),
   signIn: (input) => snapshot('sign_in', input),
   refresh: () => snapshot('refresh'),

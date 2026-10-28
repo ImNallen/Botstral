@@ -1,0 +1,38 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-3en3wdzt
+Local manager: 127.0.0.1:58605
+Paired WSS route: wss://127.0.0.1:58620/owner/v1/connect
+Manager identity: de3d7c5c-4532-4489-8085-b3694e368395
+Manager leaf: c370d087fc07ef818489a236d92d9dac9f02f047b66db80f760c6ba935ce4151
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-3en3wdzt/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-3en3wdzt/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.37s
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-f1cc92d7b07f5318)
+
+running 1 test
+PASS actual manager, real native keychain, durable chat and linked task, exact review, verified export, suspension, restoration, credential scan, and revocation
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 5.44s
+
+
+> test
+> npm run test --workspace @botstral/desktop src/paired-contract.test.ts
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run src/paired-contract.test.ts
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:53:14
+   Duration  358ms (environment 77%, setup 11%, import 7%, transform 2%, tests 2%, worker 1%)

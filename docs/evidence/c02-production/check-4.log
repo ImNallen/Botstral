@@ -1,0 +1,25 @@
+
+running 20 tests
+test manager::inference::tests::coding_production::m04_coding_production_worker_pinned_vibe ... ignored, Requires Linux systemd, BOTSTRAL_VIBE_RUNTIME=Vibe 2.24.2 and BOTSTRAL_RUN_AGENT_BIN=production agent.
+test manager::inference::tests::m04_admission_configuration_vault_and_budget_refusals ... ok
+test manager::inference::tests::m04_before_sending_cancellation_and_authority_rechecks ... ok
+test manager::inference::tests::m04_capacity_wait_expires_without_sending ... ok
+test manager::inference::tests::m04_completion_waits_for_state_queue_capacity ... ok
+test manager::inference::tests::m04_concurrency_cancellation_disconnect_and_shutdown ... ok
+test manager::inference::tests::m04_crash_marks_sending_uncertain_and_never_replaces_call ... ok
+test manager::inference::tests::m04_documented_token_details_settle_and_reject_invalid_subsets ... ok
+test manager::inference::tests::m04_http_success_idempotency_replay_and_restart ... ok
+test manager::inference::tests::m04_unknown_responses_retain_reservations_without_retry ... ok
+test manager::inference::tests::run_tests::m04_run_capacity_backpressure_and_bounded_shutdown ... ok
+test manager::inference::tests::run_tests::m04_run_deadlines_reconcile_while_provider_slots_are_full ... ok
+test manager::inference::tests::run_tests::m04_run_function_capability_and_owner_authentication ... ok
+test manager::inference::tests::run_tests::m04_run_late_usage_cancellation_and_crash ... ok
+test manager::inference::tests::run_tests::m04_run_recorded_browser_file_approval_result_artifact_and_followup ... ok
+test manager::inference::tests::run_tests::m04_run_truncated_final_is_stopped_and_persisted ... ok
+test manager::inference::tests::run_tests::m04_run_unsupported_proposals_settle_valid_usage_without_children ... ok
+test manager::inference::tests::run_tests::production::m04_run_production_worker_browser_file_process_and_artifact ... ignored, Requires Linux x86_64, a systemd user manager, and BOTSTRAL_RUN_RUNTIME prepared by agent/runtime/setup.sh.
+test manager::state::inference::tests::m04_ledger_transitions_and_events_commit_together_and_settle_once ... ok
+test manager::state::inference::tests::m04_price_rounding_overflow_and_verification_authority ... ok
+
+test result: ok. 18 passed; 0 failed; 2 ignored; 0 measured; 46 filtered out; finished in 117.18s
+

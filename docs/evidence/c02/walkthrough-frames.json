@@ -1,0 +1,58 @@
+[
+  {
+    "file": "000.png",
+    "caption": "Packaged C02 desktop starts unpaired."
+  },
+  {
+    "file": "001.png",
+    "caption": "The public fingerprint comes from a credential saved in macOS Keychain."
+  },
+  {
+    "file": "002.png",
+    "caption": "Confirm the manager identity, owner role and exact certificate pin before connection."
+  },
+  {
+    "file": "003.png",
+    "caption": "The paired app recovers the authoritative workspace over pinned WSS."
+  },
+  {
+    "file": "004.png",
+    "caption": "A durable run shows the actual recorded assistant response from the manager."
+  },
+  {
+    "file": "005.png",
+    "caption": "The generated task remains queued until the owner reviews its exact action."
+  },
+  {
+    "file": "006.png",
+    "caption": "Approval leads with the exact file path, contents and read operation. Complete execution details remain below."
+  },
+  {
+    "file": "007.png",
+    "caption": "The approved task reports running before its authoritative result."
+  },
+  {
+    "file": "008.png",
+    "caption": "Completion and the verified artifact arrive without a manual refresh."
+  },
+  {
+    "file": "009.png",
+    "caption": "Cancellation remains requested until the manager records authoritative stop evidence. This worker is synthetic."
+  },
+  {
+    "file": "010.png",
+    "caption": "Pause keeps recovered history visible and disables new work."
+  },
+  {
+    "file": "011.png",
+    "caption": "The same packaged binary restores its paired keychain identity and durable history after quit and relaunch."
+  },
+  {
+    "file": "012.png",
+    "caption": "Revocation closes the active device connection and clears protected workspace data."
+  },
+  {
+    "file": "013.png",
+    "caption": "The revoked credential also fails after app relaunch."
+  }
+]

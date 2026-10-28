@@ -1,0 +1,135 @@
+{
+  "id": "8235a339-b7f2-4630-b257-92b51eadfffe",
+  "request": {
+    "id": "8235a339-b7f2-4630-b257-92b51eadfffe",
+    "session_id": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+    "conversation_id": null,
+    "settings": {
+      "model": "mistral-small-2506",
+      "max_turns": 1,
+      "max_tokens": 1024,
+      "deadline": 1793182600,
+      "max_cost_micros": 200000
+    },
+    "work": {
+      "type": "process",
+      "spec": {
+        "profile": "linux_systemd_v1",
+        "account": {
+          "uid": 1000,
+          "gid": 1000
+        },
+        "executable": "/usr/bin/python3",
+        "args": [
+          "-c",
+          "import os,subprocess,time,json; p=subprocess.Popen(['/usr/bin/sleep','120']); open('/home/botstral/c02-production-e305079cbc4e/cancel-pids.json','w').write(json.dumps([os.getpid(),p.pid])); time.sleep(120)"
+        ],
+        "environment": {},
+        "cwd": "/home/botstral/c02-production-e305079cbc4e",
+        "deadline": 1793182600,
+        "limits": {
+          "runtime_seconds": 120,
+          "output_bytes": 1024,
+          "processes": 8,
+          "memory_bytes": 67108864
+        }
+      }
+    }
+  },
+  "command": {
+    "id": "39d2e254-91d3-4fc6-b364-dfda80ac6fac",
+    "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+    "task": "8235a339-b7f2-4630-b257-92b51eadfffe",
+    "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+    "worker": "2ab5cc0d-dddc-4537-ab1c-7a93bddaed59",
+    "session": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+    "operation": "6c78adac-585d-4e52-9cc9-90f2dd461b55",
+    "execution": "4e128cbc-7a64-4921-a845-73ca5d0c612e",
+    "work": {
+      "type": "process",
+      "spec": {
+        "profile": "linux_systemd_v1",
+        "account": {
+          "uid": 1000,
+          "gid": 1000
+        },
+        "executable": "/usr/bin/python3",
+        "args": [
+          "-c",
+          "import os,subprocess,time,json; p=subprocess.Popen(['/usr/bin/sleep','120']); open('/home/botstral/c02-production-e305079cbc4e/cancel-pids.json','w').write(json.dumps([os.getpid(),p.pid])); time.sleep(120)"
+        ],
+        "environment": {},
+        "cwd": "/home/botstral/c02-production-e305079cbc4e",
+        "deadline": 1793182600,
+        "limits": {
+          "runtime_seconds": 120,
+          "output_bytes": 1024,
+          "processes": 8,
+          "memory_bytes": 67108864
+        }
+      }
+    }
+  },
+  "state": "cancelled",
+  "progress": 0,
+  "outcome": {
+    "type": "stopped",
+    "applied": 0,
+    "evidence": {
+      "systemd_scope_empty": {
+        "scope": {
+          "journal": "aee7857a-57c5-4d75-8e3d-b68dd046fc3a",
+          "execution": "4e128cbc-7a64-4921-a845-73ca5d0c612e",
+          "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+          "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+          "invocation": "39dc06d5efc246c283b1079ece3c54aa",
+          "unit": "botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-4e128cbc-7a64-4921-a845-73ca5d0c612e.service",
+          "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-4e128cbc-7a64-4921-a845-73ca5d0c612e.service"
+        }
+      }
+    }
+  },
+  "effect_evidence": [
+    {
+      "type": "uncertain",
+      "reason": "process_interrupted"
+    }
+  ],
+  "process": {
+    "effect": "observed",
+    "result": {
+      "exit": {
+        "type": "signalled",
+        "signal": 15
+      },
+      "stdout": {
+        "hex": "",
+        "truncated": false,
+        "complete": true
+      },
+      "stderr": {
+        "hex": "",
+        "truncated": false,
+        "complete": true
+      }
+    }
+  },
+  "outputs": [],
+  "approval": {
+    "id": "787ffe50-0eca-4a2f-829d-ecdd77075403",
+    "binding": {
+      "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+      "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+      "task": "8235a339-b7f2-4630-b257-92b51eadfffe",
+      "operation": "6c78adac-585d-4e52-9cc9-90f2dd461b55",
+      "arguments": "f99c8f95aab93875768dd3a5a82c3e3044d6d5acbe096125b89e28f4718606be",
+      "permission_revision": 2,
+      "approval": "787ffe50-0eca-4a2f-829d-ecdd77075403",
+      "execution": "4e128cbc-7a64-4921-a845-73ca5d0c612e",
+      "expires_at": 1793182578
+    },
+    "permission_revision": 2,
+    "revoked": false,
+    "consumed": true
+  }
+}

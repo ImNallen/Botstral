@@ -475,6 +475,17 @@ export type OwnerClientMessage =
     };
 export type OwnerOperation =
   | {
+      method: 'workspace';
+    }
+  | {
+      approval: ApprovalView;
+      command: CommandBody;
+      expires_at: number;
+      id: TaskId;
+      method: 'grant_reviewed_approval';
+      permission_revision: number;
+    }
+  | {
       cursor: number;
       limit: number;
       method: 'resume';
@@ -618,6 +629,10 @@ export type OwnerHello =
     };
 export type OwnerReply =
   | {
+      type: 'workspace';
+      value: OwnerWorkspace;
+    }
+  | {
       type: 'replay';
       value: EventReplay;
     }
@@ -676,17 +691,6 @@ export type OwnerReply =
         declaration: OutputDeclaration;
       };
     };
-export type EventReplay =
-  | {
-      cursor: number;
-      entries: AuthoritativeEvent[];
-      type: 'events';
-    }
-  | {
-      cursor: number;
-      state: OwnerSnapshot;
-      type: 'snapshot';
-    };
 export type RunAttemptId = string;
 export type ToolProposal =
   | {
@@ -735,6 +739,17 @@ export type RunTurnPhase =
   | {
       reason: InferenceAttentionReason;
       type: 'awaiting_attention';
+    };
+export type EventReplay =
+  | {
+      cursor: number;
+      entries: AuthoritativeEvent[];
+      type: 'events';
+    }
+  | {
+      cursor: number;
+      state: OwnerSnapshot;
+      type: 'snapshot';
     };
 export type TaskEvent =
   | {
@@ -1360,10 +1375,22 @@ export interface OwnerInvitation {
   role: DeviceRole;
   trust: ManagerTrust;
 }
-export interface AuthoritativeEvent {
-  entity: string;
-  kind: string;
-  sequence: number;
+export interface OwnerWorkspace {
+  bots: WorkspaceBot[];
+  cursor: number;
+  manager: ManagerId;
+  owner: string;
+  run_ready_bots: BotId[];
+  runs: RunView[];
+  sessions: ComputerSession[];
+  state: OwnerSnapshot;
+  vault_unlocked: boolean;
+  workers: WorkspaceWorker[];
+}
+export interface WorkspaceBot {
+  created_at: number;
+  id: BotId;
+  name: string;
 }
 export interface RunView {
   configuration: InferenceConfiguration;
@@ -1416,6 +1443,16 @@ export interface AuthorizedImage {
   length: number;
   reference: ImageReference;
   width: number;
+}
+export interface WorkspaceWorker {
+  id: WorkerId;
+  phase: string;
+  revoked: boolean;
+}
+export interface AuthoritativeEvent {
+  entity: string;
+  kind: string;
+  sequence: number;
 }
 export interface OwnerReceipt {
   acknowledgment: Acknowledgment;

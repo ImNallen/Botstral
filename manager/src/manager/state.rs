@@ -393,10 +393,15 @@ impl State {
             name: input.name,
             created_at: self.now(),
         };
-        self.connection.execute(
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute(
             "INSERT INTO bots(id, name, created_at) VALUES(?1, ?2, ?3)",
             params![bot.id.0.to_string(), bot.name.as_str(), bot.created_at],
         )?;
+        tasks::event(&tx, "bot_created", bot.id)?;
+        tx.commit()?;
         Ok(bot)
     }
     fn find_bot(&self, id: BotId) -> Result<Option<Bot>, OperationError> {
@@ -502,6 +507,7 @@ impl State {
         self.installation = Installation::Configured {
             vault: VaultState::Unlocked { identity },
         };
+        tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
     pub(super) fn lock_vault(&mut self, token: SessionToken) -> Result<(), OperationError> {
@@ -509,6 +515,7 @@ impl State {
         self.installation = Installation::Configured {
             vault: VaultState::Locked,
         };
+        tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
     pub(super) fn replace_provider_key(

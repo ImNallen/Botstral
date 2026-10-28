@@ -1,0 +1,10 @@
+{
+  "credential_absent": true,
+  "credential_lookup_exit": 44,
+  "stopped_worker_pids": [
+    92408
+  ],
+  "fixture_stop_requested": true,
+  "fixture_root_removed": true,
+  "endpoints_refuse": true
+}

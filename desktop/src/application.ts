@@ -1,3 +1,4 @@
+import { PairedController } from './paired-application';
 import {
   ApplicationError,
   botIdSchema,
@@ -40,7 +41,10 @@ export class ApplicationController {
     selected: null,
     notice: null,
   };
-  constructor(private readonly app: Application) {}
+  readonly paired: PairedController | null;
+  constructor(private readonly app: Application) {
+    this.paired = app.paired ? new PairedController(app.paired) : null;
+  }
   getState = (): ViewState => this.state;
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -104,7 +108,9 @@ export class ApplicationController {
   async signOut() {
     this.epoch += 1;
     this.set({ view: { kind: 'signing_out' }, selected: null, creation: { kind: 'closed' } });
+    const pairedSignOut = this.paired?.signOut();
     const result = await this.run('sign_out', () => this.app.signOut());
+    await pairedSignOut;
     if (result)
       this.set({
         notice:

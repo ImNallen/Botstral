@@ -1,0 +1,12 @@
+{
+  "run": "7278dfbc-3e68-42cc-babe-312408dea743",
+  "task": "61d7635b-e018-459c-8afb-b59d237b4105",
+  "proxy": {
+    "submissions": 1,
+    "dropped_replies": 1
+  },
+  "before_effects": 1,
+  "after_effects": 2,
+  "effect_delta": 1,
+  "route": "private loopback TLS fault proxy to actual Manager VM"
+}

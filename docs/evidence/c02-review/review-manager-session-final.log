@@ -1,0 +1,8 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.97s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-64308484e1ce6d79)
+
+running 1 test
+test manager::state::workers::tests::certificate_renewal_rebinds_only_after_owner_revocation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 65 filtered out; finished in 0.01s

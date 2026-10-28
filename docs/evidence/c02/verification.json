@@ -1,0 +1,145 @@
+{
+  "recorded_at": "2026-10-28T10:29:02.502990+00:00",
+  "source_head": "5ed0134b2c3e831a5ffb3194cac3135d5c0ee585",
+  "implementation_verification": "verification-implementation.json",
+  "unchanged_server_worker_protocol_source_since": "96c4bb3",
+  "parent_checks": [
+    {
+      "command": "make verify-desktop",
+      "exit_code": 0,
+      "frontend_tests": 25,
+      "evidence": "desktop-parent.log",
+      "source": "6aee65d"
+    },
+    {
+      "command": "python3 manager/tests/m05_acceptance.py --manager-bin target/debug/botstral-manager --probe-bin /Users/nallen/.t3/worktrees/Botstral/t3-06c17af9/target/debug/owner-probe --agent-bin target/debug/botstral-agent --output .audit/c02/old-probe-final",
+      "exit_code": 0,
+      "checks": 15,
+      "evidence": "old-probe-parent.json"
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-native",
+      "exit_code": 0,
+      "evidence": "native-parent.log",
+      "source": "6aee65d"
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test remote",
+      "exit_code": 0,
+      "passed": 6,
+      "ignored": 1,
+      "evidence": "signout-after.log"
+    },
+    {
+      "command": "python3 desktop/fixtures/c02_source_record.py --check-controls",
+      "exit_code": 0,
+      "negative_controls": 3,
+      "evidence": "source-controls.log"
+    },
+    {
+      "command": "make verify-desktop",
+      "exit_code": 0,
+      "frontend_tests": 25,
+      "journal_contracts": 4,
+      "deterministic_lifecycle_tests": 7,
+      "evidence": "desktop-security-final.log",
+      "source": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b"
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-native",
+      "exit_code": 0,
+      "evidence": "native-security-final.log",
+      "source": "a9d2506e2e55916e10e8dbedd30ca83974bd0e7b"
+    },
+    {
+      "command": "python3 manager/tests/c02_browser.py --fixture .audit/c02/fixture-active.json --output .audit/c02/browser-policy-after",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "../c02-production-parent/browser-policy-after.json"
+    },
+    {
+      "command": "npm run desktop -- build --debug --bundles app",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "../c02-production-parent/production-bundle-final.log"
+    },
+    {
+      "command": "make verify",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "evidence": "final-core.log"
+    },
+    {
+      "command": "make verify-desktop",
+      "exit_code": 0,
+      "source": "b6081d2d6aec132ec0b55c817e363344f96da0bf",
+      "frontend_tests": 25,
+      "journal_contracts": 4,
+      "deterministic_lifecycle_tests": 7,
+      "evidence": "final-desktop.log"
+    },
+    {
+      "command": "python3 -W error::ResourceWarning manager/tests/c02_browser_cleanup.py",
+      "exit_code": 0,
+      "tests": 3,
+      "source": "b75e7aa79190d2e978d06dab72481e3c3d282233",
+      "evidence": "browser-cleanup-regressions.log"
+    }
+  ],
+  "packaged_walkthrough": {
+    "manager": "2515d3c6-d9e6-4040-8dbc-d556623ffa7c",
+    "route": "wss://127.0.0.1:49716/owner/v1/connect",
+    "leaf": "86dca0dce31ce6113e70ff35d349e438d870120e6a3a008c22c87a66e7b41dbd",
+    "secret_store": "real macOS Keychain",
+    "provider": "recorded M04 provider",
+    "worker": "explicitly synthetic",
+    "evidence": "walkthrough-frames.json",
+    "result": "pairing, assistant turns, exact action, verified export, synthetic cancellation, pause/resume, same-binary relaunch and revocation passed",
+    "export_sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906",
+    "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
+  },
+  "remaining": [
+    "hosted follow-up review and CI on the new PR head",
+    "platform and operating-system observations listed in docs/c02-acceptance.md"
+  ],
+  "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",
+  "review_corrections": {
+    "missing_profile_signout": "Independent recheck passed at 7dc6935.",
+    "concurrent_signout": "Independent gpt-6-luna recheck passed at d5ecb8c. Its Keychain test passed; renderer wrapper could not run because vitest was absent. Parent renderer check passed separately.",
+    "journal_validation": "Independent gpt-6-astra recheck passed at d5ecb8c with original reproductions and adversarial neighbors.",
+    "journal_size": "Independent gpt-6-astra recheck passed at d5ecb8c, including exact 1MiB status-growth and protected-record compaction boundaries."
+  },
+  "production_parent": "../c02-production-parent/packaged-identity.json",
+  "independent_reviews": [
+    {
+      "model": "gpt-6-astra",
+      "scope": "journal security correction",
+      "source": "d5ecb8c",
+      "outcome": "no surviving findings",
+      "report": "security-independent-recheck.txt"
+    },
+    {
+      "model": "gpt-6-luna",
+      "scope": "concurrent sign-out correction",
+      "source": "d5ecb8c",
+      "outcome": "no surviving lifecycle findings; renderer wrapper unavailable in reviewer checkout",
+      "report": "lifecycle-independent-recheck.txt"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "scope": "production policy and test-support delta",
+      "source": "d2aa248",
+      "outcome": "one helper finding; no production defect reproduced",
+      "report": "final-delta-independent-review.txt"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "scope": "helper cleanup correction",
+      "source": "f8846da",
+      "outcome": "no surviving findings; original, three regression and eight neighboring cases passed",
+      "report": "helper-independent-recheck.txt"
+    }
+  ],
+  "hosted_review_followup": "../c02-review/verification.json",
+  "hosted_lifecycle_followup": "../c02-review/lifecycle-verification.json"
+}

@@ -1,3 +1,4 @@
+import { PairedWorkspace } from './PairedWorkspace';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { ApplicationController } from './application';
 import { errorMessages } from './domain';
@@ -10,6 +11,40 @@ import { formatDate } from './format';
 import { Roster } from './Roster';
 
 export function App({ controller }: { controller: ApplicationController }) {
+  const [paired, setPaired] = useState(!!controller.paired);
+  const localState = useSyncExternalStore(controller.subscribe, controller.getState);
+  const local = localState.view.kind === 'ready' && localState.view.snapshot.kind === 'signed_in';
+  useEffect(() => {
+    const remote = controller.paired;
+    if (!remote) return;
+    void remote.start();
+    return () => remote.dispose();
+  }, [controller]);
+  if (paired && controller.paired)
+    return (
+      <PairedWorkspace
+        controller={controller.paired}
+        local={local}
+        onSignOut={() => {
+          void controller.signOut();
+        }}
+        onLocal={() => setPaired(false)}
+      />
+    );
+  return (
+    <LocalApp
+      controller={controller}
+      onPair={controller.paired ? () => setPaired(true) : undefined}
+    />
+  );
+}
+function LocalApp({
+  controller,
+  onPair,
+}: {
+  controller: ApplicationController;
+  onPair?: (() => void) | undefined;
+}) {
   const state = useSyncExternalStore(controller.subscribe, controller.getState);
   const snapshot = state.view.kind === 'ready' ? state.view.snapshot : null;
   const signedIn = snapshot?.kind === 'signed_in' ? snapshot : null;
@@ -62,6 +97,11 @@ export function App({ controller }: { controller: ApplicationController }) {
             )}
             <span>{selected?.name ?? 'Botstral'}</span>
           </button>
+          {onPair && (
+            <button className="detail-action" onClick={onPair}>
+              Paired workspace
+            </button>
+          )}
         </header>
         <div className="conversation">
           {state.error && !(createOpen && signedIn) && (

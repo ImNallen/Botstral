@@ -45,6 +45,8 @@ struct FixtureState {
     requests: Mutex<Vec<Value>>,
     coding_path: Mutex<Option<String>>,
     model_gate: Mutex<Option<Arc<Semaphore>>>,
+    desktop: std::sync::atomic::AtomicBool,
+    production: Mutex<Option<Value>>,
 }
 struct Fixture {
     state: Arc<FixtureState>,
@@ -63,6 +65,8 @@ impl Fixture {
             requests: Mutex::new(Vec::new()),
             coding_path: Mutex::new(None),
             model_gate: Mutex::new(None),
+            desktop: std::sync::atomic::AtomicBool::new(false),
+            production: Mutex::new(None),
         });
         let app = Router::new()
             .route(
@@ -159,6 +163,49 @@ async fn chat(
             value["choices"][0]["message"] = json!({"role":"assistant","content":null,"tool_calls":[{"id":"recorded-vibe-edit","type":"function","function":{"name":"edit","arguments":json!({"file_path":path,"old_string":"return 0","new_string":"return 42"}).to_string()}}]});
         }
         reply.body = value.to_string();
+    }
+    if state.desktop.load(Ordering::SeqCst) {
+        let prompt = body["messages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|m| m["role"] == "user")
+            .and_then(|m| m["content"].as_str())
+            .unwrap_or("")
+            .to_lowercase();
+        let tool_done = body["messages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|m| m["role"] == "tool");
+        let mut value: Value = serde_json::from_str(COMPLETION).unwrap();
+        if !tool_done
+            && (prompt.contains("file") || prompt.contains("browser") || prompt.contains("cancel"))
+        {
+            let (name, arguments) = if prompt.contains("cancel") {
+                (
+                    "process",
+                    json!({"executable":"/usr/bin/sleep","args":["30"],"cwd":"/tmp"}),
+                )
+            } else {
+                (
+                    "computer",
+                    json!({"operations":[{"type":"write_file","path":"/tmp/c02-note.txt","text":"Synthetic C02 file"},{"type":"read_file","path":"/tmp/c02-note.txt","output":"text"}],"outputs":["text"]}),
+                )
+            };
+            value["choices"][0]["finish_reason"] = json!("tool_calls");
+            value["choices"][0]["message"] = json!({"role":"assistant","content":"The recorded provider proposes this bounded action. Review it before approval.","tool_calls":[{"id":"c02-recorded-tool","type":"function","function":{"name":name,"arguments":arguments.to_string()}}]});
+        } else {
+            value["choices"][0]["message"]["content"] = json!(if tool_done {
+                "The manager received the synthetic worker result. The durable run is complete."
+            } else {
+                "This is a durable recorded assistant response from the real manager. No paid inference was used."
+            });
+        }
+        reply.body = value.to_string();
+    }
+    if let Some(config) = state.production.lock().unwrap().as_ref() {
+        reply.body = run_tests::production_fixture::response(&body, config);
     }
     state.requests.lock().unwrap().push(body);
     state.chats.fetch_add(1, Ordering::SeqCst);

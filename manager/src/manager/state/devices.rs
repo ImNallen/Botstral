@@ -297,6 +297,28 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::Workspace => {
+                Ok(OwnerReply::Workspace(Box::new(self.workspace(lease)?)))
+            }
+            OwnerOperation::GrantReviewedApproval {
+                id,
+                command,
+                permission_revision,
+                approval,
+                expires_at,
+            } => {
+                self.authorize_owner(&lease.into())?;
+                let current = self.load_task(id)?;
+                if current.command != *command
+                    || current.approval != approval
+                    || self.permission(current.command.bot)?.revision != permission_revision
+                {
+                    return Err(OperationError::Conflict);
+                }
+                Ok(OwnerReply::Task(Box::new(
+                    self.grant_approval(lease, id, expires_at)?,
+                )))
+            }
             OwnerOperation::Resume { cursor, limit } => Ok(OwnerReply::Replay(Box::new(
                 self.resume(lease, cursor, limit)?,
             ))),

@@ -70,9 +70,38 @@ pub struct InstalledState {
 pub struct OwnerClient {
     root: PathBuf,
     credentials: Credentials,
+    store: Arc<dyn SecretStore>,
     lock: Arc<fs::File>,
     sessions: Arc<tokio::sync::Semaphore>,
     pub cursor: u64,
+}
+
+pub trait SecretStore: Send + Sync {
+    fn read(&self) -> Result<Option<Zeroizing<Vec<u8>>>>;
+    fn replace(&self, bytes: Zeroizing<Vec<u8>>) -> Result<()>;
+    fn delete(&self) -> Result<()>;
+}
+
+#[cfg(feature = "probe-files")]
+struct ProbeStore(PathBuf);
+#[cfg(feature = "probe-files")]
+impl SecretStore for ProbeStore {
+    fn read(&self) -> Result<Option<Zeroizing<Vec<u8>>>> {
+        if !self.0.join("device.json").exists() {
+            return Ok(None);
+        }
+        tls::private_bytes(&self.0.join("device.json"))
+            .map(Some)
+            .map_err(|_| ClientError::Storage)
+    }
+    fn replace(&self, bytes: Zeroizing<Vec<u8>>) -> Result<()> {
+        let value: serde_json::Value =
+            serde_json::from_slice(&bytes).map_err(|_| ClientError::Storage)?;
+        atomic_write(&self.0, "device.json", &value)
+    }
+    fn delete(&self) -> Result<()> {
+        fs::remove_file(self.0.join("device.json")).map_err(|_| ClientError::Storage)
+    }
 }
 
 fn private_file(path: &Path) -> io::Result<fs::File> {
@@ -105,11 +134,31 @@ fn atomic_write(root: &Path, name: &str, value: &impl Serialize) -> Result<()> {
 }
 
 impl OwnerClient {
+    #[cfg(feature = "probe-files")]
     pub fn initialize(root: &Path, label: String) -> Result<PairingRequest> {
+        Self::initialize_with(root, label, Arc::new(ProbeStore(root.to_owned())))
+    }
+    pub fn initialize_with(
+        root: &Path,
+        label: String,
+        store: Arc<dyn SecretStore>,
+    ) -> Result<PairingRequest> {
         fs::DirBuilder::new()
             .mode(0o700)
+            .recursive(true)
             .create(root)
             .map_err(|_| ClientError::Storage)?;
+        let init_lock =
+            private_file(&root.join("client.lock")).map_err(|_| ClientError::Storage)?;
+        init_lock.try_lock().map_err(|_| ClientError::Storage)?;
+        if let Some(bytes) = store.read()? {
+            let saved: Credentials =
+                serde_json::from_slice(&bytes).map_err(|_| ClientError::Storage)?;
+            return Ok(PairingRequest {
+                fingerprint: DeviceFingerprint::from_credential(&saved.credential),
+                label,
+            });
+        }
         let mut bytes = Zeroizing::new([0u8; 32]);
         rand::rngs::OsRng.fill_bytes(bytes.as_mut());
         let credential = URL_SAFE_NO_PAD.encode(&bytes[..]);
@@ -120,10 +169,22 @@ impl OwnerClient {
             invitation: None,
             device: None,
         };
-        atomic_write(root, "device.json", &credentials)?;
+        store.replace(Zeroizing::new(
+            serde_json::to_vec(&credentials).map_err(|_| ClientError::Storage)?,
+        ))?;
+        let saved = store.read()?.ok_or(ClientError::Storage)?;
+        let saved: Credentials =
+            serde_json::from_slice(&saved).map_err(|_| ClientError::Storage)?;
+        if saved.credential != credentials.credential {
+            return Err(ClientError::Storage);
+        }
         Ok(PairingRequest { fingerprint, label })
     }
+    #[cfg(feature = "probe-files")]
     pub fn open(root: &Path) -> Result<Self> {
+        Self::open_with(root, Arc::new(ProbeStore(root.to_owned())))
+    }
+    pub fn open_with(root: &Path, store: Arc<dyn SecretStore>) -> Result<Self> {
         let metadata = fs::symlink_metadata(root).map_err(|_| ClientError::Storage)?;
         if !metadata.is_dir()
             || metadata.mode() & 0o7777 != 0o700
@@ -134,11 +195,15 @@ impl OwnerClient {
         let root = root.canonicalize().map_err(|_| ClientError::Storage)?;
         let lock = private_file(&root.join("client.lock")).map_err(|_| ClientError::Storage)?;
         lock.try_lock().map_err(|_| ClientError::Storage)?;
-        let credentials: Credentials = serde_json::from_slice(
-            &tls::private_bytes(&root.join("device.json")).map_err(|_| ClientError::Storage)?,
-        )
-        .map_err(|_| ClientError::Storage)?;
-        for name in [".transfer.part", ".state.json.part", ".device.json.part"] {
+        let credentials: Credentials =
+            serde_json::from_slice(&store.read()?.ok_or(ClientError::Storage)?)
+                .map_err(|_| ClientError::Storage)?;
+        for name in [
+            ".transfer.part",
+            ".state.json.part",
+            ".device.json.part",
+            ".workspace.json.part",
+        ] {
             let path = root.join(name);
             if path.exists() {
                 tls::check_private_file(&path).map_err(|_| ClientError::Storage)?;
@@ -167,13 +232,18 @@ impl OwnerClient {
         } else {
             0
         };
-        Ok(Self {
+        let mut client = Self {
             root,
             credentials,
+            store,
             lock: Arc::new(lock),
             sessions: Arc::new(tokio::sync::Semaphore::new(1)),
             cursor,
-        })
+        };
+        if let Some(image) = client.installed_workspace()? {
+            client.cursor = client.cursor.max(image.cursor);
+        }
+        Ok(client)
     }
     pub fn import_invitation(&mut self, bundle: OwnerInvitation) -> Result<()> {
         if bundle.role != DeviceRole::Owner
@@ -191,7 +261,9 @@ impl OwnerClient {
         tls::pinned_manager_config(&bundle.trust).map_err(|_| ClientError::Trust)?;
         self.credentials.trust = Some(bundle.trust);
         self.credentials.invitation = Some(bundle.invitation);
-        atomic_write(&self.root, "device.json", &self.credentials)
+        self.store.replace(Zeroizing::new(
+            serde_json::to_vec(&self.credentials).map_err(|_| ClientError::Storage)?,
+        ))
     }
     pub fn import_trust(&mut self, trust: ManagerTrust) -> Result<()> {
         if self
@@ -204,7 +276,9 @@ impl OwnerClient {
         }
         tls::pinned_manager_config(&trust).map_err(|_| ClientError::Trust)?;
         self.credentials.trust = Some(trust);
-        atomic_write(&self.root, "device.json", &self.credentials)
+        self.store.replace(Zeroizing::new(
+            serde_json::to_vec(&self.credentials).map_err(|_| ClientError::Storage)?,
+        ))
     }
     pub async fn connect(&mut self) -> Result<OwnerSession> {
         let lease = Arc::new(ClientLease {
@@ -243,7 +317,9 @@ impl OwnerClient {
         if let Some(mut invitation) = self.credentials.invitation.take() {
             invitation.zeroize();
         }
-        atomic_write(&self.root, "device.json", &self.credentials)?;
+        self.store.replace(Zeroizing::new(
+            serde_json::to_vec(&self.credentials).map_err(|_| ClientError::Storage)?,
+        ))?;
         session
             .send(OwnerClientMessage::Watch {
                 cursor: self.cursor,
@@ -307,6 +383,58 @@ impl OwnerClient {
         )?;
         self.cursor = cursor;
         session.send(OwnerClientMessage::Applied { cursor }).await
+    }
+    pub fn installed_workspace(&self) -> Result<Option<OwnerWorkspace>> {
+        let path = self.root.join("workspace.json");
+        if !path.exists() {
+            return Ok(None);
+        }
+        tls::check_private_file(&path).map_err(|_| ClientError::Storage)?;
+        let file = fs::File::open(&path).map_err(|_| ClientError::Storage)?;
+        if file.metadata().map_err(|_| ClientError::Storage)?.len() > OWNER_TRANSFER_BYTES as u64 {
+            return Err(ClientError::Storage);
+        }
+        let image: OwnerWorkspace =
+            serde_json::from_reader(file.take(OWNER_TRANSFER_BYTES as u64 + 1))
+                .map_err(|_| ClientError::Storage)?;
+        if self.trust().is_none_or(|t| t.manager != image.manager) {
+            return Err(ClientError::Trust);
+        }
+        Ok(Some(image))
+    }
+    pub fn pairing_request(&self, label: String) -> PairingRequest {
+        PairingRequest {
+            fingerprint: DeviceFingerprint::from_credential(&self.credentials.credential),
+            label,
+        }
+    }
+    pub fn trust(&self) -> Option<&ManagerTrust> {
+        self.credentials.trust.as_ref()
+    }
+    pub fn device(&self) -> Option<DeviceId> {
+        self.credentials.device
+    }
+    pub async fn recover_workspace(
+        &mut self,
+        session: &mut OwnerSession,
+    ) -> Result<OwnerWorkspace> {
+        if !Arc::ptr_eq(&self.lock, &session._lease._lock) {
+            return Err(ClientError::Protocol);
+        }
+        let OwnerReply::Workspace(image) = session.call(OwnerOperation::Workspace).await? else {
+            return Err(ClientError::Protocol);
+        };
+        if self.trust().is_none_or(|t| t.manager != image.manager) || image.cursor < self.cursor {
+            return Err(ClientError::Trust);
+        }
+        atomic_write(&self.root, "workspace.json", &image)?;
+        self.cursor = image.cursor;
+        session
+            .send(OwnerClientMessage::Applied {
+                cursor: image.cursor,
+            })
+            .await?;
+        Ok(*image)
     }
     pub async fn watch(
         &mut self,
@@ -474,6 +602,18 @@ impl OwnerSession {
             _ => Err(ClientError::Protocol),
         }
     }
+    pub async fn next_signal(&mut self) -> Result<u64> {
+        if let Some(head) = self.notification.take() {
+            return Ok(head);
+        }
+        loop {
+            match self.next().await? {
+                OwnerServerMessage::Notification { head } => return Ok(head),
+                OwnerServerMessage::Pong => {}
+                _ => return Err(ClientError::Protocol),
+            }
+        }
+    }
     async fn send(&mut self, message: OwnerClientMessage) -> Result<()> {
         let bytes = serde_json::to_string(&message).map_err(|_| ClientError::Protocol)?;
         if bytes.len() >= MAX_MESSAGE {
@@ -509,7 +649,8 @@ impl OwnerSession {
     pub async fn call(&mut self, operation: OwnerOperation) -> Result<OwnerReply> {
         let read = matches!(
             &operation,
-            OwnerOperation::Resume { .. }
+            OwnerOperation::Workspace
+                | OwnerOperation::Resume { .. }
                 | OwnerOperation::Task { .. }
                 | OwnerOperation::Run { .. }
                 | OwnerOperation::Inference { .. }

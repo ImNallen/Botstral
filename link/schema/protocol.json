@@ -2951,6 +2951,55 @@
         {
           "type": "object",
           "properties": {
+            "method": {
+              "type": "string",
+              "const": "workspace"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "approval": {
+              "$ref": "#/$defs/ApprovalView"
+            },
+            "command": {
+              "$ref": "#/$defs/CommandBody"
+            },
+            "expires_at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "id": {
+              "$ref": "#/$defs/TaskId"
+            },
+            "method": {
+              "type": "string",
+              "const": "grant_reviewed_approval"
+            },
+            "permission_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "command",
+            "permission_revision",
+            "approval",
+            "expires_at"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "cursor": {
               "type": "integer",
               "format": "uint64",
@@ -3523,6 +3572,23 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "workspace"
+            },
+            "value": {
+              "$ref": "#/$defs/OwnerWorkspace"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "replay"
             },
             "value": {
@@ -4017,6 +4083,71 @@
         "messages",
         "documents",
         "permissions"
+      ]
+    },
+    "OwnerWorkspace": {
+      "type": "object",
+      "properties": {
+        "bots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkspaceBot"
+          }
+        },
+        "cursor": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "manager": {
+          "$ref": "#/$defs/ManagerId"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "run_ready_bots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BotId"
+          }
+        },
+        "runs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RunView"
+          }
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ComputerSession"
+          }
+        },
+        "state": {
+          "$ref": "#/$defs/OwnerSnapshot"
+        },
+        "vault_unlocked": {
+          "type": "boolean"
+        },
+        "workers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkspaceWorker"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "manager",
+        "cursor",
+        "owner",
+        "bots",
+        "workers",
+        "sessions",
+        "runs",
+        "run_ready_bots",
+        "vault_unlocked",
+        "state"
       ]
     },
     "Permission": {
@@ -6425,6 +6556,47 @@
             "generation"
           ]
         }
+      ]
+    },
+    "WorkspaceBot": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "$ref": "#/$defs/BotId"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "created_at"
+      ]
+    },
+    "WorkspaceWorker": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/WorkerId"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "revoked": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "revoked",
+        "phase"
       ]
     },
     "WriteDocument": {

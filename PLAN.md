@@ -1,6 +1,6 @@
 # Botstral plan
 
-Botstral has a local manager, durable tasks, a production worker, and a desktop implementation for local owner sessions and bots. M04 provides a durable model and tool loop, approved Vibe coding, bounded vision and observed live two-VM acceptance. Owner-device pairing and remote access remain planned.
+Botstral has a local manager, durable tasks, a production worker, and a desktop implementation for local owner sessions and bots. M04 provides a durable model and tool loop, approved Vibe coding, bounded vision and observed live two-VM acceptance. M05 provides owner-device pairing and remote access. C02 implements the paired macOS workflow.
 
 M01 has local acceptance evidence and independent review. C01 has a verified native desktop interface. M02 two-VM transport and synthetic session acceptance passed. Later checkboxes distinguish implementation from their milestone acceptance. [DESIGN.md](DESIGN.md) defines the architecture and release scope.
 
@@ -386,14 +386,16 @@ Complete when the desktop app renders its initial interface. C02 verifies authen
 
 Depends on C01, M04, and M05.
 
-- [ ] Connect the desktop app through `botstral-link` using the manager's versioned WSS interface and authenticated event channels.
-- [ ] Validate manager identity, certificate pinning, device roles, and packaged-client origins.
-- [ ] Add protected device credential storage and pairing links.
-- [ ] Verify sign-out, revocation, suspension, resumption, and reconnection.
-- [ ] Restore a current snapshot when the app reconnects beyond event replay retention.
-- [ ] Bundle the desktop interface and keep remote content separate from native capabilities.
-- [ ] Complete chat, task progress, an exact-action approval, cancellation, and result retrieval in the desktop app for first acceptance.
-- [ ] Verify the paired desktop app over the configured remote route, including reconnect and immediate loss of access after revocation.
+- [x] Connect the desktop app through `botstral-link` using the manager's versioned WSS interface and authenticated event channels.
+- [x] Validate manager identity, certificate pinning, device roles, and packaged-client origins.
+- [x] Add protected device credential storage and pairing links.
+- [x] Verify sign-out, revocation, suspension, resumption, and reconnection.
+- [x] Restore a current snapshot when the app reconnects beyond event replay retention.
+- [x] Bundle the desktop interface and keep remote content separate from native capabilities.
+- [x] Complete chat, task progress, an exact-action approval, cancellation, and result retrieval in the desktop app for first acceptance.
+- [x] Verify the paired desktop app over the configured remote route, including reconnect and immediate loss of access after revocation.
+
+The packaged macOS workflow passed over the configured public relay with the production worker, real Keychain, exact approval, browser/file work, cancellation, app and manager runtime restart, retention-gap recovery, lost-reply reconciliation and current and future revocation. All reproduced independent review findings were corrected and independently rechecked. See [C02 acceptance](docs/c02-acceptance.md).
 
 Complete when the desktop app completes the first-acceptance workflow, pairs and reconnects over the configured route, and loses current and future access after revocation.
 

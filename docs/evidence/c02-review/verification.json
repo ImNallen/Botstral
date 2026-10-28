@@ -1,0 +1,17 @@
+{
+  "source_head": "4d48071a1ca269098d875b689215c81d68c37ee2",
+  "configuration_comment": "https://github.com/ImNallen/Botstral/pull/31#discussion_r4399655618",
+  "worker_comment": "https://github.com/ImNallen/Botstral/pull/31#discussion_r4399655625",
+  "configuration_before_exit": 1,
+  "worker_before_exit": 1,
+  "native_keychain_and_parser_after_exit": 0,
+  "make_verify_desktop_exit": 0,
+  "frontend_tests": 26,
+  "manager_session_rebind_test_exit": 0,
+  "gui_method": "Actual packaged app with real manager and OS Keychain, two inference revisions, revoked synthetic worker, and an enrolled replacement transport worker. Recorded assistant response. No new process/browser claim.",
+  "video_method": "Actual native state captures with pauses condensed.",
+  "video_seconds": 24,
+  "video_sha256": "2e8fde9f93425143084b9e6c0dedac0a2249da645a9d4addef325bfc4489c965",
+  "native_binary_sha256": "012ccda72a7bff6a8974b642d153fe2f8098a1d886500074faeab88c544f2573",
+  "cleanup": "Signed out; exact OS credential absent; app, manager and replacement worker exited; private profile, invitation and worker state removed; endpoints refuse TCP."
+}

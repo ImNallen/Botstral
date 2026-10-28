@@ -1,0 +1,13 @@
+{
+  "source_head": "5ed0134b2c3e831a5ffb3194cac3135d5c0ee585",
+  "revocation_comment": "https://github.com/ImNallen/Botstral/pull/31#discussion_r4399815908",
+  "approval_comment": "https://github.com/ImNallen/Botstral/pull/31#discussion_r4399815916",
+  "revocation_before_exit": 1,
+  "approval_before_exit": 1,
+  "revocation_after_exit": 0,
+  "approval_after_exit": 0,
+  "make_verify_desktop_exit": 0,
+  "journal_contracts": 6,
+  "native_keychain_and_renderer_exit": 0,
+  "method": "Actual isolated manager and native service. Revocation test redirects trust to a closed local port before recreation, checks blocked cache, then explicitly pairs a fresh identity. Approval test pauses the synthetic worker, seeds an unknown regrant over an actual historical revoked approval, checks mismatched-expiration refusal, and confirms the exact subsequently granted binding. No unknown mutation is replayed."
+}

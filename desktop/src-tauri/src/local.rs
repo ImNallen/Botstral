@@ -28,6 +28,7 @@ pub enum ErrorCode {
     Protocol,
     ManagerError,
     Stale,
+    NativeStorage,
 }
 
 #[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
@@ -233,10 +234,24 @@ enum Route {
     Bot(Uuid),
     Status,
     Workers,
+    InviteDevice,
+    Devices,
+    RevokeDevice(botstral_link::DeviceId),
 }
 impl Route {
     fn parts(&self) -> (Method, String, StatusCode) {
         match self {
+            Self::InviteDevice => (
+                Method::POST,
+                "/v1/device-invitations".into(),
+                StatusCode::OK,
+            ),
+            Self::Devices => (Method::GET, "/v1/devices".into(), StatusCode::OK),
+            Self::RevokeDevice(id) => (
+                Method::DELETE,
+                format!("/v1/devices/{id}"),
+                StatusCode::NO_CONTENT,
+            ),
             Self::Health => (Method::GET, "/health".into(), StatusCode::OK),
             Self::SignIn => (Method::POST, "/v1/sessions".into(), StatusCode::CREATED),
             Self::SignOut => (Method::DELETE, "/v1/session".into(), StatusCode::NO_CONTENT),
@@ -281,6 +296,76 @@ impl LocalManager {
         })
     }
 
+    pub async fn invite_device(
+        &self,
+        request: botstral_link::PairingRequest,
+        trust: botstral_link::ManagerTrust,
+    ) -> Result<botstral_link::OwnerInvitation, Failure> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Grant {
+            manager: botstral_link::ManagerId,
+            fingerprint: botstral_link::DeviceFingerprint,
+            role: botstral_link::DeviceRole,
+            expires_at: i64,
+            invitation: Zeroizing<String>,
+        }
+        let operation = self.begin().await?;
+        let token = operation
+            .auth
+            .as_ref()
+            .ok_or_else(|| self.failure(ErrorCode::Unauthorized))?;
+        let bytes = self
+            .request(
+                operation.endpoint,
+                Route::InviteDevice,
+                Some(&token.token),
+                Some(serde_json::json!({"request":request,"lifetime_seconds":600})),
+            )
+            .await
+            .map_err(|code| self.failed(operation.generation, code))?;
+        let grant: Grant =
+            serde_json::from_slice(&bytes).map_err(|_| self.failure(ErrorCode::Protocol))?;
+        if grant.manager != trust.manager
+            || grant.fingerprint != request.fingerprint
+            || grant.role != botstral_link::DeviceRole::Owner
+        {
+            return Err(self.failure(ErrorCode::Protocol));
+        }
+        Ok(botstral_link::OwnerInvitation {
+            trust,
+            role: grant.role,
+            fingerprint: grant.fingerprint,
+            expires_at: grant.expires_at,
+            invitation: grant.invitation.to_string(),
+        })
+    }
+    pub async fn devices(&self) -> Result<Vec<botstral_link::OwnerDevice>, Failure> {
+        let operation = self.begin().await?;
+        let auth = operation
+            .auth
+            .as_ref()
+            .ok_or_else(|| self.failure(ErrorCode::Unauthorized))?;
+        self.get(operation.endpoint, Route::Devices, Some(&auth.token))
+            .await
+            .map_err(|code| self.failed(operation.generation, code))
+    }
+    pub async fn revoke_device(&self, id: botstral_link::DeviceId) -> Result<(), Failure> {
+        let operation = self.begin().await?;
+        let auth = operation
+            .auth
+            .as_ref()
+            .ok_or_else(|| self.failure(ErrorCode::Unauthorized))?;
+        self.request(
+            operation.endpoint,
+            Route::RevokeDevice(id),
+            Some(&auth.token),
+            Some(serde_json::json!({})),
+        )
+        .await
+        .map_err(|code| self.failed(operation.generation, code))?;
+        Ok(())
+    }
     pub fn inspect(&self) -> Snapshot {
         self.state.lock().unwrap().snapshot.clone()
     }

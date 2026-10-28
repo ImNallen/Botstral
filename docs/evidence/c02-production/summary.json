@@ -1,0 +1,408 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "build": {
+    "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+    "overlays": {
+      "manager/src/manager/inference/tests.rs": "79ffb819c33a75b2aafd2e64580fd5338894bfb2bf66b4b3686862821e132146",
+      "manager/src/manager/inference/run_tests.rs": "f8033c65c4928190370b7d4afbbac0ed9ccdececc954097775483a3df871d809",
+      "manager/src/manager/inference/production_fixture.rs": "88ceaf5aa8154b9cd08f7401fed679c4ca4cef8552746c0189eb0187dcdbbcbe"
+    },
+    "archive_sha256": "8bc02330af8988b083c32a8a926e62415218af89dab8c8896266a272f20f7be1",
+    "build_root": "/home/botstral/c02-build-57ee391d19a1",
+    "command": "cargo test -p botstral-manager --locked --lib --no-run --message-format=json",
+    "exit": 0,
+    "artifact": {
+      "binary": "/home/botstral/c02-build-57ee391d19a1/manager-fixture",
+      "sha256": "d55e93e7d1e8bcbd301cdc07d239d7ab27734b7c9bba54ccc23dd60040f74de3",
+      "exit": 0
+    }
+  },
+  "command": "/Library/Developer/CommandLineTools/usr/bin/python3 manager/tests/c02_production.py run --build .audit/c02-production/build-2/build.json --bore .audit/c02-production/bore --output .audit/c02-production/run-5 --keep-for-ui",
+  "method": "Production Manager runtime in ignored recorded-provider fixture; macOS RemoteService and OS keychain; unchanged installed worker over actual LAN and relay TCP.",
+  "fixture_sources": {
+    "manager/tests/c02_production.py": "8a6955e32559b3409cb7e0d402ea73d3fb3977384a477c3b6f524cc42f63af45",
+    "manager/tests/c02_reply_proxy.py": "5a438a75be739b7d24898a404b8398835afcedcaf180444012df01a31675667c",
+    "manager/tests/c02_production_remote.py": "9d363656ef9c192b96657fa420e7c33166f6feb99909f81ef117a079c8bb9ca4",
+    "desktop/src-tauri/examples/c02-remote-driver.rs": "b5ae32d45afa2cec03b59fc4815a66d0d296bf78fe64a0d83c7dbde6b69ec1b0"
+  },
+  "checks": [
+    {
+      "name": "retained_worker_and_every_runtime_file_verified",
+      "status": "PASS",
+      "files": {
+        "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+        "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+      },
+      "verified_runtime_files": 5574
+    },
+    {
+      "name": "macos_remote_service_real_keychain_actual_lan",
+      "status": "PASS",
+      "endpoint": "192.168.1.40:34691",
+      "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7",
+      "cursor": 15,
+      "worker": "2ab5cc0d-dddc-4537-ab1c-7a93bddaed59",
+      "native_sha256": "1c4e11b57af3a3d22adba54ff39eda431f4014fba85e197a209f187c1a8b619e"
+    },
+    {
+      "name": "macos_remote_service_public_relay",
+      "status": "PASS",
+      "endpoint": "bore.pub:51870",
+      "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7"
+    },
+    {
+      "name": "native_composer_production_browser",
+      "status": "ISSUES",
+      "task": {
+        "approval": {
+          "binding": {
+            "approval": "ba35ecbd-4775-4cd3-9e2d-902c69d22d50",
+            "arguments": "25a4c53849eafa0594969168e590ab3dd923233b70fc93a1d3a631fee4cf2ba3",
+            "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+            "execution": "0914e641-8cb1-4dde-94fb-2495c4546dbc",
+            "expires_at": 1793179479,
+            "operation": "74df75eb-5ba2-4e3c-a69a-6ca9143b2a19",
+            "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+            "permission_revision": 2,
+            "task": "9b470138-6889-4cdf-8e6d-4e0501809932"
+          },
+          "consumed": true,
+          "id": "ba35ecbd-4775-4cd3-9e2d-902c69d22d50",
+          "permission_revision": 2,
+          "revoked": false
+        },
+        "command": {
+          "bot": "7fe2a6df-9380-4a99-b7ed-818ec8766ea1",
+          "execution": "0914e641-8cb1-4dde-94fb-2495c4546dbc",
+          "id": "449e2521-eeb9-405b-acae-392ffa03aca8",
+          "operation": "74df75eb-5ba2-4e3c-a69a-6ca9143b2a19",
+          "owner": "30db0026-993e-40ae-a94b-ea3a387aa733",
+          "session": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+          "task": "9b470138-6889-4cdf-8e6d-4e0501809932",
+          "work": {
+            "spec": {
+              "account": {
+                "gid": 1000,
+                "uid": 1000
+              },
+              "deadline": 1793179536,
+              "limits": {
+                "memory_bytes": 536870912,
+                "output_bytes": 1024,
+                "processes": 64,
+                "runtime_seconds": 120
+              },
+              "operations": [
+                {
+                  "type": "navigate",
+                  "url": "http://127.0.0.1:46709/page.html"
+                },
+                {
+                  "selector": "#value",
+                  "text": "C02 production browser proof",
+                  "type": "fill"
+                },
+                {
+                  "selector": "#save",
+                  "type": "click"
+                },
+                {
+                  "output": "text",
+                  "selector": "#result",
+                  "type": "capture_text"
+                },
+                {
+                  "path": "/home/botstral/c02-production-e305079cbc4e/browser.txt",
+                  "text": "C02 production file proof\n",
+                  "type": "write_file"
+                },
+                {
+                  "output": "image",
+                  "type": "screenshot"
+                }
+              ],
+              "outputs": [
+                {
+                  "max_bytes": 8192,
+                  "media_type": "text_plain",
+                  "name": "result.txt",
+                  "slot": "text"
+                },
+                {
+                  "max_bytes": 1048576,
+                  "media_type": "png",
+                  "name": "screenshot.png",
+                  "slot": "image"
+                }
+              ],
+              "profile": "linux_playwright_v1",
+              "runtime": {
+                "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+              },
+              "viewport": {
+                "height": 600,
+                "width": 800
+              }
+            },
+            "type": "computer"
+          },
+          "worker": "2ab5cc0d-dddc-4537-ab1c-7a93bddaed59"
+        },
+        "effect_evidence": [],
+        "id": "9b470138-6889-4cdf-8e6d-4e0501809932",
+        "outcome": {
+          "reason": "result",
+          "scope": {
+            "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+            "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-0914e641-8cb1-4dde-94fb-2495c4546dbc.service",
+            "execution": "0914e641-8cb1-4dde-94fb-2495c4546dbc",
+            "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+            "invocation": "60af7c46ad9c4da6a8fd0783ddce56ca",
+            "journal": "aee7857a-57c5-4d75-8e3d-b68dd046fc3a",
+            "unit": "botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-0914e641-8cb1-4dde-94fb-2495c4546dbc.service"
+          },
+          "success": false,
+          "type": "process_finished"
+        },
+        "outputs": [
+          {
+            "declaration": {
+              "max_bytes": 8192,
+              "media_type": "text_plain",
+              "name": "result.txt",
+              "slot": "text"
+            },
+            "state": {
+              "reason": "missing",
+              "type": "unavailable"
+            }
+          },
+          {
+            "declaration": {
+              "max_bytes": 1048576,
+              "media_type": "png",
+              "name": "screenshot.png",
+              "slot": "image"
+            },
+            "state": {
+              "reason": "missing",
+              "type": "unavailable"
+            }
+          }
+        ],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "code": 1,
+              "type": "exited"
+            },
+            "stderr": {
+              "complete": true,
+              "hex": "636f6d7075746572206f7065726174696f6e206661696c65640a",
+              "truncated": false
+            },
+            "stdout": {
+              "complete": true,
+              "hex": "",
+              "truncated": false
+            }
+          }
+        },
+        "progress": 0,
+        "request": {
+          "conversation_id": null,
+          "id": "9b470138-6889-4cdf-8e6d-4e0501809932",
+          "session_id": "e2d93d5a-42ad-4cdf-91ab-fc420aa1b094",
+          "settings": {
+            "deadline": 1793179536,
+            "max_cost_micros": 200000,
+            "max_tokens": 1024,
+            "max_turns": 1,
+            "model": "mistral-small-2506"
+          },
+          "work": {
+            "spec": {
+              "account": {
+                "gid": 1000,
+                "uid": 1000
+              },
+              "deadline": 1793179536,
+              "limits": {
+                "memory_bytes": 536870912,
+                "output_bytes": 1024,
+                "processes": 64,
+                "runtime_seconds": 120
+              },
+              "operations": [
+                {
+                  "type": "navigate",
+                  "url": "http://127.0.0.1:46709/page.html"
+                },
+                {
+                  "selector": "#value",
+                  "text": "C02 production browser proof",
+                  "type": "fill"
+                },
+                {
+                  "selector": "#save",
+                  "type": "click"
+                },
+                {
+                  "output": "text",
+                  "selector": "#result",
+                  "type": "capture_text"
+                },
+                {
+                  "path": "/home/botstral/c02-production-e305079cbc4e/browser.txt",
+                  "text": "C02 production file proof\n",
+                  "type": "write_file"
+                },
+                {
+                  "output": "image",
+                  "type": "screenshot"
+                }
+              ],
+              "outputs": [
+                {
+                  "max_bytes": 8192,
+                  "media_type": "text_plain",
+                  "name": "result.txt",
+                  "slot": "text"
+                },
+                {
+                  "max_bytes": 1048576,
+                  "media_type": "png",
+                  "name": "screenshot.png",
+                  "slot": "image"
+                }
+              ],
+              "profile": "linux_playwright_v1",
+              "runtime": {
+                "sha256": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+              },
+              "viewport": {
+                "height": 600,
+                "width": 800
+              }
+            },
+            "type": "computer"
+          }
+        },
+        "state": "failed"
+      }
+    },
+    {
+      "name": "diagnostic_supported_m04_policy_browser_and_native_export",
+      "status": "PASS",
+      "submission": "loopback control with 128 processes and 1 GiB",
+      "task": "0355106a-844d-4bac-91f5-025e23873a09",
+      "text_sha256": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205",
+      "declaration": {
+        "declaration": {
+          "max_bytes": 8192,
+          "media_type": "text_plain",
+          "name": "result.txt",
+          "slot": "text"
+        },
+        "state": {
+          "content": {
+            "length": 28,
+            "sha256": "f1fc0ddf542437a72831e146501c4f1f1800fc051911131d9023780b659fc205"
+          },
+          "id": "11d1c4ea-e024-43df-9fca-1edb5c7e3da7",
+          "type": "available"
+        }
+      },
+      "screenshot_sha256": "db764b38a0a6ceed5deaf04c109d734c5411c099134f4cb5b59d34be5848eb83"
+    },
+    {
+      "name": "installed_worker_process_group_cancellation",
+      "status": "PASS",
+      "task": "310222f8-9228-4198-bfbf-176a9728719a",
+      "pids": [
+        415449,
+        415450
+      ],
+      "running": [
+        {
+          "pid": 415449,
+          "stat": "415449 (python3) S 415447 415447 415447 0 -1 4194304 1394 0 0 0 1 0 0 0 20 0 1 0 14961098 20328448 2976 18446744073709551615 4325376 7352253 140731089524496 0 0 0 0 16781312 2 1 0 0 17 7 0 0 0 0 0 10653128 12216448 296673280 140731089526533 140731089526759 140731089526759 140731089526759 0\n",
+          "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-2bc3e9d5-d786-4bea-be41-b9665675784b.service\n"
+        },
+        {
+          "pid": 415450,
+          "stat": "415450 (sleep) S 415449 415447 415447 0 -1 4194304 68 0 0 0 0 0 0 0 20 0 1 0 14961099 6217728 480 18446744073709551615 99998650232832 99998650246833 140724360244368 0 0 0 0 0 0 1 0 0 17 8 0 0 0 0 0 99998650256336 99998650257560 99999363612672 140724360249285 140724360249304 140724360249304 140724360249321 0\n",
+          "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-2bc3e9d5-d786-4bea-be41-b9665675784b.service\n"
+        }
+      ],
+      "outcome": {
+        "applied": 0,
+        "evidence": {
+          "systemd_scope_empty": {
+            "scope": {
+              "boot": "a9e5b8c7-8f54-445d-83bc-2e120b765cd9",
+              "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-2bc3e9d5-d786-4bea-be41-b9665675784b.service",
+              "execution": "2bc3e9d5-d786-4bea-be41-b9665675784b",
+              "host": "4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134",
+              "invocation": "f885ad897b064c508e7bfbbff8335b85",
+              "journal": "aee7857a-57c5-4d75-8e3d-b68dd046fc3a",
+              "unit": "botstral-aee7857a-57c5-4d75-8e3d-b68dd046fc3a-2bc3e9d5-d786-4bea-be41-b9665675784b.service"
+            }
+          }
+        },
+        "type": "stopped"
+      }
+    },
+    {
+      "name": "native_retention_gap_complete_workspace_recovery",
+      "status": "PASS",
+      "before": 64,
+      "after": 225,
+      "messages": 160,
+      "replay_type": "snapshot"
+    },
+    {
+      "name": "native_actor_recreation_restores_keychain_and_workspace",
+      "status": "PASS",
+      "cursor": 225
+    },
+    {
+      "name": "manager_runtime_restart_during_production_work",
+      "status": "PASS",
+      "generation": 1,
+      "task": "8fc80821-c5e3-4e82-8bf5-5d9c3f84ef4e",
+      "pids": [
+        415606,
+        415607
+      ]
+    },
+    {
+      "name": "native_lost_reply_reconciles_without_replay_or_duplicate_effect",
+      "status": "PASS",
+      "run": "9a55e530-4178-415e-abf5-adedd7031b9d",
+      "task": "4053ee32-2dd8-4d11-93df-db3ba3225128",
+      "proxy": {
+        "submissions": 1,
+        "dropped_replies": 1
+      },
+      "effects": 1
+    }
+  ],
+  "root": "/home/botstral/c02-production-e305079cbc4e",
+  "cleanup": null,
+  "endpoint": "192.168.1.40:34691",
+  "leaf": "190fb91a71f5eda71976d00959b4b1d7112f2fbe8bc840745bff7af01cca79e7",
+  "status": "ISSUES",
+  "remaining": [
+    "Parent packaged graphical walkthrough and video.",
+    "Native chooser, sleep, OS notifications and hostile navigation observations."
+  ],
+  "retained_after": {
+    "files": {
+      "/home/botstral/m04-final-acceptance.GycLnu/bin/production/botstral-agent": "a1dffc665e7eb6176a53fe5f325a0874f20f4ea526e9eb23b7a24ba412365a00",
+      "/home/botstral/w01-runtime-76b03bf1/runtime.json": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061"
+    },
+    "verified_runtime_files": 5574
+  }
+}

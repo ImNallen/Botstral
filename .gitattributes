@@ -1,1 +1,2 @@
 agent/tests/evidence/m04-completion/*.log -whitespace
+docs/evidence/c02-production/*.log -whitespace

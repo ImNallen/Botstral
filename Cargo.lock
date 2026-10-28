@@ -300,6 +300,7 @@ dependencies = [
  "axum",
  "base64 0.22.1",
  "botstral-link",
+ "botstral-owner-client",
  "futures-util",
  "http-body-util",
  "hyper",
@@ -323,6 +324,25 @@ dependencies = [
  "tokio-tungstenite",
  "tokio-util",
  "uuid",
+ "zeroize",
+]
+
+[[package]]
+name = "botstral-owner-client"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "botstral-link",
+ "futures-util",
+ "libc",
+ "rand 0.8.8",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+ "tokio-rustls",
+ "tokio-tungstenite",
  "zeroize",
 ]
 

@@ -1,0 +1,7 @@
+{
+  "source_sha": "e81cdbd51e2e852d2e6a78b5505eccf3a43ff8ed",
+  "command": "python3 manager/tests/c02_production.py run --build .audit/c02-production/build-2/build.json --bore .audit/c02-production/bore --output .audit/c02-production/run-1 --keep-for-ui",
+  "exit": 1,
+  "error": "TypeError: Path.open() does not accept opener. The fixture report could not be written.",
+  "evidence": "Observed tool output. No durable runner summary was produced. The two remote roots were removed before the error in report writing. The stale local private directory was removed in local-cleanup.json."
+}
