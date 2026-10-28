@@ -302,6 +302,8 @@ pub struct AuthoritativeEvent {
 #[serde(deny_unknown_fields)]
 pub struct OwnerSnapshot {
     #[serde(default)]
+    pub routine_state: Box<RoutineSnapshot>,
+    #[serde(default)]
     pub connections: Vec<ConnectionSummary>,
     pub tasks: Vec<TaskView>,
     pub runs: Vec<crate::RunSummary>,

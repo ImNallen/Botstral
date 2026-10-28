@@ -34,7 +34,11 @@ pub(super) fn event(
     )?;
     Ok(())
 }
-fn count_bound(db: &Connection, table: &str, bound: usize) -> Result<(), OperationError> {
+pub(super) fn count_bound(
+    db: &Connection,
+    table: &str,
+    bound: usize,
+) -> Result<(), OperationError> {
     let n: i64 = db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))?;
     if n >= bound as i64 {
         return Err(OperationError::Busy);
@@ -182,6 +186,7 @@ impl State {
         input.settings.validate()?;
         count_bound(&self.connection, "tasks", MAX_TASKS)?;
         let session = self.find_computer_session(input.session_id)?;
+        self.require_live_bot(session.bot_id)?;
         if let Some(conversation) = input.conversation_id {
             let bot: Option<String> = self
                 .connection
@@ -547,7 +552,7 @@ impl State {
         };
         let bots = self
             .connection
-            .prepare("SELECT id,name,created_at FROM bots ORDER BY id")?
+            .prepare("SELECT id,name,created_at FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones) ORDER BY id")?
             .query_map([], |r| {
                 Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get(2)?))
             })?
@@ -688,6 +693,13 @@ impl State {
                 .collect::<Result<Vec<_>, OperationError>>()?;
             return Ok(EventReplay::Snapshot {
                 state: OwnerSnapshot {
+                    routine_state: Box::new(RoutineSnapshot {
+                        routines: self.routine_views()?,
+                        occurrences: self.routine_recent()?,
+                        inbox: self.inbox()?,
+                        publishers: self.publisher_views()?,
+                        budget: self.routine_budget()?,
+                    }),
                     connections: self
                         .connection
                         .prepare("SELECT view FROM connections ORDER BY id")?
@@ -855,7 +867,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            9
+            10
         );
     }
 }

@@ -606,5 +606,7 @@ mod coding_tests;
 mod recovery_tests;
 #[path = "restart_tests.rs"]
 mod restart_tests;
+#[path = "routine_tests.rs"]
+mod routine_tests;
 #[path = "vision_tests.rs"]
 mod vision_tests;

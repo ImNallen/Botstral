@@ -58,6 +58,7 @@ impl State {
             return Err(ErrorCode::StaleGeneration.into());
         }
         let session = self.find_computer_session(fence.session_id)?;
+        self.require_live_bot(session.bot_id)?;
         if session.worker_id != worker {
             return Err(ErrorCode::Unauthorized.into());
         }

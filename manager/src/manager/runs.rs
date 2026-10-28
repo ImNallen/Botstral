@@ -58,6 +58,7 @@ pub(super) fn start(
             }
             if let Err(error) = queue
                 .call_wait(|s| {
+                    s.reconcile_routines()?;
                     s.reconcile_connectors()?;
                     s.reconcile_run_stops()
                 })
@@ -175,6 +176,20 @@ impl Manager {
     ) -> Result<RunView, OperationError> {
         self.queue
             .call(false, move |s| s.cancel_run(token, id))
+            .await
+    }
+}
+impl Manager {
+    pub async fn publish_routine_event(
+        &self,
+        publisher: PublisherId,
+        credential: String,
+        bytes: Vec<u8>,
+    ) -> Result<EventReceipt, OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.ingest_routine_event(publisher, credential, bytes)
+            })
             .await
     }
 }

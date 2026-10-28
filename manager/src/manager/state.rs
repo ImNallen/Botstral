@@ -6,6 +6,7 @@ mod connectors;
 mod devices;
 mod inference;
 mod memory;
+mod routines;
 mod runs;
 mod tasks;
 mod vision;
@@ -76,7 +77,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 9 {
+    if version > 10 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -122,6 +123,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 9 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0009.sql"))?;
+        tx.commit()?;
+    }
+    if version < 10 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0010.sql"))?;
         tx.commit()?;
     }
     connection.execute(
@@ -417,7 +423,7 @@ impl State {
         Ok(self
             .connection
             .query_row(
-                "SELECT name, created_at FROM bots WHERE id = ?1",
+                "SELECT name, created_at FROM bots WHERE id = ?1 AND id NOT IN (SELECT bot FROM bot_tombstones)",
                 [id.0.to_string()],
                 |row| {
                     Ok(Bot {
@@ -444,7 +450,7 @@ impl State {
         self.authorize_owner(&token.into())?;
         let mut statement = self
             .connection
-            .prepare("SELECT id, name, created_at FROM bots ORDER BY created_at, id")?;
+            .prepare("SELECT id, name, created_at FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones) ORDER BY created_at, id")?;
         let rows = statement.query_map([], |row| {
             Ok((
                 row.get::<_, String>(0)?,

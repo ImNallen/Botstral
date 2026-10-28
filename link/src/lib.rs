@@ -73,6 +73,8 @@ macro_rules! counters {
 counters!(Generation, Revision);
 mod durable;
 pub use durable::*;
+mod routine;
+pub use routine::*;
 mod run;
 pub use run::*;
 mod inference;

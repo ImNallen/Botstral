@@ -329,7 +329,33 @@ export type InferenceAttentionReason =
   | 'response_too_large'
   | 'shutdown'
   | 'restart';
+export type InboxId = string;
+export type OccurrenceId = string;
+export type RoutineId = string;
 export type RunId = string;
+export type OccurrenceStatus =
+  | {
+      type: 'pending';
+    }
+  | {
+      type: 'running';
+    }
+  | {
+      reason: string;
+      type: 'decision';
+    }
+  | {
+      phase: RunPhase;
+      type: 'finished';
+    }
+  | {
+      reason: string;
+      type: 'blocked';
+    }
+  | {
+      reason: string;
+      type: 'skipped';
+    };
 export type RunPhase =
   | {
       type: 'ready';
@@ -376,6 +402,33 @@ export type RunStopReason =
   | 'shutdown'
   | 'restart';
 export type RunAttentionReason = 'provider' | 'worker' | 'result_invalid' | 'restart' | 'shutdown';
+export type PublisherId = string;
+export type RoutineTrigger =
+  | {
+      at: number;
+      type: 'once';
+    }
+  | {
+      anchor: number;
+      seconds: number;
+      type: 'interval';
+    }
+  | {
+      hour: number;
+      minute: number;
+      timezone: string;
+      type: 'daily';
+    }
+  | {
+      equals: {
+        [k: string]: EventScalar;
+      };
+      publisher: PublisherId;
+      topic: string;
+      type: 'event';
+    };
+export type EventScalar = string | number | boolean;
+export type RoutineState = 'enabled' | 'paused' | 'deleted';
 export type ExecutionEvent =
   | {
       evidence: ProcessEvidence;
@@ -490,6 +543,28 @@ export type OwnerClientMessage =
       type: 'ping';
     };
 export type OwnerOperation =
+  | {
+      input: RoutineCommand;
+      method: 'routine_command';
+    }
+  | {
+      bot: BotId;
+      id: RequestId;
+      method: 'routine_conversation';
+      text: string;
+    }
+  | {
+      before?: number | null;
+      id: RoutineId;
+      limit: number;
+      method: 'routine_history';
+    }
+  | {
+      after: number;
+      limit: number;
+      method: 'routine_preview';
+      trigger: RoutineTrigger;
+    }
   | {
       input: InstallConnection;
       method: 'install_connection';
@@ -677,6 +752,65 @@ export type OwnerOperation =
       method: 'coding_calls';
       task: TaskId;
     };
+export type RoutineAction =
+  | {
+      definition: RoutineDefinition;
+      id: RoutineId;
+      type: 'create';
+    }
+  | {
+      definition: RoutineDefinition;
+      expected_revision: number;
+      id: RoutineId;
+      type: 'replace';
+    }
+  | {
+      expected_revision: number;
+      id: RoutineId;
+      paused: boolean;
+      type: 'set_paused';
+    }
+  | {
+      expected_revision: number;
+      id: RoutineId;
+      type: 'test';
+    }
+  | {
+      expected_revision: number;
+      id: RoutineId;
+      type: 'delete';
+    }
+  | {
+      budget: RoutineBudget;
+      type: 'set_budget';
+    }
+  | {
+      bot: BotId;
+      credential_sha256: string;
+      id: PublisherId;
+      name: string;
+      topics: string[];
+      type: 'install_publisher';
+    }
+  | {
+      expected_revision: number;
+      id: PublisherId;
+      type: 'revoke_publisher';
+    }
+  | {
+      bot: BotId;
+      type: 'delete_bot';
+    }
+  | {
+      bot: BotId;
+      copy: BotId;
+      name: string;
+      type: 'duplicate_bot';
+    }
+  | {
+      id: InboxId;
+      type: 'acknowledge_inbox';
+    };
 export type ConnectionTransport =
   | {
       endpoint: string;
@@ -727,6 +861,18 @@ export type OwnerHello =
       version: number;
     };
 export type OwnerReply =
+  | {
+      type: 'routine_control';
+      value: RoutineControlResult;
+    }
+  | {
+      type: 'routine_history';
+      value: RoutineOccurrence[];
+    }
+  | {
+      type: 'routine_preview';
+      value: number[];
+    }
   | {
       type: 'connection';
       value: ConnectionView;
@@ -1399,6 +1545,7 @@ export interface OwnerSnapshot {
   inferences: InferenceView[];
   messages: ConversationMessage[];
   permissions: Permission[];
+  routine_state?: RoutineSnapshot;
   runs: RunSummary[];
   tasks: TaskView[];
 }
@@ -1449,6 +1596,117 @@ export interface Permission {
   allow: boolean;
   bot: BotId;
   revision: number;
+}
+export interface RoutineSnapshot {
+  budget?: RoutineBudget | null;
+  inbox: InboxEntry[];
+  occurrences: RoutineOccurrence[];
+  publishers: PublisherView[];
+  routines: RoutineView[];
+}
+export interface RoutineBudget {
+  max_cost_microusd: number;
+  max_runs: number;
+  max_tokens: number;
+}
+export interface InboxEntry {
+  acknowledged: boolean;
+  bot: BotId;
+  created_at: number;
+  id: InboxId;
+  occurrence: OccurrenceId;
+  routine: RoutineId;
+  run?: RunId | null;
+  status: OccurrenceStatus;
+}
+export interface RoutineOccurrence {
+  id: OccurrenceId;
+  revision: number;
+  routine: RoutineId;
+  run?: RunId | null;
+  scheduled_at: number;
+  skipped_count: number;
+  status: OccurrenceStatus;
+  trigger_key: string;
+  updated_at: number;
+}
+export interface PublisherView {
+  bot: BotId;
+  id: PublisherId;
+  last_error?: string | null;
+  last_received_at?: number | null;
+  name: string;
+  revision: number;
+  revoked: boolean;
+  topics: string[];
+}
+export interface RoutineView {
+  definition: RoutineDefinition;
+  id: RoutineId;
+  next_at?: number | null;
+  revision: number;
+  state: RoutineState;
+}
+export interface RoutineDefinition {
+  bot: BotId;
+  catchup_seconds: number;
+  name: string;
+  template: RunTemplate;
+  trigger: RoutineTrigger;
+  wakeups?: WakeupGrant | null;
+}
+export interface RunTemplate {
+  configuration_revision: number;
+  duration_seconds: number;
+  execution_policy: RunExecutionPolicy;
+  max_cost_microusd: number;
+  max_operations: number;
+  max_output_tokens: number;
+  max_total_tokens: number;
+  max_turns: number;
+  permission_revision: number;
+  prompt: string;
+  session: ComputerSessionId;
+  session_revision: Revision;
+}
+export interface RunExecutionPolicy {
+  computer?: ComputerToolPolicy | null;
+  connectors?: ConnectorToolPolicy | null;
+  process?: ProcessToolPolicy | null;
+  vibe?: VibeToolPolicy | null;
+  vision?: VisionPolicy | null;
+}
+export interface ComputerToolPolicy {
+  account: ProcessAccount;
+  limits: ProcessLimits;
+  outputs: OutputDeclaration[];
+  profile: ComputerProfile;
+  runtime: ComputerRuntime;
+  viewport: Viewport;
+}
+export interface ProcessToolPolicy {
+  account: ProcessAccount;
+  environment: {
+    [k: string]: string;
+  };
+  limits: ProcessLimits;
+  profile: ProcessProfile;
+}
+export interface VibeToolPolicy {
+  limits: RunLimits;
+  policy: VibePolicy;
+}
+export interface VisionPolicy {
+  allowed_slots: string[];
+  max_image_bytes: number;
+  max_images: number;
+  max_total_pixels: number;
+}
+export interface WakeupGrant {
+  horizon_seconds: number;
+  max_pending: number;
+  max_total: number;
+  minimum_spacing_seconds: number;
 }
 export interface RunSummary {
   accounting: RunAccounting;
@@ -1532,6 +1790,10 @@ export interface TaskSettings {
   max_turns: number;
   model: string;
 }
+export interface RoutineCommand {
+  action: RoutineAction;
+  id: RequestId;
+}
 export interface InstallConnection {
   id: ConnectionId;
   label: string;
@@ -1564,39 +1826,6 @@ export interface SubmitRun {
   prompt: string;
   session: ComputerSessionId;
 }
-export interface RunExecutionPolicy {
-  computer?: ComputerToolPolicy | null;
-  connectors?: ConnectorToolPolicy | null;
-  process?: ProcessToolPolicy | null;
-  vibe?: VibeToolPolicy | null;
-  vision?: VisionPolicy | null;
-}
-export interface ComputerToolPolicy {
-  account: ProcessAccount;
-  limits: ProcessLimits;
-  outputs: OutputDeclaration[];
-  profile: ComputerProfile;
-  runtime: ComputerRuntime;
-  viewport: Viewport;
-}
-export interface ProcessToolPolicy {
-  account: ProcessAccount;
-  environment: {
-    [k: string]: string;
-  };
-  limits: ProcessLimits;
-  profile: ProcessProfile;
-}
-export interface VibeToolPolicy {
-  limits: RunLimits;
-  policy: VibePolicy;
-}
-export interface VisionPolicy {
-  allowed_slots: string[];
-  max_image_bytes: number;
-  max_images: number;
-  max_total_pixels: number;
-}
 export interface ImageReference {
   artifact: ArtifactId;
   sha256: CertificateFingerprint;
@@ -1617,6 +1846,10 @@ export interface OwnerInvitation {
   invitation: string;
   role: DeviceRole;
   trust: ManagerTrust;
+}
+export interface RoutineControlResult {
+  message: string;
+  request: RequestId;
 }
 export interface ConnectionView {
   availability: ConnectionAvailability;

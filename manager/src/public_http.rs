@@ -140,6 +140,71 @@ async fn public_request(
             ErrorCode::Unauthorized,
         ));
     }
+    if request.method() == "POST"
+        && request.uri().path().starts_with("/events/v1/publishers/")
+        && request.uri().query().is_none()
+    {
+        use http_body_util::BodyExt;
+        let publisher = request
+            .uri()
+            .path()
+            .trim_start_matches("/events/v1/publishers/")
+            .parse::<botstral_link::PublisherId>();
+        let credential = request
+            .headers()
+            .get("authorization")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.strip_prefix("Bearer "))
+            .map(str::to_owned);
+        let (Ok(publisher), Some(credential)) = (publisher, credential) else {
+            return Ok(error_response(
+                StatusCode::UNAUTHORIZED,
+                ErrorCode::Unauthorized,
+            ));
+        };
+        let collected = tokio::time::timeout(
+            DEADLINE,
+            http_body_util::Limited::new(request.into_body(), botstral_link::MAX_EVENT_BYTES)
+                .collect(),
+        )
+        .await;
+        let bytes = match collected {
+            Ok(Ok(body)) => body.to_bytes().to_vec(),
+            _ => {
+                return Ok(error_response(
+                    StatusCode::PAYLOAD_TOO_LARGE,
+                    ErrorCode::InvalidMessage,
+                ));
+            }
+        };
+        return Ok(
+            match manager
+                .publish_routine_event(publisher, credential, bytes)
+                .await
+            {
+                Ok(receipt) => json_response(
+                    StatusCode::ACCEPTED,
+                    serde_json::to_value(receipt).expect("receipt serializes"),
+                ),
+                Err(error) => {
+                    use crate::manager::OperationError;
+                    let status = match error {
+                        OperationError::Unauthorized | OperationError::NotFound => {
+                            StatusCode::UNAUTHORIZED
+                        }
+                        OperationError::Conflict => StatusCode::CONFLICT,
+                        OperationError::Locked | OperationError::Busy => {
+                            StatusCode::SERVICE_UNAVAILABLE
+                        }
+                        OperationError::RateLimited => StatusCode::TOO_MANY_REQUESTS,
+                        OperationError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+                        _ => StatusCode::BAD_REQUEST,
+                    };
+                    json_response(status, serde_json::json!({"error":format!("{error:?}")}))
+                }
+            },
+        );
+    }
     if request.uri().path().starts_with("/worker/") {
         return match peer {
             Some(peer) => {

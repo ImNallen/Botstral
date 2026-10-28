@@ -7,17 +7,25 @@ pub const OWNER_TRANSFER_BYTES: usize = 80 * 1024 * 1024;
 pub const OWNER_TRANSFER_SECONDS: u64 = 120;
 pub const MAX_OWNER_DEVICES: usize = 128;
 pub const MAX_OWNER_CONNECTIONS: usize = 8;
-pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_CONNECTIONS * 1024
+pub const OWNER_SNAPSHOT_SERIALIZED_BOUND: usize = MAX_ROUTINES * 32768
+    + MAX_ROUTINE_PAGE * 4096
+    + MAX_INBOX_PAGE * 4096
+    + MAX_PUBLISHERS * 4096
+    + MAX_CONNECTIONS * 1024
     + MAX_TASKS * 24 * 1024
-    + MAX_RUNS * 4096
+    + (MAX_RUNS + 16) * 4096
     + MAX_INFERENCES
         * (6 * (MAX_INFERENCE_PROMPT_BYTES + MAX_INFERENCE_OUTPUT_BYTES + 200) + 32768 + 4096)
     + MAX_INFERENCE_CONFIGURATIONS * 32768
     + MAX_RECORDS * (128 + (6 * 4096 + 256) + (6 * (4096 + 8 * 512) + 2048) + 128)
     + 4096;
-pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_CONNECTIONS * 2048
+pub const OWNER_SNAPSHOT_ALLOCATION_BOUND: usize = MAX_ROUTINES * 65536
+    + MAX_ROUTINE_PAGE * 8192
+    + MAX_INBOX_PAGE * 8192
+    + MAX_PUBLISHERS * 8192
+    + MAX_CONNECTIONS * 2048
     + MAX_TASKS * 256 * 1024
-    + MAX_RUNS * 4096
+    + (MAX_RUNS + 16) * 4096
     + MAX_INFERENCES * 128 * 1024
     + MAX_INFERENCE_CONFIGURATIONS * 16 * 1024
     + MAX_RECORDS * (256 + 16 * 1024 + 32 * 1024 + 128);
@@ -126,6 +134,24 @@ pub enum OwnerHello {
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    RoutineCommand {
+        input: RoutineCommand,
+    },
+    RoutineConversation {
+        bot: BotId,
+        id: RequestId,
+        text: String,
+    },
+    RoutineHistory {
+        id: RoutineId,
+        before: Option<i64>,
+        limit: u16,
+    },
+    RoutinePreview {
+        trigger: RoutineTrigger,
+        after: i64,
+        limit: u16,
+    },
     InstallConnection {
         input: InstallConnection,
     },
@@ -304,6 +330,9 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    RoutineControl(RoutineControlResult),
+    RoutineHistory(Vec<RoutineOccurrence>),
+    RoutinePreview(Vec<i64>),
     Connection(ConnectionView),
     Connections(Vec<ConnectionView>),
     ConnectorGrants(BotConnectorGrants),
@@ -377,13 +406,13 @@ pub struct OwnerDevice {
 pub const MAX_WORKSPACE_BOTS: usize = 1024;
 pub const MAX_WORKSPACE_WORKERS: usize = 128;
 pub const OWNER_WORKSPACE_SERIALIZED_BOUND: usize = OWNER_SNAPSHOT_SERIALIZED_BOUND
-    + MAX_RUNS * MAX_RUN_VIEW_BYTES
+    + (MAX_RUNS + 16) * MAX_RUN_VIEW_BYTES
     + MAX_WORKSPACE_BOTS * 1024
     + MAX_WORKSPACE_WORKERS * 256
     + MAX_WORKSPACE_BOTS * 512
     + 4096;
 pub const OWNER_WORKSPACE_ALLOCATION_BOUND: usize = OWNER_SNAPSHOT_ALLOCATION_BOUND
-    + MAX_RUNS * 2 * MAX_RUN_VIEW_BYTES
+    + (MAX_RUNS + 16) * 2 * MAX_RUN_VIEW_BYTES
     + MAX_WORKSPACE_BOTS * 1024
     + MAX_WORKSPACE_WORKERS * 256
     + MAX_WORKSPACE_BOTS * 512;

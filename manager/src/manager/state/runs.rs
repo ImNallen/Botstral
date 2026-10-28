@@ -149,7 +149,7 @@ impl State {
     }
     pub(super) fn run_summaries(&self) -> Result<Vec<RunSummary>, OperationError> {
         self.connection
-            .prepare("SELECT summary FROM runs ORDER BY rowid")?
+            .prepare("SELECT summary FROM runs WHERE json_extract(summary,'$.phase.type') NOT IN ('completed','cancelled','stopped') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT 16) ORDER BY rowid")?
             .query_map([], |r| r.get::<_, String>(0))?
             .map(|row| parse(row?))
             .collect()
@@ -190,6 +190,21 @@ impl State {
             Err(OperationError::NotFound) => {}
             Err(error) => return Err(error),
         }
+        let view = self.validate_run_admission(request)?;
+        let owner = self.principal()?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        insert_run(&tx, owner, &view)?;
+        tx.commit()?;
+        self.fault("run_committed");
+        Ok(view)
+    }
+    pub(super) fn validate_run_admission(
+        &self,
+        request: SubmitRun,
+    ) -> Result<RunView, OperationError> {
+        self.require_live_bot(request.bot)?;
         let now = self.now();
         let limits = &request.limits;
         if json(&request)?.len() > 16384
@@ -234,9 +249,8 @@ impl State {
         ) {
             return Err(OperationError::InvalidInput);
         }
-        let count: i64 = self
-            .connection
-            .query_row("SELECT count(*) FROM runs", [], |r| r.get(0))?;
+        let count: i64 = self.connection.query_row(
+            "SELECT count(*) FROM runs WHERE json_extract(summary,'$.phase.type') NOT IN ('completed','cancelled','stopped')", [], |r| r.get(0))?;
         if count >= MAX_RUNS as i64 {
             return Err(OperationError::Busy);
         }
@@ -267,23 +281,6 @@ impl State {
         if prepared.encoded().len() > MAX_PROVIDER_REQUEST {
             return Err(OperationError::InvalidInput);
         }
-        let owner = self.principal()?;
-        let tx = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        tx.execute(
-            "INSERT INTO runs VALUES(?1,?2,?3,?4,?5)",
-            params![
-                view.request.id.to_string(),
-                owner.to_string(),
-                json(&view.request)?,
-                json(&view.configuration)?,
-                json(&view.summary)?
-            ],
-        )?;
-        event(&tx, "run_submitted", view.request.id)?;
-        tx.commit()?;
-        self.fault("run_committed");
         Ok(view)
     }
     pub(in crate::manager) fn cancel_run(
@@ -305,7 +302,7 @@ impl State {
         self.stop_run(&mut view, None)?;
         self.load_run(id)
     }
-    fn stop_run(
+    pub(super) fn stop_run(
         &mut self,
         view: &mut RunView,
         reason: Option<RunStopReason>,
@@ -402,7 +399,9 @@ impl State {
             return Ok(true);
         };
         let limits = &view.request.limits;
-        if self.run_admission_stopped()
+        if self.require_live_bot(view.request.bot).is_err()
+            || !self.routine_run_authorized(view.request.id)?
+            || self.run_admission_stopped()
             || view.summary.cancellation_requested_at.is_some()
             || limits.deadline <= self.now()
             || !matches!(view.summary.phase, RunPhase::WaitingForTool { task: child, .. } if child == task.id)
@@ -457,6 +456,15 @@ impl State {
                 continue;
             }
             let mut view = self.load_run(summary.id)?;
+            if self.require_live_bot(summary.bot).is_err()
+                || !self.routine_run_authorized(summary.id)?
+            {
+                view.summary
+                    .cancellation_requested_at
+                    .get_or_insert(self.now());
+                self.stop_run(&mut view, Some(RunStopReason::ConfigurationChanged))?;
+                continue;
+            }
             match summary.phase {
                 RunPhase::Ready if allow_model => {
                     let reason = if !self.tools_authorized(&view.configuration)? {
@@ -670,4 +678,22 @@ impl State {
         }
         Ok(())
     }
+}
+
+pub(super) fn insert_run(
+    db: &Connection,
+    owner: OwnerId,
+    view: &RunView,
+) -> Result<(), OperationError> {
+    db.execute(
+        "INSERT INTO runs VALUES(?1,?2,?3,?4,?5)",
+        params![
+            view.request.id.to_string(),
+            owner.to_string(),
+            json(&view.request)?,
+            json(&view.configuration)?,
+            json(&view.summary)?
+        ],
+    )?;
+    event(db, "run_submitted", view.request.id)
 }
