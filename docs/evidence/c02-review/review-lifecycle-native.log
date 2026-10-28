@@ -1,0 +1,45 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qulg3og
+Local manager: 127.0.0.1:60344
+Paired WSS route: wss://127.0.0.1:60359/owner/v1/connect
+Manager identity: 38bb80ee-c514-4319-b3d3-52466a86b192
+Manager leaf: c298dcfdf5c000e444d65b1ad9f4e695e1992c2392e0d00f0a45e4514ea3b849
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qulg3og/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qulg3og/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Blocking waiting for file lock on artifact directory
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.36s
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-f1cc92d7b07f5318)
+
+running 1 test
+PASS actual manager, real native keychain, durable chat and linked task, exact review, verified export, suspension, restoration, credential scan, and revocation
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 5.53s
+
+
+> test
+> npm run test --workspace @botstral/desktop src/paired-contract.test.ts
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run src/paired-contract.test.ts
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  12:17:09
+   Duration  381ms (environment 77%, setup 11%, import 7%, transform 2%, tests 2%, worker 1%)

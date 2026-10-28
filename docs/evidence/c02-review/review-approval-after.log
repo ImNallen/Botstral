@@ -1,0 +1,21 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-1ohtoj67
+Local manager: 127.0.0.1:60194
+Paired WSS route: wss://127.0.0.1:60223/owner/v1/connect
+Manager identity: ac1b3d11-e366-4d07-9a54-08c78b702b1e
+Manager leaf: e53cdf3e64378f6aaf7e4ddd5768b008004b220b04eaab03008d69b390015c6f
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-1ohtoj67/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-1ohtoj67/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Blocking waiting for file lock on artifact directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-1225872ef5add004)
+
+running 1 test
+UNKNOWN_REGRANT historical_revoked_status=unknown
+test historical_approval_cannot_confirm_an_unknown_regrant ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 3.52s

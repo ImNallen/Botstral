@@ -1,0 +1,42 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-fer0fq8c
+Local manager: 127.0.0.1:60026
+Paired WSS route: wss://127.0.0.1:60055/owner/v1/connect
+Manager identity: 6ac04fa7-d461-4c86-9c16-d6375558df13
+Manager leaf: 8a630f567b54bc507e0cac8980ca6790aeed9b0d0f22dfdc2fcd2bb2f2590e85
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-fer0fq8c/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-fer0fq8c/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.15s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-1225872ef5add004)
+
+running 1 test
+UNKNOWN_REGRANT historical_revoked_status=confirmed
+
+thread 'historical_approval_cannot_confirm_an_unknown_regrant' (614433893) panicked at tests/journal.rs:226:5:
+assertion `left == right` failed: A historical revoked binding falsely confirmed an uncommitted regrant
+  left: "confirmed"
+ right: "unknown"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test historical_approval_cannot_confirm_an_unknown_regrant ... FAILED
+
+failures:
+
+failures:
+    historical_approval_cannot_confirm_an_unknown_regrant
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.96s
+
+error: test failed, to rerun pass `--test journal`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/fixtures/paired_manager.py", line 101, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/fixtures/paired_manager.py", line 83, in main
+    raise RuntimeError('The native journal contract failed.')
+RuntimeError: The native journal contract failed.

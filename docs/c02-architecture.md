@@ -26,3 +26,5 @@ The first unit's approval operation compared the approval identity. Implementati
 The macOS debug build supports an explicit `BOTSTRAL_DESKTOP_PROFILE` directory for isolated native acceptance. Release builds always use the application's profile directory. Neither build has a file-backed credential fallback.
 
 Independent lifecycle review found that an absent profile directory caused sign-out to return before deleting the native credential. Sign-out now recreates the private marker directory and attempts credential deletion even if marker persistence fails. A regression covers both successful deletion and failed deletion after profile removal. The failed-deletion case preserves a durable signed-out marker across restoration.
+
+Known device revocation is a durable native lifecycle decision. A protected marker blocks cached projection and authentication across an offline restart. An explicit new pairing removes it only after preparing a fresh identity. Approval reconciliation requires the requested expiration and unrevoked binding as well as the exact command, approval identity and permission revision. Historical bindings alone do not prove a regrant.

@@ -1,6 +1,6 @@
 {
   "recorded_at": "2026-10-28T10:29:02.502990+00:00",
-  "source_head": "4d48071a1ca269098d875b689215c81d68c37ee2",
+  "source_head": "5ed0134b2c3e831a5ffb3194cac3135d5c0ee585",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
   "parent_checks": [
@@ -140,5 +140,6 @@
       "report": "helper-independent-recheck.txt"
     }
   ],
-  "hosted_review_followup": "../c02-review/verification.json"
+  "hosted_review_followup": "../c02-review/verification.json",
+  "hosted_lifecycle_followup": "../c02-review/lifecycle-verification.json"
 }
