@@ -22,6 +22,10 @@ Repeat with `python3 scripts/m06-proxmox-packaging.py --output /private/new-evid
 
 Both corrected images were rebuilt and accepted on Docker Linux arm64. [The summary](evidence/m06-parent/packaging-summary.json) records immutable image identities and verifies the installed recovery and diagnostics file hashes against the coordinator source.
 
+After connector integration, [both final images](evidence/m06-parent/integrated-images.json) were rebuilt and accepted again. The installed worker binary contains the current embedded connector helper. Its production scope-stop and journal restoration checks passed. The earlier retained Proxmox staging roots were subsequently [verified quiescent and removed](evidence/m06-parent/proxmox-cleanup.json).
+
+A final installer check reproduced both packages being accepted into one installation root. The two-order regression [failed before correction](evidence/m06-parent/cohost-install-before.log). The installer now rejects that unsupported layout before writing the second package, and [all 13 packaging checks pass](evidence/m06-parent/cohost-install-after.log). [Issue 33](https://github.com/ImNallen/Botstral/issues/33) tracks this correction. Both images were rebuilt and accepted again after it; final image identities are recorded separately.
+
 The manager runs as user 10001 with dropped capabilities and a read-only root filesystem. Its actual TLS and file-configuration startup passed. The worker runs systemd 255 and the production Process backend. Its scope-stop proof, concurrent selected-root refusal, production journal backup, original-path restoration, retained incarnation, and certificate-byte recovery passed. [The worker result](evidence/m06-parent/docker-worker.json) retains those observations.
 
 The initial worker rerun [failed in the fixture](evidence/m06-parent/docker-worker-before-fixture.json) when OverlayFS refused renaming an image-layer directory. A fresh fixture directory fixes that harness assumption. The production recovery implementation and image were unchanged for the passing rerun. The failed record remains failed.

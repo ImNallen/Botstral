@@ -1,0 +1,14 @@
+[
+  {
+    "host": "botstral-computer",
+    "root": "/home/botstral/botstral-m06-packaging-xo_g498v",
+    "selected_root_processes": [],
+    "root_absent": true
+  },
+  {
+    "host": "botstral-manager",
+    "root": "/home/botstral/botstral-m06-packaging-ukztylrv",
+    "selected_root_processes": [],
+    "root_absent": true
+  }
+]

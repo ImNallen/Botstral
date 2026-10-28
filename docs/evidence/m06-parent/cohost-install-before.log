@@ -1,0 +1,25 @@
+test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) ... test_real_manager_uses_file_configuration_and_private_tls (test_install.InstallationTests) ... ok
+test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_separate_install_layout_and_refusal (test_install.InstallationTests) ... ok
+test_staging_symlink_cannot_escape_install_root (test_install.InstallationTests) ... ok
+
+======================================================================
+FAIL: test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) (first='manager')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager/packaging/test_install.py", line 30, in test_manager_and_worker_cannot_share_an_installation_root
+    install.install(second, binary, destination, ROOT / second / 'packaging')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) (first='agent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-0deec31c/manager/packaging/test_install.py", line 30, in test_manager_and_worker_cannot_share_an_installation_root
+    install.install(second, binary, destination, ROOT / second / 'packaging')
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.323s
+
+FAILED (failures=2)

@@ -1,0 +1,26 @@
+{
+  "source": "a395ede4f00b635f4bb44a61f32149455780bf87",
+  "manager_passed": true,
+  "worker_passed": true,
+  "images": {
+    "manager": {
+      "id": "sha256:363c789667c91e65508432b001abfb1f89153e84d21e5b63d49a11fbc9cd155d",
+      "architecture": "arm64",
+      "binary_sha256": "8bda82f162bcdd2cbd4aa5645e0330d65f3d282f8ff85d6065be3812e2240a03"
+    },
+    "agent": {
+      "id": "sha256:932ab596e79d5494b444d2c22e48bb7a5649384367d5a3cc78430ad4eb4f9f59",
+      "architecture": "arm64",
+      "binary_sha256": "06d75ba06d83b1998c29a4951616db291353d70ecea8e9c6bfd3c4ae3b50cbb6",
+      "embedded_connector_helper_verified": true
+    }
+  },
+  "inputs": {
+    "Cargo.lock": "00e084a07d7828498653e1c2dbce24790b1c3bb72b8c015e24549b36d42c616f",
+    "manager/Cargo.toml": "2b4f2cc2d3478c0b17055109b3cbcfdabae159d79cf6741ad7bb2bf40524e2f4",
+    "agent/src/connector.rs": "49a5a305b0341f743fecd344ac0b8dc237d6b815280aafa8fb8545ee72a669f3",
+    "agent/connector/runtime.py": "7eb84617e9dcb78277689f8c095e20b8844aed7033e315274e5d94912ddcbc51",
+    "agent/vibe/runtime.py": "04d049b83ae4c91287b0e7cc9b345db95b178cd10813007e9e79a1a854e9ea72",
+    "link/src/connector.rs": "31c95e6cabd04965401b7c8dd00a9b2d73e2f3cb50d81e782e643e2e285ab527"
+  }
+}

@@ -58,7 +58,7 @@ cargo build --locked --release -p botstral-manager --bin botstral-manager
 cargo build --locked --release -p botstral-agent --bin botstral-agent --bin botstral-agent-supervisor-check
 ```
 
-On the manager VM, stage the manager package. `--root` also accepts a fresh disposable directory for layout inspection. Installation refuses existing component files and enables no services.
+On the manager VM, stage the manager package. `--root` also accepts a fresh disposable directory for layout inspection. Installation refuses existing component files or the other component's installation library and enables no services. Use separate staging roots and separate deployment VMs.
 
 ```sh
 sudo python3 manager/packaging/install.py --binary "$PWD/target/release/botstral-manager" --root /
