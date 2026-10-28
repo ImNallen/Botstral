@@ -129,7 +129,7 @@ pub enum OwnerOperation {
         id: TaskId,
         command: Box<CommandBody>,
         permission_revision: u64,
-        approval: ApprovalId,
+        approval: ApprovalView,
         expires_at: i64,
     },
     Resume {

@@ -310,7 +310,7 @@ impl State {
                 self.authorize_owner(&lease.into())?;
                 let current = self.load_task(id)?;
                 if current.command != *command
-                    || current.approval.id != approval
+                    || current.approval != approval
                     || self.permission(current.command.bot)?.revision != permission_revision
                 {
                     return Err(OperationError::Conflict);

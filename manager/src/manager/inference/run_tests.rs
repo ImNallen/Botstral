@@ -803,3 +803,5 @@ async fn m04_run_deadlines_reconcile_while_provider_slots_are_full() {
     drop(worker);
     app.shutdown().await;
 }
+
+mod desktop_fixture;

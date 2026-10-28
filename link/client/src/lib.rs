@@ -232,14 +232,18 @@ impl OwnerClient {
         } else {
             0
         };
-        Ok(Self {
+        let mut client = Self {
             root,
             credentials,
             store,
             lock: Arc::new(lock),
             sessions: Arc::new(tokio::sync::Semaphore::new(1)),
             cursor,
-        })
+        };
+        if let Some(image) = client.installed_workspace()? {
+            client.cursor = client.cursor.max(image.cursor);
+        }
+        Ok(client)
     }
     pub fn import_invitation(&mut self, bundle: OwnerInvitation) -> Result<()> {
         if bundle.role != DeviceRole::Owner
@@ -397,6 +401,12 @@ impl OwnerClient {
             return Err(ClientError::Trust);
         }
         Ok(Some(image))
+    }
+    pub fn pairing_request(&self, label: String) -> PairingRequest {
+        PairingRequest {
+            fingerprint: DeviceFingerprint::from_credential(&self.credentials.credential),
+            label,
+        }
     }
     pub fn trust(&self) -> Option<&ManagerTrust> {
         self.credentials.trust.as_ref()

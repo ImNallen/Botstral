@@ -44,9 +44,9 @@ def main():
             m.write(operation, {'method': 'resume', 'cursor': 0, 'limit': 64})
             old = json.loads(m.command([args.old_probe, 'call', client, operation]).stdout)
             m.require(old['type'] == 'replay', 'Old client failed against new manager')
-        task = fixture.call(client, {'method': 'submit_task', 'input': {'id': str(uuid.uuid4()), 'session_id': session, 'conversation_id': None, 'settings': {'model': 'fixture', 'max_turns': 2, 'max_tokens': 100, 'deadline': int(time.time())+300, 'max_cost_micros': 100}, 'work': {'type': 'process', 'spec': {'profile': 'linux_systemd_v1', 'account': {'uid': 1000, 'gid': 1000}, 'executable': '/usr/bin/printf', 'args': ['reviewed'], 'environment': {}, 'cwd': '/tmp', 'deadline': int(time.time())+300, 'limits': {'runtime_seconds': 20, 'output_bytes': 1024, 'processes': 8, 'memory_bytes': 67108864}}}}})['value']
-        # Normalize the two separately sampled deadlines before submitting if the clock ticks.
-        review = {'method': 'grant_reviewed_approval', 'id': task['id'], 'command': task['command'], 'approval': task['approval']['id'], 'permission_revision': 2, 'expires_at': int(time.time())+60}
+        deadline = int(time.time())+300
+        task = fixture.call(client, {'method': 'submit_task', 'input': {'id': str(uuid.uuid4()), 'session_id': session, 'conversation_id': None, 'settings': {'model': 'fixture', 'max_turns': 2, 'max_tokens': 100, 'deadline': deadline, 'max_cost_micros': 100}, 'work': {'type': 'process', 'spec': {'profile': 'linux_systemd_v1', 'account': {'uid': 1000, 'gid': 1000}, 'executable': '/usr/bin/printf', 'args': ['reviewed'], 'environment': {}, 'cwd': '/tmp', 'deadline': deadline, 'limits': {'runtime_seconds': 20, 'output_bytes': 1024, 'processes': 8, 'memory_bytes': 67108864}}}}})['value']
+        review = {'method': 'grant_reviewed_approval', 'id': task['id'], 'command': task['command'], 'approval': task['approval'], 'permission_revision': 2, 'expires_at': int(time.time())+60}
         wrong = copy.deepcopy(review)
         wrong['command']['work']['spec']['args'] = ['different action']
         fixture.call(client, wrong, success=False)
@@ -54,9 +54,12 @@ def main():
         fixture.owner('PUT', '/v1/bots/'+bot+'/permission', {'expected_revision': 2, 'allow': True})
         fixture.call(client, review, success=False)
         review['permission_revision'] = 3
+        fixture.call(client, {'method': 'revoke_approval', 'id': task['id']})
+        fixture.call(client, review, success=False)
+        review['approval'] = fixture.call(client, {'method': 'task', 'id': task['id']})['value']['approval']
         granted = fixture.call(client, review)['value']
         m.require(granted['approval']['binding']['permission_revision'] == 3 and granted['approval']['binding']['execution'] == task['command']['execution'], 'Reviewed grant did not bind exact execution')
-        checks = ['consistent_workspace', 'legacy_resume_shape', 'changed_action_refused', 'stale_permission_refused', 'exact_execution_granted']
+        checks = ['consistent_workspace', 'legacy_resume_shape', 'changed_action_refused', 'stale_permission_refused', 'revoked_review_refused', 'exact_execution_granted']
         m.write(args.output/'summary.json', {'passed': True, 'checks': checks, 'old_probe': bool(args.old_probe)})
         print(json.dumps({'passed': True, 'checks': checks}))
     finally:

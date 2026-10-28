@@ -2965,7 +2965,7 @@
           "type": "object",
           "properties": {
             "approval": {
-              "$ref": "#/$defs/ApprovalId"
+              "$ref": "#/$defs/ApprovalView"
             },
             "command": {
               "$ref": "#/$defs/CommandBody"

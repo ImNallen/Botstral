@@ -507,6 +507,7 @@ impl State {
         self.installation = Installation::Configured {
             vault: VaultState::Unlocked { identity },
         };
+        tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
     pub(super) fn lock_vault(&mut self, token: SessionToken) -> Result<(), OperationError> {
@@ -514,6 +515,7 @@ impl State {
         self.installation = Installation::Configured {
             vault: VaultState::Locked,
         };
+        tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
     pub(super) fn replace_provider_key(

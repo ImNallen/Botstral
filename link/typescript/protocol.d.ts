@@ -478,7 +478,7 @@ export type OwnerOperation =
       method: 'workspace';
     }
   | {
-      approval: ApprovalId;
+      approval: ApprovalView;
       command: CommandBody;
       expires_at: number;
       id: TaskId;
