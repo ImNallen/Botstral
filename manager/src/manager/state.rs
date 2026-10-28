@@ -1,4 +1,6 @@
 mod artifacts;
+#[cfg(test)]
+mod backup_tests;
 mod coding;
 mod devices;
 mod inference;
