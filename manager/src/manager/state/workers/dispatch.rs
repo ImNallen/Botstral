@@ -45,11 +45,11 @@ impl State {
         self.find_computer_session(id)
     }
 
-    pub(in crate::manager::state) fn check_input_fence(
+    fn checked_session_fence(
         &self,
         worker: WorkerId,
         fence: InputFence,
-    ) -> Result<(), OperationError> {
+    ) -> Result<ComputerSession, OperationError> {
         let connection = self
             .worker_connections
             .get(&worker)
@@ -70,7 +70,16 @@ impl State {
         if session.status != ControlStatus::Confirmed {
             return Err(ErrorCode::WrongPhase.into());
         }
-        Ok(())
+        Ok(session)
+    }
+
+    pub(in crate::manager::state) fn check_input_fence(
+        &self,
+        worker: WorkerId,
+        fence: InputFence,
+    ) -> Result<(), OperationError> {
+        let session = self.checked_session_fence(worker, fence)?;
+        self.require_live_bot(session.bot_id)
     }
 
     pub(in crate::manager) fn dispatch(
@@ -147,7 +156,11 @@ impl State {
         self.check_lease(lease)?;
         match message {
             ManagerMessage::Delivery(delivery) => {
-                self.check_input_fence(lease.worker, delivery.fence)?
+                if delivery.cancel {
+                    self.checked_session_fence(lease.worker, delivery.fence)?;
+                } else {
+                    self.check_input_fence(lease.worker, delivery.fence)?;
+                }
             }
             ManagerMessage::Permit {
                 incarnation,

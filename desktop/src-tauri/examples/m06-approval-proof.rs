@@ -12,6 +12,7 @@ fn snapshot(work: WorkSpec) -> RemoteSnapshot {
     }))
     .unwrap();
     RemoteSnapshot {
+        routine_panel: Default::default(),
         generation: 1,
         revision: 1,
         status: "online".into(),

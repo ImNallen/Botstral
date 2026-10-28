@@ -173,6 +173,90 @@
         "consumed"
       ]
     },
+    "ArchivedRunTurn": {
+      "type": "object",
+      "properties": {
+        "accounting": {
+          "$ref": "#/$defs/InferenceAccounting"
+        },
+        "attempt": {
+          "$ref": "#/$defs/RunAttemptId"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceFinishReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/RunTurnId"
+        },
+        "messages_sha256": {
+          "type": "string"
+        },
+        "ordinal": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "phase": {
+          "$ref": "#/$defs/RunTurnPhase"
+        },
+        "provider_request_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "request_sha256": {
+          "type": "string"
+        },
+        "reservation": {
+          "$ref": "#/$defs/InferenceReservation"
+        },
+        "response_sha256": {
+          "type": "string"
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tool_call_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InferenceUsage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "attempt",
+        "messages_sha256",
+        "request_sha256",
+        "response_sha256",
+        "accounting",
+        "reservation",
+        "phase"
+      ]
+    },
     "ArgumentDigest": {
       "type": "string"
     },
@@ -2012,6 +2096,20 @@
         }
       ]
     },
+    "EventScalar": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
+    },
     "ExecutionBinding": {
       "type": "object",
       "properties": {
@@ -2271,6 +2369,61 @@
         "slot",
         "sha256"
       ]
+    },
+    "InboxEntry": {
+      "type": "object",
+      "properties": {
+        "acknowledged": {
+          "type": "boolean"
+        },
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "created_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "$ref": "#/$defs/InboxId"
+        },
+        "message": {
+          "type": "string"
+        },
+        "occurrence": {
+          "$ref": "#/$defs/OccurrenceId"
+        },
+        "routine": {
+          "$ref": "#/$defs/RoutineId"
+        },
+        "run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/OccurrenceStatus"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "message",
+        "id",
+        "occurrence",
+        "bot",
+        "routine",
+        "status",
+        "created_at",
+        "acknowledged"
+      ]
+    },
+    "InboxId": {
+      "type": "string",
+      "format": "uuid"
     },
     "InferenceAccounting": {
       "oneOf": [
@@ -3208,6 +3361,22 @@
         }
       ]
     },
+    "ManagerToolResult": {
+      "type": "object",
+      "properties": {
+        "call": {
+          "$ref": "#/$defs/RunToolCall"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "call",
+        "result"
+      ]
+    },
     "ManagerTrust": {
       "type": "object",
       "properties": {
@@ -3296,6 +3465,108 @@
           "required": [
             "type",
             "terms_url"
+          ]
+        }
+      ]
+    },
+    "OccurrenceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "OccurrenceStatus": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "pending"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "running"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "decision"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "phase": {
+              "$ref": "#/$defs/RunPhase"
+            },
+            "type": {
+              "type": "string",
+              "const": "finished"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "phase"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "blocked"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "skipped"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
           ]
         }
       ]
@@ -3726,6 +3997,128 @@
     },
     "OwnerOperation": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_status"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/RoutineCommand"
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_command"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_conversation"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "bot",
+            "id",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "before": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/OccurrenceId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "limit": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_history"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "limit"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "after": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "limit": {
+              "type": "integer",
+              "format": "uint16",
+              "maximum": 65535,
+              "minimum": 0
+            },
+            "method": {
+              "type": "string",
+              "const": "routine_preview"
+            },
+            "trigger": {
+              "$ref": "#/$defs/RoutineTrigger"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "trigger",
+            "after",
+            "limit"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -4580,6 +4973,88 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "routine_status"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RoutineControlResult"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "routine_control"
+            },
+            "value": {
+              "$ref": "#/$defs/RoutineControlResult"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "routine_history"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/RoutineOccurrence"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "routine_preview"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "connection"
             },
             "value": {
@@ -5189,6 +5664,16 @@
             "$ref": "#/$defs/Permission"
           }
         },
+        "routine_state": {
+          "$ref": "#/$defs/RoutineSnapshot",
+          "default": {
+            "budget": null,
+            "inbox": [],
+            "occurrences": [],
+            "publishers": [],
+            "routines": []
+          }
+        },
         "runs": {
           "type": "array",
           "items": {
@@ -5243,7 +5728,7 @@
         "runs": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/RunView"
+            "$ref": "#/$defs/WorkspaceRun"
           }
         },
         "sessions": {
@@ -5628,6 +6113,60 @@
         "limits"
       ]
     },
+    "PublisherId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "PublisherView": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "id": {
+          "$ref": "#/$defs/PublisherId"
+        },
+        "last_error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_received_at": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "revoked": {
+          "type": "boolean"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "bot",
+        "name",
+        "topics",
+        "revision",
+        "revoked"
+      ]
+    },
     "ReleaseChannel": {
       "type": "string",
       "enum": [
@@ -5657,10 +6196,637 @@
       "type": "string",
       "format": "uuid"
     },
+    "RequestWakeup": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "prompt": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "prompt"
+      ]
+    },
     "Revision": {
       "type": "integer",
       "format": "uint64",
       "minimum": 0
+    },
+    "RoutineAction": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "$ref": "#/$defs/RoutineDefinition"
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "type": {
+              "type": "string",
+              "const": "create"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "definition"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "$ref": "#/$defs/RoutineDefinition"
+            },
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "type": {
+              "type": "string",
+              "const": "replace"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision",
+            "definition"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "paused": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "const": "set_paused"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision",
+            "paused"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "type": {
+              "type": "string",
+              "const": "test"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/RoutineId"
+            },
+            "type": {
+              "type": "string",
+              "const": "delete"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "budget": {
+              "$ref": "#/$defs/RoutineBudget"
+            },
+            "type": {
+              "type": "string",
+              "const": "set_budget"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "budget"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "credential_sha256": {
+              "type": "string"
+            },
+            "id": {
+              "$ref": "#/$defs/PublisherId"
+            },
+            "name": {
+              "type": "string"
+            },
+            "topics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "install_publisher"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "bot",
+            "name",
+            "topics",
+            "credential_sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/PublisherId"
+            },
+            "type": {
+              "type": "string",
+              "const": "revoke_publisher"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "type": {
+              "type": "string",
+              "const": "delete_bot"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "copy": {
+              "$ref": "#/$defs/BotId"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "duplicate_bot"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot",
+            "copy",
+            "name"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/InboxId"
+            },
+            "type": {
+              "type": "string",
+              "const": "acknowledge_inbox"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id"
+          ]
+        }
+      ]
+    },
+    "RoutineBudget": {
+      "type": "object",
+      "properties": {
+        "max_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_runs": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "max_runs",
+        "max_tokens",
+        "max_cost_microusd"
+      ]
+    },
+    "RoutineCommand": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/RoutineAction"
+        },
+        "id": {
+          "$ref": "#/$defs/RequestId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "action"
+      ]
+    },
+    "RoutineControlResult": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/RequestId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "message"
+      ]
+    },
+    "RoutineDefinition": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "catchup_seconds": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "template": {
+          "$ref": "#/$defs/RunTemplate"
+        },
+        "trigger": {
+          "$ref": "#/$defs/RoutineTrigger"
+        },
+        "wakeups": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WakeupGrant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "bot",
+        "name",
+        "trigger",
+        "template",
+        "catchup_seconds"
+      ]
+    },
+    "RoutineId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "RoutineOccurrence": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/OccurrenceId"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "routine": {
+          "$ref": "#/$defs/RoutineId"
+        },
+        "run": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RunId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scheduled_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "skipped_count": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "#/$defs/OccurrenceStatus"
+        },
+        "trigger_key": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "routine",
+        "revision",
+        "trigger_key",
+        "scheduled_at",
+        "status",
+        "skipped_count",
+        "updated_at"
+      ]
+    },
+    "RoutineSnapshot": {
+      "type": "object",
+      "properties": {
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RoutineBudget"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inbox": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InboxEntry"
+          }
+        },
+        "occurrences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RoutineOccurrence"
+          }
+        },
+        "publishers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PublisherView"
+          }
+        },
+        "routines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RoutineView"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "routines",
+        "occurrences",
+        "inbox",
+        "publishers"
+      ]
+    },
+    "RoutineState": {
+      "type": "string",
+      "enum": [
+        "enabled",
+        "paused",
+        "deleted"
+      ]
+    },
+    "RoutineTrigger": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "at": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "type": {
+              "type": "string",
+              "const": "once"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "at"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "anchor": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "seconds": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0
+            },
+            "type": {
+              "type": "string",
+              "const": "interval"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "anchor",
+            "seconds"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hour": {
+              "type": "integer",
+              "format": "uint8",
+              "maximum": 255,
+              "minimum": 0
+            },
+            "minute": {
+              "type": "integer",
+              "format": "uint8",
+              "maximum": 255,
+              "minimum": 0
+            },
+            "timezone": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "daily"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "hour",
+            "minute",
+            "timezone"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "equals": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/EventScalar"
+              }
+            },
+            "publisher": {
+              "$ref": "#/$defs/PublisherId"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "event"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "publisher",
+            "topic",
+            "equals"
+          ]
+        }
+      ]
+    },
+    "RoutineView": {
+      "type": "object",
+      "properties": {
+        "definition": {
+          "$ref": "#/$defs/RoutineDefinition"
+        },
+        "id": {
+          "$ref": "#/$defs/RoutineId"
+        },
+        "next_at": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "state": {
+          "$ref": "#/$defs/RoutineState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "revision",
+        "state",
+        "definition"
+      ]
     },
     "RunAccounting": {
       "type": "object",
@@ -6118,6 +7284,78 @@
         "updated_at"
       ]
     },
+    "RunTemplate": {
+      "type": "object",
+      "properties": {
+        "configuration_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "execution_policy": {
+          "$ref": "#/$defs/RunExecutionPolicy"
+        },
+        "max_cost_microusd": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_operations": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_total_tokens": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "max_turns": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "permission_revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/ComputerSessionId"
+        },
+        "session_revision": {
+          "$ref": "#/$defs/Revision"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "session_revision",
+        "configuration_revision",
+        "permission_revision",
+        "prompt",
+        "execution_policy",
+        "duration_seconds",
+        "max_turns",
+        "max_total_tokens",
+        "max_cost_microusd",
+        "max_output_tokens",
+        "max_operations"
+      ]
+    },
     "RunToolCall": {
       "type": "object",
       "properties": {
@@ -6203,6 +7441,17 @@
               "type": "null"
             }
           ]
+        },
+        "manager_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManagerToolResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "messages": {
           "type": "array",
@@ -6330,6 +7579,13 @@
     "RunView": {
       "type": "object",
       "properties": {
+        "archived_turns": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ArchivedRunTurn"
+          }
+        },
         "configuration": {
           "$ref": "#/$defs/InferenceConfiguration"
         },
@@ -7029,6 +8285,23 @@
             "tool",
             "arguments"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/RequestWakeup"
+            },
+            "tool": {
+              "type": "string",
+              "const": "request_wakeup"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
         }
       ]
     },
@@ -7299,6 +8572,39 @@
         "max_images",
         "max_image_bytes",
         "max_total_pixels"
+      ]
+    },
+    "WakeupGrant": {
+      "type": "object",
+      "properties": {
+        "horizon_seconds": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "max_pending": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "max_total": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "minimum_spacing_seconds": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "horizon_seconds",
+        "minimum_spacing_seconds",
+        "max_pending",
+        "max_total"
       ]
     },
     "WorkSpec": {
@@ -7811,6 +9117,73 @@
         "id",
         "name",
         "created_at"
+      ]
+    },
+    "WorkspaceRun": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/SubmitRun"
+        },
+        "summary": {
+          "$ref": "#/$defs/RunSummary"
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkspaceRunTurn"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "request",
+        "turns"
+      ]
+    },
+    "WorkspaceRunTurn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/RunTurnId"
+        },
+        "ordinal": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "result": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "task": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "ordinal",
+        "truncated"
       ]
     },
     "WorkspaceWorker": {

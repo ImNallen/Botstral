@@ -307,3 +307,183 @@ fn run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt(
 
 #[path = "catalog_bounds.rs"]
 mod catalog_bounds;
+
+#[tokio::test]
+async fn p03_duplicate_authenticated_event_restart_has_one_external_connector_effect() {
+    use sha2::{Digest, Sha256};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    let mut f = fixture();
+    let c = f.ready(false);
+    let binding = f.grant(&c, f.bot, &["write"]).tools.remove(0);
+    let input = input(&f, binding.clone());
+    let publisher = PublisherId::new();
+    let credential = "p".repeat(48);
+    let routine = RoutineId::new();
+    let commands = [
+        RoutineAction::SetBudget {
+            budget: RoutineBudget {
+                max_runs: 4,
+                max_tokens: 2_000_000,
+                max_cost_microusd: 2_000_000,
+            },
+        },
+        RoutineAction::InstallPublisher {
+            id: publisher,
+            bot: f.bot,
+            name: "Build publisher".into(),
+            topics: vec!["build.done".into()],
+            credential_sha256: format!("{:x}", Sha256::digest(credential.as_bytes())),
+        },
+        RoutineAction::Create {
+            id: routine,
+            definition: Box::new(RoutineDefinition {
+                bot: f.bot,
+                name: "Publish build result".into(),
+                trigger: RoutineTrigger::Event {
+                    publisher,
+                    topic: "build.done".into(),
+                    equals: Default::default(),
+                },
+                catchup_seconds: 60,
+                wakeups: None,
+                template: RunTemplate {
+                    session: f.session,
+                    session_revision: f.state.find_computer_session(f.session).unwrap().revision,
+                    configuration_revision: 1,
+                    permission_revision: 1,
+                    prompt: input.prompt,
+                    execution_policy: input.execution_policy,
+                    duration_seconds: 500,
+                    max_turns: 4,
+                    max_total_tokens: 200_000,
+                    max_cost_microusd: 200_000,
+                    max_output_tokens: 64,
+                    max_operations: 4,
+                },
+            }),
+        },
+    ];
+    for action in commands {
+        f.state
+            .routine_command(
+                token(),
+                RoutineCommand {
+                    id: RequestId::new(),
+                    action,
+                },
+            )
+            .unwrap();
+    }
+    let bytes = serde_json::to_vec(&PublisherEvent {
+        id: "build-42".into(),
+        timestamp: 1000,
+        topic: "build.done".into(),
+        fields: Default::default(),
+    })
+    .unwrap();
+    f.state
+        .ingest_routine_event(publisher, credential.clone(), bytes.clone())
+        .unwrap();
+    f.state
+        .ingest_routine_event(publisher, credential.clone(), bytes.clone())
+        .unwrap();
+    let run = f.state.routine_history(token(), routine, None, 32).unwrap()[0]
+        .run
+        .unwrap();
+    let permit = claim(&mut f);
+    let task = child(&mut f, &permit, response(binding, "write-result"));
+    let task = f.approve(task.id);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    let mut dispatch = f.state.dispatch_connector(id).unwrap().unwrap();
+    let effects = Arc::new(AtomicUsize::new(0));
+    let counted = effects.clone();
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    dispatch.connection.transport = ConnectionTransport::RemoteHttp {
+        endpoint: format!("http://{}/mcp", listener.local_addr().unwrap()),
+    };
+    dispatch.deadline = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64
+        + 30;
+    let app=axum::Router::new().route("/mcp",axum::routing::post(move |axum::Json(body):axum::Json<serde_json::Value>| {
+        let effects=counted.clone();async move {
+            use axum::response::IntoResponse;
+            let result=match body["method"].as_str().unwrap() {
+                "initialize"=>json!({"protocolVersion":MCP_VERSION,"capabilities":{"tools":{}},"serverInfo":{"name":"counted fixture","version":"1"}}),
+                "notifications/initialized"=>return axum::http::StatusCode::ACCEPTED.into_response(),
+                "tools/list"=>json!({"tools":[{"name":"read","description":tool("read").description,"inputSchema":tool("read").input_schema},{"name":"write","description":tool("write").description,"inputSchema":tool("write").input_schema}]}),
+                "tools/call"=>{effects.fetch_add(1,Ordering::SeqCst);json!({"content":[{"type":"text","text":"External write counted"}]})},
+                method=>panic!("unexpected {method}"),
+            };
+            axum::Json(json!({"jsonrpc":"2.0","id":body["id"],"result":result})).into_response()
+        }
+    }));
+    let server = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+    let outcome = crate::manager::connectors::execute_fixture(&dispatch).await;
+    assert!(
+        matches!(outcome, ConnectorOutcome::Finished { .. }),
+        "{outcome:?}"
+    );
+    f.state.finish_connector(id, outcome).unwrap();
+    assert_eq!(effects.load(Ordering::SeqCst), 1);
+    f.finish_task(task.id);
+    f.state
+        .finish_run_result(
+            run,
+            permit.turn.id,
+            f.state.load_task(task.id).unwrap(),
+            Ok("External write counted".into()),
+        )
+        .unwrap();
+    let last = claim(&mut f);
+    f.state
+        .finish_run_call(
+            run,
+            last.turn.id,
+            last.turn.attempt,
+            ModelOutcome::Billed {
+                usage: InferenceUsage {
+                    prompt_tokens: 12,
+                    completion_tokens: 8,
+                    total_tokens: 20,
+                },
+                request_id: "done".into(),
+                response: Ok(RunMessage::Assistant {
+                    content: "External write counted".into(),
+                    tool_call: None,
+                }),
+                finish_reason: Some(InferenceFinishReason::Stop),
+            },
+        )
+        .unwrap();
+    f.state.reconcile_routines().unwrap();
+    let path = f.state.directory.join("manager.sqlite3");
+    f.state
+        .connection
+        .execute("VACUUM INTO ?1", [path.to_str().unwrap()])
+        .unwrap();
+    let installation = std::mem::replace(
+        &mut f.state.installation,
+        Installation::Configured {
+            vault: VaultState::Locked,
+        },
+    );
+    let (configured, _) = watch::channel(false);
+    let mut state = State::open(f.state.directory.clone(), configured).unwrap();
+    state.test_time = Some(1000);
+    state.installation = installation;
+    state
+        .ingest_routine_event(publisher, credential, bytes)
+        .unwrap();
+    assert!(state.dispatch_connector(id).unwrap().is_none());
+    assert_eq!(effects.load(Ordering::SeqCst), 1);
+    let inbox = state.inbox().unwrap();
+    assert_eq!(inbox[0].run, Some(run));
+    assert!(inbox[0].message.contains("counted"));
+    server.abort();
+}

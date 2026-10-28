@@ -1,0 +1,27 @@
+{
+  "browser": "156.0.8078.4",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "source": "Unmodified PairedWorkspace and Routines components consuming recorded actual-manager native snapshots.",
+  "normalization": "Local renderer generation and revision counters are normalized across the recorded native process restarts. Durable manager state is unchanged.",
+  "limitations": "Replay responses only in this video. Synthetic inference and worker. Real manager control and journal behavior is checked separately by p03_routine_controls_and_crash_journal_recovery. No OS notification or real guest execution claim.",
+  "actions": [
+    "budget",
+    "create",
+    "pause",
+    "resume",
+    "preview",
+    "live test result",
+    "history",
+    "edit",
+    "conversation help",
+    "paused duplication",
+    "delete",
+    "acknowledge inbox"
+  ],
+  "errors": [],
+  "video": "docs/evidence/p03/routine-controls.webm",
+  "sha256": "64c18e121a87acefc1f82b67574733e3b70bc539796fb54cb938d2cd5eb59697"
+}

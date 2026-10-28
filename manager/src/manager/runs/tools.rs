@@ -27,6 +27,9 @@ pub(in crate::manager) fn decode(name: &str, arguments: &str) -> Result<ToolProp
         return Err(());
     }
     match name {
+        "request_wakeup" => serde_json::from_str(arguments)
+            .map(ToolProposal::RequestWakeup)
+            .map_err(|_| ()),
         "computer" => serde_json::from_str(arguments)
             .map(ToolProposal::Computer)
             .map_err(|_| ()),
@@ -42,6 +45,9 @@ pub(in crate::manager) fn decode(name: &str, arguments: &str) -> Result<ToolProp
 
 pub(in crate::manager) fn function(proposal: &ToolProposal) -> Value {
     match proposal {
+        ToolProposal::RequestWakeup(args) => {
+            json!({"name":"request_wakeup","arguments":serde_json::to_string(args).expect("proposal serializes")})
+        }
         ToolProposal::Connector(args) => {
             json!({"name":args.tool.public_name(),"arguments":serde_json::to_string(&args.arguments).expect("arguments serialize")})
         }
@@ -63,6 +69,7 @@ pub(in crate::manager) fn translate(
     deadline: i64,
 ) -> Result<WorkSpec, ErrorCode> {
     match proposal {
+        ToolProposal::RequestWakeup(_) => Err(ErrorCode::UnsupportedExecution),
         ToolProposal::Connector(args) => {
             let policy = policy
                 .connectors

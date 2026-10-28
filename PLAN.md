@@ -252,16 +252,16 @@ Complete when two bots reuse a reviewed skill and a demonstrated workflow succee
 
 Depends on M03 and M04. External event sources also need M05 and the relevant M06 connections.
 
-One durable scheduled routine is required for first acceptance. Additional routine management and event sources follow in v1 and v1.x. Routine duplication uses P01's bot-duplication behavior.
+The supported event adapter is an authenticated publisher with named-topic subscriptions. Bot duplication and tombstone deletion include the lifecycle behavior required by routines. [Acceptance evidence](docs/p03-acceptance.md) records the checks and environment limits.
 
-- [ ] Add durable routines with an owning bot, schedule, time zone, next run, and history.
-- [ ] Copy routine definitions when duplicating a bot, keeping copies paused until the owner activates them. Remove routines when their owning bot is deleted.
-- [ ] Support creation, editing, testing, pause, resume, and deletion through the app and conversation.
-- [ ] Handle daylight-saving changes, missed runs, restarts, duplicate triggers, and overlapping work explicitly.
-- [ ] Run inference through the configured regional model endpoint. Keep schedules and run history in the manager instead of using unsupported regional Batch or hosted agent APIs.
-- [ ] Add authenticated webhooks and supported event subscriptions with narrow matching rules.
-- [ ] Let bots request future wakeups and follow-ups within owner-defined budgets and permissions.
-- [ ] Deliver results, failures, and requests for decisions without requiring the owner to keep a conversation open.
+- [x] Add durable routines with an owning bot, schedule, time zone, next run, and history.
+- [x] Copy routine definitions when duplicating a bot, keeping copies paused until the owner activates them. Remove routines when their owning bot is deleted.
+- [x] Support creation, editing, testing, pause, resume, and deletion through the app and conversation.
+- [x] Handle daylight-saving changes, missed runs, restarts, duplicate triggers, and overlapping work explicitly.
+- [x] Run inference through the configured regional model endpoint. Keep schedules and run history in the manager instead of using unsupported regional Batch or hosted agent APIs.
+- [x] Add authenticated webhooks and supported event subscriptions with narrow matching rules.
+- [x] Let bots request future wakeups and follow-ups within owner-defined budgets and permissions.
+- [x] Deliver results, failures, and requests for decisions without requiring the owner to keep a conversation open.
 
 Complete when a routine runs while clients are closed, survives a manager restart, and handles a repeated event without repeating its external effect. Verify that deleting its bot prevents further triggers and duplicated routines remain paused.
 
@@ -506,7 +506,7 @@ Every listed capability starts as planned. Mark it verified only after its state
 | Persistent conversations and editable bot memory | M03 and P01 | Planned |
 | Shared computer, files, logins, and independent screens | M02, M04, W01, and W02 | Planned |
 | Skills, reuse, and teaching by demonstration | P02 | Planned |
-| Schedules, event triggers, and proactive follow-ups | P03 | Planned |
+| Schedules, event triggers, and proactive follow-ups | P03 | Implemented with [acceptance limits](docs/p03-acceptance.md#verification-limits) |
 | Group conversations, delegation, and bot handoffs | P04 | Planned |
 | Attachments, documents, interactive artifacts, and search | P05 | Planned |
 | Protected credentials, approval rules, and human takeover | M03, M05, and P06 | Planned |

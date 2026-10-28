@@ -24,6 +24,7 @@ impl State {
         task: &TaskView,
         generation: Generation,
     ) -> Result<(), OperationError> {
+        self.require_live_bot(task.command.bot)?;
         let binding = task
             .approval
             .binding

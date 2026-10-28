@@ -34,7 +34,11 @@ pub(super) fn event(
     )?;
     Ok(())
 }
-fn count_bound(db: &Connection, table: &str, bound: usize) -> Result<(), OperationError> {
+pub(super) fn count_bound(
+    db: &Connection,
+    table: &str,
+    bound: usize,
+) -> Result<(), OperationError> {
     let n: i64 = db.query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))?;
     if n >= bound as i64 {
         return Err(OperationError::Busy);
@@ -180,8 +184,12 @@ impl State {
 
     pub(super) fn prepare_task(&self, input: SubmitTask) -> Result<TaskView, OperationError> {
         input.settings.validate()?;
-        count_bound(&self.connection, "tasks", MAX_TASKS)?;
+        let active:i64=self.connection.query_row("SELECT count(*) FROM tasks WHERE json_extract(view,'$.state') IN ('queued','running','awaiting_approval','cancelling','awaiting_attention')",[],|r|r.get(0))?;
+        if active >= MAX_TASKS as i64 {
+            return Err(OperationError::Busy);
+        }
         let session = self.find_computer_session(input.session_id)?;
+        self.require_live_bot(session.bot_id)?;
         if let Some(conversation) = input.conversation_id {
             let bot: Option<String> = self
                 .connection
@@ -547,7 +555,7 @@ impl State {
         };
         let bots = self
             .connection
-            .prepare("SELECT id,name,created_at FROM bots ORDER BY id")?
+            .prepare("SELECT id,name,created_at FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones) ORDER BY id")?
             .query_map([], |r| {
                 Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get(2)?))
             })?
@@ -591,7 +599,10 @@ impl State {
         let runs = state
             .runs
             .iter()
-            .map(|r| self.run(lease, r.id))
+            .map(|r| {
+                self.run(lease, r.id)
+                    .map(|run| WorkspaceRun::project(run, true))
+            })
             .collect::<Result<Vec<_>, _>>()?;
         let owner = self
             .connection
@@ -646,8 +657,8 @@ impl State {
             let mut tasks = Vec::new();
             for row in self
                 .connection
-                .prepare("SELECT view FROM tasks ORDER BY id")?
-                .query_map([], |r| r.get::<_, String>(0))?
+                .prepare("SELECT view FROM tasks WHERE json_extract(view,'$.state') IN ('queued','running','awaiting_approval','cancelling','awaiting_attention') OR id IN (SELECT id FROM tasks WHERE json_extract(view,'$.state') IN ('completed','failed','cancelled') ORDER BY rowid DESC LIMIT ?1) OR id IN (SELECT task FROM run_children WHERE run IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','cancelling','awaiting_attention') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT ?2))) ORDER BY rowid")?
+                .query_map(params![MAX_TASK_HISTORY as i64, MAX_RUN_HISTORY as i64], |r| r.get::<_, String>(0))?
             {
                 tasks.push(parse(row?)?);
             }
@@ -688,6 +699,13 @@ impl State {
                 .collect::<Result<Vec<_>, OperationError>>()?;
             return Ok(EventReplay::Snapshot {
                 state: OwnerSnapshot {
+                    routine_state: Box::new(RoutineSnapshot {
+                        routines: self.routine_views()?,
+                        occurrences: self.routine_recent()?,
+                        inbox: self.inbox()?,
+                        publishers: self.publisher_views()?,
+                        budget: self.routine_budget()?,
+                    }),
                     connections: self
                         .connection
                         .prepare("SELECT view FROM connections ORDER BY id")?
@@ -855,7 +873,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            9
+            10
         );
     }
 }

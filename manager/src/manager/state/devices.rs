@@ -297,6 +297,25 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::RoutineStatus { id } => {
+                Ok(OwnerReply::RoutineStatus(self.routine_status(lease, id)?))
+            }
+            OwnerOperation::RoutineCommand { input } => Ok(OwnerReply::RoutineControl(
+                self.routine_command(lease, input)?,
+            )),
+            OwnerOperation::RoutineConversation { bot, id, text } => Ok(
+                OwnerReply::RoutineControl(self.routine_conversation(lease, bot, id, text)?),
+            ),
+            OwnerOperation::RoutineHistory { id, before, limit } => Ok(OwnerReply::RoutineHistory(
+                self.routine_history(lease, id, before, limit)?,
+            )),
+            OwnerOperation::RoutinePreview {
+                trigger,
+                after,
+                limit,
+            } => Ok(OwnerReply::RoutinePreview(
+                self.routine_preview(lease, trigger, after, limit)?,
+            )),
             OwnerOperation::InstallConnection { input } => Ok(OwnerReply::Connection(
                 self.install_connection(lease, input)?,
             )),

@@ -65,6 +65,18 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
         .invite_device(token(&local), request.clone(), 60)
         .unwrap();
     let invitation = grant.secret.expose_secret();
+    let previous = OwnerHello::Enroll {
+        version: OWNER_VERSION - 1,
+        manager,
+        role: DeviceRole::Owner,
+        credential: secret.clone(),
+        invitation: invitation.into(),
+    };
+    assert!(matches!(
+        state.connect_owner(previous, stop()),
+        Err(OperationError::Protocol(ErrorCode::IncompatibleVersion))
+    ));
+
     assert!(matches!(
         state.connect_owner(enroll(ManagerId::new(), &secret, invitation), stop()),
         Err(OperationError::Unauthorized)

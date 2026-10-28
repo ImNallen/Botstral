@@ -2,6 +2,9 @@ use crate::*;
 use std::collections::BTreeMap;
 
 pub const MAX_RUNS: usize = 16;
+pub const MAX_RUN_HISTORY: usize = 8;
+pub const MAX_TASK_HISTORY: usize = 32;
+pub const MAX_WORKSPACE_RUN_BYTES: usize = 128 * 1024;
 pub const MAX_RUN_TURNS: u32 = 8;
 pub const MAX_RUN_SECONDS: i64 = 3600;
 pub const MAX_RUN_TRANSCRIPT_BYTES: usize = 32 * 1024;
@@ -88,6 +91,7 @@ pub enum ToolProposal {
     Process(ProcessProposal),
     Vibe(VibeProposal),
     Connector(ConnectorProposal),
+    RequestWakeup(RequestWakeup),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -208,6 +212,8 @@ pub struct RunToolIntent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RunTurn {
+    #[serde(default)]
+    pub manager_result: Option<ManagerToolResult>,
     pub id: RunTurnId,
     pub ordinal: u32,
     pub attempt: RunAttemptId,
@@ -228,4 +234,25 @@ pub struct RunView {
     pub request: SubmitRun,
     pub configuration: InferenceConfiguration,
     pub turns: Vec<RunTurn>,
+    #[serde(default)]
+    pub archived_turns: Vec<ArchivedRunTurn>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ArchivedRunTurn {
+    pub id: RunTurnId,
+    pub ordinal: u32,
+    pub attempt: RunAttemptId,
+    pub messages_sha256: String,
+    pub request_sha256: String,
+    pub response_sha256: String,
+    pub tool_call_id: Option<String>,
+    pub text: Option<String>,
+    pub accounting: InferenceAccounting,
+    pub reservation: InferenceReservation,
+    pub usage: Option<InferenceUsage>,
+    pub finish_reason: Option<InferenceFinishReason>,
+    pub provider_request_id: Option<String>,
+    pub phase: RunTurnPhase,
 }

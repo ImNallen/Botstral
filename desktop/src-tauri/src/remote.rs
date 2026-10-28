@@ -47,8 +47,15 @@ pub struct Intent {
     pub operation: OwnerOperation,
     pub status: String,
 }
+#[derive(Clone, Default, Serialize)]
+pub struct RoutinePanel {
+    pub message: Option<String>,
+    pub history: Vec<RoutineOccurrence>,
+    pub preview: Vec<i64>,
+}
 #[derive(Clone, Serialize)]
 pub struct RemoteSnapshot {
+    pub routine_panel: RoutinePanel,
     pub generation: u64,
     pub revision: u64,
     pub status: String,
@@ -102,6 +109,20 @@ struct Envelope {
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
 pub enum IntentCommand {
+    Routine(RoutineCommand),
+    RunDetails(RunId),
+    RoutineText {
+        bot: BotId,
+        text: String,
+    },
+    RoutineHistory {
+        id: RoutineId,
+        before: Option<OccurrenceId>,
+    },
+    RoutinePreview {
+        trigger: RoutineTrigger,
+        after: i64,
+    },
     Begin {
         label: String,
     },
@@ -215,7 +236,9 @@ fn read_journal(path: &Path) -> Result<Vec<Intent>, String> {
                 "unknown" | "pending" | "confirmed" | "attention" | "refused"
             ) || !matches!(
                 i.operation,
-                OwnerOperation::SubmitRun { .. }
+                OwnerOperation::RoutineCommand { .. }
+                    | OwnerOperation::RoutineConversation { .. }
+                    | OwnerOperation::SubmitRun { .. }
                     | OwnerOperation::CancelRun { .. }
                     | OwnerOperation::CancelTask { .. }
                     | OwnerOperation::GrantReviewedApproval { .. }
@@ -248,6 +271,9 @@ fn error_code(error: ClientError) -> String {
         ClientError::Trust => "trust",
         ClientError::Storage => "keychain_or_storage",
         ClientError::Authentication(OwnerError::Unauthorized) => "revoked",
+        ClientError::Authentication(OwnerError::Protocol(ErrorCode::IncompatibleVersion)) => {
+            "incompatible_manager"
+        }
         ClientError::Authentication(OwnerError::Busy) | ClientError::Refused(OwnerError::Busy) => {
             "busy"
         }
@@ -274,6 +300,7 @@ fn latest_configuration(workspace: &OwnerWorkspace, bot: BotId) -> Option<&Infer
 impl RemoteService {
     pub fn new(root: PathBuf, store: Arc<dyn SecretStore>) -> Self {
         let (view, _) = watch::channel(RemoteSnapshot {
+            routine_panel: RoutinePanel::default(),
             generation: 0,
             revision: 0,
             status: "unpaired".into(),
@@ -379,6 +406,7 @@ impl RemoteService {
             v.revision += 1;
             v.status = "signed_out".into();
             v.workspace = None;
+            v.routine_panel = RoutinePanel::default();
             v.review = None;
             v.pairing = None;
             v.candidate = None;
@@ -497,6 +525,7 @@ impl Actor {
             self.publish(|v| {
                 v.status = "signed_out".into();
                 v.workspace = None;
+                v.routine_panel = RoutinePanel::default();
                 v.issue = failed.then(|| "credential_deletion_failed".into());
             });
             return Ok(());
@@ -573,6 +602,7 @@ impl Actor {
             .into();
             if self.revoked {
                 v.workspace = None;
+                v.routine_panel = RoutinePanel::default();
                 v.review = None;
                 v.pairing = None;
                 v.candidate = None;
@@ -603,46 +633,166 @@ impl Actor {
         if self.session.is_none() {
             self.session = Some(client.connect().await.map_err(error_code)?);
         }
-        let image = client
+        let mut image = client
             .recover_workspace(self.session.as_mut().ok_or("offline")?)
             .await
             .map_err(error_code)?;
+        let routine_intents = self
+            .intents
+            .iter()
+            .filter_map(|i| {
+                let request = match &i.operation {
+                    OwnerOperation::RoutineCommand { input } => input.id,
+                    OwnerOperation::RoutineConversation { id, .. } => *id,
+                    _ => return None,
+                };
+                (!matches!(i.status.as_str(), "confirmed" | "refused")).then_some((
+                    i.id,
+                    request,
+                    i.operation.clone(),
+                ))
+            })
+            .collect::<Vec<_>>();
+        let mut replayed = false;
+        let mut routine_message = None;
+        for (intent_id, request, operation) in routine_intents {
+            if self.view.borrow().generation != self.generation {
+                return Err("stale".into());
+            }
+            let confirmed = match self
+                .session
+                .as_mut()
+                .ok_or("offline")?
+                .call(operation)
+                .await
+            {
+                Ok(OwnerReply::RoutineControl(result)) if result.request == request => {
+                    replayed = true;
+                    routine_message = Some(result.message);
+                    true
+                }
+                Err(ClientError::Refused(_)) => {
+                    if let Some(i) = self.intents.iter_mut().find(|i| i.id == intent_id) {
+                        i.status = "refused".into();
+                    }
+                    false
+                }
+                Err(error) => return Err(error_code(error)),
+                _ => return Err("incompatible_manager".into()),
+            };
+            if confirmed && let Some(i) = self.intents.iter_mut().find(|i| i.id == intent_id) {
+                i.status = "confirmed".into();
+            }
+        }
+        if replayed {
+            image = client
+                .recover_workspace(self.session.as_mut().ok_or("offline")?)
+                .await
+                .map_err(error_code)?;
+        }
+        if let Some(message) = routine_message {
+            self.publish(|v| v.routine_panel.message = Some(message));
+        }
         for intent in &mut self.intents {
-            if intent.status == "refused" {
+            if matches!(intent.status.as_str(), "refused" | "confirmed") {
                 continue;
             }
+            let run_id = match &intent.operation {
+                OwnerOperation::SubmitRun { input } => Some(input.id),
+                OwnerOperation::CancelRun { id } => Some(*id),
+                _ => None,
+            };
+            let recovered_run = if let Some(id) = run_id {
+                match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::Run { id })
+                    .await
+                {
+                    Ok(OwnerReply::Run(run)) if run.summary.id == id => Some(run),
+                    Err(ClientError::Refused(OwnerError::NotFound)) => None,
+                    Err(error) => return Err(error_code(error)),
+                    _ => return Err("incompatible_manager".into()),
+                }
+            } else {
+                None
+            };
+            let task_id = match &intent.operation {
+                OwnerOperation::CancelTask { id }
+                | OwnerOperation::GrantReviewedApproval { id, .. }
+                | OwnerOperation::RevokeApproval { id } => Some(*id),
+                _ => None,
+            };
+            let recovered_task = if let Some(id) = task_id {
+                match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::Task { id })
+                    .await
+                {
+                    Ok(OwnerReply::Task(task)) if task.id == id => Some(task),
+                    Err(ClientError::Refused(OwnerError::NotFound)) => None,
+                    Err(error) => return Err(error_code(error)),
+                    _ => return Err("incompatible_manager".into()),
+                }
+            } else {
+                None
+            };
             let confirmed = match &intent.operation {
                 OwnerOperation::SubmitRun { input } => {
-                    image.runs.iter().any(|r| r.request == **input)
+                    recovered_run.is_some_and(|run| run.request == **input)
                 }
-                OwnerOperation::CancelRun { id } => image.runs.iter().any(|r| {
-                    r.summary.id == *id
-                        && matches!(
-                            r.summary.phase,
-                            RunPhase::Completed | RunPhase::Cancelled | RunPhase::Stopped { .. }
-                        )
-                        && r.turns.iter().all(|turn| {
-                            turn.intent.as_ref().is_none_or(|intent| {
-                                image
-                                    .state
-                                    .tasks
-                                    .iter()
-                                    .any(|t| t.id == intent.task && t.state.terminal())
-                            })
-                        })
-                }),
-                OwnerOperation::CancelTask { id } => image
-                    .state
-                    .tasks
-                    .iter()
-                    .any(|t| t.id == *id && t.state.terminal()),
+                OwnerOperation::CancelRun { .. } => {
+                    let Some(run) = recovered_run else {
+                        continue;
+                    };
+                    let mut stopped = matches!(
+                        run.summary.phase,
+                        RunPhase::Completed | RunPhase::Cancelled | RunPhase::Stopped { .. }
+                    );
+                    if stopped {
+                        for task in run
+                            .turns
+                            .iter()
+                            .filter_map(|turn| turn.intent.as_ref().map(|i| i.task))
+                        {
+                            let terminal = if let Some(task) =
+                                image.state.tasks.iter().find(|t| t.id == task)
+                            {
+                                task.state.terminal()
+                            } else {
+                                match self
+                                    .session
+                                    .as_mut()
+                                    .ok_or("offline")?
+                                    .call(OwnerOperation::Task { id: task })
+                                    .await
+                                {
+                                    Ok(OwnerReply::Task(view)) if view.id == task => {
+                                        view.state.terminal()
+                                    }
+                                    Err(ClientError::Refused(OwnerError::NotFound)) => false,
+                                    Err(error) => return Err(error_code(error)),
+                                    _ => return Err("incompatible_manager".into()),
+                                }
+                            };
+                            stopped &= terminal;
+                        }
+                    }
+                    stopped
+                }
+                OwnerOperation::CancelTask { .. } => {
+                    recovered_task.is_some_and(|t| t.state.terminal())
+                }
                 OwnerOperation::GrantReviewedApproval {
                     id,
                     command,
                     approval,
                     permission_revision,
                     expires_at,
-                } => image.state.tasks.iter().any(|t| {
+                } => recovered_task.is_some_and(|t| {
                     t.id == *id
                         && t.command == **command
                         && t.approval.id == approval.id
@@ -654,11 +804,9 @@ impl Actor {
                                 && t.command.matches_authority(b)
                         })
                 }),
-                OwnerOperation::RevokeApproval { id } => image
-                    .state
-                    .tasks
-                    .iter()
-                    .any(|t| t.id == *id && t.approval.revoked),
+                OwnerOperation::RevokeApproval { .. } => {
+                    recovered_task.is_some_and(|t| t.approval.revoked)
+                }
                 OwnerOperation::SetPermission {
                     bot,
                     expected_revision,
@@ -695,6 +843,8 @@ impl Actor {
                 id: i.id,
                 status: i.status.clone(),
                 identity: match &i.operation {
+                    OwnerOperation::RoutineCommand { input } => input.id.to_string(),
+                    OwnerOperation::RoutineConversation { id, .. } => id.to_string(),
                     OwnerOperation::SubmitRun { input } => input.id.to_string(),
                     OwnerOperation::CancelRun { id } => id.to_string(),
                     OwnerOperation::CancelTask { id }
@@ -703,6 +853,8 @@ impl Actor {
                     _ => i.id.to_string(),
                 },
                 description: match &i.operation {
+                    OwnerOperation::RoutineCommand { .. }
+                    | OwnerOperation::RoutineConversation { .. } => "Routine owner command",
                     OwnerOperation::SubmitRun { .. } => "Run submission",
                     OwnerOperation::CancelRun { .. } | OwnerOperation::CancelTask { .. } => {
                         "Cancellation requested"
@@ -720,6 +872,32 @@ impl Actor {
     fn save_intents(&self, intents: &[Intent]) -> Result<(), String> {
         check_journal_budget(intents)?;
         storage(&self.root, "intents.json", &intents)
+    }
+    async fn routine_text(&mut self, bot: BotId, text: String) -> Result<(), String> {
+        self.recover().await?;
+        let operation = OwnerOperation::RoutineConversation {
+            bot,
+            id: RequestId::new(),
+            text: text.clone(),
+        };
+        if text == "/routine help"
+            || text == "/routine list"
+            || text.starts_with("/routine history ")
+        {
+            let reply = self
+                .session
+                .as_mut()
+                .ok_or("offline")?
+                .call(operation)
+                .await
+                .map_err(error_code)?;
+            let OwnerReply::RoutineControl(result) = reply else {
+                return Err("protocol".into());
+            };
+            self.publish(|v| v.routine_panel.message = Some(result.message));
+            return Ok(());
+        }
+        self.mutate(operation).await
     }
     async fn mutate(&mut self, operation: OwnerOperation) -> Result<(), String> {
         self.recover().await?;
@@ -745,12 +923,24 @@ impl Actor {
         self.save_intents(&next)?;
         self.intents = next;
         self.publish(|v| v.intents = self.intent_views());
+        let routine_request = match &operation {
+            OwnerOperation::RoutineCommand { input } => Some(input.id),
+            OwnerOperation::RoutineConversation { id, .. } => Some(*id),
+            _ => None,
+        };
         let reply = self
             .session
             .as_mut()
             .ok_or("offline")?
             .call(operation)
             .await;
+        let routine_ack = matches!(&reply,Ok(OwnerReply::RoutineControl(result)) if Some(result.request)==routine_request);
+        if routine_request.is_some() && reply.is_ok() && !routine_ack {
+            return Err("incompatible_manager".into());
+        }
+        if let Ok(OwnerReply::RoutineControl(result)) = &reply {
+            self.publish(|v| v.routine_panel.message = Some(result.message.clone()));
+        }
         if let Err(error) = reply {
             if matches!(error, ClientError::Refused(_)) {
                 self.intents.last_mut().ok_or("storage")?.status = "refused".into();
@@ -758,7 +948,8 @@ impl Actor {
             }
             return Err(error_code(error));
         }
-        self.intents.last_mut().ok_or("storage")?.status = "pending".into();
+        self.intents.last_mut().ok_or("storage")?.status =
+            if routine_ack { "confirmed" } else { "pending" }.into();
         self.save_intents(&self.intents)
             .map_err(|_| "unknown_outcome")?;
         self.recover().await.map_err(|_| "unknown_outcome".into())
@@ -874,6 +1065,7 @@ impl Actor {
                     self.view.send_modify(|v| {
                         v.generation = self.generation;
                         v.workspace = None;
+                        v.routine_panel = RoutinePanel::default();
                         v.review = None;
                         v.candidate = None;
                         v.pairing = None;
@@ -986,6 +1178,70 @@ impl Actor {
                 self.suspended = false;
                 self.recover().await
             }
+            IntentCommand::RunDetails(id) => {
+                self.recover().await?;
+                let reply = self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::Run { id })
+                    .await
+                    .map_err(error_code)?;
+                let OwnerReply::Run(run) = reply else {
+                    return Err("protocol".into());
+                };
+                let run = WorkspaceRun::project(*run, false);
+                self.publish(|v| {
+                    if let Some(workspace) = &mut v.workspace
+                        && let Some(prior) = workspace.runs.iter_mut().find(|r| r.summary.id == id)
+                    {
+                        *prior = run;
+                    }
+                });
+                Ok(())
+            }
+            IntentCommand::RoutineText { bot, text } => self.routine_text(bot, text).await,
+            IntentCommand::Routine(input) => {
+                self.mutate(OwnerOperation::RoutineCommand { input }).await
+            }
+            IntentCommand::RoutineHistory { id, before } => {
+                self.recover().await?;
+                let reply = self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::RoutineHistory {
+                        id,
+                        before,
+                        limit: 32,
+                    })
+                    .await
+                    .map_err(error_code)?;
+                let OwnerReply::RoutineHistory(history) = reply else {
+                    return Err("protocol".into());
+                };
+                self.publish(|v| v.routine_panel.history = history);
+                Ok(())
+            }
+            IntentCommand::RoutinePreview { trigger, after } => {
+                self.recover().await?;
+                let reply = self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::RoutinePreview {
+                        trigger,
+                        after,
+                        limit: 5,
+                    })
+                    .await
+                    .map_err(error_code)?;
+                let OwnerReply::RoutinePreview(preview) = reply else {
+                    return Err("protocol".into());
+                };
+                self.publish(|v| v.routine_panel.preview = preview);
+                Ok(())
+            }
             IntentCommand::Refresh => {
                 self.publish(|v| v.review = None);
                 self.recover().await
@@ -1024,6 +1280,9 @@ impl Actor {
             }
             IntentCommand::Send(input) => {
                 self.recover().await?;
+                if input.text.starts_with("/routine ") {
+                    return self.routine_text(input.bot, input.text).await;
+                }
                 let image = self.view.borrow().workspace.clone().ok_or("unpaired")?;
                 if !image.run_ready_bots.contains(&input.bot) {
                     return Err("inference_unverified".into());
@@ -1214,8 +1473,24 @@ struct WorkspaceView<'a> {
     permissions: &'a [Permission],
     configurations: Vec<ConfigurationView<'a>>,
     vault_unlocked: bool,
+    routines: Vec<RoutineViewModel>,
+    routine_occurrences: &'a [RoutineOccurrence],
+    inbox: &'a [InboxEntry],
+    publishers: &'a [PublisherView],
+    routine_budget: &'a Option<RoutineBudget>,
     runs: Vec<RunViewModel<'a>>,
     tasks: Vec<TaskViewModel<'a>>,
+}
+#[derive(Serialize)]
+struct RoutineViewModel {
+    id: RoutineId,
+    bot: BotId,
+    revision: u64,
+    state: RoutineState,
+    name: String,
+    next_at: Option<i64>,
+    trigger: RoutineTrigger,
+    definition_json: String,
 }
 #[derive(Serialize)]
 struct ConfigurationView<'a> {
@@ -1223,6 +1498,7 @@ struct ConfigurationView<'a> {
     model: &'a str,
     ready: bool,
     context_tokens: u32,
+    revision: u64,
 }
 #[derive(Serialize)]
 struct RunViewModel<'a> {
@@ -1236,6 +1512,7 @@ struct RunViewModel<'a> {
 }
 #[derive(Serialize)]
 struct TurnView<'a> {
+    truncated: bool,
     id: RunTurnId,
     ordinal: u32,
     text: Option<&'a str>,
@@ -1353,6 +1630,27 @@ fn serialize_workspace<S: serde::Serializer>(
             sessions: &w.sessions,
             permissions: &w.state.permissions,
             vault_unlocked: w.vault_unlocked,
+            routines: w
+                .state
+                .routine_state
+                .routines
+                .iter()
+                .map(|r| RoutineViewModel {
+                    id: r.id,
+                    bot: r.definition.bot,
+                    revision: r.revision,
+                    state: r.state,
+                    name: r.definition.name.clone(),
+                    next_at: r.next_at,
+                    trigger: r.definition.trigger.clone(),
+                    definition_json: serde_json::to_string_pretty(&r.definition)
+                        .expect("definition serializes"),
+                })
+                .collect(),
+            routine_occurrences: &w.state.routine_state.occurrences,
+            inbox: &w.state.routine_state.inbox,
+            publishers: &w.state.routine_state.publishers,
+            routine_budget: &w.state.routine_state.budget,
             configurations: w
                 .bots
                 .iter()
@@ -1362,6 +1660,7 @@ fn serialize_workspace<S: serde::Serializer>(
                     model: &c.policy.model_id,
                     ready: w.run_ready_bots.contains(&c.bot),
                     context_tokens: c.policy.context_tokens,
+                    revision: c.revision,
                 })
                 .collect(),
             runs: w
@@ -1393,15 +1692,10 @@ fn serialize_workspace<S: serde::Serializer>(
                         .map(|t| TurnView {
                             id: t.id,
                             ordinal: t.ordinal,
-                            text: t.response.as_ref().and_then(|m| {
-                                if let RunMessage::Assistant { content, .. } = m {
-                                    Some(content.as_str())
-                                } else {
-                                    None
-                                }
-                            }),
-                            task: t.intent.as_ref().map(|i| i.task),
-                            result: t.intent.as_ref().and_then(|i| i.result.as_deref()),
+                            text: t.text.as_deref(),
+                            task: t.task,
+                            result: t.result.as_deref(),
+                            truncated: t.truncated,
                         })
                         .collect(),
                 })

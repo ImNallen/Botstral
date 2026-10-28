@@ -13,6 +13,13 @@ async function snapshot(command: string, args?: Record<string, unknown>) {
   return remoteSnapshotSchema.parse(await call(command, args));
 }
 export const pairedApplication: PairedApplication = {
+  runDetails: (id) => snapshot('run_details', { id }),
+  routineText: (bot, text) => snapshot('routine_text', { bot, text }),
+  routine: (input) => snapshot('routine_command', { input }),
+  saveRoutine: (id, expectedRevision, definitionJson) =>
+    snapshot('save_routine', { id, expectedRevision, definitionJson }),
+  routineHistory: (id, before) => snapshot('routine_history', { id, before }),
+  routinePreview: (trigger, after) => snapshot('routine_preview', { trigger, after }),
   inspect: () => snapshot('remote_inspect'),
   observe: (receive) =>
     listen<unknown>('workspace-changed', (event) => {

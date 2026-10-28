@@ -1,5 +1,17 @@
 import { z } from 'zod';
 import { botIdSchema } from './domain';
+import type { RoutineCommand } from '@botstral/link';
+import {
+  budgetSchema,
+  inboxSchema,
+  occurrenceSchema,
+  publisherSchema,
+  routinePanelSchema,
+  routineViewSchema,
+  type RoutineView,
+  type Occurrence,
+  type RoutineTrigger,
+} from './routine-domain';
 
 const id = z.uuid();
 const taskId = id.brand<'TaskId'>();
@@ -32,6 +44,11 @@ const output = z.strictObject({
   ]),
 });
 const workspace = z.strictObject({
+  routines: z.array(routineViewSchema).default([]),
+  routine_occurrences: z.array(occurrenceSchema).default([]),
+  inbox: z.array(inboxSchema).default([]),
+  publishers: z.array(publisherSchema).default([]),
+  routine_budget: budgetSchema.nullable().default(null),
   manager: id,
   cursor: integer,
   owner: z.string(),
@@ -63,6 +80,7 @@ const workspace = z.strictObject({
       model: z.string(),
       ready: z.boolean(),
       context_tokens: integer,
+      revision: integer.default(1),
     }),
   ),
   runs: z.array(
@@ -86,6 +104,7 @@ const workspace = z.strictObject({
         z.strictObject({
           id,
           ordinal: integer,
+          truncated: z.boolean().default(false),
           text: z.string().nullable(),
           task: taskId.nullable(),
           result: z.string().nullable(),
@@ -117,6 +136,7 @@ const workspace = z.strictObject({
   ),
 });
 export const remoteSnapshotSchema = z.strictObject({
+  routine_panel: routinePanelSchema.default({ message: null, history: [], preview: [] }),
   generation: integer,
   revision: integer,
   status: z.enum([
@@ -187,6 +207,16 @@ export type SendInput = {
   output_tokens: number;
 };
 export interface PairedApplication {
+  runDetails(id: Workspace['runs'][number]['id']): Promise<RemoteSnapshot>;
+  routineText(bot: SendInput['bot'], text: string): Promise<RemoteSnapshot>;
+  routine(input: RoutineCommand): Promise<RemoteSnapshot>;
+  saveRoutine(
+    id: RoutineView['id'],
+    expectedRevision: number,
+    definitionJson: string,
+  ): Promise<RemoteSnapshot>;
+  routineHistory(id: RoutineView['id'], before: Occurrence['id'] | null): Promise<RemoteSnapshot>;
+  routinePreview(trigger: RoutineTrigger, after: number): Promise<RemoteSnapshot>;
   inspect(): Promise<RemoteSnapshot>;
   observe(receive: (value: RemoteSnapshot) => void): Promise<() => void>;
   beginPairing(label: string): Promise<RemoteSnapshot>;
