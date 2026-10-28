@@ -1,0 +1,66 @@
+{
+  "recorded_at": "2026-10-28T19:24:57.481506+00:00",
+  "base_commit": "30eaa6d21fdb1fc48054e26f6f03f707c574cdaf",
+  "review": "https://github.com/ImNallen/Botstral/pull/38#discussion_r4404948114",
+  "source_sha256": {
+    "desktop/src-tauri/src/remote.rs": "fc74af6bab3b97e38903972d1db0f139251781dc2cf105f7d71e8aa54430ac0a",
+    "desktop/src-tauri/tests/journal.rs": "9d6a50ab5c7f1e683031d8f5ac5bb5030cfce547d4737e0e1c08c6e88779c7d6",
+    "desktop/src-tauri/tests/journal/history.rs": "c4228e7824094ea2c8197ea15485f69faaa9b1c4995a116c9ce3990cb7276865"
+  },
+  "checks": [
+    {
+      "command": "cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets --locked -- -D warnings",
+      "exit_code": 0,
+      "log": ".audit/p03-babysit-final-clippy.log",
+      "log_sha256": "8440e77394d1094106c7235f4c56f155ff8defddfd159f1afea0d31e6e87ef7d"
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked",
+      "exit_code": 0,
+      "log": ".audit/p03-babysit-final-native.log",
+      "log_sha256": "791d881b9fd3d6e5ee9eb6b1bf2cf7bb2bc347c14d0a09aed7b409bc4d8250f6"
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-journal --root .audit/p03-babysit/final-journal",
+      "exit_code": 0,
+      "log": ".audit/p03-babysit-final-journal.log",
+      "log_sha256": "9ef21e3fdbf80cf3720a497a8336f6cd54aa1c2ec2e159327b3248e6f50035ef"
+    },
+    {
+      "command": "Original recovery regression before correction",
+      "exit_code": 1,
+      "log": ".audit/p03-babysit-before-verified.log",
+      "log_sha256": "045acda1bf0dd88a12227a7a227085a118c99846ef6fb47975af3026afedebe8"
+    },
+    {
+      "command": "Task-history regression before task correction",
+      "exit_code": 1,
+      "log": ".audit/p03-babysit-task-before.log",
+      "log_sha256": "7cd546eba05b0a5de10f7a70cfea4494dfce062bddecab18cab560355e29602e"
+    }
+  ],
+  "journal_cases": [
+    "admitted_journal_must_remain_readable_after_restart",
+    "historical_approval_cannot_confirm_an_unknown_regrant",
+    "journal_read_failure_must_preserve_unknown_and_block_mutation",
+    "missing_journal_does_not_become_an_empty_paired_profile",
+    "observed_revocation_blocks_cached_activity_after_offline_restart",
+    "p03_routine_controls_and_crash_journal_recovery",
+    "readable_unknown_journal_blocks_mutation_without_replay",
+    "trimmed_run_history_does_not_strand_unknown_intents"
+  ],
+  "regression_before": {
+    "run_intents": [
+      "unknown",
+      "unknown"
+    ],
+    "run_and_task_intents_after_run_only_fix": [
+      "confirmed",
+      "confirmed",
+      "unknown",
+      "unknown"
+    ]
+  },
+  "setup_correction": "Initial probes failed during admission. The regression then used a supported process policy and the latest verified model configuration before reaching the expected recovery failure.",
+  "scope": "Real TLS manager with recorded provider, synthetic worker and memory-backed native secret store. This is a recovery fix with no new visible UI."
+}

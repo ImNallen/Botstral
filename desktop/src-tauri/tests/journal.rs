@@ -541,6 +541,15 @@ async fn readable_unknown_journal_blocks_mutation_without_replay() {
 #[path = "journal/p03.rs"]
 mod p03;
 
+#[path = "journal/history.rs"]
+mod history;
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn trimmed_run_history_does_not_strand_unknown_intents() {
+    history::verify().await;
+}
+
 #[tokio::test]
 #[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
 async fn p03_routine_controls_and_crash_journal_recovery() {

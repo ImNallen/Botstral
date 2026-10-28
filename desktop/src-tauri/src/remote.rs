@@ -697,38 +697,102 @@ impl Actor {
             if matches!(intent.status.as_str(), "refused" | "confirmed") {
                 continue;
             }
+            let run_id = match &intent.operation {
+                OwnerOperation::SubmitRun { input } => Some(input.id),
+                OwnerOperation::CancelRun { id } => Some(*id),
+                _ => None,
+            };
+            let recovered_run = if let Some(id) = run_id {
+                match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::Run { id })
+                    .await
+                {
+                    Ok(OwnerReply::Run(run)) if run.summary.id == id => Some(run),
+                    Err(ClientError::Refused(OwnerError::NotFound)) => None,
+                    Err(error) => return Err(error_code(error)),
+                    _ => return Err("incompatible_manager".into()),
+                }
+            } else {
+                None
+            };
+            let task_id = match &intent.operation {
+                OwnerOperation::CancelTask { id }
+                | OwnerOperation::GrantReviewedApproval { id, .. }
+                | OwnerOperation::RevokeApproval { id } => Some(*id),
+                _ => None,
+            };
+            let recovered_task = if let Some(id) = task_id {
+                match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::Task { id })
+                    .await
+                {
+                    Ok(OwnerReply::Task(task)) if task.id == id => Some(task),
+                    Err(ClientError::Refused(OwnerError::NotFound)) => None,
+                    Err(error) => return Err(error_code(error)),
+                    _ => return Err("incompatible_manager".into()),
+                }
+            } else {
+                None
+            };
             let confirmed = match &intent.operation {
                 OwnerOperation::SubmitRun { input } => {
-                    image.runs.iter().any(|r| r.request == **input)
+                    recovered_run.is_some_and(|run| run.request == **input)
                 }
-                OwnerOperation::CancelRun { id } => image.runs.iter().any(|r| {
-                    r.summary.id == *id
-                        && matches!(
-                            r.summary.phase,
-                            RunPhase::Completed | RunPhase::Cancelled | RunPhase::Stopped { .. }
-                        )
-                        && r.turns.iter().all(|turn| {
-                            turn.task.is_none_or(|task| {
-                                image
-                                    .state
-                                    .tasks
-                                    .iter()
-                                    .any(|t| t.id == task && t.state.terminal())
-                            })
-                        })
-                }),
-                OwnerOperation::CancelTask { id } => image
-                    .state
-                    .tasks
-                    .iter()
-                    .any(|t| t.id == *id && t.state.terminal()),
+                OwnerOperation::CancelRun { .. } => {
+                    let Some(run) = recovered_run else {
+                        continue;
+                    };
+                    let mut stopped = matches!(
+                        run.summary.phase,
+                        RunPhase::Completed | RunPhase::Cancelled | RunPhase::Stopped { .. }
+                    );
+                    if stopped {
+                        for task in run
+                            .turns
+                            .iter()
+                            .filter_map(|turn| turn.intent.as_ref().map(|i| i.task))
+                        {
+                            let terminal = if let Some(task) =
+                                image.state.tasks.iter().find(|t| t.id == task)
+                            {
+                                task.state.terminal()
+                            } else {
+                                match self
+                                    .session
+                                    .as_mut()
+                                    .ok_or("offline")?
+                                    .call(OwnerOperation::Task { id: task })
+                                    .await
+                                {
+                                    Ok(OwnerReply::Task(view)) if view.id == task => {
+                                        view.state.terminal()
+                                    }
+                                    Err(ClientError::Refused(OwnerError::NotFound)) => false,
+                                    Err(error) => return Err(error_code(error)),
+                                    _ => return Err("incompatible_manager".into()),
+                                }
+                            };
+                            stopped &= terminal;
+                        }
+                    }
+                    stopped
+                }
+                OwnerOperation::CancelTask { .. } => {
+                    recovered_task.is_some_and(|t| t.state.terminal())
+                }
                 OwnerOperation::GrantReviewedApproval {
                     id,
                     command,
                     approval,
                     permission_revision,
                     expires_at,
-                } => image.state.tasks.iter().any(|t| {
+                } => recovered_task.is_some_and(|t| {
                     t.id == *id
                         && t.command == **command
                         && t.approval.id == approval.id
@@ -740,11 +804,9 @@ impl Actor {
                                 && t.command.matches_authority(b)
                         })
                 }),
-                OwnerOperation::RevokeApproval { id } => image
-                    .state
-                    .tasks
-                    .iter()
-                    .any(|t| t.id == *id && t.approval.revoked),
+                OwnerOperation::RevokeApproval { .. } => {
+                    recovered_task.is_some_and(|t| t.approval.revoked)
+                }
                 OwnerOperation::SetPermission {
                     bot,
                     expected_revision,

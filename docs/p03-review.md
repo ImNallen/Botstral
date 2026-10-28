@@ -25,3 +25,11 @@ The evidence reviewer matched all seven original verification log hashes and the
 The video uses actual app components with recorded native manager responses. Its visible fixture label and acceptance documentation distinguish component rendering from real manager, provider, worker, and keychain execution. The parent also inspected a frame extracted from the video.
 
 The decision trail now preserves implementation integration, verification, review findings, the regression correction, and the durable design verdict. [Parent verification](evidence/p03/parent-verification.json) records checks against the corrected code. Production Linux, pinned Vibe, multi-VM, OS keychain, and closed-app push limits remain those documented in [acceptance evidence](p03-acceptance.md#verification-limits).
+
+## Pull request recovery follow-up
+
+[The automated review](https://github.com/ImNallen/Botstral/pull/38#discussion_r4404948114) identified a second recovery defect. An unresolved native submission or cancellation relied on a bounded recent-history snapshot. Once the committed run disappeared from that snapshot, its saved intent stayed unknown and blocked new mutations.
+
+The real-manager regression reproduced two unknown run intents after ten completions. Extending it to thirty-four completed tasks exposed the same problem for task cancellation and approval revocation. Native recovery now reads outstanding run and task identifiers through authenticated operations. Submission and approval confirmation retain exact matching. Cancellation also checks child tasks omitted from the snapshot. No mutation is replayed to establish its outcome.
+
+The regression verifies recovery without expanding the displayed history, permits a new mutation afterward, and keeps mismatched submissions and missing records unresolved. [Follow-up verification](evidence/p03/babysit-verification.json) records the checks for this correction.
