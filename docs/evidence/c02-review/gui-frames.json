@@ -1,0 +1,27 @@
+[
+  {
+    "file": "000.png",
+    "caption": "The manager retains the revoked worker session. Sending stays blocked until a replacement is chosen.",
+    "time": "2026-10-28T10:56:55.548Z"
+  },
+  {
+    "file": "001.png",
+    "caption": "Execution settings now offer the ready, non-revoked replacement worker.",
+    "time": "2026-10-28T10:57:03.958Z"
+  },
+  {
+    "file": "002.png",
+    "caption": "The manager moved the existing session to the replacement worker and confirmed it.",
+    "time": "2026-10-28T10:57:10.027Z"
+  },
+  {
+    "file": "003.png",
+    "caption": "Sending is enabled again after authoritative session recovery.",
+    "time": "2026-10-28T10:57:14.244Z"
+  },
+  {
+    "file": "004.png",
+    "caption": "The recovered desktop completed a new durable run using the latest verified configuration.",
+    "time": "2026-10-28T10:57:22.697Z"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "configuration_revision": 2,
+  "run": "3318e79d-00f8-453f-98dc-60e7a09a045e",
+  "phase": {
+    "type": "completed"
+  },
+  "session_id_preserved": true,
+  "replacement_worker": "18478aa3-943d-4ebc-90d8-97e724bb9948",
+  "session_status": "confirmed"
+}

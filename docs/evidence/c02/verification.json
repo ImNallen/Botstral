@@ -1,6 +1,6 @@
 {
   "recorded_at": "2026-10-28T10:29:02.502990+00:00",
-  "source_head": "b75e7aa79190d2e978d06dab72481e3c3d282233",
+  "source_head": "4d48071a1ca269098d875b689215c81d68c37ee2",
   "implementation_verification": "verification-implementation.json",
   "unchanged_server_worker_protocol_source_since": "96c4bb3",
   "parent_checks": [
@@ -99,6 +99,7 @@
     "cleanup": "fixture stopped and removed; both synthetic keychain items removed"
   },
   "remaining": [
+    "hosted follow-up review and CI on the new PR head",
     "platform and operating-system observations listed in docs/c02-acceptance.md"
   ],
   "log_normalization": "Trailing blank lines removed from copied command logs. Original local logs retained.",
@@ -138,5 +139,6 @@
       "outcome": "no surviving findings; original, three regression and eight neighboring cases passed",
       "report": "helper-independent-recheck.txt"
     }
-  ]
+  ],
+  "hosted_review_followup": "../c02-review/verification.json"
 }

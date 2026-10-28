@@ -1,0 +1,43 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hrnb2vgm
+Local manager: 127.0.0.1:58541
+Paired WSS route: wss://127.0.0.1:58558/owner/v1/connect
+Manager identity: 4601ccb0-24af-4985-bc3a-490766d35ee0
+Manager leaf: 56fdd8f06cb723258e954d9391157820e874689655d1ae68f6a57baea72cccb3
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hrnb2vgm/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hrnb2vgm/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.39s
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-f1cc92d7b07f5318)
+
+running 1 test
+
+thread 'actual_manager_native_keychain_run_approval_artifact_and_lifecycle' (614351965) panicked at tests/remote.rs:318:10:
+called `Result::unwrap()` on an `Err` value: "inference_unverified"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... FAILED
+
+failures:
+
+failures:
+    actual_manager_native_keychain_run_approval_artifact_and_lifecycle
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.76s
+
+error: test failed, to rerun pass `--test remote`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/fixtures/paired_manager.py", line 101, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop/fixtures/paired_manager.py", line 75, in main
+    raise RuntimeError('The native contract failed.')
+RuntimeError: The native contract failed.

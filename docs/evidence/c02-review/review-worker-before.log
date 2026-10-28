@@ -1,0 +1,749 @@
+
+> test
+> npm run test --workspace @botstral/desktop src/paired.test.tsx
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run src/paired.test.tsx
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop
+
+ ❯ src/paired.test.tsx (9 tests | 1 failed) 358ms
+   ❯ paired presentation boundary (9)
+     × replaces a revoked session worker and enables sending after recovery 218ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/paired.test.tsx > paired presentation boundary > replaces a revoked session worker and enables sending after recovery
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Use worker/`
+
+Here are the accessible roles:
+
+  complementary:
+
+  Name "Paired bot roster":
+  [36m<aside[39m
+    [33maria-label[39m=[32m"Paired bot roster"[39m
+    [33mclass[39m=[32m"roster"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"roster-header"[39m
+    [33mdata-tauri-drag-region[39m=[32m"true"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"conversation-header"[39m
+    [33mdata-tauri-drag-region[39m=[32m"true"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<header />[39m
+
+  Name "":
+  [36m<header />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Workspace details":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Workspace details"[39m
+    [33mclass[39m=[32m"circle-button"[39m
+  [36m/>[39m
+
+  Name "ResearchPaired workspace":
+  [36m<button[39m
+    [33mclass[39m=[32m"bot-tile selected"[39m
+  [36m/>[39m
+
+  Name "Local administration":
+  [36m<button[39m
+    [33mclass[39m=[32m"detail-action"[39m
+  [36m/>[39m
+
+  Name "Refresh workspace":
+  [36m<button[39m
+    [33mclass[39m=[32m"detail-action"[39m
+  [36m/>[39m
+
+  Name "Sign out of this device":
+  [36m<button[39m
+    [33mclass[39m=[32m"detail-action"[39m
+  [36m/>[39m
+
+  Name "Cancel run":
+  [36m<button />[39m
+
+  Name "Review action":
+  [36m<button />[39m
+
+  Name "Cancel task":
+  [36m<button />[39m
+
+  Name "Revoke approval":
+  [36m<button />[39m
+
+  Name "Disable execution permission":
+  [36m<button />[39m
+
+  Name "Attachments unavailable":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Attachments unavailable"[39m
+    [33mclass[39m=[32m"composer-plus"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Send":
+  [36m<button[39m
+    [33mclass[39m=[32m"primary-button"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  navigation:
+
+  Name "Paired bots":
+  [36m<nav[39m
+    [33maria-label[39m=[32m"Paired bots"[39m
+    [33mclass[39m=[32m"bot-list"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  [36m<footer[39m
+    [33mclass[39m=[32m"roster-footer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"small-copy muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"thread-explanation"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"owner-message"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"assistant-message"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"small-copy muted"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"small-copy"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted small-copy"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  [36m<main[39m
+    [33mclass[39m=[32m"main-panel"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  region:
+
+  Name "Run 00000000-0000-4000-8000-000000000001":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Run 00000000-0000-4000-8000-000000000001"[39m
+    [33mclass[39m=[32m"run-thread"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  article:
+
+  Name "Task 00000000-0000-4000-8000-000000000002":
+  [36m<article[39m
+    [33maria-label[39m=[32m"Task 00000000-0000-4000-8000-000000000002"[39m
+    [33mclass[39m=[32m"task-card"[39m
+    [33mid[39m=[32m"task-00000000-0000-4000-8000-000000000002"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<details />[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"execution-settings"[39m
+    [33mopen[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  spinbutton:
+
+  Name "Guest user identifier":
+  [36m<input[39m
+    [33mmax[39m=[32m"2147483647"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"1000"[39m
+  [36m/>[39m
+
+  Name "Guest group identifier":
+  [36m<input[39m
+    [33mmax[39m=[32m"2147483647"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"1000"[39m
+  [36m/>[39m
+
+  Name "Deadline in seconds":
+  [36m<input[39m
+    [33mmax[39m=[32m"300"[39m
+    [33mmin[39m=[32m"10"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"120"[39m
+  [36m/>[39m
+
+  Name "Maximum model turns":
+  [36m<input[39m
+    [33mmax[39m=[32m"8"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"4"[39m
+  [36m/>[39m
+
+  Name "Total token budget":
+  [36m<input[39m
+    [33mmax[39m=[32m"1000000"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"200000"[39m
+  [36m/>[39m
+
+  Name "Output tokens per turn":
+  [36m<input[39m
+    [33mmax[39m=[32m"8192"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"1024"[39m
+  [36m/>[39m
+
+  Name "Cost limit in US dollars":
+  [36m<input[39m
+    [33mmax[39m=[32m"10"[39m
+    [33mmin[39m=[32m"0.000001"[39m
+    [33mrequired[39m=[32m""[39m
+    [33mstep[39m=[32m"0.000001"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"0.2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Permit bounded Linux process proposals":
+  [36m<input[39m
+    [33mchecked[39m=[32m""[39m
+    [33mtype[39m=[32m"checkbox"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Approved browser runtime digest":
+  [36m<input[39m
+    [33mpattern[39m=[32m"[a-f0-9]{64}"[39m
+    [33mplaceholder[39m=[32m"64-character SHA-256, optional for process-only work"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Message":
+  [36m<textarea[39m
+    [33maria-label[39m=[32m"Message"[39m
+    [33mmaxlength[39m=[32m"4096"[39m
+    [33mplaceholder[39m=[32m"Message Research"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"composer-blocker"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  form:
+
+  Name "Run composer":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Run composer"[39m
+    [33mclass[39m=[32m"composer"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"workspace paired-workspace"[39m
+    [36m>[39m
+      [36m<aside[39m
+        [33maria-label[39m=[32m"Paired bot roster"[39m
+        [33mclass[39m=[32m"roster"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"roster-header"[39m
+          [33mdata-tauri-drag-region[39m=[32m"true"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Workspace details"[39m
+            [33mclass[39m=[32m"circle-button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"18"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"1.6"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"18"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M15 4v16M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+        [36m</header>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Paired bots"[39m
+          [33mclass[39m=[32m"bot-list"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"bot-tile selected"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"avatar face-0"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mviewBox[39m=[32m"6 5 53 55"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33mclass[39m=[32m"face-shape"[39m
+                  [33md[39m=[32m"M10 23C16 5 37 3 48 15c13 13 10 34-6 41C25 64 6 51 7 36c0-5 1-9 3-13Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33mclass[39m=[32m"face-eyes"[39m
+                  [33md[39m=[32m"m31 18 4 6m7-10 4 6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"bot-row-text"[39m
+            [36m>[39m
+              [36m<strong>[39m
+                [0mResearch[0m
+              [36m</strong>[39m
+              [36m<small>[39m
+                [0mPaired workspace[0m
+              [36m</small>[39m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</nav>[39m
+        [36m<footer[39m
+          [33mclass[39m=[32m"roster-footer"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"small-copy muted"[39m
+          [36m>[39m
+            [0mOwner[0m
+            [0m ·[0m
+            [0m [0m
+            [0monline[0m
+          [36m</p>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"detail-action"[39m
+          [36m>[39m
+            [0mLocal administration[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"detail-action"[39m
+          [36m>[39m
+            [0mRefresh workspace[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"detail-action"[39m
+          [36m>[39m
+            [0mSign out of this device[0m
+          [36m</button>[39m
+        [36m</footer>[39m
+      [36m</aside>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"main-panel"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"conversation-header"[39m
+          [33mdata-tauri-drag-region[39m=[32m"true"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"conversation-title"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"avatar face-0"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mviewBox[39m=[32m"6 5 53 55"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33mclass[39m=[32m"face-shape"[39m
+                  [33md[39m=[32m"M10 23C16 5 37 3 48 15c13 13 10 34-6 41C25 64 6 51 7 36c0-5 1-9 3-13Z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33mclass[39m=[32m"face-eyes"[39m
+                  [33md[39m=[32m"m31 18 4 6m7-10 4 6"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</span>[39m
+            [36m<span>[39m
+              [0mResearch[0m
+            [36m</span>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"connection-label"[39m
+          [36m>[39m
+            [0monline[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"conversation paired-conversation"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"thread-explanation"[39m
+          [36m>[39m
+            [0mEach message starts a separate durable run. Context is retained within that run. Earlier runs remain in history.[0m
+          [36m</p>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"Run 00000000-0000-4000-8000-000000000001"[39m
+            [33mclass[39m=[32m"run-thread"[39m
+          [36m>[39m
+            [36m<header>[39m
+              [36m<span>[39m
+                [0mJan 1, 1:00 AM[0m
+              [36m</span>[39m
+              [36m<span>[39m
+                [0mwaiting for tool[0m
+              [36m</span>[39m
+              [36m<button>[39m
+                [0mCancel run[0m
+              [36m</button>[39m
+            [36m</header>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"owner-message"[39m
+            [36m>[39m
+              [0mActual user request[0m
+            [36m</p>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"assistant-turn"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"assistant-message"[39m
+              [36m>[39m
+                [0m&lt;script&gt;remote content&lt;/script&gt;[0m
+              [36m</p>[39m
+              [36m<article[39m
+                [33maria-label[39m=[32m"Task 00000000-0000-4000-8000-000000000002"[39m
+                [33mclass[39m=[32m"task-card"[39m
+                [33mid[39m=[32m"task-00000000-0000-4000-8000-000000000002"[39m
+              [36m>[39m
+                [36m<header>[39m
+                  [36m<strong>[39m
+                    [0mTask activity[0m
+                  [36m</strong>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"state-label"[39m
+                  [36m>[39m
+                    [0mawaiting approval[0m
+                  [36m</span>[39m
+                [36m</header>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"small-copy muted"[39m
+                [36m>[39m
+                  [0m0[0m
+                  [0m operations reported.[0m
+                  [0m [0m
+                [36m</p>[39m
+                [36m<details>[39m
+                  [36m<summary>[39m
+                    [0mExact action and target[0m
+                  [36m</summary>[39m
+                  [36m<pre>[39m
+                    [0mNormalized action[0m
+                  [36m</pre>[39m
+                [36m</details>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"action-row"[39m
+                [36m>[39m
+                  [36m<button>[39m
+                    [0mReview action[0m
+                  [36m</button>[39m
+                  [36m<button>[39m
+                    [0mCancel task[0m
+                  [36m</button>[39m
+                  [36m<button>[39m
+                    [0mRevoke approval[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</article>[39m
+            [36m</div>[39m
+          [36m</section>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"paired-composer-wrap"[39m
+        [36m>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"execution-settings"[39m
+            [33mopen[39m=[32m""[39m
+          [36m>[39m
+            [36m<summary>[39m
+              [0mExecution settings and prerequisites[0m
+            [36m</summary>[39m
+            [36m<p>[39m
+              [0mChoose the guest account and limits deliberately. Every proposed effect still needs exact-action approval.[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"small-copy"[39m
+            [36m>[39m
+              [0mWorker [0m
+              [0m00000000-0000-4000-8000-000000000001[0m
+              [0m. Session [0m
+              [0mdisconnected[0m
+              [0m. Input owner [0m
+              [0mbot[0m
+              [0m.[0m
+            [36m</p>[39m
+            [36m<button>[39m
+              [0mDisable execution permission[0m
+            [36m</button>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"settings-grid"[39m
+            [36m>[39m
+              [36m<label>[39m
+                [0mGuest user identifier[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"2147483647"[39m
+                  [33mmin[39m=[32m"1"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"1000"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mGuest group identifier[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"2147483647"[39m
+                  [33mmin[39m=[32m"1"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"1000"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mDeadline in seconds[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"300"[39m
+                  [33mmin[39m=[32m"10"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"120"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mMaximum model turns[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"8"[39m
+                  [33mmin[39m=[32m"1"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mTotal token budget[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"1000000"[39m
+                  [33mmin[39m=[32m"1"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"200000"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mOutput tokens per turn[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"8192"[39m
+                  [33mmin[39m=[32m"1"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"1024"[39m
+                [36m/>[39m
+              [36m</label>[39m
+              [36m<label>[39m
+                [0mCost limit in US dollars[0m
+                [36m<input[39m
+                  [33mmax[39m=[32m"10"[39m
+                  [33mmin[39m=[32m"0.000001"[39m
+                  [33mrequired[39m=[32m""[39m
+                  [33mstep[39m=[32m"0.000001"[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m"0.2"[39m
+                [36m/>[39m
+              [36m</label>[39m
+            [36m</div>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"checkbox-label"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mchecked[39m=[32m""[39m
+                [33mtype[39m=[32m"checkbox"[39m
+              [36m/>[39m
+              [0mPermit bounded Linux process proposals[0m
+            [36m</label>[39m
+            [36m<label>[39m
+              [0mApproved browser runtime digest[0m
+              [36m<input[39m
+                [33mpattern[39m=[32m"[a-f0-9]{64}"[39m
+                [33mplaceholder[39m=[32m"64-character SHA-256, optional for process-only work"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</label>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"muted small-copy"[39m
+            [36m>[39m
+              [0mBrowser and file tools use the supported Linux Playwright profile, an 800 by 600 viewport, 128 processes, 1 GiB of memory, and the deadline above. Output slots are text for result.txt and image for screenshot.png. Process tools use 8 processes and 64 MiB of memory. Both capture at most 1024 process output bytes. Use your administrator's approved worker account and installed runtime digest.[0m
+            [36m</p>[39m
+          [36m</details>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"composer-blocker"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [0mWait for the worker and computer session to become ready.[0m
+          [36m</p>[39m
+          [36m<form[39m
+            [33maria-label[39m=[32m"Run composer"[39m
+            [33mclass[39m=[32m"composer"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Attachments unavailable"[39m
+              [33mclass[39m=[32m"composer-plus"[39m
+              [33mdisabled[39m=[32m""[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"1.6"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M12 5v14M5 12h14"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+            [36m<textarea[39m
+              [33maria-label[39m=[32m"Message"[39m
+              [33mmaxlength[39m=[32m"4096"[39m
+              [33mplaceholder[39m=[32m"Message Research"[39m
+            [36m>[39m
+              [0mContinue on the replacement worker[0m
+            [36m</textarea>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"primary-button"[39m
+              [33mdisabled[39m=[32m""[39m
+            [36m>[39m
+              [0mSend[0m
+            [36m</button>[39m
+          [36m</form>[39m
+        [36m</div>[39m
+      [36m</main>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ src/paired.test.tsx:132:28
+    130|     expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('…
+    131|     await user.click(screen.getByText('Execution settings and prerequi…
+    132|     const choices = screen.getAllByRole('button', { name: /Use worker/…
+       |                            ^
+    133|     expect(choices).toHaveLength(1);
+    134|     await user.click(choices[0]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  11:52:06
+   Duration  771ms (tests 54%, environment 34%, import 5%, setup 5%, transform 3%)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop
+npm error workspace @botstral/desktop@0.1.0
+npm error location /Users/nallen/.t3/worktrees/Botstral/t3-37e7c86f/desktop
+npm error command failed
+npm error command sh -c vitest run src/paired.test.tsx
