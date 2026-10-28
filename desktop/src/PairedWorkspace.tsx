@@ -324,6 +324,7 @@ function ExecutionSettings({
   change: (value: Settings) => void;
 }) {
   const session = workspace.sessions.find((s) => s.bot_id === bot.id);
+  const worker = workspace.workers.find((w) => w.id === session?.worker_id);
   const permission = workspace.permissions.find((p) => p.bot === bot.id);
   return (
     <details className="execution-settings">
@@ -332,9 +333,13 @@ function ExecutionSettings({
         Choose the guest account and limits deliberately. Every proposed effect still needs
         exact-action approval.
       </p>
-      {!session ? (
+      {!session || worker?.revoked ? (
         <>
-          <p>Connect this bot to an enrolled worker.</p>
+          <p>
+            {worker?.revoked
+              ? 'The assigned worker was revoked. Choose an enrolled replacement.'
+              : 'Connect this bot to an enrolled worker.'}
+          </p>
           {workspace.workers
             .filter((w) => !w.revoked)
             .map((worker) => (
@@ -489,15 +494,17 @@ export function PairedWorkspace({
           ? 'Configure and verify a tool-capable inference model for this bot in trusted manager administration.'
           : !session
             ? 'Choose a worker in execution settings.'
-            : worker?.phase !== 'ready' || session.status !== 'confirmed'
-              ? 'Wait for the worker and computer session to become ready.'
-              : !permission?.allow
-                ? 'Allow reviewed execution in execution settings.'
-                : unknown
-                  ? 'Resolve the saved unknown operation before submitting more work.'
-                  : !settings.process && !/^[a-f0-9]{64}$/.test(settings.runtime)
-                    ? 'Enable bounded process tools or enter the approved browser runtime digest.'
-                    : null;
+            : worker?.revoked
+              ? 'The assigned worker was revoked. Choose a replacement in execution settings.'
+              : worker?.phase !== 'ready' || session.status !== 'confirmed'
+                ? 'Wait for the worker and computer session to become ready.'
+                : !permission?.allow
+                  ? 'Allow reviewed execution in execution settings.'
+                  : unknown
+                    ? 'Resolve the saved unknown operation before submitting more work.'
+                    : !settings.process && !/^[a-f0-9]{64}$/.test(settings.runtime)
+                      ? 'Enable bounded process tools or enter the approved browser runtime digest.'
+                      : null;
   const issue = state.issue ?? snapshot?.issue;
   const runs = workspace?.runs.filter((r) => r.bot === bot?.id) ?? [];
   const linked = new Set(runs.flatMap((r) => r.turns.flatMap((t) => (t.task ? [t.task] : []))));

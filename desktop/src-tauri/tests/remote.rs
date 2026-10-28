@@ -322,6 +322,16 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         })
     })
     .await;
+    let submitted = chat
+        .runs
+        .iter()
+        .find(|r| r.request.prompt == "C02 native chat")
+        .unwrap();
+    assert_eq!(submitted.request.configuration_revision, 2);
+    let projected = serde_json::to_value(service.inspect()).unwrap();
+    let configurations = projected["workspace"]["configurations"].as_array().unwrap();
+    assert_eq!(configurations.len(), 1);
+    assert_eq!(configurations[0]["ready"], true);
     assert!(chat.runs.iter().flat_map(|r| &r.turns).any(|t| matches!(&t.response, Some(RunMessage::Assistant { content, .. }) if content.contains("durable recorded assistant"))));
     service
         .command(IntentCommand::Send(send("Create a file", true)))

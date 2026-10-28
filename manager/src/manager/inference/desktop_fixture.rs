@@ -9,6 +9,8 @@ async fn c02_desktop_fixture() {
     fixture.state.desktop.store(true, Ordering::SeqCst);
     let app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
+    app.configure(1).await;
+    app.verify(2, 200).await;
     let mut worker = SyntheticWorker::start(&app).await;
     app.call(
         "PUT",

@@ -93,6 +93,56 @@ function application(initial = snapshot()) {
   } satisfies PairedApplication;
 }
 describe('paired presentation boundary', () => {
+  it('replaces a revoked session worker and enables sending after recovery', async () => {
+    const replacement = '00000000-0000-4000-8000-000000000003';
+    const value = snapshot();
+    const revoked = remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        workers: [
+          { id, revoked: true, phase: 'disconnected' },
+          { id: replacement, revoked: false, phase: 'ready' },
+        ],
+        sessions: [
+          { id, bot_id: id, worker_id: id, owner: 'bot', revision: 1, status: 'disconnected' },
+        ],
+        permissions: [{ bot: id, revision: 2, allow: true }],
+        configurations: [{ bot: id, model: 'mistral-fixture', ready: true, context_tokens: 4096 }],
+      },
+    });
+    const recovered = remoteSnapshotSchema.parse({
+      ...revoked,
+      revision: 11,
+      workspace: {
+        ...revoked.workspace,
+        sessions: [
+          {
+            id,
+            bot_id: id,
+            worker_id: replacement,
+            owner: 'bot',
+            revision: 2,
+            status: 'confirmed',
+          },
+        ],
+      },
+    });
+    const openSession = vi.fn<PairedApplication['openSession']>().mockResolvedValue(recovered);
+    const controller = new PairedController({ ...application(revoked), openSession });
+    controller.accept(revoked);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText('Message'), 'Continue on the replacement worker');
+    expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(true);
+    await user.click(screen.getByText('Execution settings and prerequisites'));
+    const choices = screen.getAllByRole('button', { name: /Use worker/ });
+    expect(choices).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: /Use worker/ }));
+    expect(openSession).toHaveBeenCalledWith(id, replacement);
+    expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(false);
+    expect(screen.queryByRole('button', { name: /Use worker/ })).toBeNull();
+  });
   it('submits the dollar limit selected by the owner in the protocol currency unit', async () => {
     const value = snapshot();
     const ready = remoteSnapshotSchema.parse({

@@ -262,6 +262,14 @@ fn error_code(error: ClientError) -> String {
     }
     .into()
 }
+fn latest_configuration(workspace: &OwnerWorkspace, bot: BotId) -> Option<&InferenceConfiguration> {
+    workspace
+        .state
+        .inference_configurations
+        .iter()
+        .filter(|configuration| configuration.bot == bot)
+        .max_by_key(|configuration| configuration.revision)
+}
 impl RemoteService {
     pub fn new(root: PathBuf, store: Arc<dyn SecretStore>) -> Self {
         let (view, _) = watch::channel(RemoteSnapshot {
@@ -984,12 +992,8 @@ impl Actor {
                 if !image.vault_unlocked {
                     return Err("vault_locked".into());
                 }
-                let config = image
-                    .state
-                    .inference_configurations
-                    .iter()
-                    .find(|c| c.bot == input.bot)
-                    .ok_or("configure_inference_locally")?;
+                let config =
+                    latest_configuration(&image, input.bot).ok_or("configure_inference_locally")?;
                 if input.account.uid == 0
                     || input.seconds == 0
                     || input.seconds > 300
@@ -1305,9 +1309,9 @@ fn serialize_workspace<S: serde::Serializer>(
             permissions: &w.state.permissions,
             vault_unlocked: w.vault_unlocked,
             configurations: w
-                .state
-                .inference_configurations
+                .bots
                 .iter()
+                .filter_map(|bot| latest_configuration(w, bot.id))
                 .map(|c| ConfigurationView {
                     bot: c.bot,
                     model: &c.policy.model_id,
