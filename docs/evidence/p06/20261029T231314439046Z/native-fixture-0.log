@@ -1,11 +1,11 @@
-Fixture root: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-guziaeqa/manager-a
-Local manager: 127.0.0.1:58549
-Paired WSS route: wss://127.0.0.1:58580/owner/v1/connect
-Manager identity: 9cea068c-680d-47f9-9231-aaac19a6de70
-Manager leaf: c07482f55969cbd844b496bd104f29581bce922e3b411b35d1becd55388f2767
-Trusted export: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-guziaeqa/manager-a/trust.json
+Fixture root: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-4hhg4zon/manager-a
+Local manager: 127.0.0.1:65497
+Paired WSS route: wss://127.0.0.1:65527/owner/v1/connect
+Manager identity: 5f6b4749-c292-426c-9ee9-aee69b6757e7
+Manager leaf: f5cadba16851827c75a45d4aaba1305feb4073f1392f2f0f40eb49b04e6555a2
+Trusted export: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-4hhg4zon/manager-a/trust.json
 Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
 Worker is synthetic. No real process or browser execution is proved.
 Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
-Isolated debug profile: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-guziaeqa/manager-a/desktop-profile
+Isolated debug profile: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-4hhg4zon/manager-a/desktop-profile
 Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.

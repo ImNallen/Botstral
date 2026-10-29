@@ -177,5 +177,15 @@
     "finished": "2026-10-29T23:21:33.182134+00:00",
     "exit_code": 0,
     "log": "repository.log"
+  },
+  {
+    "name": "desktop",
+    "command": [
+      "./scripts/verify-desktop.sh"
+    ],
+    "started": "2026-10-29T23:21:33.182476+00:00",
+    "finished": "2026-10-29T23:24:55.660384+00:00",
+    "exit_code": 0,
+    "log": "desktop.log"
   }
 ]

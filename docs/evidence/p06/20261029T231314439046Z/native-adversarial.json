@@ -23,7 +23,7 @@
       "python3",
       "desktop/fixtures/paired_manager.py",
       "--root",
-      "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-guziaeqa/manager-a",
+      "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-4hhg4zon/manager-a",
       "--duration",
       "120"
     ],
@@ -34,7 +34,7 @@
       "python3",
       "desktop/fixtures/paired_manager.py",
       "--root",
-      "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-guziaeqa/manager-b",
+      "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-4hhg4zon/manager-b",
       "--duration",
       "120"
     ],
