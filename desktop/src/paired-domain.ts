@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { botIdSchema } from './domain';
 import type { RoutineCommand } from '@botstral/link';
+import { managerOutcomeSchema } from './memory-outcomes';
 import {
   budgetSchema,
   inboxSchema,
@@ -44,32 +45,7 @@ const output = z.strictObject({
     }),
   ]),
 });
-export const memoryDocumentSchema = z.strictObject({
-  bot: botIdSchema,
-  kind: z.literal('memory'),
-  revision: integer,
-  sources: z.array(
-    z.discriminatedUnion('type', [
-      z.strictObject({ type: z.literal('task'), id: taskId }),
-      z.strictObject({ type: z.literal('message'), id: messageIdSchema }),
-      z.strictObject({ type: z.literal('external'), reference: z.string() }),
-    ]),
-  ),
-  markdown: z.string(),
-});
-export type MemoryDocument = z.infer<typeof memoryDocumentSchema>;
 const workspace = z.strictObject({
-  documents: z.array(memoryDocumentSchema).default([]),
-  memory_sources: z
-    .array(
-      z.strictObject({
-        id: messageIdSchema,
-        bot: botIdSchema,
-        text: z.string().max(480),
-      }),
-    )
-    .max(256)
-    .default([]),
   routines: z.array(routineViewSchema).default([]),
   routine_occurrences: z.array(occurrenceSchema).default([]),
   inbox: z.array(inboxSchema).default([]),
@@ -119,6 +95,7 @@ const workspace = z.strictObject({
         'ready',
         'calling',
         'waiting_for_tool',
+        'waiting_for_memory',
         'completed',
         'cancelling',
         'cancelled',
@@ -134,6 +111,7 @@ const workspace = z.strictObject({
           text: z.string().nullable(),
           task: taskId.nullable(),
           result: z.string().nullable(),
+          manager_outcome: managerOutcomeSchema.nullable().default(null),
         }),
       ),
     }),
@@ -221,7 +199,7 @@ export type Task = Workspace['tasks'][number];
 export type Device = z.infer<typeof deviceSchema>;
 export type SendInput = {
   bot: Workspace['bots'][number]['id'];
-  session: Workspace['sessions'][number]['id'];
+  session: Workspace['sessions'][number]['id'] | null;
   text: string;
   account: { uid: number; gid: number };
   runtime: string | null;
@@ -233,16 +211,6 @@ export type SendInput = {
   output_tokens: number;
 };
 export interface PairedApplication {
-  createMemory(input: {
-    bot: MemoryDocument['bot'];
-    sourceMessage: z.infer<typeof messageIdSchema>;
-    markdown: string;
-  }): Promise<RemoteSnapshot>;
-  writeMemory(input: {
-    bot: MemoryDocument['bot'];
-    expectedRevision: number;
-    markdown: string;
-  }): Promise<RemoteSnapshot>;
   runDetails(id: Workspace['runs'][number]['id']): Promise<RemoteSnapshot>;
   routineText(bot: SendInput['bot'], text: string): Promise<RemoteSnapshot>;
   routine(input: RoutineCommand): Promise<RemoteSnapshot>;
@@ -283,10 +251,6 @@ export interface PairedApplication {
   issueInvitation(fingerprint: string, label: string): Promise<boolean>;
 }
 export const remoteIssues: Record<string, string> = {
-  memory_absent: 'No saved Memory exists. Select a message to create it.',
-  memory_source_invalid:
-    'The selected message is unavailable for this bot. Review the source before saving.',
-  memory_conflict: 'Memory changed. Review the current version before saving your draft.',
   offline:
     'The paired manager is offline. Cached activity is read-only. Reconnect to recover current state.',
   trust:

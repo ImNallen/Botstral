@@ -67,8 +67,6 @@ function snapshot(status: 'online' | 'offline' = 'online') {
 function application(initial = snapshot()) {
   const result = () => Promise.resolve(initial);
   return {
-    createMemory: result,
-    writeMemory: result,
     runDetails: result,
     routine: result,
     routineText: result,
@@ -142,8 +140,9 @@ describe('paired presentation boundary', () => {
     render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
     const user = userEvent.setup();
     await user.type(screen.getByLabelText('Message'), 'Continue on the replacement worker');
-    expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(true);
     await user.click(screen.getByText('Execution settings and prerequisites'));
+    await user.click(screen.getByLabelText('Permit bounded Linux process proposals'));
+    expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(true);
     const choices = screen.getAllByRole('button', { name: /Use worker/ });
     expect(choices).toHaveLength(1);
     await user.click(screen.getByRole('button', { name: /Use worker/ }));

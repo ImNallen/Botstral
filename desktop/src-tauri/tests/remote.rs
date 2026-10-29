@@ -288,7 +288,7 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
     let public = serde_json::to_string(&online).unwrap();
     assert!(!public.contains(credential.as_str()) && !public.contains(invitation.as_str()));
     let bot: BotId = fixture["bot"].as_str().unwrap().parse().unwrap();
-    let session = fixture["session"].as_str().unwrap().parse().unwrap();
+    let session = Some(fixture["session"].as_str().unwrap().parse().unwrap());
     let send = |text: &str, browser: bool| SendInput {
         bot,
         session,
@@ -550,7 +550,7 @@ async fn a_journal_larger_than_secret_file_limits_restores_without_credentials_o
                 input: Box::new(SubmitRun {
                     id: RunId::new(),
                     bot: BotId::new(),
-                    session: ComputerSessionId::new(),
+                    session: Some(ComputerSessionId::new()),
                     configuration_revision: 1,
                     images: vec![],
                     prompt: "a".repeat(4096),

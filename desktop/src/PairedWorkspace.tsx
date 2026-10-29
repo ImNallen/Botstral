@@ -6,7 +6,7 @@ import { Icon } from './Icon';
 import { formatDate } from './format';
 import type { RunTemplate } from '@botstral/link';
 import { Routines, RoutineInbox } from './Routines';
-import { Memory } from './Memory';
+import { MemoryNotice } from './MemoryNotice';
 
 function WorkspaceDialog({
   label,
@@ -478,7 +478,7 @@ export function PairedWorkspace({
     cost: 200000,
     output: 1024,
     runtime: '',
-    process: true,
+    process: false,
   });
   const [details, setDetails] = useState(false);
   const [hiddenCandidate, setHiddenCandidate] = useState<string | null>(null);
@@ -499,19 +499,21 @@ export function PairedWorkspace({
         ? 'Unlock the manager vault in trusted local administration.'
         : !config?.ready
           ? 'Configure and verify a tool-capable inference model for this bot in trusted manager administration.'
-          : !session
-            ? 'Choose a worker in execution settings.'
-            : worker?.revoked
-              ? 'The assigned worker was revoked. Choose a replacement in execution settings.'
-              : worker?.phase !== 'ready' || session.status !== 'confirmed'
-                ? 'Wait for the worker and computer session to become ready.'
-                : !permission?.allow
-                  ? 'Allow reviewed execution in execution settings.'
-                  : unknown
-                    ? 'Resolve the saved unknown operation before submitting more work.'
-                    : !settings.process && !/^[a-f0-9]{64}$/.test(settings.runtime)
-                      ? 'Enable bounded process tools or enter the approved browser runtime digest.'
-                      : null;
+          : unknown
+            ? 'Resolve the saved unknown operation before submitting more work.'
+            : settings.process || settings.runtime
+              ? !session
+                ? 'Choose a worker in execution settings.'
+                : worker?.revoked
+                  ? 'The assigned worker was revoked. Choose a replacement in execution settings.'
+                  : worker?.phase !== 'ready' || session.status !== 'confirmed'
+                    ? 'Wait for the worker and computer session to become ready.'
+                    : !permission?.allow
+                      ? 'Allow reviewed execution in execution settings.'
+                      : settings.runtime && !/^[a-f0-9]{64}$/.test(settings.runtime)
+                        ? 'Enter the approved browser runtime digest.'
+                        : null
+              : null;
   const blocker = routineCommand
     ? snapshot?.status !== 'online'
       ? 'Reconnect to send owner commands.'
@@ -675,19 +677,6 @@ export function PairedWorkspace({
             <Pairing controller={controller} local={local} onLocal={onLocal} />
           ) : bot ? (
             <>
-              <Memory
-                key={JSON.stringify([
-                  workspace.manager,
-                  workspace.owner,
-                  snapshot.generation,
-                  bot.id,
-                ])}
-                workspace={workspace}
-                bot={bot}
-                snapshot={snapshot}
-                controller={controller}
-                busy={state.busy}
-              />
               <Routines
                 workspace={workspace}
                 bot={bot}
@@ -705,8 +694,8 @@ export function PairedWorkspace({
                   <Avatar seed={bot.id} primary large />
                   <h1>Work with {bot.name}</h1>
                   <p>
-                    Send a request after reviewing execution settings. Proposed actions appear here
-                    for your approval.
+                    Ask a question or manage memories through this conversation. Enable worker tools
+                    in execution settings when needed.
                   </p>
                 </div>
               )}
@@ -756,7 +745,10 @@ export function PairedWorkspace({
                               busy={state.busy || snapshot.status !== 'online'}
                             />
                           ))}
-                      {turn.result && (
+                      {turn.manager_outcome && (
+                        <MemoryNotice outcome={turn.manager_outcome} result={turn.result} />
+                      )}
+                      {turn.result && !turn.manager_outcome && (
                         <details>
                           <summary>Tool result</summary>
                           <pre>{turn.result}</pre>
@@ -839,12 +831,11 @@ export function PairedWorkspace({
                   setText('');
                   return;
                 }
-                if (!session) return;
                 const prompt = text;
                 void controller.run(() =>
                   controller.app.send({
                     bot: bot.id,
-                    session: session.id,
+                    session: settings.process || settings.runtime ? (session?.id ?? null) : null,
                     text: prompt,
                     account: { uid: settings.uid, gid: settings.gid },
                     runtime: settings.runtime || null,

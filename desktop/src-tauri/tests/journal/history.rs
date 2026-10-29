@@ -16,7 +16,7 @@ pub(super) async fn verify() {
     let input = SubmitRun {
         id: RunId::new(),
         bot,
-        session: fixture["session"].as_str().unwrap().parse().unwrap(),
+        session: Some(fixture["session"].as_str().unwrap().parse().unwrap()),
         configuration_revision: configuration.revision,
         prompt: "Recover this exact submitted run after its history is trimmed.".into(),
         images: vec![],
@@ -102,7 +102,7 @@ pub(super) async fn verify() {
             .call(OwnerOperation::SubmitTask {
                 input: SubmitTask {
                     id,
-                    session_id: input.session,
+                    session_id: input.session.unwrap(),
                     conversation_id: None,
                     settings: TaskSettings {
                         model: "native recovery fixture".into(),

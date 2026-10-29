@@ -17,8 +17,6 @@ const unavailable = async (): Promise<never> => {
   throw new Error('This component replay cannot perform external work.');
 };
 const app: PairedApplication = {
-  createMemory: unavailable,
-  writeMemory: unavailable,
   inspect: () => stage('before'),
   observe: async () => () => {},
   beginPairing: unavailable,
