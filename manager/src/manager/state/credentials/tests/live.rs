@@ -36,6 +36,15 @@ fn plan(origin: &str) -> LoginSitePlan {
     }
 }
 fn live(site: LoginSitePlan, purpose: CredentialFields, policy: PasswordPolicy, now: i64) -> Live {
+    live_with_values(site, purpose, policy, now, live_values())
+}
+fn live_with_values(
+    site: LoginSitePlan,
+    purpose: CredentialFields,
+    policy: PasswordPolicy,
+    now: i64,
+    login: LoginValues,
+) -> Live {
     let (root, mut state, input) = inference::tests::fixture();
     state
         .connection
@@ -51,7 +60,7 @@ fn live(site: LoginSitePlan, purpose: CredentialFields, policy: PasswordPolicy, 
                 owner(),
                 RequestId::new(),
                 CredentialWriteTarget::Create { metadata },
-                live_values(),
+                login,
             )
             .unwrap(),
     );

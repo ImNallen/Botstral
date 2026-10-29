@@ -36,6 +36,15 @@ pub(super) fn canonical_origin(value: &str) -> Result<String, OperationError> {
 }
 
 impl State {
+    fn credential_public_context(&mut self) -> Result<serde_json::Value, OperationError> {
+        Ok(serde_json::json!({
+            "scaffold":crate::manager::provider::credential_public_scaffold(),
+            "configurations":self.inference_configurations()?,
+            "memory":self.all_memory_entries()?,
+            "memory_preface":runs::MEMORY_PREFACE,
+            "screenshot_preface":runs::SCREENSHOT_PREFACE,
+        }))
+    }
     fn credential_identity(&self) -> Result<&age::x25519::Identity, OperationError> {
         match &self.installation {
             Installation::Configured {
@@ -233,7 +242,8 @@ impl State {
                 view
             }
         };
-        let public = serde_json::json!({ "item": view, "scaffold": crate::manager::provider::credential_public_scaffold() });
+        let public =
+            serde_json::json!({ "item": view, "context": self.credential_public_context()? });
         for secret in [&values.username, &values.password, &values.totp_seed] {
             if !secret.is_empty() && crate::manager::provider::reflects_secret(&public, secret) {
                 let status = CredentialWriteStatus::Rejected {

@@ -493,3 +493,59 @@ fn remembered_rules_without_provenance_require_approval() {
         .unwrap();
     assert_eq!(f.prepare(None).state, UseState::AwaitingApproval);
 }
+
+#[test]
+fn totp_collision_cannot_poison_existing_public_configuration() {
+    let mut login = live_values();
+    login.totp_seed = "AAAAAAAAAAAAAAAAAAAAAAAAAAAASBSQ".into();
+    let mut f = live_with_values(
+        plan("https://example.test"),
+        CredentialFields::Totp,
+        PasswordPolicy::EveryFill,
+        1000,
+        login,
+    );
+    let bot = f.state.load_task(f.authority.task).unwrap().command.bot;
+    let mut policy = f
+        .state
+        .inference_configuration(owner(), bot)
+        .unwrap()
+        .policy;
+    policy.model_id = "mistral-test-429496".into();
+    f.state
+        .configure_inference(
+            owner(),
+            ConfigureInference {
+                bot,
+                expected_revision: 1,
+                policy,
+            },
+        )
+        .unwrap();
+    assert!(
+        f.state
+            .reject_known_secrets(&f.state.inference_configurations().unwrap())
+            .is_ok()
+    );
+    let review = f.prepare(None);
+    f.state
+        .decide_credential_use(owner(), review.clone(), UseDecision::AllowOnce)
+        .unwrap();
+    let released = f.release(&review).is_ok();
+    let retained: u32 = f
+        .state
+        .connection
+        .query_row("SELECT COUNT(*) FROM credential_codes", [], |r| r.get(0))
+        .unwrap();
+    let configuration_readable = f
+        .state
+        .reject_known_secrets(&f.state.inference_configurations().unwrap())
+        .is_ok();
+    println!(
+        "generated_code_released={released}; retained_codes={retained}; public_configuration_readable={configuration_readable}"
+    );
+    assert!(
+        !released && retained == 0 && configuration_readable,
+        "generated code permanently poisoned the existing public configuration"
+    );
+}

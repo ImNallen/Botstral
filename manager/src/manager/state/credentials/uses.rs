@@ -473,6 +473,10 @@ impl State {
             CredentialFields::Totp => {
                 self.credential_capacity("credential_codes", 512)?;
                 let (code, valid_until) = totp::current(&values.totp_seed, self.now())?;
+                let public = serde_json::json!({"review":review,"context":self.credential_public_context()?});
+                if crate::manager::provider::reflects_secret(&public, &code) {
+                    return Err(OperationError::Conflict);
+                }
                 let until = valid_until.min(review.expires_at);
                 if until - self.now() < 5 {
                     return Err(OperationError::Conflict);

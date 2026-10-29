@@ -24,14 +24,17 @@ fn chat_envelope(
         "tool_choice":if has_tools { "auto" } else { "none" }, "service_tier":"standard_only"
     })
 }
-pub(super) fn credential_public_scaffold() -> serde_json::Value {
-    let mut tools = super::runs::tools::public_scaffold();
-    tools.push(wakeup_definition());
-    let mut with_tools = chat_envelope("", 0, vec![run_system_message()], true);
-    with_tools["tools"] = serde_json::json!(tools);
-    with_tools["parallel_tool_calls"] = false.into();
-    serde_json::json!({"with_tools":with_tools, "without_tools":chat_envelope("", 0, vec![], false),
-        "receipt":schemars::schema_for!(CredentialWriteStatus)})
+pub(super) fn credential_public_scaffold() -> &'static serde_json::Value {
+    static SCAFFOLD: std::sync::OnceLock<serde_json::Value> = std::sync::OnceLock::new();
+    SCAFFOLD.get_or_init(|| {
+        let mut tools = super::runs::tools::public_scaffold();
+        tools.push(wakeup_definition());
+        let mut with_tools = chat_envelope("", 0, vec![run_system_message()], true);
+        with_tools["tools"] = serde_json::json!(tools);
+        with_tools["parallel_tool_calls"] = false.into();
+        let protocol: serde_json::Value = serde_json::from_str(&botstral_link::schema()).expect("generated protocol schema parses");
+        serde_json::json!({"with_tools":with_tools, "without_tools":chat_envelope("", 0, vec![], false), "protocol":protocol})
+    })
 }
 
 pub(super) struct CallPermit {

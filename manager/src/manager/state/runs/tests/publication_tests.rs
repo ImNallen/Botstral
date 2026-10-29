@@ -91,8 +91,25 @@ fn p06_public_collision_intake_is_final_and_preserves_conversation() {
         "standard_only",
         "none",
         "public_value_collision",
+        "mistral",
+        "max_turns",
+        "execution_policy",
+        "configuration_revision",
+        "max_total_tokens",
+        "max_cost_microusd",
+        "verified",
+        "assistant",
+        "earlier-private-login",
+        "current request takes precedence",
     ] {
         let mut f = fixture();
+        if username == "earlier-private-login" {
+            super::memory_tests::remember(
+                &mut f,
+                1,
+                "Earlier public memory contains earlier-private-login.",
+            );
+        }
         let request = RequestId::new();
         let refused = f
             .state
@@ -105,6 +122,12 @@ fn p06_public_collision_intake_is_final_and_preserves_conversation() {
                 private_values(username),
             )
             .unwrap();
+        if matches!(refused, CredentialWriteStatus::Committed { .. }) {
+            assert!(
+                f.state.submit_run(token(), plain_request(&f)).is_ok(),
+                "accepted intake poisoned plain conversation: {username}"
+            );
+        }
         assert_eq!(
             refused,
             CredentialWriteStatus::Rejected {
@@ -139,7 +162,32 @@ fn p06_public_collision_intake_is_final_and_preserves_conversation() {
         assert_eq!(epochs, 0);
         assert!(f.state.login_items(token()).unwrap().is_empty());
         f.state.submit_run(token(), f.input.clone()).unwrap();
-        f.state.submit_run(token(), plain_request(&f)).unwrap();
+        let plain = plain_request(&f);
+        let run = plain.id;
+        f.state.submit_run(token(), plain).unwrap();
+        let permit = claim(&mut f.state);
+        f.state
+            .finish_run_call(
+                permit.run,
+                permit.turn.id,
+                permit.turn.attempt,
+                response(None),
+            )
+            .unwrap();
+        let permit = claim(&mut f.state);
+        f.state
+            .finish_run_call(
+                permit.run,
+                permit.turn.id,
+                permit.turn.attempt,
+                response(None),
+            )
+            .unwrap();
+        assert!(
+            serde_json::to_string(&f.state.load_run(run).unwrap())
+                .unwrap()
+                .contains("Recorded response")
+        );
     }
 }
 
@@ -275,4 +323,121 @@ fn p06_explicit_pre_entry_restore_preserves_a_separate_affected_snapshot() {
         )
         .unwrap();
     assert_eq!(retained, ciphertext);
+}
+
+#[test]
+fn public_request_and_message_tokens_cannot_poison_a_complete_conversation() {
+    fn tokens(value: &serde_json::Value, out: &mut std::collections::BTreeSet<String>) {
+        match value {
+            serde_json::Value::Object(fields) => {
+                for (key, value) in fields {
+                    out.insert(key.clone());
+                    if matches!(
+                        key.as_str(),
+                        "type" | "role" | "state" | "tool_choice" | "service_tier"
+                    ) && let Some(text) = value.as_str()
+                    {
+                        out.insert(text.to_owned());
+                    }
+                    tokens(value, out);
+                }
+            }
+            serde_json::Value::Array(values) => {
+                for value in values {
+                    tokens(value, out);
+                }
+            }
+            _ => {}
+        }
+    }
+    fn complete_plain(f: &mut Fixture) {
+        let request = plain_request(f);
+        let id = request.id;
+        f.state.submit_run(token(), request).unwrap();
+        let permit = claim(&mut f.state);
+        assert_eq!(permit.run, id);
+        f.state
+            .finish_run_call(
+                permit.run,
+                permit.turn.id,
+                permit.turn.attempt,
+                response(None),
+            )
+            .unwrap();
+        assert!(
+            serde_json::to_string(&f.state.load_run(id).unwrap())
+                .unwrap()
+                .contains("Recorded response")
+        );
+    }
+    let mut baseline = fixture();
+    let policy = baseline
+        .state
+        .inference_configuration(token(), baseline.input.bot)
+        .unwrap()
+        .policy;
+    let assistant = RunMessage::Assistant {
+        content: "Recorded response".into(),
+        tool_call: None,
+    };
+    let prepared = crate::manager::provider::PreparedChat::new(
+        &policy,
+        64,
+        std::slice::from_ref(&assistant),
+        Some(&baseline.input.execution_policy),
+    );
+    let mut candidates = std::collections::BTreeSet::new();
+    for value in [
+        serde_json::to_value(&baseline.input).unwrap(),
+        serde_json::to_value(&assistant).unwrap(),
+        prepared.body,
+    ] {
+        tokens(&value, &mut candidates);
+    }
+    complete_plain(&mut baseline);
+    let mut checked = 0;
+    for candidate in candidates
+        .into_iter()
+        .filter(|s| (3..=128).contains(&s.len()) && !s.chars().any(char::is_control))
+    {
+        let mut f = fixture();
+        let status = f
+            .state
+            .write_login(
+                token(),
+                RequestId::new(),
+                CredentialWriteTarget::Create {
+                    metadata: login_metadata(),
+                },
+                private_values(&candidate),
+            )
+            .unwrap();
+        complete_plain(&mut f);
+        if let CredentialWriteStatus::Committed { item, .. } = status {
+            let CredentialWriteStatus::Committed { item, .. } = f
+                .state
+                .write_login(
+                    token(),
+                    RequestId::new(),
+                    CredentialWriteTarget::Rotate {
+                        id: item.id,
+                        expected_revision: item.revision,
+                    },
+                    private_values(&RequestId::new().to_string()),
+                )
+                .unwrap()
+            else {
+                panic!("safe rotation refused")
+            };
+            complete_plain(&mut f);
+            f.state
+                .update_login(token(), item.id, item.revision, None)
+                .unwrap();
+            complete_plain(&mut f);
+        }
+        checked += 1;
+    }
+    println!(
+        "actual_request_and_message_tokens_checked={checked}; complete_conversations_usable=true"
+    );
 }
