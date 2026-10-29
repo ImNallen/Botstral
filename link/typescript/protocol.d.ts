@@ -365,6 +365,10 @@ export type RunPhase =
       type: 'calling';
     }
   | {
+      turn: RunTurnId;
+      type: 'waiting_for_memory';
+    }
+  | {
       task: TaskId;
       turn: RunTurnId;
       type: 'waiting_for_tool';
@@ -401,7 +405,8 @@ export type RunStopReason =
   | 'child_unavailable'
   | 'shutdown'
   | 'restart';
-export type RunAttentionReason = 'provider' | 'worker' | 'result_invalid' | 'restart' | 'shutdown';
+export type RunAttentionReason =
+  'memory_publication' | 'provider' | 'worker' | 'result_invalid' | 'restart' | 'shutdown';
 export type PublisherId = string;
 export type RoutineTrigger =
   | {
@@ -1012,6 +1017,68 @@ export type ConnectorFailure =
   | 'deadline'
   | 'restart'
   | 'interrupted';
+export type ManagerOutcome =
+  | {
+      outcome: MemoryOutcome;
+      type: 'memory';
+    }
+  | {
+      outcome: VaultOutcome;
+      type: 'vault';
+    };
+export type MemoryOutcome =
+  | {
+      entries: MemoryEntry[];
+      scope: MemoryScope;
+      type: 'listed';
+    }
+  | {
+      entry: MemoryEntry;
+      type: 'created';
+    }
+  | {
+      entry: MemoryEntry;
+      type: 'updated';
+    }
+  | {
+      id: MemoryId;
+      revision: number;
+      scope: MemoryScope;
+      type: 'deleted';
+    }
+  | {
+      reason: MemoryRefusal;
+      type: 'refused';
+    };
+export type MemoryId = string;
+export type MemoryScope =
+  | {
+      bot: BotId;
+      type: 'individual';
+    }
+  | {
+      type: 'shared';
+    };
+export type MemorySource =
+  | {
+      bot: BotId;
+      run: RunId;
+      turn: RunTurnId;
+      type: 'run';
+    }
+  | {
+      sources: SourceReference[];
+      type: 'imported';
+    };
+export type MemoryRefusal =
+  'invalid_input' | 'not_found' | 'revision_conflict' | 'capacity' | 'protected_content' | 'needs_attention';
+export type VaultOutcome =
+  | {
+      type: 'provider_key_setup';
+    }
+  | {
+      type: 'reusable_login_unsupported';
+    };
 export type EventReplay =
   | {
       cursor: number;
@@ -1059,7 +1126,40 @@ export type ToolProposal =
   | {
       arguments: RequestWakeup;
       tool: 'request_wakeup';
+    }
+  | {
+      arguments: MemoryProposal;
+      tool: 'memory';
+    }
+  | {
+      arguments: RequestVaultEntry;
+      tool: 'request_vault_entry';
     };
+export type MemoryProposal =
+  | {
+      action: 'list';
+      scope: MemoryScopeSelection;
+    }
+  | {
+      action: 'create';
+      markdown: string;
+      scope: MemoryScopeSelection;
+    }
+  | {
+      action: 'update';
+      expected_revision: number;
+      id: MemoryId;
+      markdown: string;
+      scope: MemoryScopeSelection;
+    }
+  | {
+      action: 'delete';
+      expected_revision: number;
+      id: MemoryId;
+      scope: MemoryScopeSelection;
+    };
+export type MemoryScopeSelection = 'individual' | 'shared';
+export type VaultPurpose = 'provider_key' | 'reusable_login';
 export type RunMessage =
   | {
       content: string;
@@ -1837,7 +1937,7 @@ export interface SubmitRun {
   images?: ImageReference[];
   limits: RunLimits;
   prompt: string;
-  session: ComputerSessionId;
+  session?: ComputerSessionId | null;
 }
 export interface ImageReference {
   artifact: ArtifactId;
@@ -1933,11 +2033,19 @@ export interface WorkspaceRun {
 }
 export interface WorkspaceRunTurn {
   id: RunTurnId;
+  manager_outcome?: ManagerOutcome | null;
   ordinal: number;
   result?: string | null;
   task?: TaskId | null;
   text?: string | null;
   truncated: boolean;
+}
+export interface MemoryEntry {
+  id: MemoryId;
+  markdown: string;
+  revision: number;
+  scope: MemoryScope;
+  source: MemorySource;
 }
 export interface WorkspaceWorker {
   id: WorkerId;
@@ -1961,6 +2069,7 @@ export interface ArchivedRunTurn {
   attempt: RunAttemptId;
   finish_reason?: InferenceFinishReason | null;
   id: RunTurnId;
+  manager_outcome?: ManagerOutcome | null;
   messages_sha256: string;
   ordinal: number;
   phase: RunTurnPhase;
@@ -2017,8 +2126,12 @@ export interface RequestWakeup {
   at: number;
   prompt: string;
 }
+export interface RequestVaultEntry {
+  purpose: VaultPurpose;
+}
 export interface ManagerToolResult {
   call: RunToolCall;
+  outcome?: ManagerOutcome | null;
   result: string;
 }
 export interface AuthorizedImage {

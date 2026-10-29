@@ -195,6 +195,17 @@
         "id": {
           "$ref": "#/$defs/RunTurnId"
         },
+        "manager_outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManagerOutcome"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "messages_sha256": {
           "type": "string"
         },
@@ -3361,11 +3372,60 @@
         }
       ]
     },
+    "ManagerOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "$ref": "#/$defs/MemoryOutcome"
+            },
+            "type": {
+              "type": "string",
+              "const": "memory"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "outcome"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "$ref": "#/$defs/VaultOutcome"
+            },
+            "type": {
+              "type": "string",
+              "const": "vault"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "outcome"
+          ]
+        }
+      ]
+    },
     "ManagerToolResult": {
       "type": "object",
       "properties": {
         "call": {
           "$ref": "#/$defs/RunToolCall"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManagerOutcome"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "result": {
           "type": "string"
@@ -3429,6 +3489,347 @@
         "png",
         "text_plain",
         "octet_stream"
+      ]
+    },
+    "MemoryEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/MemoryId"
+        },
+        "markdown": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "scope": {
+          "$ref": "#/$defs/MemoryScope"
+        },
+        "source": {
+          "$ref": "#/$defs/MemorySource"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scope",
+        "revision",
+        "markdown",
+        "source"
+      ]
+    },
+    "MemoryId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "MemoryOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MemoryEntry"
+              }
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScope"
+            },
+            "type": {
+              "type": "string",
+              "const": "listed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "scope",
+            "entries"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "entry": {
+              "$ref": "#/$defs/MemoryEntry"
+            },
+            "type": {
+              "type": "string",
+              "const": "created"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "entry"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "entry": {
+              "$ref": "#/$defs/MemoryEntry"
+            },
+            "type": {
+              "type": "string",
+              "const": "updated"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "entry"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/MemoryId"
+            },
+            "revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScope"
+            },
+            "type": {
+              "type": "string",
+              "const": "deleted"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "scope",
+            "revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/MemoryRefusal"
+            },
+            "type": {
+              "type": "string",
+              "const": "refused"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "MemoryProposal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "const": "list"
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScopeSelection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "scope"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "const": "create"
+            },
+            "markdown": {
+              "type": "string"
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScopeSelection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "scope",
+            "markdown"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "const": "update"
+            },
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/MemoryId"
+            },
+            "markdown": {
+              "type": "string"
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScopeSelection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "scope",
+            "id",
+            "expected_revision",
+            "markdown"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "const": "delete"
+            },
+            "expected_revision": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0
+            },
+            "id": {
+              "$ref": "#/$defs/MemoryId"
+            },
+            "scope": {
+              "$ref": "#/$defs/MemoryScopeSelection"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "action",
+            "scope",
+            "id",
+            "expected_revision"
+          ]
+        }
+      ]
+    },
+    "MemoryRefusal": {
+      "type": "string",
+      "enum": [
+        "invalid_input",
+        "not_found",
+        "revision_conflict",
+        "capacity",
+        "protected_content",
+        "needs_attention"
+      ]
+    },
+    "MemoryScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "type": {
+              "type": "string",
+              "const": "individual"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "shared"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "MemoryScopeSelection": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "shared"
+      ]
+    },
+    "MemorySource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "run": {
+              "$ref": "#/$defs/RunId"
+            },
+            "turn": {
+              "$ref": "#/$defs/RunTurnId"
+            },
+            "type": {
+              "type": "string",
+              "const": "run"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot",
+            "run",
+            "turn"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/SourceReference"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "imported"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "sources"
+          ]
+        }
       ]
     },
     "MessageId": {
@@ -6196,6 +6597,18 @@
       "type": "string",
       "format": "uuid"
     },
+    "RequestVaultEntry": {
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "$ref": "#/$defs/VaultPurpose"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "purpose"
+      ]
+    },
     "RequestWakeup": {
       "type": "object",
       "properties": {
@@ -6885,6 +7298,7 @@
     "RunAttentionReason": {
       "type": "string",
       "enum": [
+        "memory_publication",
         "provider",
         "worker",
         "result_invalid",
@@ -7121,6 +7535,23 @@
             "type": {
               "type": "string",
               "const": "calling"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "turn"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "turn": {
+              "$ref": "#/$defs/RunTurnId"
+            },
+            "type": {
+              "type": "string",
+              "const": "waiting_for_memory"
             }
           },
           "additionalProperties": false,
@@ -7845,14 +8276,21 @@
           "type": "string"
         },
         "session": {
-          "$ref": "#/$defs/ComputerSessionId"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ComputerSessionId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "additionalProperties": false,
       "required": [
         "id",
         "bot",
-        "session",
         "configuration_revision",
         "prompt",
         "execution_policy",
@@ -8302,12 +8740,83 @@
             "tool",
             "arguments"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/MemoryProposal"
+            },
+            "tool": {
+              "type": "string",
+              "const": "memory"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "$ref": "#/$defs/RequestVaultEntry"
+            },
+            "tool": {
+              "type": "string",
+              "const": "request_vault_entry"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "arguments"
+          ]
         }
       ]
     },
     "TransferId": {
       "type": "string",
       "format": "uuid"
+    },
+    "VaultOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "provider_key_setup"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "reusable_login_unsupported"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "VaultPurpose": {
+      "type": "string",
+      "enum": [
+        "provider_key",
+        "reusable_login"
+      ]
     },
     "VerifyInference": {
       "type": "object",
@@ -9147,6 +9656,17 @@
       "properties": {
         "id": {
           "$ref": "#/$defs/RunTurnId"
+        },
+        "manager_outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ManagerOutcome"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "ordinal": {
           "type": "integer",

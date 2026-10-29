@@ -47,6 +47,7 @@ identifiers!(
     RunId,
     RunTurnId,
     RunAttemptId,
+    MemoryId,
     CodingWorkspaceId
 );
 
@@ -77,6 +78,8 @@ mod routine;
 pub use routine::*;
 mod run;
 pub use run::*;
+mod memory;
+pub use memory::*;
 mod inference;
 pub use inference::*;
 mod artifact;
