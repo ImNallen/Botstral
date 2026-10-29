@@ -224,6 +224,8 @@ These are product outcomes. Split implementation into smaller changes as needed.
 
 Depends on M03 and M04.
 
+Verified sub-outcome: a corrected per-bot Memory document survives manager restart and reaches a new conversation/run through recorded provider input. See [memory snapshot scope and proof](docs/p01-memory.md). This does not complete P01 or verify real-model adherence.
+
 - [ ] Store durable preferences, decisions, task summaries, and source references separately for each bot.
 - [ ] Build local FTS5 search from the Markdown source and verify that deleting and rebuilding the index preserves retrievable memory.
 - [ ] Retrieve relevant memory in later conversations without sending every historical message to the model.

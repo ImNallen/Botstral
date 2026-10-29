@@ -25,6 +25,7 @@ struct Reply {
     gate: Option<Arc<Semaphore>>,
     interrupted: bool,
     chunked: bool,
+    memory_echo: bool,
 }
 impl Default for Reply {
     fn default() -> Self {
@@ -34,6 +35,7 @@ impl Default for Reply {
             gate: None,
             interrupted: false,
             chunked: false,
+            memory_echo: false,
         }
     }
 }
@@ -202,6 +204,15 @@ async fn chat(
                 "This is a durable recorded assistant response from the real manager. No paid inference was used."
             });
         }
+        reply.body = value.to_string();
+    }
+    if reply.memory_echo {
+        let content = body["messages"][0]["content"].as_str().unwrap();
+        let (_, serialized) = content.split_once('\n').unwrap();
+        let document: Document = serde_json::from_str(serialized).unwrap();
+        let mut value: Value = serde_json::from_str(COMPLETION).unwrap();
+        value["choices"][0]["message"]["content"] =
+            json!(format!("Observed saved preference: {}", document.markdown));
         reply.body = value.to_string();
     }
     if let Some(config) = state.production.lock().unwrap().as_ref() {
