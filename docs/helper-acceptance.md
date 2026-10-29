@@ -2,6 +2,14 @@
 
 Helper acceptance remains unverified. Run this focused supplement before the final paid campaign. Keep the existing eight-check evidence unchanged.
 
+## Recorded verification
+
+The October 29 recorded run passed with a production worker coding lease, the installed Vibe compactor, a saved matching summary, settled accounting, all six refusal controls, and clean shutdown. Its [preserved proof](evidence/helper-acceptance/recorded.json) is labeled recorded. It cannot close live acceptance. No live inference or provider-key retrieval occurred.
+
+The [initial independent review](evidence/helper-acceptance/initial-review.md) reproduced two false-positive verdicts. The corrected verifier binds transport claims to the running manager executable and joins aggregate configuration to durable helper configuration. Both [regressions fail before correction](evidence/helper-acceptance/regressions-before.log). All 17 [acceptance regressions pass afterward](evidence/helper-acceptance/regressions-after.log). The [independent code recheck](evidence/helper-acceptance/code-review.md) approved the correction. Relabeling the real recorded report is [refused](evidence/helper-acceptance/recorded-relabel-refusal.json).
+
+The private provider-key entry timed out. The live helper run and aggregate verdict remain open. P01 has not started. [Artifact hashes](evidence/helper-acceptance/manifest.json) preserve the recorded proof and reviews.
+
 ## Prepare a current build
 
 Use the two SSH aliases, systemd user managers, installed Vibe 2.24.2, and browser runtime required by [first acceptance](first-acceptance.md). Freeze the checkout before deployment. The driver checks every source digest in `source-files.json` before it uses the build.
