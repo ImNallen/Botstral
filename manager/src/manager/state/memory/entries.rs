@@ -74,7 +74,7 @@ pub(super) fn legacy_id(bot: BotId) -> MemoryId {
     let hash = Sha256::digest(format!("botstral-legacy-memory-v1:{bot}"));
     let mut bytes = [0; 16];
     bytes.copy_from_slice(&hash[..16]);
-    MemoryId(Uuid::from_bytes(bytes))
+    MemoryId(uuid::Builder::from_custom_bytes(bytes).into_uuid())
 }
 
 fn validate_entry(entry: &MemoryEntry) -> Result<(), OperationError> {
