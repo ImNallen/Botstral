@@ -1,0 +1,124 @@
+{
+  "scope": "Inspect, correct, and clear the selected bot current saved Memory. Existing documents only. No historical deletion or full P01 completion.",
+  "checkout": "/Users/nallen/.t3/worktrees/Botstral/t3-d07e324e",
+  "branch": "t3/desktop-memory-controls",
+  "checks": [
+    {
+      "command": "npm run format:check",
+      "result": "passed",
+      "evidence": "frontend-format.log",
+      "detail": "All matched source files pass."
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "evidence": "frontend-check.log",
+      "detail": "Generated bindings and both TypeScript workspaces pass."
+    },
+    {
+      "command": "npm test",
+      "result": "passed",
+      "evidence": "frontend-tests.log",
+      "detail": "42 passed, one expected external-fixture skip. Includes 14 Memory behavior tests and the narrow native invocation test."
+    },
+    {
+      "command": "npm run build",
+      "result": "passed",
+      "evidence": "frontend-build.log",
+      "detail": "Production frontend build passes."
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked",
+      "result": "passed",
+      "evidence": "native-tests.log",
+      "detail": "14 passed. Nine actual-manager journal cases run separately. The existing local actual-manager and OS-keychain contracts remain ignored in this invocation."
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked --lib",
+      "result": "passed",
+      "evidence": "native-ui-tests.log",
+      "detail": "Four passed, including Tauri caller authorization and exact Memory acknowledgement checks."
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-journal",
+      "result": "passed",
+      "evidence": "native-journals.log",
+      "detail": "All nine discovered actual-manager journal cases passed in separate fixtures."
+    },
+    {
+      "command": "BOTSTRAL_MEMORY_VIEWS=\"$PWD/docs/evidence/p01-desktop-memory/native-controls.json\" python3 desktop/fixtures/paired_manager.py --verify-journal --journal-case p01_memory_controls_and_crash_journal_recovery",
+      "result": "passed",
+      "evidence": "native-memory.log",
+      "detail": "Final capture also checks direct manager stale CAS rejection, UTF-8 native refusal, edit persistence on service reopen, and clear persistence on service reopen."
+    },
+    {
+      "command": "cargo test -p botstral-manager --locked --lib p01_",
+      "result": "passed",
+      "evidence": "manager-p01.log",
+      "detail": "15 passed. The provider test proves corrected context, cleared context, manager restarts, and unchanged historical runs."
+    },
+    {
+      "command": "npm exec tsc -- --noEmit -p desktop/fixtures/tsconfig.p01-memory.json",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Memory proof fixture type-checks."
+    },
+    {
+      "command": "npm exec tsc -- --noEmit -p desktop/fixtures/tsconfig.p03.json",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Existing routine proof fixture type-checks."
+    },
+    {
+      "command": "npm exec tsc -- --noEmit -p desktop/fixtures/tsconfig.m06.json",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Existing approval proof fixture type-checks."
+    },
+    {
+      "command": "cargo check --manifest-path desktop/src-tauri/Cargo.toml --locked",
+      "result": "passed",
+      "evidence": null,
+      "detail": "The full native UI and write_memory command compile."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Manager test formatting passes."
+    },
+    {
+      "command": "cargo fmt --manifest-path desktop/src-tauri/Cargo.toml -- --check",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Native formatting passes."
+    },
+    {
+      "command": "npm exec prettier -- --check desktop/fixtures/p01-memory-proof.tsx desktop/fixtures/p01-memory-proof.mjs desktop/fixtures/p01-memory-proof.html desktop/fixtures/tsconfig.p01-memory.json",
+      "result": "passed",
+      "evidence": null,
+      "detail": "Proof files pass formatting."
+    },
+    {
+      "command": "node desktop/fixtures/p01-memory-proof.mjs /absolute/path/to/playwright/index.mjs",
+      "result": "passed",
+      "evidence": "component-proof.json",
+      "detail": "Chromium drives the real components with captured native responses. No page errors. Inspected before, after, and conflict images."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "evidence": null,
+      "detail": "No whitespace errors."
+    }
+  ],
+  "deviations": [],
+  "limits": [
+    "The video is labeled snapshot replay, not live manager control from a packaged Tauri window.",
+    "Native restart means RemoteService shutdown and reopen against its durable profile. The manager test stops and restarts the manager.",
+    "The native Memory tests use an in-memory SecretStore. No OS-keychain acceptance or packaged GUI execution is claimed.",
+    "No paid or real external inference. The provider and worker are local fixtures.",
+    "Independent review and integration belong to root."
+  ],
+  "log_policy": "Retained test output omits build progress and disposable fixture connection instructions."
+}

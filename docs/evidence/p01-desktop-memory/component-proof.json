@@ -1,0 +1,23 @@
+{
+  "browser": "156.0.8078.4",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "source": "Real PairedWorkspace and Memory components consuming snapshots captured from the actual-manager native journal test.",
+  "normalization": "Renderer generation and revision counters are normalized across native service restarts. Durable documents remain unchanged.",
+  "limitations": "Snapshot replay proves UI behavior. The native journal test proves manager writes and recovery. The competing-current snapshot is injected by Refresh. No external inference or execution occurs in this video.",
+  "actions": [
+    "inspect and provenance",
+    "multiline edit",
+    "explicit save",
+    "prepare blank draft",
+    "explicit clear save",
+    "preserve draft on conflicting refresh",
+    "explicit review against current",
+    "deliberate save"
+  ],
+  "errors": [],
+  "video": "docs/evidence/p01-desktop-memory/memory-controls.webm",
+  "sha256": "94030a4a1ab9e08339991628ddf4b617a65b2680b20fc1f44b179a9d0b41b4d2"
+}

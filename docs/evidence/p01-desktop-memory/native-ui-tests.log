@@ -1,0 +1,9 @@
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-6170b3dc4bd11490)
+
+running 4 tests
+test shell::tests::rejected_callers_receive_no_application_data ... ok
+test remote::memory_tests::memory_acknowledgement_requires_the_exact_document ... ok
+test shell::tests::native_page_policy_rejects_remote_and_nested_content ... ok
+test remote::memory_tests::journal_accepts_only_memory_document_writes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
