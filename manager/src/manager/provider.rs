@@ -13,8 +13,25 @@ fn run_system_message() -> serde_json::Value {
 fn wakeup_definition() -> serde_json::Value {
     serde_json::json!({"type":"function","function":{"name":"request_wakeup","description":"Request one future wakeup within the explicit owner grant. Owner budgets, horizon, spacing, and cumulative limits remain enforced. This cannot edit routines or approve effects.","parameters":schemars::schema_for!(RequestWakeup)}})
 }
+fn chat_envelope(
+    model: &str,
+    max_tokens: u32,
+    messages: Vec<serde_json::Value>,
+    has_tools: bool,
+) -> serde_json::Value {
+    serde_json::json!({
+        "model":model, "messages":messages, "max_tokens":max_tokens, "n":1, "stream":false,
+        "tool_choice":if has_tools { "auto" } else { "none" }, "service_tier":"standard_only"
+    })
+}
 pub(super) fn credential_public_scaffold() -> serde_json::Value {
-    serde_json::json!({"messages":[run_system_message()], "tools": super::runs::tools::public_scaffold(), "wakeup": wakeup_definition()})
+    let mut tools = super::runs::tools::public_scaffold();
+    tools.push(wakeup_definition());
+    let mut with_tools = chat_envelope("", 0, vec![run_system_message()], true);
+    with_tools["tools"] = serde_json::json!(tools);
+    with_tools["parallel_tool_calls"] = false.into();
+    serde_json::json!({"with_tools":with_tools, "without_tools":chat_envelope("", 0, vec![], false),
+        "receipt":schemars::schema_for!(CredentialWriteStatus)})
 }
 
 pub(super) struct CallPermit {
@@ -404,12 +421,7 @@ impl PreparedChat {
         if tools.is_some() {
             messages.insert(0, run_system_message());
         }
-        let mut body = serde_json::json!({
-            "model":policy.model_id, "messages":messages,
-            "max_tokens":max_output_tokens, "n":1, "stream":false,
-            "tool_choice": if has_tools { "auto" } else { "none" },
-            "service_tier":"standard_only"
-        });
+        let mut body = chat_envelope(&policy.model_id, max_output_tokens, messages, has_tools);
         if let Some(definitions) = definitions {
             body["tools"] = serde_json::json!(definitions);
             body["parallel_tool_calls"] = false.into();

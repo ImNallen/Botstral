@@ -83,7 +83,15 @@ fn plain_request(f: &Fixture) -> SubmitRun {
 
 #[test]
 fn p06_public_collision_intake_is_final_and_preserves_conversation() {
-    for username in ["admin", "owner", "memory", "object"] {
+    for username in [
+        "admin",
+        "owner",
+        "memory",
+        "object",
+        "standard_only",
+        "none",
+        "public_value_collision",
+    ] {
         let mut f = fixture();
         let request = RequestId::new();
         let refused = f
@@ -146,7 +154,11 @@ fn p06_public_collision_rotation_preserves_item_and_conversation() {
             CredentialWriteTarget::Create {
                 metadata: login_metadata(),
             },
-            private_values(&RequestId::new().to_string()),
+            botstral_link::protected::LoginValues {
+                username: "synthetic-native-linux-private-user".into(),
+                password: "synthetic-native-linux-private-password".into(),
+                totp_seed: "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP".into(),
+            },
         )
         .unwrap()
     else {
@@ -187,7 +199,7 @@ fn p06_public_collision_rotation_preserves_item_and_conversation() {
 }
 
 #[test]
-fn p06_explicit_pre_entry_snapshot_restore_repairs_legacy_collision_without_discarding_history() {
+fn p06_explicit_pre_entry_restore_preserves_a_separate_affected_snapshot() {
     let mut f = fixture();
     let snapshot = f._root.path().join("before-entry.sqlite3");
     f.state
@@ -245,8 +257,22 @@ fn p06_explicit_pre_entry_snapshot_restore_repairs_legacy_collision_without_disc
         f.state.submit_run(token(), plain_request(&f)),
         Err(OperationError::InvalidInput)
     );
+    let affected = f._root.path().join("affected-store.sqlite3");
+    f.state
+        .connection
+        .execute("VACUUM INTO ?1", [affected.to_str().unwrap()])
+        .unwrap();
     f.state.connection = Connection::open(&snapshot).unwrap();
     migrate(&mut f.state.connection).unwrap();
     f.state.submit_run(token(), plain_request(&f)).unwrap();
     assert!(f.state.login_items(token()).unwrap().is_empty());
+    let preserved = Connection::open(affected).unwrap();
+    let retained: Vec<u8> = preserved
+        .query_row(
+            "SELECT ciphertext FROM credential_epochs WHERE item=?1",
+            [item.id.to_string()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(retained, ciphertext);
 }
