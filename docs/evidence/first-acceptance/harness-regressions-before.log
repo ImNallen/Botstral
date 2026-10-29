@@ -1,0 +1,57 @@
+test_budget_evidence_remains_immutable_after_report_update (test_first_acceptance.AcceptanceCleanupTests) ... ERROR
+test_missing_comparison_key_does_not_claim_a_secret_scan (test_first_acceptance.AcceptanceCleanupTests) ... ERROR
+test_native_timeout_preserves_remote_shutdown_key_deletion_and_report (test_first_acceptance.AcceptanceCleanupTests) ... ERROR
+
+======================================================================
+ERROR: test_budget_evidence_remains_immutable_after_report_update (test_first_acceptance.AcceptanceCleanupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/manager/tests/test_first_acceptance.py", line 69, in test_budget_evidence_remains_immutable_after_report_update
+    snapshot = (acceptance.output / 'budget-evidence.json').read_bytes()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/tmp6s5fls03/budget-evidence.json'
+
+======================================================================
+ERROR: test_missing_comparison_key_does_not_claim_a_secret_scan (test_first_acceptance.AcceptanceCleanupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/manager/tests/test_first_acceptance.py", line 59, in test_missing_comparison_key_does_not_claim_a_secret_scan
+    self.assertEqual(result['verdict'], 'NOT SCANNED')
+KeyError: 'verdict'
+
+======================================================================
+ERROR: test_native_timeout_preserves_remote_shutdown_key_deletion_and_report (test_first_acceptance.AcceptanceCleanupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "before_fix_acceptance", line 898, in cleanup
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1152, in _execute_mock_call
+    raise effect
+RuntimeError: stalled native driver
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/manager/tests/test_first_acceptance.py", line 48, in test_native_timeout_preserves_remote_shutdown_key_deletion_and_report
+    acceptance.cleanup()
+  File "before_fix_acceptance", line 902, in cleanup
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1093, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1097, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/mock.py", line 1152, in _execute_mock_call
+    raise effect
+subprocess.TimeoutExpired: Command 'driver' timed out after 15 seconds
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+FAILED (errors=3)

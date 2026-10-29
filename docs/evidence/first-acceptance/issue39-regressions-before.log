@@ -1,0 +1,383 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling libc v0.2.191
+   Compiling cfg-if v1.0.5
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling subtle v2.6.1
+   Compiling memchr v2.8.3
+   Compiling stable_deref_trait v1.2.1
+   Compiling pin-project-lite v0.2.17
+   Compiling serde_core v1.0.229
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.34
+   Compiling smallvec v1.16.4
+   Compiling once_cell v1.21.4
+   Compiling serde v1.0.229
+   Compiling log v0.4.34
+   Compiling bytes v1.12.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling futures-sink v0.3.34
+   Compiling zerocopy v0.8.63
+   Compiling shlex v2.0.1
+   Compiling futures-channel v0.3.34
+   Compiling thiserror v2.0.21
+   Compiling generic-array v0.14.7
+   Compiling futures-task v0.3.34
+   Compiling cc v1.10.0
+   Compiling autocfg v1.5.1
+   Compiling futures-io v0.3.34
+   Compiling slab v0.4.12
+   Compiling http v1.5.0
+   Compiling getrandom v0.3.4
+   Compiling rustc-hash v2.1.3
+   Compiling hybrid-array v0.4.15
+   Compiling parking_lot_core v0.9.12
+   Compiling num-traits v0.2.19
+   Compiling zmij v1.0.23
+   Compiling type-map v0.5.1
+   Compiling percent-encoding v2.3.2
+   Compiling serde_json v1.0.154
+   Compiling httparse v1.10.1
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling unicase v2.10.0
+   Compiling syn v3.0.9
+   Compiling syn v2.0.119
+   Compiling writeable v0.6.4
+   Compiling scopeguard v1.2.0
+   Compiling litemap v0.8.3
+   Compiling mime v0.3.17
+   Compiling const-oid v0.10.2
+   Compiling lock_api v0.4.14
+   Compiling mime_guess v2.0.5
+   Compiling http-body v1.1.0
+   Compiling tracing-core v0.1.36
+   Compiling opaque-debug v0.3.1
+   Compiling ref-cast v1.0.27
+   Compiling thiserror v1.0.69
+   Compiling same-file v1.0.6
+   Compiling icu_properties_data v2.4.0
+   Compiling digest v0.11.3
+   Compiling utf8_iter v1.0.4
+   Compiling getrandom v0.2.17
+   Compiling cpufeatures v0.2.17
+   Compiling errno v0.3.14
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.4
+   Compiling ring v0.17.14
+   Compiling rand_core v0.6.4
+   Compiling signal-hook-registry v1.4.8
+   Compiling cpufeatures v0.3.1
+   Compiling bitflags v2.13.2
+   Compiling self_cell v1.3.0
+   Compiling icu_normalizer_data v2.4.0
+   Compiling untrusted v0.9.0
+   Compiling const-oid v0.9.6
+   Compiling ff v0.13.1
+   Compiling sha2 v0.11.1
+   Compiling tracing v0.1.44
+   Compiling walkdir v2.5.0
+   Compiling num-integer v0.1.47
+   Compiling rustversion v1.0.23
+   Compiling rustls v0.23.46
+   Compiling base16ct v0.2.0
+   Compiling tower-service v0.3.3
+   Compiling getrandom v0.4.3
+   Compiling group v0.13.0
+   Compiling foldhash v0.2.0
+   Compiling try-lock v0.2.5
+   Compiling semver v1.0.28
+   Compiling rust-embed-utils v8.13.0
+   Compiling core-foundation-sys v0.8.7
+   Compiling want v0.3.2
+   Compiling num-bigint v0.4.8
+   Compiling rand_core v0.9.5
+   Compiling rustc_version v0.4.1
+   Compiling form_urlencoded v1.2.2
+   Compiling ahash v0.8.12
+   Compiling sync_wrapper v1.0.2
+   Compiling tower-layer v0.3.3
+   Compiling regex-syntax v0.8.11
+   Compiling atomic-waker v1.1.2
+   Compiling httpdate v1.0.3
+   Compiling simd-adler32 v0.3.10
+   Compiling parking_lot v0.12.5
+   Compiling security-framework-sys v2.17.0
+   Compiling core-foundation v0.10.1
+   Compiling curve25519-dalek v4.1.3
+   Compiling num-iter v0.1.46
+   Compiling num-complex v0.4.6
+   Compiling aho-corasick v1.1.5
+   Compiling crc32fast v1.5.3
+   Compiling ipnet v2.12.2
+   Compiling base64 v0.23.1
+   Compiling vcpkg v0.2.15
+   Compiling adler2 v2.0.1
+   Compiling data-encoding v2.11.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling arc-swap v1.9.3
+   Compiling num-rational v0.4.2
+   Compiling base64 v0.22.1
+   Compiling pkg-config v0.3.34
+   Compiling rand_chacha v0.3.1
+   Compiling rand_chacha v0.9.0
+   Compiling synstructure v0.14.0
+   Compiling serde_derive_internals v0.30.0
+   Compiling rand v0.9.5
+   Compiling num v0.4.3
+   Compiling rand v0.8.8
+   Compiling libsqlite3-sys v0.36.0
+   Compiling security-framework v3.7.0
+   Compiling uuid v1.29.0
+   Compiling keccak v0.1.6
+   Compiling regex-automata v0.4.18
+   Compiling http-body-util v0.1.5
+   Compiling proc-macro-error-attr3 v3.1.1
+   Compiling heck v0.5.0
+   Compiling borrow-or-share v0.2.4
+   Compiling allocator-api2 v0.2.21
+   Compiling siphasher v1.0.4
+   Compiling rustix v1.1.5
+   Compiling dyn-clone v1.0.20
+   Compiling equivalent v1.0.3
+   Compiling utf-8 v0.7.6
+   Compiling bit-vec v0.8.0
+   Compiling unicode-general-category v1.1.0
+   Compiling ryu v1.0.23
+   Compiling jsonschema-value v0.58.6
+   Compiling proc-macro-error3 v3.1.1
+   Compiling hashbrown v0.17.1
+   Compiling phf_shared v0.12.1
+   Compiling bit-set v0.8.0
+   Compiling fraction v0.17.0
+   Compiling miniz_oxide v0.9.1
+   Compiling hashbrown v0.16.1
+   Compiling hybrid-array v0.2.3
+   Compiling nom v8.0.0
+   Compiling outref v0.5.2
+   Compiling bytecount v0.6.9
+   Compiling chrono-tz v0.10.4
+   Compiling bech32 v0.11.1
+   Compiling base64ct v1.8.3
+   Compiling io_tee v0.1.1
+   Compiling zeroize_derive v1.5.0
+   Compiling displaydoc v0.2.7
+   Compiling serde_derive v1.0.229
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+   Compiling zerovec-derive v0.11.7
+   Compiling futures-macro v0.3.34
+   Compiling thiserror-impl v2.0.21
+   Compiling tokio-macros v2.7.2
+   Compiling ref-cast-impl v1.0.27
+   Compiling thiserror-impl v1.0.69
+   Compiling zeroize v1.9.1
+   Compiling tinystr v0.8.5
+   Compiling rust-embed-impl v8.13.0
+   Compiling futures-util v0.3.34
+   Compiling tokio v1.54.1
+   Compiling rustls-pki-types v1.15.1
+   Compiling der v0.7.10
+   Compiling schemars_derive v1.2.3
+   Compiling zerofrom v0.1.8
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling inout v0.1.4
+   Compiling universal-hash v0.5.1
+   Compiling digest v0.10.7
+   Compiling cipher v0.4.4
+   Compiling sec1 v0.7.3
+   Compiling hmac v0.12.1
+   Compiling yoke v0.8.4
+   Compiling sha2 v0.10.9
+   Compiling hkdf v0.12.4
+   Compiling crypto-bigint v0.5.5
+   Compiling fluent-syntax v0.12.0
+   Compiling rustls-webpki v0.103.16
+   Compiling polyval v0.6.2
+   Compiling aead v0.5.2
+   Compiling chacha20 v0.9.1
+   Compiling ghash v0.5.1
+   Compiling aes v0.8.4
+   Compiling ctr v0.9.2
+   Compiling poly1305 v0.8.0
+   Compiling rust-embed v8.13.0
+   Compiling sha1 v0.10.7
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling chacha20poly1305 v0.10.1
+   Compiling aes-gcm v0.10.3
+   Compiling tungstenite v0.28.0
+   Compiling pbkdf2 v0.12.2
+   Compiling salsa20 v0.10.2
+   Compiling sha3 v0.10.9
+   Compiling rustls-pemfile v2.2.0
+   Compiling webpki-roots v1.0.11
+   Compiling rustls-native-certs v0.8.5
+   Compiling kem v0.3.0-pre.0
+   Compiling pin-project-internal v1.1.13
+   Compiling strum_macros v0.28.0
+   Compiling elliptic-curve v0.13.8
+   Compiling num-cmp v0.1.0
+   Compiling primeorder v0.13.6
+   Compiling micromap v0.3.0
+   Compiling strsim v0.11.1
+   Compiling vsimd v0.8.0
+   Compiling ml-kem v0.2.3
+   Compiling p256 v0.13.2
+   Compiling scrypt v0.11.0
+   Compiling futures-executor v0.3.34
+   Compiling potential_utf v0.1.6
+   Compiling hpke v0.12.0
+   Compiling uuid-simd v0.8.0
+   Compiling futures v0.3.34
+   Compiling unic-langid-impl v0.9.6
+   Compiling icu_locale_core v2.4.0
+   Compiling icu_collections v2.4.0
+   Compiling basic-toml v0.1.10
+   Compiling toml v0.5.11
+   Compiling serde_urlencoded v0.7.1
+   Compiling schemars v1.2.3
+   Compiling unic-langid v0.9.6
+   Compiling fluent-uri v0.4.1
+   Compiling fluent-langneg v0.13.1
+   Compiling intl-memoizer v0.5.3
+   Compiling intl_pluralrules v7.0.2
+   Compiling secrecy v0.10.3
+   Compiling cookie-factory v0.3.3
+   Compiling i18n-config v0.4.8
+   Compiling pin-project v1.1.13
+   Compiling email_address v0.2.9
+   Compiling x25519-dalek v2.0.1
+   Compiling fluent-bundle v0.16.0
+   Compiling find-crate v0.6.3
+   Compiling age-core v0.12.0
+   Compiling icu_provider v2.4.0
+   Compiling referencing v0.58.6
+   Compiling blake2 v0.10.6
+   Compiling strum v0.28.0
+   Compiling fancy-regex v0.19.2
+   Compiling regex v1.13.1
+   Compiling fluent v0.17.0
+   Compiling icu_properties v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling hyper v1.12.0
+   Compiling tower v0.5.3
+   Compiling i18n-embed-impl v0.8.4
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tokio-util v0.7.20
+   Compiling password-hash v0.5.0
+   Compiling hashlink v0.11.1
+   Compiling i18n-embed v0.16.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/link)
+   Compiling flate2 v1.1.10
+   Compiling phf v0.12.1
+   Compiling axum-core v0.5.6
+   Compiling jsonschema-regex v0.58.6
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling idna_adapter v1.2.2
+   Compiling hyper-util v0.1.21
+   Compiling idna v1.1.0
+   Compiling serde_path_to_error v0.1.20
+   Compiling chrono v0.4.45
+   Compiling lazy_static v1.5.1
+   Compiling bitflags v1.3.2
+   Compiling url v2.5.8
+   Compiling fallible-iterator v0.3.0
+   Compiling matchit v0.8.4
+   Compiling fastrand v2.5.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling i18n-embed-fl v0.10.1
+   Compiling rusqlite v0.38.0
+   Compiling tempfile v3.27.0
+   Compiling png v0.17.16
+   Compiling jsonschema v0.58.4
+   Compiling tower-http v0.6.11
+   Compiling argon2 v0.5.3
+   Compiling hyper-rustls v0.27.10
+   Compiling axum v0.8.9
+   Compiling reqwest v0.12.28
+   Compiling age v0.12.1
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-40082a14/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.90s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 32 tests
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+test manager::state::connectors::tests::discovery_arguments_and_schema_are_bounded_and_denials_are_audited ... ok
+test manager::state::connectors::tests::authentication_failure_hides_tools_and_large_secret_entry_is_atomic ... ok
+test manager::state::connectors::tests::credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes ... ok
+test manager::state::connectors::tests::local_permit_is_one_shot_including_lost_reply_and_duplicate_settlement ... ok
+
+thread 'manager::state::connectors::tests::cancel_stopped_unknown_is_idempotent' (619092763) panicked at manager/src/manager/state/connectors/tests.rs:1089:57:
+called `Result::unwrap()` on an `Err` value: Internal
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'manager::state::connectors::tests::journal_replacement_preserves_stopped_proof' (619092769) panicked at manager/src/manager/state/connectors/tests.rs:1077:5:
+assertion `left == right` failed
+  left: Some(Uncertain { reason: "journal_replaced" })
+ right: Some(Stopped { applied: 0, evidence: SystemdScopeEmpty { scope: ProcessScope { journal: JournalId(eeb213ff-2ce7-42a3-9d5c-53623f871e4f), execution: ExecutionId(efe2e200-52be-4842-88c3-959693f7db6a), host: CertificateFingerprint("0532f862c711691054c7de10ce217cccd130ba196704e4a0c06c65ef01fd4ab8"), boot: "c265de7c-2dd1-4483-9fdb-a8a56e6a92b3", invocation: "11111111111111111111111111111111", unit: "botstral-eeb213ff-2ce7-42a3-9d5c-53623f871e4f-efe2e200-52be-4842-88c3-959693f7db6a.service", cgroup: "/fixture/botstral-eeb213ff-2ce7-42a3-9d5c-53623f871e4f-efe2e200-52be-4842-88c3-959693f7db6a.service" } } })
+test manager::state::connectors::tests::restart_retains_possible_effects_and_late_results_do_not_reopen_authority ... ok
+test manager::state::connectors::tests::possible_marker_and_audit_commit_atomically_before_any_permit ... ok
+
+thread 'manager::state::connectors::tests::missing_inventory_preserves_stopped_proof' (619092771) panicked at manager/src/manager/state/connectors/tests.rs:1084:5:
+assertion `left == right` failed
+  left: Some(Uncertain { reason: "execution_missing_from_journal" })
+ right: Some(Stopped { applied: 0, evidence: SystemdScopeEmpty { scope: ProcessScope { journal: JournalId(5523dfd9-afa3-48e4-97e6-7145e55f0df7), execution: ExecutionId(3a768cc5-eb9c-495f-9e90-e097cc2bb410), host: CertificateFingerprint("0532f862c711691054c7de10ce217cccd130ba196704e4a0c06c65ef01fd4ab8"), boot: "b236c987-28d1-4b6c-a3a8-d1ee22eb784c", invocation: "11111111111111111111111111111111", unit: "botstral-5523dfd9-afa3-48e4-97e6-7145e55f0df7-3a768cc5-eb9c-495f-9e90-e097cc2bb410.service", cgroup: "/fixture/botstral-5523dfd9-afa3-48e4-97e6-7145e55f0df7-3a768cc5-eb9c-495f-9e90-e097cc2bb410.service" } } })
+
+thread 'manager::state::connectors::tests::permission_revocation_preserves_stopped_unknown_attention' (619092773) panicked at manager/src/manager/state/connectors/tests.rs:1116:5:
+assertion `left == right` failed
+  left: Cancelling
+ right: AwaitingAttention
+test manager::state::connectors::tests::in_flight_revoke_keeps_unknown_and_audits_late_evidence ... ok
+test manager::state::connectors::tests::cancel_stopped_unknown_is_idempotent ... FAILED
+test manager::state::connectors::tests::journal_replacement_preserves_stopped_proof ... FAILED
+test manager::state::connectors::tests::missing_inventory_preserves_stopped_proof ... FAILED
+test manager::state::connectors::tests::schema_bounds::recursive_and_scope_changing_schema_references_are_refused ... ok
+test manager::state::connectors::tests::permission_revocation_preserves_stopped_unknown_attention ... FAILED
+test manager::state::connectors::tests::reopening_cancelled_unknown_connector_requires_attention ... ok
+
+thread 'manager::state::connectors::tests::revocation_preserves_attention' (619092780) panicked at manager/src/manager/state/connectors/tests.rs:1098:5:
+assertion `left == right` failed
+  left: Cancelling
+ right: AwaitingAttention
+test manager::state::connectors::tests::revocation_preserves_attention ... FAILED
+test manager::state::connectors::tests::schema_bounds::schema_expansion_is_bounded_at_discovery_and_call_admission ... ok
+test manager::state::connectors::tests::revoke_and_regrant_cannot_revive_an_approved_task_or_release ... ok
+
+thread 'manager::state::connectors::tests::stopped_unknown_does_not_occupy_supervised_execution' (619092792) panicked at manager/src/manager/state/connectors/tests.rs:1104:5:
+assertion failed: f.state.process_control_status(f.lease.worker).unwrap().is_empty()
+test manager::state::connectors::tests::stopped_unknown_does_not_occupy_supervised_execution ... FAILED
+test manager::state::connectors::tests::runs::connector_policy_call_limit_counts_finished_children ... ok
+test manager::state::connectors::tests::runs::run_result_uses_durable_connector_evidence_and_verifies_the_declared_receipt ... ok
+test manager::state::connectors::tests::confirmed_connector_cancellation_remains_cancelled ... ok
+test manager::state::connectors::tests::runs::stale_model_turn_cannot_create_a_child_after_regrant ... ok
+test manager::state::connectors::tests::runs::unknown_connector_stops_parent_and_late_evidence_never_resumes_it ... ok
+test manager::state::connectors::tests::rotation_and_ciphertext_binding_keep_secrets_out_of_views_audit_and_results ... ok
+test manager::state::connectors::tests::unknown_connector_after_stop_requires_attention ... ok
+test manager::state::connectors::tests::vibe_catalog_coding_requests_and_cached_calls_share_current_grants ... ok
+test manager::state::connectors::tests::unknown_connector_before_stop_requires_attention ... ok
+test manager::state::connectors::tests::reopening_sqlite_preserves_effect_identity_and_never_releases_again ... ok
+test manager::state::connectors::tests::every_release_rechecks_permission_fence_approval_and_worker_generation ... ok
+test manager::state::connectors::tests::runs::dynamic_model_tool_schema_and_binding_reach_an_exact_approved_task ... ok
+test manager::state::connectors::tests::runs::catalog_bounds::oversized_connector_catalog_is_rejected_and_legacy_runs_do_not_block_healthy_work ... ok
+test manager::state::connectors::tests::runs::p03_duplicate_authenticated_event_restart_has_one_external_connector_effect ... ok
+
+failures:
+
+failures:
+    manager::state::connectors::tests::cancel_stopped_unknown_is_idempotent
+    manager::state::connectors::tests::journal_replacement_preserves_stopped_proof
+    manager::state::connectors::tests::missing_inventory_preserves_stopped_proof
+    manager::state::connectors::tests::permission_revocation_preserves_stopped_unknown_attention
+    manager::state::connectors::tests::revocation_preserves_attention
+    manager::state::connectors::tests::stopped_unknown_does_not_occupy_supervised_execution
+
+test result: FAILED. 26 passed; 6 failed; 0 ignored; 0 measured; 83 filtered out; finished in 0.48s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

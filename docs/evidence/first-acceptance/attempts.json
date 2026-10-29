@@ -1,0 +1,350 @@
+[
+  {
+    "path": ".audit/first-acceptance/continued-12/results.json",
+    "sha256": "7c391f7b57a4ce77a507def16e9bd4c5a0bb12d34a35971857f8d237f2f4a360",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "AssertionError {'type': 'error', 'id': '6cf63f04-7882-49d2-946b-f074764704b3', 'code': {'type': 'protocol', 'code': 'invalid_message'}}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12b/results.json",
+    "sha256": "4e304ab5dbad759c5eeaad09c63d89d80e8a935b06939cbff48221222868cbcd",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "AssertionError {'id': '940d8df4-f270-49e6-a398-8cf32b61c933', 'request': {'id': '940d8df4-f270-49e6-a398-8cf32b61c933', 'session_id': 'f72333c3-fe4f-4c28-9adb-1543e0d5f4eb', 'conversation_id': None, 'settings': {'model': 'mistral-small-2603', 'max_turns': 1, 'max_tokens': 1, 'deadline': 1793222602, 'max_cost_micros': 0}, 'work': {'type': 'connector', 'spec': {'operation': {'type': 'call', 'proposal': {'tool': {'connection': {'connection': 'ed2dfb9c-fd4e-474e-acd0-428cadceea23', 'revision': 3, 'credential_epoch': 2}, 'catalog_revision': 1, 'grant_revision': 1, 'name': 'write_receipt', 'schema_digest': 'df951dc7c4f109a25f86ba2f372d5edacad76e3862bdbbf6e20bdb30cb1e442b'}, 'arguments': {'name': 'lost.txt', 'text': 'One effect before worker disconnect.'}}}, 'runner': {'runtime': '678b2357efbbb26cb47acdb272788e289e35766fdce140eb4d90d93c0b336092', 'account': {'uid': 1000, 'gid': 1000}, 'limits': {'runtime_seconds': 180, 'output_bytes': 1024, 'processes': 32, 'memory_bytes': 268435456}}, 'deadline': 1793222602, 'result': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}}}}, 'command': {'id': '46b89fd5-3dcb-412c-b7b0-29fd7630744e', 'owner': '3966a895-8cf6-4a42-8f52-1d052d6aa8db', 'task': '940d8df4-f270-49e6-a398-8cf32b61c933', 'bot': 'd6a67234-d6a4-46fd-8901-28f884592aa1', 'worker': '8dbe2bc1-abcf-4325-a639-f3af1707ce59', 'session': 'f72333c3-fe4f-4c28-9adb-1543e0d5f4eb', 'operation': '86bab0db-16d9-41a0-bf6e-fb8adfcc0dee', 'execution': 'dea48d68-f077-466b-8c65-d4c4dccaa0a0', 'work': {'type': 'connector', 'spec': {'operation': {'type': 'call', 'proposal': {'tool': {'connection': {'connection': 'ed2dfb9c-fd4e-474e-acd0-428cadceea23', 'revision': 3, 'credential_epoch': 2}, 'catalog_revision': 1, 'grant_revision': 1, 'name': 'write_receipt', 'schema_digest': 'df951dc7c4f109a25f86ba2f372d5edacad76e3862bdbbf6e20bdb30cb1e442b'}, 'arguments': {'name': 'lost.txt', 'text': 'One effect before worker disconnect.'}}}, 'runner': {'runtime': '678b2357efbbb26cb47acdb272788e289e35766fdce140eb4d90d93c0b336092', 'account': {'uid': 1000, 'gid': 1000}, 'limits': {'runtime_seconds': 180, 'output_bytes': 1024, 'processes': 32, 'memory_bytes': 268435456}}, 'deadline': 1793222602, 'result': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}}}}, 'state': 'cancelled', 'progress': 0, 'outcome': {'type': 'stopped', 'applied': 0, 'evidence': {'systemd_scope_empty': {'scope': {'journal': '9d1030f5-2295-4a3c-81cc-66ec903fb155', 'execution': 'dea48d68-f077-466b-8c65-d4c4dccaa0a0', 'host': '4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134', 'boot': 'a9e5b8c7-8f54-445d-83bc-2e120b765cd9', 'invocation': 'aee08cd7fb9e4236837184ab37dde1c1', 'unit': 'botstral-9d1030f5-2295-4a3c-81cc-66ec903fb155-dea48d68-f077-466b-8c65-d4c4dccaa0a0.service', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-9d1030f5-2295-4a3c-81cc-66ec903fb155-dea48d68-f077-466b-8c65-d4c4dccaa0a0.service'}}}}, 'effect_evidence': [{'type': 'uncertain', 'reason': 'process_interrupted'}], 'process': {'effect': 'observed', 'result': {'exit': {'type': 'signalled', 'signal': 15}, 'stdout': {'hex': '', 'truncated': False, 'complete': True}, 'stderr': {'hex': '', 'truncated': False, 'complete': True}}}, 'outputs': [{'declaration': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}, 'state': {'type': 'unavailable', 'reason': 'execution_uncertain'}}], 'approval': {'id': 'f7a74fe8-707d-42a3-9231-19f6be627804', 'binding': {'owner': '3966a895-8cf6-4a42-8f52-1d052d6aa8db', 'bot': 'd6a67234-d6a4-46fd-8901-28f884592aa1', 'task': '940d8df4-f270-49e6-a398-8cf32b61c933', 'operation': '86bab0db-16d9-41a0-bf6e-fb8adfcc0dee', 'arguments': '6ab5b925e9ce55ecf53374e500cccd7535f79028ae111c5e202e3af2cd80db09', 'permission_revision': 2, 'approval': 'f7a74fe8-707d-42a3-9231-19f6be627804', 'execution': 'dea48d68-f077-466b-8c65-d4c4dccaa0a0', 'expires_at': 1793222482}, 'permission_revision': 2, 'revoked': False, 'consumed': True}}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12c/results.json",
+    "sha256": "9cbef0cba392ba444f331596611fc3beea08bdfb6283e3fd76365962d14430d8",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "AssertionError {'id': '846d2fd9-ca6d-4bec-ad88-8e37006edff9', 'request': {'id': '846d2fd9-ca6d-4bec-ad88-8e37006edff9', 'session_id': 'f72333c3-fe4f-4c28-9adb-1543e0d5f4eb', 'conversation_id': None, 'settings': {'model': 'mistral-small-2603', 'max_turns': 1, 'max_tokens': 1, 'deadline': 1793222879, 'max_cost_micros': 0}, 'work': {'type': 'connector', 'spec': {'operation': {'type': 'call', 'proposal': {'tool': {'connection': {'connection': 'ed2dfb9c-fd4e-474e-acd0-428cadceea23', 'revision': 3, 'credential_epoch': 2}, 'catalog_revision': 1, 'grant_revision': 1, 'name': 'write_receipt', 'schema_digest': 'df951dc7c4f109a25f86ba2f372d5edacad76e3862bdbbf6e20bdb30cb1e442b'}, 'arguments': {'name': 'lost-network.txt', 'text': 'One effect before worker disconnect.'}}}, 'runner': {'runtime': '678b2357efbbb26cb47acdb272788e289e35766fdce140eb4d90d93c0b336092', 'account': {'uid': 1000, 'gid': 1000}, 'limits': {'runtime_seconds': 180, 'output_bytes': 1024, 'processes': 32, 'memory_bytes': 268435456}}, 'deadline': 1793222879, 'result': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}}}}, 'command': {'id': '073b33b5-fd46-4b63-b1c9-0ced10f94cdc', 'owner': '3966a895-8cf6-4a42-8f52-1d052d6aa8db', 'task': '846d2fd9-ca6d-4bec-ad88-8e37006edff9', 'bot': 'd6a67234-d6a4-46fd-8901-28f884592aa1', 'worker': '8dbe2bc1-abcf-4325-a639-f3af1707ce59', 'session': 'f72333c3-fe4f-4c28-9adb-1543e0d5f4eb', 'operation': '431833ac-cf9e-47f7-9ca3-c00cc59841e0', 'execution': 'd1145289-00f7-455e-a0eb-19780e47cc2b', 'work': {'type': 'connector', 'spec': {'operation': {'type': 'call', 'proposal': {'tool': {'connection': {'connection': 'ed2dfb9c-fd4e-474e-acd0-428cadceea23', 'revision': 3, 'credential_epoch': 2}, 'catalog_revision': 1, 'grant_revision': 1, 'name': 'write_receipt', 'schema_digest': 'df951dc7c4f109a25f86ba2f372d5edacad76e3862bdbbf6e20bdb30cb1e442b'}, 'arguments': {'name': 'lost-network.txt', 'text': 'One effect before worker disconnect.'}}}, 'runner': {'runtime': '678b2357efbbb26cb47acdb272788e289e35766fdce140eb4d90d93c0b336092', 'account': {'uid': 1000, 'gid': 1000}, 'limits': {'runtime_seconds': 180, 'output_bytes': 1024, 'processes': 32, 'memory_bytes': 268435456}}, 'deadline': 1793222879, 'result': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}}}}, 'state': 'cancelled', 'progress': 0, 'outcome': {'type': 'stopped', 'applied': 0, 'evidence': {'systemd_scope_empty': {'scope': {'journal': '9d1030f5-2295-4a3c-81cc-66ec903fb155', 'execution': 'd1145289-00f7-455e-a0eb-19780e47cc2b', 'host': '4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134', 'boot': 'a9e5b8c7-8f54-445d-83bc-2e120b765cd9', 'invocation': 'f52b88454624458395148559241cefbd', 'unit': 'botstral-9d1030f5-2295-4a3c-81cc-66ec903fb155-d1145289-00f7-455e-a0eb-19780e47cc2b.service', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-9d1030f5-2295-4a3c-81cc-66ec903fb155-d1145289-00f7-455e-a0eb-19780e47cc2b.service'}}}}, 'effect_evidence': [{'type': 'uncertain', 'reason': 'process_interrupted'}], 'process': {'effect': 'observed', 'result': {'exit': {'type': 'exited', 'code': 1}, 'stdout': {'hex': '', 'truncated': False, 'complete': True}, 'stderr': {'hex': '636f6e6e6563746f72206f7574636f6d6520726571756972657320617474656e74696f6e0a', 'truncated': False, 'complete': True}}}, 'outputs': [{'declaration': {'slot': 'connector', 'name': 'connector.json', 'media_type': 'text_plain', 'max_bytes': 4096}, 'state': {'type': 'unavailable', 'reason': 'execution_uncertain'}}], 'approval': {'id': 'be69d478-f50a-4401-a58b-2a8ee9556220', 'binding': {'owner': '3966a895-8cf6-4a42-8f52-1d052d6aa8db', 'bot': 'd6a67234-d6a4-46fd-8901-28f884592aa1', 'task': '846d2fd9-ca6d-4bec-ad88-8e37006edff9', 'operation': '431833ac-cf9e-47f7-9ca3-c00cc59841e0', 'arguments': '88f0f28f9f4c8d075f459aaf80f62d26ebb57855b8d4a09634fb0b580a836149', 'permission_revision': 2, 'approval': 'be69d478-f50a-4401-a58b-2a8ee9556220', 'execution': 'd1145289-00f7-455e-a0eb-19780e47cc2b', 'expires_at': 1793222759}, 'permission_revision': 2, 'revoked': False, 'consumed': True}}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12d/results.json",
+    "sha256": "8cb2ba812cb7840cfbe0bb0f2fd11cf386863c2e2ed141a675a0a6abc6d898c8",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "TimeoutError external effect before completion",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12e/results.json",
+    "sha256": "15c0696390c234d546b7a0ae40a8e019309a0f192db8ae802a6340672de6da70",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": null,
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12f/results.json",
+    "sha256": "ffe52ccb885c135018ea7ff18f43026b941e2718a86b70e5c4bf0ecfbb473652",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "AssertionError {'code': 1, 'stdout': '', 'stderr': 'agent recovery refused: worker systemd units still active\\n'}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_disconnect_after_effect_reconciles_without_reexecution",
+      "native_desktop_snapshot_after_actual_event_retention_gap",
+      "denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work",
+      "actual_eu_model_requests_and_preview_latest_configuration_blockers"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12g/results.json",
+    "sha256": "4ddf25bb3be908064b75d6e98843a169d50b9b75f0a422bd63a9334f384b468c",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "AssertionError {'code': 1, 'stdout': '', 'stderr': 'agent recovery refused: private permissions required\\n'}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_disconnect_after_effect_reconciles_without_reexecution",
+      "native_desktop_snapshot_after_actual_event_retention_gap",
+      "denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work",
+      "actual_eu_model_requests_and_preview_latest_configuration_blockers",
+      "native_desktop_service_pairing_and_os_keychain"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/continued-12h/results.json",
+    "sha256": "c05c94741acf3f3da66f2357f1c42dd30708858e0eed56462c2f396059aa1a6c",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": null,
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_browser_file_exact_approval_and_verified_export",
+      "native_desktop_cancellation_confirms_empty_scope",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_disconnect_after_effect_reconciles_without_reexecution",
+      "native_desktop_snapshot_after_actual_event_retention_gap",
+      "denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work",
+      "actual_eu_model_requests_and_preview_latest_configuration_blockers",
+      "native_desktop_service_pairing_and_os_keychain",
+      "native_desktop_service_pairing_and_os_keychain",
+      "offline_backup_restores_history_memory_credentials_artifacts_and_computer_state"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-01/results.json",
+    "sha256": "0c6ecc96593ed19858b1f72fd8eb70a248a3c91f294d2672d71046a836201f00",
+    "root": "/home/botstral/botstral-first-acceptance-60dbd4eab31a",
+    "passed": false,
+    "error": "TimeoutError production worker readiness",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-02/results.json",
+    "sha256": "771fddd81aa75acd4e138fd7c401a99987d03ba88927afebafa8fab5e2cdc64a",
+    "root": "/home/botstral/botstral-first-acceptance-85f2c26b38cb",
+    "passed": false,
+    "error": "TimeoutError production worker readiness",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-03/results.json",
+    "sha256": "7ffe29b556d861700b94c2d6e6c3a3a5e6af7e1b92cb83c54d996062aa30f1b7",
+    "root": "/home/botstral/botstral-first-acceptance-0e332a41d445",
+    "passed": false,
+    "error": "KeyError 'phase'",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-04/results.json",
+    "sha256": "d9e61fa1ee4e2f922e7a68490cb33617a4544f834686cc79384842f1bdbbeab4",
+    "root": "/home/botstral/botstral-first-acceptance-df4c15bc7cec",
+    "passed": false,
+    "error": "AssertionError ('POST', '/v1/inference-configurations/verify', {'status': 409, 'body': {'error': 'inference_unverified'}})",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-05/results.json",
+    "sha256": "0cf05a62b5af5343e505e186d5b5046c754711a15aa605d1b993f2113d600633",
+    "root": "/home/botstral/first-acceptance-fixtures/a24deff4-c570-4473-9c51-85778a58e10a",
+    "passed": false,
+    "error": "AssertionError (202, {'event_id': 'first-acceptance-one', 'matched': 1, 'publisher': 'b282fd8f-163d-49b0-965b-3f03af0169ab'})",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-06/results.json",
+    "sha256": "c8058dc7bb9866beb83ba1b7369cf449e259c41e07fd512438fc6e93c6c8e0f5",
+    "root": "/home/botstral/first-acceptance-fixtures/dae57cff-aab6-46f2-98ec-2d30b942c5fb",
+    "passed": false,
+    "error": null,
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-07/results.json",
+    "sha256": "16670c397a60a2db4383b27aea04df3694ef0fbeb6c43cd8eb0ec1605f4d7780",
+    "root": "/home/botstral/first-acceptance-fixtures/4360f199-8aae-4994-9ad4-9e541bf86a4e",
+    "passed": false,
+    "error": "KeyError 'id'",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-08/results.json",
+    "sha256": "40a3615c07e55f322e1eb2e86845158f822dab5a09b603f94d053e1070e51046",
+    "root": "/home/botstral/first-acceptance-fixtures/8facd5a7-62e3-4733-80e9-ebd5f87d1828",
+    "passed": false,
+    "error": "TimeoutError native browser proposal",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-09/results.json",
+    "sha256": "896ad4a65b6a8a9c7ddfeb31de565b3d3a59a592882d6ed624615b6a5ca5c397",
+    "root": "/home/botstral/first-acceptance-fixtures/cd1ac91b-7792-45e8-ae3b-c1155944b09f",
+    "passed": false,
+    "error": "TimeoutError native browser proposal",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-10/results.json",
+    "sha256": "decde742f6e564b3cb2b04a3d11cd21d2a2fc03c07fad4c63f7bc7bea6e80746",
+    "root": "/home/botstral/first-acceptance-fixtures/a6d8823c-9db0-41c7-84bc-d31b51f41da6",
+    "passed": false,
+    "error": "AssertionError {'id': '5afe0cfa-bc9f-48e1-adae-35ea3d95fb89', 'request': {'id': '5afe0cfa-bc9f-48e1-adae-35ea3d95fb89', 'session_id': '92c106c6-4ad1-48f5-a623-e3b699d80cda', 'conversation_id': None, 'settings': {'model': 'mistral-small-2603', 'max_turns': 1, 'max_tokens': 1024, 'deadline': 1793220169, 'max_cost_micros': 106498}, 'work': {'type': 'computer', 'spec': {'profile': 'linux_playwright_v1', 'account': {'uid': 1000, 'gid': 1000}, 'runtime': {'sha256': '1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061'}, 'deadline': 1793220169, 'limits': {'runtime_seconds': 120, 'output_bytes': 1024, 'processes': 128, 'memory_bytes': 1073741824}, 'viewport': {'width': 800, 'height': 600}, 'operations': [{'type': 'navigate', 'url': 'http://127.0.0.1:34381/page.html'}, {'type': 'fill', 'selector': '#value', 'text': 'First acceptance browser proof'}, {'type': 'click', 'selector': '#save'}, {'type': 'capture_text', 'selector': '#result', 'output': 'text'}, {'type': 'write_file', 'path': '/home/botstral/first-acceptance-fixtures/a6d8823c-9db0-41c7-84bc-d31b51f51da6/workspace/proof.txt', 'text': 'First acceptance file proof'}], 'outputs': [{'slot': 'text', 'name': 'result.txt', 'media_type': 'text_plain', 'max_bytes': 8192}]}}}, 'command': {'id': '7492188c-4917-459b-bdce-f9b506090fcf', 'owner': '432aed67-54be-4445-ba9c-45a1a3fa40bf', 'task': '5afe0cfa-bc9f-48e1-adae-35ea3d95fb89', 'bot': '66ea6bcb-d247-40fa-944c-c0c12f55e0f0', 'worker': '3641dfee-3ee2-4549-afed-3959c1414843', 'session': '92c106c6-4ad1-48f5-a623-e3b699d80cda', 'operation': '49c7b8cc-6ff5-443e-bddb-109f9414810b', 'execution': 'ae587121-b8f1-4e9d-aa1f-fbec001b2389', 'work': {'type': 'computer', 'spec': {'profile': 'linux_playwright_v1', 'account': {'uid': 1000, 'gid': 1000}, 'runtime': {'sha256': '1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061'}, 'deadline': 1793220169, 'limits': {'runtime_seconds': 120, 'output_bytes': 1024, 'processes': 128, 'memory_bytes': 1073741824}, 'viewport': {'width': 800, 'height': 600}, 'operations': [{'type': 'navigate', 'url': 'http://127.0.0.1:34381/page.html'}, {'type': 'fill', 'selector': '#value', 'text': 'First acceptance browser proof'}, {'type': 'click', 'selector': '#save'}, {'type': 'capture_text', 'selector': '#result', 'output': 'text'}, {'type': 'write_file', 'path': '/home/botstral/first-acceptance-fixtures/a6d8823c-9db0-41c7-84bc-d31b51f51da6/workspace/proof.txt', 'text': 'First acceptance file proof'}], 'outputs': [{'slot': 'text', 'name': 'result.txt', 'media_type': 'text_plain', 'max_bytes': 8192}]}}}, 'state': 'failed', 'progress': 0, 'outcome': {'type': 'process_finished', 'reason': 'result', 'success': False, 'scope': {'journal': 'fd7b29a7-5484-44af-8c89-287de157cd55', 'execution': 'ae587121-b8f1-4e9d-aa1f-fbec001b2389', 'host': '4792996f82e5738a0d622c2ff2fc1da4254a55db58e1fd59776f2d5ac0144134', 'boot': 'a9e5b8c7-8f54-445d-83bc-2e120b765cd9', 'invocation': '13fafbbd17ec490e9de78dfe3bd15e51', 'unit': 'botstral-fd7b29a7-5484-44af-8c89-287de157cd55-ae587121-b8f1-4e9d-aa1f-fbec001b2389.service', 'cgroup': '/user.slice/user-1000.slice/user@1000.service/app.slice/botstral-fd7b29a7-5484-44af-8c89-287de157cd55-ae587121-b8f1-4e9d-aa1f-fbec001b2389.service'}}, 'effect_evidence': [], 'process': {'effect': 'observed', 'result': {'exit': {'type': 'exited', 'code': 1}, 'stdout': {'hex': '', 'truncated': False, 'complete': True}, 'stderr': {'hex': '636f6d7075746572206f7065726174696f6e206661696c65640a', 'truncated': False, 'complete': True}}}, 'outputs': [{'declaration': {'slot': 'text', 'name': 'result.txt', 'media_type': 'text_plain', 'max_bytes': 8192}, 'state': {'type': 'available', 'id': 'fec3b042-487a-4cb4-9ea2-b02bebf927b4', 'content': {'sha256': '61991996fb02a49e80ce33e5abdfcbf91886e9e6be6fc28cb06ed54d5965b72b', 'length': 30}}}], 'approval': {'id': '62b2ced6-f486-4a3d-abb4-a628fc24972e', 'binding': {'owner': '432aed67-54be-4445-ba9c-45a1a3fa40bf', 'bot': '66ea6bcb-d247-40fa-944c-c0c12f55e0f0', 'task': '5afe0cfa-bc9f-48e1-adae-35ea3d95fb89', 'operation': '49c7b8cc-6ff5-443e-bddb-109f9414810b', 'arguments': 'f7bacfa54012a712c74111b7eeb2a07c9a41ed054e5acfa21ff1b8937c6f7b6f', 'permission_revision': 2, 'approval': '62b2ced6-f486-4a3d-abb4-a628fc24972e', 'execution': 'ae587121-b8f1-4e9d-aa1f-fbec001b2389', 'expires_at': 1793220110}, 'permission_revision': 2, 'revoked': False, 'consumed': True}}",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-11/results.json",
+    "sha256": "ad166abcea034d2fb9a9cb591e2c8d2f0aebbdd35dfac1f22a836ebf3b7b3485",
+    "root": "/home/botstral/first-acceptance-fixtures/ae657cd7-3f32-4b6c-9e61-5ff9e147a69e",
+    "passed": false,
+    "error": "AssertionError operation did not start a transfer",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval"
+    ]
+  },
+  {
+    "path": ".audit/first-acceptance/run-12/results.json",
+    "sha256": "451abd120bda9571edd04f02254a2a5b0bef398e9ed89e05a4a608f2894dbaf9",
+    "root": "/home/botstral/first-acceptance-fixtures/5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+    "passed": false,
+    "error": "KeyError 'command'",
+    "verified_checks": [
+      "same_source_production_binaries_on_distinct_linux_guests",
+      "native_desktop_service_pairing_and_os_keychain",
+      "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "verified_live_eu_model_and_capped_acceptance_reservation",
+      "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "manager_restart_preserves_original_routine_and_duplicate_trigger"
+    ]
+  }
+]

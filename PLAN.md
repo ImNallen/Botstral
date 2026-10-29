@@ -204,15 +204,17 @@ M06 acceptance is recorded in the [completion index](docs/m06-completion.md). Th
 
 Run these checks on one owner, one bot, one worker, and the desktop app after the required foundation work is available. Later multi-bot and mobile checks remain open.
 
-- [ ] Start separate manager and Computer VMs, pair the worker, and verify that its credentials cannot approve actions, enroll owner devices, or access unrelated credentials.
-- [ ] Complete a browser and file task from the client, approve its exact proposed action, retrieve the result, and verify cancellation of a running job.
-- [ ] Use one real connector and run one durable P03 routine while clients are closed. Repeat its trigger and verify reconciliation rather than a repeated external effect.
-- [ ] Restart the manager during execution and reconnect to the original task without starting replacement work.
-- [ ] Disconnect the worker after an external effect and before completion is recorded. Reconcile the outcome or show that attention is required before retrying.
-- [ ] Disconnect the client beyond event replay retention and restore current state through a snapshot.
-- [ ] Deny, alter, expire, consume, and revoke approval authority. Verify that stale requests cannot execute.
-- [ ] Restore a backup and inspect history, memory, credentials, artifacts, and the documented Computer VM state.
+- [x] Start separate manager and Computer VMs, pair the worker, and verify that its credentials cannot approve actions, enroll owner devices, or access unrelated credentials.
+- [x] Complete a browser and file task from the client, approve its exact proposed action, retrieve the result, and verify cancellation of a running job.
+- [x] Use one real connector and run one durable P03 routine while clients are closed. Repeat its trigger and verify reconciliation rather than a repeated external effect.
+- [x] Restart the manager during execution and reconnect to the original task without starting replacement work.
+- [x] Disconnect the worker after an external effect and before completion is recorded. Reconcile the outcome or show that attention is required before retrying.
+- [x] Disconnect the client beyond event replay retention and restore current state through a snapshot.
+- [x] Deny, alter, expire, consume, and revoke approval authority. Verify that stale requests cannot execute.
+- [x] Restore a backup and inspect history, memory, credentials, artifacts, and the documented Computer VM state.
 - [ ] Inspect model and helper requests for the configured Mistral-developed model and endpoint. Verify that privacy and unsupported-capability blockers remain visible.
+
+[First acceptance evidence](docs/first-acceptance.md) records eight verified checks. Primary model requests and refusal paths passed. Helper inference was not configured or invoked, so the milestone remains open.
 
 ## Feature-parity milestones
 

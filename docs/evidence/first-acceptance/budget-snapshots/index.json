@@ -1,0 +1,44 @@
+[
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-05.json",
+    "sha256": "b258b2f88392640c5f4f7109b756e6296f28b55358b808a2397550ff92a5f7f1",
+    "source_report": ".audit/first-acceptance/run-05/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-07.json",
+    "sha256": "ca08df4fa2d26bc944bc32cb2b1930b59564bb0b6020bb16d63e016ea6b11fea",
+    "source_report": ".audit/first-acceptance/run-07/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-08.json",
+    "sha256": "522eb39e3ed9de7abdc863686efdd66139cdcb679998fac0db48a11eef6b02b6",
+    "source_report": ".audit/first-acceptance/run-08/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-09.json",
+    "sha256": "ccfcae0d3d57a9d9eb3825a09cc1c5857696c47229132f87cbf494db92563e2b",
+    "source_report": ".audit/first-acceptance/run-09/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-04.json",
+    "sha256": "d9e61fa1ee4e2f922e7a68490cb33617a4544f834686cc79384842f1bdbbeab4",
+    "source_report": ".audit/first-acceptance/run-04/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": false
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-11.json",
+    "sha256": "ff5b3360dc67a626f696e8a3eae4d61ad73f24652635326ce207ac0ec009b56e",
+    "source_report": ".audit/first-acceptance/run-11/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  },
+  {
+    "path": "docs/evidence/first-acceptance/budget-snapshots/run-12.json",
+    "sha256": "6de583a6aac86f84e7f45df8f7e0e960b03b5be21be0153f0fa28df5b73a90ac",
+    "source_report": ".audit/first-acceptance/run-12/results.json",
+    "reconstructed_by_removing_only_reconciled_budget": true
+  }
+]

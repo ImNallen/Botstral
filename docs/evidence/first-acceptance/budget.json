@@ -1,0 +1,234 @@
+{
+  "cap_microusd": 1000000,
+  "previous_reserved_microusd": 0,
+  "reservations": [
+    {
+      "run": "90ff6251-2623-4d5e-af58-10de0dd28efa",
+      "microusd": 0
+    },
+    {
+      "run": "a24deff4-c570-4473-9c51-85778a58e10a",
+      "microusd": 53249
+    },
+    {
+      "run": "4360f199-8aae-4994-9ad4-9e541bf86a4e",
+      "microusd": 106498
+    },
+    {
+      "run": "8facd5a7-62e3-4733-80e9-ebd5f87d1828",
+      "microusd": 159747
+    },
+    {
+      "run": "cd1ac91b-7792-45e8-ae3b-c1155944b09f",
+      "microusd": 159747
+    },
+    {
+      "run": "a6d8823c-9db0-41c7-84bc-d31b51f41da6",
+      "microusd": 212996
+    },
+    {
+      "run": "ae657cd7-3f32-4b6c-9e61-5ff9e147a69e",
+      "microusd": 0
+    },
+    {
+      "run": "5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+      "microusd": 159747
+    },
+    {
+      "run": "12c3e75a-a61a-4ea3-925a-53f59e017af6",
+      "microusd": 106498
+    }
+  ],
+  "reconciliations": [
+    {
+      "run": "a24deff4-c570-4473-9c51-85778a58e10a",
+      "previous_microusd": 638988,
+      "retained_microusd": 53249,
+      "attempts": [
+        {
+          "kind": "run_turns",
+          "record": "9b46d55c-da85-4bd8-9258-7acb8ab512b6",
+          "attempt": "63be3eda-228d-42ff-9887-a1fb8becafae",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        }
+      ],
+      "state_sha256": {
+        "manager.sqlite3": "f4d80e35965db28206118164f5c4217c90fb75e0e773721d8d6947cdb4ec5128",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "b258b2f88392640c5f4f7109b756e6296f28b55358b808a2397550ff92a5f7f1"
+    },
+    {
+      "run": "4360f199-8aae-4994-9ad4-9e541bf86a4e",
+      "previous_microusd": 638988,
+      "retained_microusd": 106498,
+      "attempts": [
+        {
+          "kind": "run_turns",
+          "record": "51c2bbe9-02a4-402e-9441-168ec4dfd116",
+          "attempt": "5c5cc4ac-464e-4516-bbf5-84f8197a4380",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "9c2b59c3-41c0-4ee9-820a-ba74a37f1228",
+          "attempt": "411d7dc4-c45a-49dc-af21-2ce022b09d6a",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        }
+      ],
+      "state_sha256": {
+        "manager.sqlite3": "aec86309d1ed7eabcfb9ce44639a0bd215ca8822590cecc1a7e7acea17a413eb",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "ca08df4fa2d26bc944bc32cb2b1930b59564bb0b6020bb16d63e016ea6b11fea"
+    },
+    {
+      "run": "8facd5a7-62e3-4733-80e9-ebd5f87d1828",
+      "previous_microusd": 319494,
+      "retained_microusd": 159747,
+      "attempts": [
+        {
+          "kind": "run_turns",
+          "record": "6813ce72-52de-420e-8ba1-17f86f352a96",
+          "attempt": "7d9f8295-d6f4-4898-a749-9091e24a5f72",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "37e2be45-96c7-4acc-bb07-5f994bfd8268",
+          "attempt": "16d7d896-c132-4056-9c24-7c6ef80b2f23",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "e2ff0e27-0ed8-4333-8e63-d5cabf47e33d",
+          "attempt": "4ff293e0-1d24-4a1c-9e91-f8d59bfad488",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        }
+      ],
+      "state_sha256": {
+        "manager.sqlite3": "9db36d5a5ce3f25325d4054cf91c11fe5a1c3eeb984318143d315862b44cc428",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "522eb39e3ed9de7abdc863686efdd66139cdcb679998fac0db48a11eef6b02b6"
+    },
+    {
+      "run": "cd1ac91b-7792-45e8-ae3b-c1155944b09f",
+      "previous_microusd": 319494,
+      "retained_microusd": 159747,
+      "attempts": [
+        {
+          "kind": "run_turns",
+          "record": "e5ae725b-183b-411e-b3a5-e2570d716d1f",
+          "attempt": "a80b2650-c2bd-4405-ae8d-9586aa7923b7",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "f40b3b84-2600-41df-9120-7ea265d3e605",
+          "attempt": "af1a27e3-136f-4322-bbf9-0c2263c3bb56",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "30149baa-ee53-4f4c-a648-63b0ffd7d47b",
+          "attempt": "9634d4ac-5307-45c4-9ad4-d5199a201d09",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        }
+      ],
+      "state_sha256": {
+        "manager.sqlite3": "be5e0b3cc261102d13c3f50047adc214a9d232707c6fc9794cb2eeee19d3dc6f",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "ccfcae0d3d57a9d9eb3825a09cc1c5857696c47229132f87cbf494db92563e2b"
+    },
+    {
+      "run": "90ff6251-2623-4d5e-af58-10de0dd28efa",
+      "previous_microusd": 117984,
+      "retained_microusd": 0,
+      "attempts": [],
+      "state_sha256": {
+        "manager.sqlite3": "1933f59244ff0b14e12331bc7e546223de47eef43bf43959b39db4d9aa9b873f",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "d9e61fa1ee4e2f922e7a68490cb33617a4544f834686cc79384842f1bdbbeab4"
+    },
+    {
+      "run": "ae657cd7-3f32-4b6c-9e61-5ff9e147a69e",
+      "previous_microusd": 212996,
+      "retained_microusd": 0,
+      "attempts": [],
+      "state_sha256": {
+        "manager.sqlite3": "f565ccc065edcc0ed5046a71a995d05538f4d5368e62501145a790395626fbb9",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "ff5b3360dc67a626f696e8a3eae4d61ad73f24652635326ce207ac0ec009b56e"
+    },
+    {
+      "run": "5e3a1552-7e62-4cd1-a8f6-e847b9c8c88e",
+      "previous_microusd": 212996,
+      "retained_microusd": 159747,
+      "attempts": [
+        {
+          "kind": "run_turns",
+          "record": "de08ba85-bd1f-4eb4-b480-26ccf7d9352f",
+          "attempt": "2b3af589-1ea4-42fd-b0cb-05c7329ef626",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "5a9e4f54-253e-4e5a-a3e1-72557d48c308",
+          "attempt": "46903781-b334-49df-a3da-3c314f699178",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        },
+        {
+          "kind": "run_turns",
+          "record": "ad45693b-961d-48c0-9705-b2d59600dc8d",
+          "attempt": "aeef9aca-e377-4229-8905-7910f484c2bc",
+          "retained_microusd": 53249,
+          "phase": {
+            "type": "responded"
+          }
+        }
+      ],
+      "state_sha256": {
+        "manager.sqlite3": "8e33e51691f22936f81d511fa1be5b61cd3a4387792a1b632485604fd5b4f442",
+        "manager.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "evidence_sha256": "6de583a6aac86f84e7f45df8f7e0e960b03b5be21be0153f0fa28df5b73a90ac"
+    }
+  ]
+}
