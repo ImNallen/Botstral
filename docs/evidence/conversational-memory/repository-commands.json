@@ -1,49 +1,22 @@
 [
   {
+    "name": "repository",
     "command": [
       "./scripts/verify.sh"
     ],
+    "started": "2026-10-29T17:45:34.237315+00:00",
+    "finished": "2026-10-29T17:51:33.725881+00:00",
     "exit_code": 0,
     "log": "logs/repository.log"
   },
   {
+    "name": "desktop",
     "command": [
       "./scripts/verify-desktop.sh"
     ],
+    "started": "2026-10-29T17:51:33.726089+00:00",
+    "finished": "2026-10-29T17:54:34.451348+00:00",
     "exit_code": 0,
     "log": "logs/desktop.log"
-  },
-  {
-    "command": [
-      "npx",
-      "tsc",
-      "-p",
-      "desktop/fixtures/tsconfig.p03.json"
-    ],
-    "exit_code": 0,
-    "log": "logs/p03-fixture-types.log"
-  },
-  {
-    "command": [
-      "npx",
-      "tsc",
-      "-p",
-      "desktop/fixtures/tsconfig.m06.json"
-    ],
-    "exit_code": 0,
-    "log": "logs/m06-fixture-types.log"
-  },
-  {
-    "command": [
-      "node",
-      "desktop/fixtures/conversational-memory.mjs",
-      "/tmp/botstral-conversational-proof/node_modules/playwright/index.mjs",
-      "--baseline"
-    ],
-    "exit_code": 0,
-    "log": "logs/baseline.log",
-    "environment": {
-      "BOTSTRAL_CHROME": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    }
   }
 ]

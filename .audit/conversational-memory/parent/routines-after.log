@@ -1,0 +1,22 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.30s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 15 tests
+test manager::state::runs::tests::routine_tests::p03_waiting_memory_publication_prevents_overlapping_occurrences ... ok
+test manager::state::runs::tests::routine_tests::p03_compact_workspace_preview_keeps_full_text_available_and_fits_bound ... ok
+test manager::state::runs::tests::routine_tests::p03_authenticated_event_receipt_conflict_and_owner_conversation ... ok
+test manager::state::runs::tests::routine_tests::p03_each_exact_approval_has_a_new_durable_inbox_decision ... ok
+test manager::state::runs::tests::routine_tests::p03_owner_commands_replay_tombstone_and_paused_copies ... ok
+test manager::state::runs::tests::routine_tests::p01_event_batch_keeps_budget_and_receipt_atomic_with_prepared_memory ... ok
+test manager::state::runs::tests::routine_tests::p03_reusable_template_refreshes_parent_and_nested_coding_deadlines ... ok
+test manager::state::runs::tests::routine_tests::p03_current_configuration_and_shared_aggregate_reservations_block_admission ... ok
+test manager::state::runs::tests::routine_tests::p03_wakeup_atomic_result_replay_and_chain_share_one_budget ... ok
+test manager::state::runs::tests::routine_tests::p01_routine_rollback_and_wakeup_due_time_capture_keep_admitted_memory_frozen ... ok
+test manager::state::runs::tests::routine_tests::p03_authenticated_conversation_crud_and_model_text_cannot_manage_routines ... ok
+test manager::state::runs::tests::routine_tests::p03_locked_vault_stale_bindings_budget_and_pause_missed_overlap ... ok
+test manager::state::runs::tests::routine_tests::p03_sqlite_restart_before_and_after_admission_and_inbox_ack ... ok
+test manager::state::runs::tests::routine_tests::p03_archived_owner_run_preserves_ordered_text_and_preview ... ok
+test manager::state::runs::tests::routine_tests::p03_atomic_admission_restart_identity_and_more_than_sixteen_completions ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.49s

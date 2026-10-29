@@ -1,0 +1,8 @@
+{
+  "fixture": "historical completed run content now equals current provider key",
+  "unlocked_get_withheld": true,
+  "unlocked_worker_environment_exposed": true,
+  "locked_get_exposed": true,
+  "locked_identical_retry_exposed": true,
+  "locked_cancel_exposed": true
+}

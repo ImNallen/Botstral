@@ -3,9 +3,9 @@ transforming...
 ✓ 123 modules transformed.
 rendering chunks...
 computing gzip size...
-../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-05Oflg/dist/fixtures/conversational-memory.html          0.45 kB │ gzip:   0.28 kB
-../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-05Oflg/dist/assets/conversational-memory-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
-../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-05Oflg/dist/assets/conversational-memory-iDCgdp7A.js   409.01 kB │ gzip: 112.23 kB
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-a19k6z/dist/fixtures/conversational-memory.html          0.45 kB │ gzip:   0.28 kB
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-a19k6z/dist/assets/conversational-memory-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-memory-proof-a19k6z/dist/assets/conversational-memory-DXT91w8x.js   408.75 kB │ gzip: 112.20 kB
 
-✓ built in 72ms
+✓ built in 68ms
 Recorded conversation notices through the real components.

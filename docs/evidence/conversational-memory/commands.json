@@ -14,8 +14,8 @@
       "--",
       "--nocapture"
     ],
-    "started": "2026-10-29T17:14:04.477286+00:00",
-    "finished": "2026-10-29T17:14:31.269975+00:00",
+    "started": "2026-10-29T17:44:49.226520+00:00",
+    "finished": "2026-10-29T17:45:15.537351+00:00",
     "exit_code": 0,
     "log": "logs/memory.log"
   },
@@ -32,8 +32,8 @@
       "--",
       "--nocapture"
     ],
-    "started": "2026-10-29T17:14:31.270246+00:00",
-    "finished": "2026-10-29T17:14:33.475894+00:00",
+    "started": "2026-10-29T17:45:15.537518+00:00",
+    "finished": "2026-10-29T17:45:17.569992+00:00",
     "exit_code": 0,
     "log": "logs/connector-secrets.log"
   },
@@ -44,8 +44,8 @@
       "desktop/fixtures/paired_manager.py",
       "--verify-memory"
     ],
-    "started": "2026-10-29T17:14:33.476156+00:00",
-    "finished": "2026-10-29T17:14:53.604525+00:00",
+    "started": "2026-10-29T17:45:17.570163+00:00",
+    "finished": "2026-10-29T17:45:31.477948+00:00",
     "exit_code": 0,
     "log": "logs/native-memory.log"
   },
@@ -57,8 +57,8 @@
       "-p",
       "desktop/fixtures/tsconfig.memory.json"
     ],
-    "started": "2026-10-29T17:14:53.604766+00:00",
-    "finished": "2026-10-29T17:14:54.558055+00:00",
+    "started": "2026-10-29T17:45:31.478138+00:00",
+    "finished": "2026-10-29T17:45:32.419459+00:00",
     "exit_code": 0,
     "log": "logs/fixture-types.log"
   },
@@ -68,10 +68,30 @@
       "npm",
       "test"
     ],
-    "started": "2026-10-29T17:14:54.558391+00:00",
-    "finished": "2026-10-29T17:14:56.361896+00:00",
+    "started": "2026-10-29T17:45:32.419662+00:00",
+    "finished": "2026-10-29T17:45:34.237128+00:00",
     "exit_code": 0,
     "log": "logs/frontend-tests.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T17:45:34.237315+00:00",
+    "finished": "2026-10-29T17:51:33.725881+00:00",
+    "exit_code": 0,
+    "log": "logs/repository.log"
+  },
+  {
+    "name": "desktop",
+    "command": [
+      "./scripts/verify-desktop.sh"
+    ],
+    "started": "2026-10-29T17:51:33.726089+00:00",
+    "finished": "2026-10-29T17:54:34.451348+00:00",
+    "exit_code": 0,
+    "log": "logs/desktop.log"
   },
   {
     "name": "component-video",
@@ -80,8 +100,8 @@
       "desktop/fixtures/conversational-memory.mjs",
       "/private/tmp/botstral-conversational-proof/node_modules/playwright/index.mjs"
     ],
-    "started": "2026-10-29T17:14:56.362184+00:00",
-    "finished": "2026-10-29T17:15:06.486281+00:00",
+    "started": "2026-10-29T17:54:34.451552+00:00",
+    "finished": "2026-10-29T17:54:44.763472+00:00",
     "exit_code": 0,
     "log": "logs/component-video.log"
   }

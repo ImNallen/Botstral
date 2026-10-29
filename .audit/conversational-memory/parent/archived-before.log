@@ -1,0 +1,24 @@
+    Blocking waiting for file lock on artifact directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.90s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 1 test
+test manager::state::runs::tests::memory_tests::acceptance::followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome ... FAILED
+
+failures:
+
+---- manager::state::runs::tests::memory_tests::acceptance::followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome stdout ----
+
+thread 'manager::state::runs::tests::memory_tests::acceptance::followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome' (631109242) panicked at manager/src/manager/state/runs/memory_tests/acceptance.rs:390:5:
+assertion `left == right` failed
+  left: None
+ right: Some(InvalidInput)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::runs::tests::memory_tests::acceptance::followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 141 filtered out; finished in 0.46s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

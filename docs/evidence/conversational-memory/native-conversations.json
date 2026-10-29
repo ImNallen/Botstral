@@ -16,14 +16,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -32,12 +32,12 @@
       ],
       "cursor": 14,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -48,19 +48,19 @@
       "runs": [],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -73,15 +73,15 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 24,
+    "revision": 25,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -91,14 +91,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -107,12 +107,12 @@
       ],
       "cursor": 21,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -122,29 +122,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -153,13 +153,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -172,19 +172,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -197,39 +197,39 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f8929cf8-488b-4292-98c9-c976e3fcb0be",
-        "identity": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "77a3d8a7-2970-4a23-bdf5-593ce2fed7f3",
-        "identity": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "7faaaa6e-0aff-47ca-b5b3-d3cf975e96aa",
-        "identity": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 52,
+    "revision": 53,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -239,14 +239,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -255,12 +255,12 @@
       ],
       "cursor": 47,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -270,29 +270,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -301,13 +301,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -318,28 +318,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -348,13 +348,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -365,29 +365,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -396,13 +396,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -413,29 +413,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
           "phase": "awaiting_attention",
           "prompt": "List our shared memories.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "e035c6ef-9971-4a09-bbf6-0e6fe3fe3edf",
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
               "manager_outcome": {
                 "outcome": {
                   "entries": [
                     {
-                      "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                       "markdown": "Keep morning meetings.",
                       "revision": 1,
                       "scope": {
                         "type": "shared"
                       },
                       "source": {
-                        "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                        "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                        "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                         "type": "run"
                       }
                     }
@@ -448,13 +448,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}]}",
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "ee6e17f9-d4dd-47aa-bee3-5162abf5cf94",
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -465,21 +465,21 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
           "phase": "completed",
           "prompt": "Forget my individual response preference.",
           "reason": null,
           "turns": [
             {
-              "id": "29571502-b048-456d-be54-a416c0b916ca",
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
               "manager_outcome": {
                 "outcome": {
-                  "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                   "revision": 3,
                   "scope": {
-                    "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                     "type": "individual"
                   },
                   "type": "deleted"
@@ -487,13 +487,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"deleted\",\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":3}",
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "2e451d71-3b8c-4cfb-b821-ffd6a77e8516",
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -506,19 +506,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -531,33 +531,33 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f8929cf8-488b-4292-98c9-c976e3fcb0be",
-        "identity": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "77a3d8a7-2970-4a23-bdf5-593ce2fed7f3",
-        "identity": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 45,
+    "revision": 46,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -567,14 +567,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -583,12 +583,12 @@
       ],
       "cursor": 40,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -598,29 +598,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -629,13 +629,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -646,28 +646,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -676,13 +676,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -693,29 +693,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -724,13 +724,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -741,29 +741,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
           "phase": "awaiting_attention",
           "prompt": "List our shared memories.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "e035c6ef-9971-4a09-bbf6-0e6fe3fe3edf",
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
               "manager_outcome": {
                 "outcome": {
                   "entries": [
                     {
-                      "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                       "markdown": "Keep morning meetings.",
                       "revision": 1,
                       "scope": {
                         "type": "shared"
                       },
                       "source": {
-                        "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                        "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                        "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                         "type": "run"
                       }
                     }
@@ -776,13 +776,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}]}",
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "ee6e17f9-d4dd-47aa-bee3-5162abf5cf94",
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -795,19 +795,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -820,45 +820,45 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f8929cf8-488b-4292-98c9-c976e3fcb0be",
-        "identity": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "77a3d8a7-2970-4a23-bdf5-593ce2fed7f3",
-        "identity": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "7faaaa6e-0aff-47ca-b5b3-d3cf975e96aa",
-        "identity": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "8fee0138-88e3-48ac-8a23-8aae4a2b2bd1",
-        "identity": "e4c1e3c4-a8ec-4e04-ad2c-df8809328be9",
+        "id": "7fc62db7-0a78-4a42-b146-526b200c58d2",
+        "identity": "281be8f9-843e-48db-9acf-248ee40f993e",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 65,
+    "revision": 66,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -868,14 +868,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -884,12 +884,12 @@
       ],
       "cursor": 55,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -899,29 +899,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -930,13 +930,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -947,28 +947,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -977,13 +977,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -994,29 +994,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -1025,13 +1025,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1042,29 +1042,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
           "phase": "awaiting_attention",
           "prompt": "List our shared memories.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "e035c6ef-9971-4a09-bbf6-0e6fe3fe3edf",
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
               "manager_outcome": {
                 "outcome": {
                   "entries": [
                     {
-                      "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                       "markdown": "Keep morning meetings.",
                       "revision": 1,
                       "scope": {
                         "type": "shared"
                       },
                       "source": {
-                        "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                        "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                        "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                         "type": "run"
                       }
                     }
@@ -1077,13 +1077,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}]}",
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "ee6e17f9-d4dd-47aa-bee3-5162abf5cf94",
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1094,21 +1094,21 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
           "phase": "completed",
           "prompt": "Forget my individual response preference.",
           "reason": null,
           "turns": [
             {
-              "id": "29571502-b048-456d-be54-a416c0b916ca",
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
               "manager_outcome": {
                 "outcome": {
-                  "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                   "revision": 3,
                   "scope": {
-                    "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                     "type": "individual"
                   },
                   "type": "deleted"
@@ -1116,13 +1116,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"deleted\",\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":3}",
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "2e451d71-3b8c-4cfb-b821-ffd6a77e8516",
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1133,15 +1133,15 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "e4c1e3c4-a8ec-4e04-ad2c-df8809328be9",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
           "phase": "completed",
           "prompt": "Can you save a reusable login for me?",
           "reason": null,
           "turns": [
             {
-              "id": "ec059a47-39b1-4e87-ab8e-8d90b35543e7",
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
               "manager_outcome": {
                 "outcome": {
                   "type": "reusable_login_unsupported"
@@ -1149,13 +1149,13 @@
                 "type": "vault"
               },
               "ordinal": 1,
-              "result": "Reusable login-item storage is not supported until P06. Do not send login secrets in chat. No secret was saved.",
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "6f71b601-b2bc-46d7-921f-7419bcd320f1",
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1168,19 +1168,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 3,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -1193,21 +1193,21 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 31,
+    "revision": 32,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -1217,14 +1217,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -1233,12 +1233,12 @@
       ],
       "cursor": 28,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -1248,29 +1248,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -1279,13 +1279,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1296,28 +1296,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -1326,13 +1326,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1345,19 +1345,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -1370,8 +1370,8 @@
     "intents": [
       {
         "description": "Legacy memory edit remains uncertain. This obsolete write will not be replayed",
-        "id": "f87d3f96-0a94-45a9-b53c-4105e421cfb0",
-        "identity": "f87d3f96-0a94-45a9-b53c-4105e421cfb0",
+        "id": "667a15a5-48ba-4697-a614-46e77b21942f",
+        "identity": "667a15a5-48ba-4697-a614-46e77b21942f",
         "status": "attention"
       }
     ],
@@ -1388,14 +1388,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -1404,12 +1404,12 @@
       ],
       "cursor": 55,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -1419,29 +1419,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -1450,13 +1450,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1467,28 +1467,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -1497,13 +1497,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1514,29 +1514,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -1545,13 +1545,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1562,29 +1562,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
           "phase": "awaiting_attention",
           "prompt": "List our shared memories.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "e035c6ef-9971-4a09-bbf6-0e6fe3fe3edf",
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
               "manager_outcome": {
                 "outcome": {
                   "entries": [
                     {
-                      "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                       "markdown": "Keep morning meetings.",
                       "revision": 1,
                       "scope": {
                         "type": "shared"
                       },
                       "source": {
-                        "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                        "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                        "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                         "type": "run"
                       }
                     }
@@ -1597,13 +1597,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}]}",
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "ee6e17f9-d4dd-47aa-bee3-5162abf5cf94",
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1614,21 +1614,21 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
           "phase": "completed",
           "prompt": "Forget my individual response preference.",
           "reason": null,
           "turns": [
             {
-              "id": "29571502-b048-456d-be54-a416c0b916ca",
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
               "manager_outcome": {
                 "outcome": {
-                  "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                   "revision": 3,
                   "scope": {
-                    "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                     "type": "individual"
                   },
                   "type": "deleted"
@@ -1636,13 +1636,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"deleted\",\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":3}",
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "2e451d71-3b8c-4cfb-b821-ffd6a77e8516",
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1653,15 +1653,15 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "e4c1e3c4-a8ec-4e04-ad2c-df8809328be9",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
           "phase": "completed",
           "prompt": "Can you save a reusable login for me?",
           "reason": null,
           "turns": [
             {
-              "id": "ec059a47-39b1-4e87-ab8e-8d90b35543e7",
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
               "manager_outcome": {
                 "outcome": {
                   "type": "reusable_login_unsupported"
@@ -1669,13 +1669,13 @@
                 "type": "vault"
               },
               "ordinal": 1,
-              "result": "Reusable login-item storage is not supported until P06. Do not send login secrets in chat. No secret was saved.",
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "6f71b601-b2bc-46d7-921f-7419bcd320f1",
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1688,19 +1688,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 3,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -1713,27 +1713,27 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f8929cf8-488b-4292-98c9-c976e3fcb0be",
-        "identity": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 38,
+    "revision": 39,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -1743,14 +1743,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -1759,12 +1759,12 @@
       ],
       "cursor": 35,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -1774,29 +1774,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -1805,13 +1805,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1822,28 +1822,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -1852,13 +1852,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1869,29 +1869,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -1900,13 +1900,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -1919,19 +1919,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }
@@ -1944,45 +1944,45 @@
     "intents": [
       {
         "description": "Run submission",
-        "id": "24b57a84-2b6c-460e-8114-7f23c5e271d0",
-        "identity": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f52e1a90-8b60-482c-b9c1-55851a592f82",
-        "identity": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "f8929cf8-488b-4292-98c9-c976e3fcb0be",
-        "identity": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "77a3d8a7-2970-4a23-bdf5-593ce2fed7f3",
-        "identity": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "7faaaa6e-0aff-47ca-b5b3-d3cf975e96aa",
-        "identity": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
         "status": "confirmed"
       },
       {
         "description": "Run submission",
-        "id": "8fee0138-88e3-48ac-8a23-8aae4a2b2bd1",
-        "identity": "e4c1e3c4-a8ec-4e04-ad2c-df8809328be9",
+        "id": "7fc62db7-0a78-4a42-b146-526b200c58d2",
+        "identity": "281be8f9-843e-48db-9acf-248ee40f993e",
         "status": "confirmed"
       }
     ],
     "issue": null,
     "pairing": null,
     "review": null,
-    "revision": 59,
+    "revision": 60,
     "routine_panel": {
       "history": [],
       "message": null,
@@ -1992,14 +1992,14 @@
     "workspace": {
       "bots": [
         {
-          "created_at": 1793294078,
-          "id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "name": "Inference bot"
         }
       ],
       "configurations": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "context_tokens": 32768,
           "model": "mistral-small-2506",
           "ready": true,
@@ -2008,12 +2008,12 @@
       ],
       "cursor": 52,
       "inbox": [],
-      "manager": "7d9d3195-8dbe-447d-97f4-18d25471b7f2",
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
       "owner": "M04 owner",
       "permissions": [
         {
           "allow": true,
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
           "revision": 2
         }
       ],
@@ -2023,29 +2023,29 @@
       "routines": [],
       "runs": [
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294087,
-          "id": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
           "phase": "completed",
           "prompt": "Remember that I prefer concise answers for this bot.",
           "reason": null,
           "turns": [
             {
-              "id": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use concise answers.",
                     "revision": 1,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "cc49949f-5ec8-4ffb-b612-0458c5025d90",
-                      "turn": "bf81afa3-0049-4cd1-8d17-72e6e1b5b678",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
                       "type": "run"
                     }
                   },
@@ -2054,13 +2054,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"cc49949f-5ec8-4ffb-b612-0458c5025d90\",\"turn\":\"bf81afa3-0049-4cd1-8d17-72e6e1b5b678\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "80c491a5-d76e-40b5-a715-1701e00458cc",
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2071,28 +2071,28 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
           "phase": "completed",
           "prompt": "Remember morning meetings for all bots.",
           "reason": null,
           "turns": [
             {
-              "id": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                     "markdown": "Keep morning meetings.",
                     "revision": 1,
                     "scope": {
                       "type": "shared"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                      "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                       "type": "run"
                     }
                   },
@@ -2101,13 +2101,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}}",
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "cf63a71d-2a7b-4c7b-9eb7-b7e874e7cf81",
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2118,29 +2118,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294088,
-          "id": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
           "phase": "awaiting_attention",
           "prompt": "Update my individual preference to short, complete sentences.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
               "manager_outcome": {
                 "outcome": {
                   "entry": {
-                    "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                     "markdown": "Use short, complete sentences.",
                     "revision": 2,
                     "scope": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                       "type": "individual"
                     },
                     "source": {
-                      "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                      "run": "b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b",
-                      "turn": "5ee6635f-9c8d-4665-9d1d-04ec84827153",
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
                       "type": "run"
                     }
                   },
@@ -2149,13 +2149,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"b36f1a1c-d1f6-4fec-86f4-e34bd18c1c6b\",\"turn\":\"5ee6635f-9c8d-4665-9d1d-04ec84827153\"}}}",
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "37392ba0-4a28-4197-99dd-72ddc892fc2c",
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2166,29 +2166,29 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "ddbed350-2ffd-43cd-8890-20ef3930ac9c",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
           "phase": "awaiting_attention",
           "prompt": "List our shared memories.",
           "reason": "Provider",
           "turns": [
             {
-              "id": "e035c6ef-9971-4a09-bbf6-0e6fe3fe3edf",
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
               "manager_outcome": {
                 "outcome": {
                   "entries": [
                     {
-                      "id": "36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920",
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
                       "markdown": "Keep morning meetings.",
                       "revision": 1,
                       "scope": {
                         "type": "shared"
                       },
                       "source": {
-                        "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-                        "run": "e6d430ff-b184-4ead-b4b2-aa8db83fba41",
-                        "turn": "ab6db8b6-71c5-4663-8a79-13a0361e702a",
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
                         "type": "run"
                       }
                     }
@@ -2201,13 +2201,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"36df7aea-f2bf-4dc3-aef9-9d1fe8eb4920\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\",\"run\":\"e6d430ff-b184-4ead-b4b2-aa8db83fba41\",\"turn\":\"ab6db8b6-71c5-4663-8a79-13a0361e702a\"}}]}",
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "ee6e17f9-d4dd-47aa-bee3-5162abf5cf94",
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2218,21 +2218,21 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "a8110ca2-d403-4559-9ebd-1654f3df278e",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
           "phase": "completed",
           "prompt": "Forget my individual response preference.",
           "reason": null,
           "turns": [
             {
-              "id": "29571502-b048-456d-be54-a416c0b916ca",
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
               "manager_outcome": {
                 "outcome": {
-                  "id": "9d54efed-e830-485a-be15-0a48a83e6ff9",
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
                   "revision": 3,
                   "scope": {
-                    "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
                     "type": "individual"
                   },
                   "type": "deleted"
@@ -2240,13 +2240,13 @@
                 "type": "memory"
               },
               "ordinal": 1,
-              "result": "{\"type\":\"deleted\",\"id\":\"9d54efed-e830-485a-be15-0a48a83e6ff9\",\"scope\":{\"type\":\"individual\",\"bot\":\"6e4211f2-b2a4-4833-93ef-480b962f0798\"},\"revision\":3}",
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "2e451d71-3b8c-4cfb-b821-ffd6a77e8516",
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2257,15 +2257,15 @@
           ]
         },
         {
-          "bot": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "created_at": 1793294089,
-          "id": "e4c1e3c4-a8ec-4e04-ad2c-df8809328be9",
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
           "phase": "completed",
           "prompt": "Can you save a reusable login for me?",
           "reason": null,
           "turns": [
             {
-              "id": "ec059a47-39b1-4e87-ab8e-8d90b35543e7",
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
               "manager_outcome": {
                 "outcome": {
                   "type": "reusable_login_unsupported"
@@ -2273,13 +2273,13 @@
                 "type": "vault"
               },
               "ordinal": 1,
-              "result": "Reusable login-item storage is not supported until P06. Do not send login secrets in chat. No secret was saved.",
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
               "task": null,
               "text": "",
               "truncated": false
             },
             {
-              "id": "6f71b601-b2bc-46d7-921f-7419bcd320f1",
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
               "manager_outcome": null,
               "ordinal": 2,
               "result": null,
@@ -2292,19 +2292,19 @@
       ],
       "sessions": [
         {
-          "bot_id": "6e4211f2-b2a4-4833-93ef-480b962f0798",
-          "id": "1a03a21b-636c-4eb4-b01a-f2d7b5c1d610",
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
           "owner": "bot",
           "revision": 2,
           "status": "confirmed",
-          "worker_id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50"
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
         }
       ],
       "tasks": [],
       "vault_unlocked": true,
       "workers": [
         {
-          "id": "57013216-0dc9-4cc9-aeba-14bfcfff5a50",
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
           "phase": "ready",
           "revoked": false
         }

@@ -15,3 +15,15 @@ The selected Sol design and Astra recovery invariants remain the implementation 
 | Use a component interaction recording over actual native captures. | Native integration proves the manager and journal paths. The video proves rendering and interactions. It does not claim packaged Tauri execution or real worker execution. |
 
 The accepted base is 41aec24ae8b62b7cb35874cdd4feb3760425e198. One writer used the assigned checkout. No additional checkout, subagent, push, pull request, deployment, or paid inference was used. Parent review and integration remain separate.
+
+## Parent integration
+
+The preceding implementation record describes the isolated owner's work. The parent integrated its four commits, ran independent reviews, and corrected the findings. The reviewed runtime source is `bace80bed72fe5aca55e9f258ab68827178bb1d2`.
+
+The public boundary now scans the complete `RunView`, including immutable configuration and archived tool-call identifiers. Partial field redaction was rejected because it missed arbitrary string fields. Protected or unscannable runs return an explicit refusal. Paired workspaces retain safe summaries through `WorkspaceRun.request: None` and no turns. Normal native reconciliation still retrieves a full checked run and compares the exact original request.
+
+Publication attention rechecks the same expected and intended digests after an external repair. An unchanged conflict creates no duplicate events. Routines count `waiting_for_memory` as unresolved work. Regressions failed before these corrections and pass afterward. Four restart tests now assert locked read refusal before explicit unlock and retain their original persisted-content assertions.
+
+Conversation notices show facts and scope without internal entry identifiers, revision numbers, or milestone names. Protected provider setup remains documented in the API reference. No reusable login-item storage was added.
+
+The parent's separate `parent-decisions.tsv` records integration, corrections, and final verification. The original two ignored parent planning rows were replaced when the implementation's tracked trail was integrated. Their loss is acknowledged. Surviving design and judgment artifacts preserve the decisions, without a claim that the combined history was continuously append-only.

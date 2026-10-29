@@ -1,0 +1,8 @@
+memory: exit 0
+connector-secrets: exit 0
+native-memory: exit 0
+fixture-types: exit 0
+frontend-tests: exit 0
+repository: exit 0
+desktop: exit 0
+component-video: exit 0
