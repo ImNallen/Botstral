@@ -952,7 +952,6 @@ impl Actor {
                     self.intents.last().ok_or("storage")?.operation,
                     OwnerOperation::SubmitRun { .. }
                 ) {
-                    // Rejected chat may contain a protected value; no admitted action needs reconciliation.
                     self.intents.pop();
                 } else {
                     self.intents.last_mut().ok_or("storage")?.status = "refused".into();
@@ -1684,7 +1683,12 @@ fn serialize_workspace<S: serde::Serializer>(
                 .map(|r| RunViewModel {
                     id: r.summary.id,
                     bot: r.summary.bot,
-                    prompt: &r.request.prompt,
+                    prompt: r
+                        .request
+                        .as_ref()
+                        .map_or("Conversation content is protected.", |request| {
+                            request.prompt.as_str()
+                        }),
                     created_at: r.summary.created_at,
                     reason: match r.summary.phase {
                         RunPhase::Stopped { reason } => Some(format!("{reason:?}")),

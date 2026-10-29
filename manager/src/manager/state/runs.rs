@@ -209,18 +209,9 @@ impl State {
         self.public_run(self.load_run(id)?)
     }
     fn public_run(&self, mut view: RunView) -> Result<RunView, OperationError> {
-        if matches!(
-            self.reject_known_secrets(&view.request),
-            Err(OperationError::InvalidInput)
-        ) {
-            view.request.prompt = "Protected content withheld.".into();
-        }
+        self.reject_known_secrets(&view.request)?;
         for turn in &mut view.turns {
-            let has_memory = turn.manager_result.as_ref().is_some_and(|r| matches!(r.outcome, Some(ManagerOutcome::Memory { .. })))
-                || turn.messages.iter().any(|m| matches!(m, RunMessage::User { content } if content.starts_with(MEMORY_PREFACE)));
-            let guard = self.reject_known_secrets(turn);
-            if matches!(guard, Err(OperationError::InvalidInput)) || (has_memory && guard.is_err())
-            {
+            if self.reject_known_secrets(turn).is_err() {
                 turn.messages.clear();
                 turn.response = Some(RunMessage::Assistant { content: "Protected content withheld. Unlock the Vault to inspect safe conversation content.".into(), tool_call: None });
                 turn.manager_result = None;
@@ -229,17 +220,26 @@ impl State {
             }
         }
         for turn in &mut view.archived_turns {
-            let guard = self.reject_known_secrets(turn);
-            if matches!(guard, Err(OperationError::InvalidInput))
-                || (matches!(turn.manager_outcome, Some(ManagerOutcome::Memory { .. }))
-                    && guard.is_err())
-            {
+            if self.reject_known_secrets(turn).is_err() {
                 turn.text = Some("Protected content withheld.".into());
                 turn.manager_outcome = None;
                 turn.provider_request_id = None;
             }
         }
         Ok(view)
+    }
+    pub(super) fn workspace_run(&self, id: RunId) -> Result<WorkspaceRun, OperationError> {
+        let view = self.load_run(id)?;
+        let summary = view.summary.clone();
+        match self.public_run(view) {
+            Ok(view) => Ok(WorkspaceRun::project(view, true)),
+            Err(OperationError::InvalidInput | OperationError::Locked) => Ok(WorkspaceRun {
+                summary,
+                request: None,
+                turns: Vec::new(),
+            }),
+            Err(error) => Err(error),
+        }
     }
     pub(in crate::manager) fn authorize_run_dispatch(
         &self,

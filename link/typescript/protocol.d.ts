@@ -2027,7 +2027,7 @@ export interface WorkspaceBot {
   name: string;
 }
 export interface WorkspaceRun {
-  request: SubmitRun;
+  request?: SubmitRun | null;
   summary: RunSummary;
   turns: WorkspaceRunTurn[];
 }

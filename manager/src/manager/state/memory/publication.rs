@@ -93,9 +93,6 @@ impl State {
             .query_map([], |r| Ok((r.get::<_, String>(0)?,r.get::<_, String>(1)?,r.get::<_, String>(2)?,r.get::<_, String>(3)?,r.get::<_, String>(4)?,r.get::<_, Option<String>>(5)?,r.get::<_, Vec<u8>>(6)?,r.get::<_, String>(7)?,r.get::<_, String>(8)?)))?
             .collect::<Result<Vec<_>, _>>()?;
         for (turn_id, run, attempt, call, entry, expected, bytes, receipt, state) in rows {
-            if state == "attention" {
-                return Err(OperationError::Conflict);
-            }
             let run = run.parse().map_err(|_| OperationError::Internal)?;
             let mut view = self.load_run(run)?;
             let turn = view
@@ -117,6 +114,9 @@ impl State {
                 return Err(OperationError::Locked);
             }
             if published.is_err() {
+                if state == "attention" {
+                    return Err(OperationError::Conflict);
+                }
                 view.summary.phase = RunPhase::AwaitingAttention {
                     reason: RunAttentionReason::MemoryPublication,
                 };

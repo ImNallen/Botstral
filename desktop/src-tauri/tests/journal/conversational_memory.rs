@@ -58,14 +58,12 @@ async fn send(service: &RemoteService, bot: BotId, text: &str) -> RemoteSnapshot
     tokio::time::timeout(std::time::Duration::from_secs(15), async {
         loop {
             let snapshot = service.command(IntentCommand::Refresh).await.unwrap();
-            if snapshot
-                .workspace
-                .as_ref()
-                .unwrap()
-                .runs
-                .iter()
-                .any(|r| r.request.prompt == text && r.summary.phase.terminal())
-            {
+            if snapshot.workspace.as_ref().unwrap().runs.iter().any(|r| {
+                r.request
+                    .as_ref()
+                    .is_some_and(|request| request.prompt == text)
+                    && r.summary.phase.terminal()
+            }) {
                 return snapshot;
             }
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
@@ -81,7 +79,11 @@ fn entry(snapshot: &RemoteSnapshot, prompt: &str) -> MemoryEntry {
         .unwrap()
         .runs
         .iter()
-        .find(|r| r.request.prompt == prompt)
+        .find(|r| {
+            r.request
+                .as_ref()
+                .is_some_and(|request| request.prompt == prompt)
+        })
         .unwrap();
     match run.turns[0].manager_outcome.as_ref().unwrap() {
         ManagerOutcome::Memory {
@@ -175,7 +177,11 @@ pub(super) async fn verify() {
         .unwrap()
         .runs
         .iter()
-        .find(|r| r.request.prompt.starts_with("Update my"))
+        .find(|r| {
+            r.request
+                .as_ref()
+                .is_some_and(|request| request.prompt.starts_with("Update my"))
+        })
         .unwrap();
     assert!(matches!(
         run.summary.phase,
@@ -236,10 +242,12 @@ pub(super) async fn verify() {
     views.insert("restored".into(), serde_json::to_value(&restored).unwrap());
     let workspace = restored.workspace.as_ref().unwrap();
     assert!(
-        workspace
-            .runs
-            .iter()
-            .all(|r| r.request.session.is_none() && !r.request.execution_policy.requires_session())
+        workspace.runs.iter().all(|r| r
+            .request
+            .as_ref()
+            .is_some_and(
+                |request| request.session.is_none() && !request.execution_policy.requires_session()
+            ))
     );
     assert!(workspace.state.tasks.is_empty());
     service.shutdown().await;

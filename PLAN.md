@@ -227,15 +227,15 @@ Depends on M03 and M04.
 
 Recorded provider checks verify that a new run receives corrected per-bot Memory after a manager restart. See [memory snapshot scope and proof](docs/p01-memory.md). The remaining P01 checklist stays open.
 
-Existing paired desktop controls create initial Memory from an explicitly selected same-bot message, then inspect, correct, and clear the current document. See [initial Memory scope and proof](docs/p01-initial-memory.md) and [desktop editing scope and proof](docs/p01-desktop-memory.md). These controls precede the conversational product target and will be replaced. Shared memory, conversational management, and historical deletion remain open.
+The bot now lists, creates, updates, and deletes individual and shared memory through conversation. Committed notices show saved text and scope. Manager-only chat needs no worker or computer permission. The dedicated desktop memory viewer and editor were removed. See the [conversational memory contract and evidence](docs/conversational-memory.md). The [initial authoring proof](docs/p01-initial-memory.md) and [desktop editing proof](docs/p01-desktop-memory.md) describe the preceding implementation. Historical deletion remains open.
 
-- [ ] Store durable preferences, decisions, task summaries, and source references in individual bot memory and shared memory available across the owner's bots. Keep sharing explicit.
-- [ ] Let the owner ask the bot to list, create, update, and delete memories in either scope.
-- [ ] Tell the owner when the bot creates a memory, including what it saved and its scope. Confirm success only after persistence and disclose failed or uncertain changes.
-- [ ] Replace the dedicated desktop memory viewer and editor after conversational management works. Do not add memory management screens to later clients.
+- [x] Store durable preferences, decisions, task summaries, and source references in individual bot memory and shared memory available across the owner's bots. Keep sharing explicit.
+- [x] Let the owner ask the bot to list, create, update, and delete memories in either scope.
+- [x] Tell the owner when the bot creates a memory, including what it saved and its scope. Confirm success only after persistence and disclose failed or uncertain changes.
+- [x] Replace the dedicated desktop memory viewer and editor after conversational management works. Do not add memory management screens to later clients.
 - [ ] Keep secret values out of both memory scopes. Direct secret-storage requests to protected Vault entry.
 - [ ] Build local FTS5 search from the Markdown source and verify that deleting and rebuilding the index preserves retrievable memory.
-- [ ] Retrieve relevant memory in later conversations without sending every historical message to the model.
+- [ ] Retrieve relevant memory in later conversations without sending every historical message to the model. New runs receive the bounded individual and shared entry collection. Selective retrieval remains open.
 - [ ] Add semantic retrieval with Mistral Embed in v1.x after selecting and verifying a local vector index. Verify its endpoint independently of the main model.
 - [ ] Add bot names, avatars, descriptions, pinning, organization, hiding, and duplication.
 - [ ] Copy profile settings and avatars when duplicating a bot. Exclude conversation history, learned memory, attachments, and credential values.

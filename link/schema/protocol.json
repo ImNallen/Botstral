@@ -9632,7 +9632,14 @@
       "type": "object",
       "properties": {
         "request": {
-          "$ref": "#/$defs/SubmitRun"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SubmitRun"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "summary": {
           "$ref": "#/$defs/RunSummary"
@@ -9647,7 +9654,6 @@
       "additionalProperties": false,
       "required": [
         "summary",
-        "request",
         "turns"
       ]
     },

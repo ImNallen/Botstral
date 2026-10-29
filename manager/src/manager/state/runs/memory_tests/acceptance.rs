@@ -1,6 +1,59 @@
 use super::*;
 
 #[test]
+fn protected_run_requests_refuse_access_before_and_after_vault_lock() {
+    for in_environment in [false, true] {
+        let mut f = fixture();
+        let secret = "future-protected-run-request-value";
+        if in_environment {
+            f.input
+                .execution_policy
+                .process
+                .as_mut()
+                .unwrap()
+                .environment
+                .insert("REVIEW_VALUE".into(), secret.into());
+        } else {
+            f.input.prompt = secret.into();
+        }
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        let p = claim(&mut f.state);
+        f.state
+            .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
+            .unwrap();
+        f.state
+            .replace_provider_key(token(), ProviderSecret::new(secret.into()).unwrap())
+            .unwrap();
+        for locked in [false, true] {
+            if locked {
+                f.state.lock_vault(token()).unwrap();
+            }
+            let workspace = f.state.workspace_run(f.input.id).unwrap();
+            assert!(workspace.request.is_none());
+            assert!(workspace.turns.is_empty());
+            assert_eq!(workspace.summary.id, f.input.id);
+            assert!(!json(&workspace).unwrap().contains(secret));
+            for result in [
+                f.state.run(token(), f.input.id),
+                f.state.submit_run(token(), f.input.clone()),
+                f.state.cancel_run(token(), f.input.id),
+            ] {
+                match result {
+                    Ok(view) => assert!(
+                        !json(&view).unwrap().contains(secret),
+                        "Protected run content was exposed; locked={locked}, environment={in_environment}"
+                    ),
+                    Err(error) => assert!(matches!(
+                        error,
+                        OperationError::Locked | OperationError::InvalidInput
+                    )),
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn secret_bearing_response_identifiers_are_not_saved_in_success_or_error_journals() {
     for billed in [false, true] {
         let mut f = fixture();

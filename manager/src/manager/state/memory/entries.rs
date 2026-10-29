@@ -334,8 +334,14 @@ impl State {
     }
 
     fn import_legacy_memory(&mut self) -> Result<(), OperationError> {
-        // Vault unlock is required before importing text that could contain a stored secret.
-        self.reject_known_secrets(&())?;
+        if !matches!(
+            self.installation,
+            Installation::Configured {
+                vault: VaultState::Unlocked { .. }
+            }
+        ) {
+            return Err(OperationError::Locked);
+        }
         let pending = self.connection.prepare("SELECT bot,expected_digest,intended_bytes FROM memory_imports WHERE state='pending'")?
             .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, Option<Vec<u8>>>(2)?)))?
             .collect::<Result<Vec<_>, _>>()?;

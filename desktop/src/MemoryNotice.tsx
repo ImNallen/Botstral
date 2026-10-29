@@ -37,18 +37,12 @@ export function MemoryNotice({
             {memory.type === 'created' ? 'Saved' : 'Updated'}. {scopeName(memory.entry.scope)}.
           </strong>
           <p className="saved-memory-text">{memory.entry.markdown}</p>
-          <small>
-            Entry {memory.entry.id}. Revision {memory.entry.revision}.
-          </small>
         </article>
       );
     case 'deleted':
       return (
         <article className="memory-notice" aria-label="Committed memory change">
           <strong>Deleted. {scopeName(memory.scope)}.</strong>
-          <p>
-            Entry {memory.id}. Revision {memory.revision}.
-          </p>
         </article>
       );
     case 'listed':
@@ -61,9 +55,6 @@ export function MemoryNotice({
             memory.entries.map((entry) => (
               <div key={entry.id}>
                 <p className="saved-memory-text">{entry.markdown}</p>
-                <small>
-                  Entry {entry.id}. Revision {entry.revision}.
-                </small>
               </div>
             ))
           )}

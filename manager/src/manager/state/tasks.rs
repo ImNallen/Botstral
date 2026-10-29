@@ -606,10 +606,7 @@ impl State {
         let runs = state
             .runs
             .iter()
-            .map(|r| {
-                self.run(lease, r.id)
-                    .map(|run| WorkspaceRun::project(run, true))
-            })
+            .map(|r| self.workspace_run(r.id))
             .collect::<Result<Vec<_>, _>>()?;
         let owner = self
             .connection

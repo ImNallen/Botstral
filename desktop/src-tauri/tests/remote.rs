@@ -318,16 +318,26 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap();
     let chat = wait(&service, |w| {
         w.runs.iter().any(|r| {
-            r.request.prompt == "C02 native chat" && r.summary.phase == RunPhase::Completed
+            r.request
+                .as_ref()
+                .is_some_and(|request| request.prompt == "C02 native chat")
+                && r.summary.phase == RunPhase::Completed
         })
     })
     .await;
     let submitted = chat
         .runs
         .iter()
-        .find(|r| r.request.prompt == "C02 native chat")
+        .find(|r| {
+            r.request
+                .as_ref()
+                .is_some_and(|request| request.prompt == "C02 native chat")
+        })
         .unwrap();
-    assert_eq!(submitted.request.configuration_revision, 2);
+    assert_eq!(
+        submitted.request.as_ref().unwrap().configuration_revision,
+        2
+    );
     let projected = serde_json::to_value(service.inspect()).unwrap();
     let configurations = projected["workspace"]["configurations"].as_array().unwrap();
     assert_eq!(configurations.len(), 1);
@@ -414,7 +424,11 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
     let cancelling = wait(&service, |w| {
         w.runs
             .iter()
-            .filter(|r| r.request.prompt == "Please cancel a long operation")
+            .filter(|r| {
+                r.request
+                    .as_ref()
+                    .is_some_and(|request| request.prompt == "Please cancel a long operation")
+            })
             .flat_map(|r| &r.turns)
             .any(|t| t.task.is_some())
     })
@@ -422,7 +436,11 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
     let cancellation_task = cancelling
         .runs
         .iter()
-        .find(|r| r.request.prompt == "Please cancel a long operation")
+        .find(|r| {
+            r.request
+                .as_ref()
+                .is_some_and(|request| request.prompt == "Please cancel a long operation")
+        })
         .unwrap()
         .turns
         .iter()

@@ -662,9 +662,9 @@ fn limits_and_cancellation_precede_publication_and_vault_handoff_has_no_value() 
             result
                 .result
                 .contains(if purpose == VaultPurpose::ProviderKey {
-                    "PUT /v1/provider-keys/mistral"
+                    "protected local administration"
                 } else {
-                    "not supported until P06"
+                    "not supported yet"
                 })
         );
         assert!(f.state.memory_context(f.input.bot).unwrap().is_empty());

@@ -67,7 +67,7 @@ describe('conversational memory from recorded manager outcomes', () => {
     );
     expect(screen.getByText('Deleted. Individual memory for this bot.')).toBeTruthy();
     expect(screen.getByRole('article', { name: 'Vault handoff' }).textContent).toContain(
-      'not supported until P06',
+      'not supported yet',
     );
   });
   it('renders no success notice for a proposed or unresolved write', () => {

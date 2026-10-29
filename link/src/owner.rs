@@ -441,7 +441,7 @@ pub struct WorkspaceWorker {
 #[serde(deny_unknown_fields)]
 pub struct WorkspaceRun {
     pub summary: RunSummary,
-    pub request: SubmitRun,
+    pub request: Option<SubmitRun>,
     pub turns: Vec<WorkspaceRunTurn>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -473,7 +473,7 @@ impl WorkspaceRun {
         }
         let mut projected = Self {
             summary: view.summary,
-            request: view.request,
+            request: Some(view.request),
             turns: view
                 .turns
                 .into_iter()

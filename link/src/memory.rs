@@ -143,10 +143,10 @@ impl VaultOutcome {
     pub fn notice(&self) -> &'static str {
         match self {
             Self::ProviderKeySetup => {
-                "Use the protected trusted local administration provider-key setup path: PUT /v1/provider-keys/mistral, with owner authentication and the Vault unlocked. Do not send the key in chat. No secret was saved by this handoff."
+                "Set the Mistral provider key through protected local administration with the Vault unlocked. Do not send the key in chat. No secret was saved by this handoff."
             }
             Self::ReusableLoginUnsupported => {
-                "Reusable login-item storage is not supported until P06. Do not send login secrets in chat. No secret was saved."
+                "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved."
             }
         }
     }

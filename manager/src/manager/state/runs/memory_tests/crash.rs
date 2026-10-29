@@ -320,6 +320,73 @@ fn admitted_publication_survives_cancellation_but_never_overwrites_an_unexpected
 }
 
 #[test]
+fn repaired_publication_recovers_after_attention_without_repeating_the_write() {
+    for restore_intended in [false, true] {
+        let mut f = fixture();
+        manager_only(&mut f);
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        persistent(&f);
+        crash(&f.state.directory, "memory_intent_committed", false);
+        let mut state = open(&f.state.directory);
+        let (id, intended): (String, Vec<u8>) = state
+            .connection
+            .query_row(
+                "SELECT entry,intended_bytes FROM memory_publications",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        let path = state.directory.join(format!("entry-{id}.md"));
+        fs::write(&path, "Unexpected external edit.").unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
+        assert_eq!(
+            state.recover_memory_publications(),
+            Err(OperationError::Conflict)
+        );
+        let events: i64 = state
+            .connection
+            .query_row("SELECT count(*) FROM events", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            state.recover_memory_publications(),
+            Err(OperationError::Conflict)
+        );
+        assert_eq!(
+            state
+                .connection
+                .query_row("SELECT count(*) FROM events", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            events
+        );
+        if restore_intended {
+            fs::write(&path, intended).unwrap();
+        } else {
+            fs::remove_file(&path).unwrap();
+        }
+        drop(state);
+        let mut state = open(&f.state.directory);
+        assert_eq!(state.recover_memory_publications(), Ok(()));
+        state.recover_memory_publications().unwrap();
+        let entries = state.memory_context(f.input.bot).unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].revision, 1);
+        let run = state.load_run(f.input.id).unwrap();
+        assert_eq!(run.summary.phase, RunPhase::Ready);
+        assert_eq!(run.turns.len(), 1);
+        assert!(run.turns[0].manager_result.is_some());
+        let published: i64 = state
+            .connection
+            .query_row(
+                "SELECT count(*) FROM events WHERE kind='memory_published'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(published, 1);
+    }
+}
+
+#[test]
 fn interrupted_import_never_duplicates_or_promotes_legacy_memory() {
     for point in [
         "memory_import_committed",

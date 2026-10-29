@@ -231,6 +231,37 @@ fn p03_archived_owner_run_preserves_ordered_text_and_preview() {
 }
 
 #[test]
+fn p03_waiting_memory_publication_prevents_overlapping_occurrences() {
+    let mut f = fixture();
+    let id = create(
+        &mut f,
+        RoutineTrigger::Interval {
+            anchor: 1000,
+            seconds: 60,
+        },
+    );
+    f.state.reconcile_routines().unwrap();
+    let run = history(&f, id)[0].run.unwrap();
+    let mut view = f.state.load_run(run).unwrap();
+    view.summary.phase = RunPhase::WaitingForMemory {
+        turn: RunTurnId::new(),
+    };
+    save_summary(&f.state.connection, &view.summary).unwrap();
+    f.state.test_time = Some(1060);
+    f.state.reconcile_routines().unwrap();
+    assert!(matches!(
+        history(&f, id)[0].status,
+        OccurrenceStatus::Skipped { .. }
+    ));
+    let count: i64 = f
+        .state
+        .connection
+        .query_row("SELECT count(*) FROM runs", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 1);
+}
+
+#[test]
 fn p03_locked_vault_stale_bindings_budget_and_pause_missed_overlap() {
     let mut f = fixture();
     let id = create(
