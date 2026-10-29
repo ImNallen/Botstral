@@ -3,6 +3,8 @@
 import argparse
 import base64
 import hashlib
+import hmac
+import struct
 from http.client import HTTPConnection, HTTPSConnection
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -14,6 +16,7 @@ import ssl
 import subprocess
 import threading
 import time
+import traceback
 import urllib.parse
 import uuid
 
@@ -50,6 +53,10 @@ def poll(read, predicate, label, seconds=35):
     raise RuntimeError("deadline " + label)
 
 
+class BusyRead(RuntimeError):
+    pass
+
+
 class Owner:
     def __init__(self, ws):
         self.ws = ws
@@ -62,6 +69,16 @@ class Owner:
             self.last_ping = time.monotonic()
 
     def call(self, operation):
+        deadline = time.monotonic() + 10
+        while True:
+            try:
+                return self._call(operation)
+            except BusyRead:
+                if operation["method"] not in ("login_items", "credential_uses") or time.monotonic() >= deadline:
+                    raise
+                time.sleep(0.2)
+
+    def _call(self, operation):
         request = str(uuid.uuid4())
         self.ws.send(json.dumps({"type": "call", "id": request, "operation": operation}))
         chunks = []
@@ -69,6 +86,8 @@ class Owner:
         while True:
             reply = json.loads(self.ws.recv())
             if reply["type"] == "error":
+                if reply["code"] == {"type": "busy"}:
+                    raise BusyRead("paired read temporarily busy")
                 raise RuntimeError("paired owner refused " + json.dumps(reply["code"]))
             if reply["type"] == "transfer_start":
                 assert reply["request"] == request
@@ -84,7 +103,7 @@ class Owner:
                 return json.loads(data)
 
 
-def exercise(root, runtime_directory):
+def exercise(root, runtime_directory, native_port=None):
     os.umask(0o077)
     root.mkdir(mode=0o700)
     os.chdir(root)
@@ -137,7 +156,7 @@ def exercise(root, runtime_directory):
     try:
         start("manager", ["botstral-manager", "--state-dir", str(root / "manager-state"),
                           "--listen", "127.0.0.1:0", "--setup-listen", "127.0.0.1:0",
-                          "--worker-listen", "127.0.0.1:44319", "--worker-tls-cert", str(root / "manager.pem"),
+                          "--worker-listen", "0.0.0.0:44319" if native_port else "127.0.0.1:44319", "--worker-tls-cert", str(root / "manager.pem"),
                           "--worker-tls-key", str(root / "manager.key"), "--worker-client-ca", str(root / "ca.pem")])
         listener_path = root / "manager-state/listeners.json"
         listeners = poll(lambda: json.loads(listener_path.read_text()) if listener_path.exists() else None,
@@ -183,6 +202,30 @@ def exercise(root, runtime_directory):
         Path("agent/computer.json").write_text(json.dumps({"account": account, "runtime": {"sha256": runtime},
                                    "directory": str(runtime_directory), "ceilings": limits}))
         emit("runtime_identity", directory=str(runtime_directory), sha256=runtime)
+        helper_samples = []
+        sampling = threading.Event()
+        def sample_helpers():
+            while not sampling.wait(0.05):
+                for candidate in Path("/proc").iterdir():
+                    if not candidate.name.isdigit():
+                        continue
+                    try:
+                        args = (candidate / "cmdline").read_bytes().split(b"\0")
+                        if b"process-helper" not in args:
+                            continue
+                        opened = []
+                        for fd in (candidate / "fd").iterdir():
+                            target = os.readlink(fd)
+                            if target.startswith(str(runtime_directory)):
+                                opened.append(target)
+                        sample = {"pid": int(candidate.name), "runtime_files": sorted(opened),
+                                  "cpu_ticks": (candidate / "stat").read_text().split()[13:15]}
+                        if not helper_samples or helper_samples[-1] != sample:
+                            helper_samples.append(sample)
+                    except (FileNotFoundError, PermissionError, ProcessLookupError):
+                        pass
+        sampler = threading.Thread(target=sample_helpers, daemon=True)
+        sampler.start()
         start("worker", ["botstral-agent", "run", "--state-dir", str(root / "agent")])
         workers = poll(lambda: http("GET", "/v1/workers"),
                        lambda items: any(i["phase"] == "ready" for i in items), "production worker", seconds=180)
@@ -217,24 +260,43 @@ def exercise(root, runtime_directory):
         command(["certutil", "-A", "-d", "sql:" + str(nss), "-n", "P06 fixture CA", "-t", "C,,",
                  "-i", str(root / "ca.pem")])
         username, secret = secrets.token_urlsafe(24), secrets.token_urlsafe(32)
-        PRIVATE_VALUES.extend((username, secret))
+        seed = base64.b32encode(secrets.token_bytes(20)).decode().rstrip("=")
+        if native_port:
+            username, secret, seed = "synthetic-native-linux-private-user", "synthetic-native-linux-private-password", "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"
+        PRIVATE_VALUES.extend((username, secret, seed))
+        def current_code():
+            digest = hmac.new(base64.b32decode(seed), struct.pack(">Q", int(time.time()) // 30), hashlib.sha1).digest()
+            offset = digest[-1] & 15
+            return str((int.from_bytes(digest[offset:offset + 4], "big") & 0x7fffffff) % 1000000).zfill(6)
         submissions = []
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self):
                 self.send_response(200)
                 self.send_header("content-type", "text/html")
                 self.end_headers()
+                if self.path == "/totp":
+                    self.wfile.write(b'<!doctype html><form id="login" method="post" action="/factor" data-botstral-login="v1">'
+                        b'<input id="totp" name="code" type="text"><button id="submit" type="submit">Verify</button></form>')
+                    return
                 self.wfile.write(b'<!doctype html><form id="login" method="post" action="/session" data-botstral-login="v1">'
                     b'<input id="username" name="username" type="text"><input id="password" name="password" type="password">'
                     b'<button id="submit" type="submit">Sign in</button></form>')
             def do_POST(self):
                 body = self.rfile.read(int(self.headers["content-length"]))
                 fields = urllib.parse.parse_qs(body.decode())
-                valid = self.path == "/session" and fields == {"username": [username], "password": [secret]}
+                if self.path == "/factor":
+                    code = current_code()
+                    PRIVATE_VALUES.append(code)
+                    code_valid = fields == {"code": [code]}
+                    session_valid = "synthetic-session=authenticated" in self.headers.get("cookie", "")
+                    emit("factor_validation", code_valid=code_valid, session_valid=session_valid)
+                    valid = code_valid and session_valid
+                else:
+                    valid = self.path == "/session" and fields == {"username": [username], "password": [secret]}
                 submissions.append({"valid": valid, "path": self.path, "method": "POST"})
                 self.send_response(200 if valid else 401)
                 if valid:
-                    self.send_header("set-cookie", "synthetic-session=authenticated; Secure; HttpOnly; SameSite=Strict")
+                    self.send_header("set-cookie", "synthetic-session=authenticated; Secure; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/")
                 self.end_headers()
                 self.wfile.write(b"Signed in" if valid else b"Refused")
             def log_message(self, *_):
@@ -247,14 +309,35 @@ def exercise(root, runtime_directory):
         origin = "https://127.0.0.1:" + str(server.server_port)
         write = {"id": str(uuid.uuid4()), "operation": {"type": "write", "target": {"type": "create",
              "metadata": {"label": "Linux synthetic sign-in", "bots": {"type": "selected", "bots": [bot]},
-                          "allowed_origins": [origin], "password_policy": "every_fill"}},
-             "values": {"username": username, "password": secret, "totp_seed": ""}}}
-        ws.send_binary(b"botstral-protected-owner-v1\0" + json.dumps(write).encode())
-        receipt = json.loads(ws.recv())
-        emit("protected_write_receipt", receipt=receipt)
-        assert receipt["type"] == "protected_reply" and receipt["status"]["type"] == "committed"
-        item = receipt["status"]["item"]
-        emit("protected_item_committed", item=item)
+                          "allowed_origins": [origin], "password_policy": "remembered_origins"}},
+             "values": {"username": username, "password": secret, "totp_seed": seed}}}
+        if native_port:
+            public = {"origin": origin, "bot": bot, "manager": invitation["manager"]}
+            Path("native-entry.json").write_text(json.dumps(public))
+            emit("packaged_native_entry_ready", **public)
+            fingerprint_path = Path("native-fingerprint.txt")
+            poll(lambda: fingerprint_path.exists(), bool, "packaged pairing fingerprint", seconds=600)
+            fingerprint = fingerprint_path.read_text().strip()
+            grant = http("POST", "/v1/device-invitations", {"request": {"fingerprint": fingerprint, "label": "Packaged P06 acceptance"}, "lifetime_seconds": 600})
+            trust = http("POST", "/v1/device-trust", {"endpoint": "127.0.0.1:" + str(native_port),
+                "server_name": "127.0.0.1", "ca_pem": Path("ca.pem").read_text(), "certificate_pem": Path("manager.pem").read_text()})
+            bundle = {"trust": trust, "role": grant["role"], "fingerprint": grant["fingerprint"],
+                      "expires_at": grant["expires_at"], "invitation": grant["invitation"]}
+            Path("native-invitation.json").write_text(json.dumps(bundle))
+            emit("packaged_native_invitation_ready", manager=trust["manager"], leaf=trust["leaf"])
+            items = poll(lambda: owner.call({"method": "login_items"})["value"],
+                lambda items: any(i["metadata"]["label"] == "Packaged Linux account" for i in items), "packaged native save", seconds=600)
+            item = next(i for i in items if i["metadata"]["label"] == "Packaged Linux account")
+            emit("packaged_native_item_committed", item=item)
+            Path("native-saved.json").write_text(json.dumps(item))
+            poll(lambda: Path("native-start").exists(), bool, "packaged browser start", seconds=600)
+        else:
+            ws.send_binary(b"botstral-protected-owner-v1\0" + json.dumps(write).encode())
+            receipt = json.loads(ws.recv())
+            emit("protected_write_receipt", receipt=receipt)
+            assert receipt["type"] == "protected_reply" and receipt["status"]["type"] == "committed"
+            item = receipt["status"]["item"]
+            emit("protected_item_committed", item=item)
         plan = {"version": 1, "origin": origin, "route": "/login", "frame": None, "form": "#login",
                 "username": "#username", "password": "#password", "totp": "#totp", "submitter": "#submit", "action": "/session"}
         task = submit([{"type": "protected_login", "item": item["id"], "revision": item["revision"],
@@ -307,8 +390,14 @@ def exercise(root, runtime_directory):
         outsider.close()
         assert refused and not submissions
         emit("same_uid_outside_scope_refused", response_bytes=0, submissions=len(submissions))
-        decision = owner.call({"method": "decide_credential_use", "review": review, "decision": "allow_once"})
-        assert decision["value"]["state"] == "authorized"
+        if native_port:
+            Path("native-review.json").write_text(json.dumps({"id": review["id"], "purpose": "password"}))
+            emit("packaged_native_review_ready", id=review["id"], purpose="password")
+            poll(lambda: owner.call({"method": "credential_uses"})["value"],
+                lambda items: any(i["id"] == review["id"] and i["state"] in ("authorized", "released", "applied") for i in items), "packaged password approval", seconds=25)
+        else:
+            decision = owner.call({"method": "decide_credential_use", "review": review, "decision": "allow_once"})
+            assert decision["value"]["state"] == "authorized"
         final = poll(lambda: http("GET", "/v1/tasks/" + task["id"]),
                      lambda t: t["state"] in ("completed", "failed", "awaiting_attention"), "sign-in settlement", seconds=60)
         review_after = owner.call({"method": "credential_uses"})["value"]
@@ -322,9 +411,46 @@ def exercise(root, runtime_directory):
                                  "protection": history["protection"], "destination": review["destination"]})
         assert status == 403
         emit("repeated_tls_release_refused", status=status)
+        if native_port:
+            emit("production_packaged_native_linux_sign_in_passed")
+            Path("native-completed.json").write_text(json.dumps({"task": final["id"], "review": review["id"], "valid_post": True}))
+            poll(lambda: Path("native-finish").exists(), bool, "packaged sign-out cleanup", seconds=600)
+            return 0
+        factor_plan = {**plan, "route": "/totp", "action": "/factor"}
+        for attempt in range(2):
+            if time.time() % 30 > 20:
+                time.sleep(31 - time.time() % 30)
+            factor = submit([{"type": "protected_login", "item": item["id"], "revision": item["revision"],
+                              "purpose": "totp", "plan": factor_plan}])
+            factor_reviews = poll(lambda: owner.call({"method": "credential_uses"})["value"],
+                lambda reviews: any(r["binding"]["task"] == factor["id"] and r["state"] == "awaiting_approval" for r in reviews),
+                "fresh TOTP review")
+            factor_review = next(r for r in factor_reviews if r["binding"]["task"] == factor["id"])
+            emit("totp_review_prepared", review=factor_review, submissions=len(submissions))
+            assert factor_review["state"] == "awaiting_approval"
+            assert len(submissions) == attempt + 1
+            while time.time() % 30 > 15:
+                time.sleep(0.2)
+            emit("totp_approval_window", seconds_remaining=30 - int(time.time()) % 30)
+            approved = owner.call({"method": "decide_credential_use", "review": factor_review, "decision": "allow_once"})
+            assert approved["value"]["state"] == "authorized"
+            settled = poll(lambda: http("GET", "/v1/tasks/" + factor["id"]),
+                lambda t: t["state"] in ("completed", "failed", "awaiting_attention"), "TOTP settlement", seconds=60)
+            final_reviews = owner.call({"method": "credential_uses"})["value"]
+            emit("totp_settlement", task=settled, reviews=final_reviews, submissions=submissions)
+            assert settled["state"] == "completed"
+            assert any(r["id"] == factor_review["id"] and r["state"] == "applied" for r in final_reviews)
+            assert submissions[-1] == {"valid": True, "path": "/factor", "method": "POST"}
+            assert len(submissions) == attempt + 2
+            emit("production_linux_totp_passed", attempt=attempt + 1, task=settled,
+                 review=next(r for r in final_reviews if r["id"] == factor_review["id"]), fresh_approval=True)
         emit("production_linux_protected_sign_in_passed")
         return 0
     finally:
+        if "sampling" in locals():
+            sampling.set()
+            sampler.join(timeout=2)
+            emit("helper_readiness_samples", samples=helper_samples)
         if owner:
             owner.ws.close()
         if server:
@@ -355,9 +481,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--runtime", type=Path, default=Path("/opt/p06-runtime"))
+    parser.add_argument("--native-port", type=int)
     args = parser.parse_args()
     try:
-        raise SystemExit(exercise(args.root, args.runtime))
+        raise SystemExit(exercise(args.root, args.runtime, args.native_port))
     except Exception as error:
-        emit("fixture_failed", error=str(error), exception=type(error).__name__)
+        emit("fixture_failed", error=str(error), exception=type(error).__name__, traceback=traceback.format_exc())
         raise SystemExit(1)

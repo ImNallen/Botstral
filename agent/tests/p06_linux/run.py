@@ -15,7 +15,10 @@ def main():
     parser.add_argument("--evidence", type=Path, required=True)
     parser.add_argument("--image", help="Use an existing fixture image instead of building one.")
     parser.add_argument("--headless-only", action="store_true")
+    parser.add_argument("--native-port", type=int, help="Publish only the paired TLS endpoint on host loopback for packaged native acceptance.")
     args = parser.parse_args()
+    if args.native_port is not None and not 1024 <= args.native_port <= 65535:
+        parser.error("--native-port must be between 1024 and 65535")
     repository = Path(__file__).resolve().parents[3]
     evidence = args.evidence.resolve()
     evidence.mkdir(mode=0o700)
@@ -39,6 +42,8 @@ def main():
     architecture = json.loads(info.stdout)
     (evidence / "source.json").write_text(json.dumps({
         "reviewed_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repository).decode().strip(),
+        "diff_sha256": hashlib.sha256(subprocess.check_output(["git", "diff", "--binary"], cwd=repository)).hexdigest(),
+        "fixture_sha256": hashlib.sha256((repository / "agent/tests/p06_linux/fixture.py").read_bytes()).hexdigest(),
         "binaries": binaries, "headless_only": args.headless_only, "host_architecture": architecture}, indent=2) + "\n")
     if not image:
         sealed = name + "-runtime"
@@ -63,6 +68,8 @@ def main():
     try:
         argv = ["docker", "run", "-d", "--name", name, "--privileged", "--cgroupns=private",
                 "--tmpfs", "/run", "--tmpfs", "/run/lock"]
+        if args.native_port:
+            argv += ["--publish", "127.0.0.1:" + str(args.native_port) + ":44319"]
         for unit in ("systemd-binfmt.service", "systemd-sysctl.service", "systemd-modules-load.service"):
             argv += ["--mount", "type=bind,src=/dev/null,dst=/etc/systemd/system/" + unit + ",readonly"]
         run([*argv, image], "start-container")
@@ -89,8 +96,10 @@ def main():
                 "python3 /opt/p06-headless/seal.py; chmod -R a+rX /opt/p06-headless"
             )
             run(["docker", "exec", name, "sh", "-ec", prune], "headless-reseal")
-        result = run([*base, "python3", "/home/p06/fixture.py", "--root", "/home/p06/fixture",
-                      "--runtime", runtime], "integration", check=False)
+        fixture_args = [*base, "python3", "/home/p06/fixture.py", "--root", "/home/p06/fixture", "--runtime", runtime]
+        if args.native_port:
+            fixture_args += ["--native-port", str(args.native_port)]
+        result = run(fixture_args, "integration", check=False)
         run(["docker", "exec", name, "sh", "-c",
              "cat /home/p06/fixture/worker.log /home/p06/fixture/manager.log"], "service-logs", check=False)
         return result.returncode
