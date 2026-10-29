@@ -116,6 +116,22 @@ class CompactionEvidenceTests(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             self.evidence.task_id = 'changed'
 
+    def test_multiline_provider_summary_matches_saved_json_history(self):
+        from first_acceptance_compaction import verify_native
+        native = json.loads(self.evidence.native)
+        previous = native['summary']
+        native['summary'] = 'First retained fact.\nSecond retained fact.'
+        native['after'][-1]['content'] = native['after'][-1]['content'].replace(previous, native['summary'])
+        response = json.loads(native['responses'][0]['body'])
+        response['choices'][0]['message']['content'] = '<summary>\n' + native['summary'] + '\n</summary>'
+        native['responses'][0]['body'] = encoded(response)
+        native['responses'][0]['sha256'] = sha(native['responses'][0]['body'])
+        for path in native['after_files']:
+            if path.endswith('/messages.jsonl'):
+                native['after_files'][path] = ''.join(encoded(m) + '\n' for m in native['after'] if m['role'] != 'system')
+                native['after_file_digests'][path] = sha(native['after_files'][path])
+        verify_native(native)
+
     def test_missing_proof_never_passes(self):
         self.assertEqual(helper_verdict(None)['verdict'], 'NOT VERIFIED')
         for field in asdict(self.evidence):

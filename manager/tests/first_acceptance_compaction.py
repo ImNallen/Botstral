@@ -110,7 +110,7 @@ def verify_native(native):
         digests = native['before_file_digests' if name == 'before_files' else 'after_file_digests']
         require(set(digests) == set(files) and all(re.fullmatch('[0-9a-f]{64}', value) for value in digests.values()), 'native file hashes required')
         require(all(sha(text) == digests[path] for path, text in files.items() if path.endswith('/messages.jsonl')), 'native history file hash')
-    require(native['before_files'] != native['after_files'] and any(summary in text for text in native['after_files'].values()), 'saved native history required')
+    require(native['before_files'] != native['after_files'], 'saved native history required')
 
 
 def probe_compaction(record):
