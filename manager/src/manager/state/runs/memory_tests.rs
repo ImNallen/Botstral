@@ -313,3 +313,89 @@ fn p01_tool_result_followup_keeps_original_snapshot_after_correction_and_restart
     assert!(!p.prepared.encoded().contains("New-run memory B."));
     assert_eq!(p.turn.ordinal, 2);
 }
+
+#[test]
+fn p01_json_escaping_cannot_hide_a_reflected_provider_secret_in_memory() {
+    for secret in [
+        r#"synthetic-"quoted"-provider-key"#,
+        r"synthetic-\backslash-provider-key",
+    ] {
+        let mut f = fixture();
+        f.state
+            .replace_provider_key(token(), ProviderSecret::new(secret.into()).unwrap())
+            .unwrap();
+        let verification = f
+            .state
+            .prepare_inference_verification(
+                token(),
+                VerifyInference {
+                    bot: f.input.bot,
+                    revision: 1,
+                },
+            )
+            .unwrap();
+        f.state
+            .finish_inference_verification(
+                verification.configuration,
+                verification.epoch,
+                Some((true, false)),
+            )
+            .unwrap();
+        remember(&mut f, 0, secret);
+        assert_eq!(
+            f.state.submit_run(token(), f.input.clone()),
+            Err(OperationError::InvalidInput)
+        );
+        assert_eq!(f.state.load_run(f.input.id), Err(OperationError::NotFound));
+        assert!(
+            f.state
+                .claim_run_work(&HashSet::new(), true)
+                .unwrap()
+                .is_none()
+        );
+    }
+}
+
+#[test]
+fn p01_frozen_memory_reflection_is_rechecked_after_key_rotation_and_verification() {
+    let mut f = fixture();
+    let secret = r#"synthetic-"rotated"-provider-key"#;
+    let memory = remember(&mut f, 0, secret);
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    f.state
+        .replace_provider_key(token(), ProviderSecret::new(secret.into()).unwrap())
+        .unwrap();
+    let verification = f
+        .state
+        .prepare_inference_verification(
+            token(),
+            VerifyInference {
+                bot: f.input.bot,
+                revision: 1,
+            },
+        )
+        .unwrap();
+    f.state
+        .finish_inference_verification(
+            verification.configuration,
+            verification.epoch,
+            Some((true, false)),
+        )
+        .unwrap();
+    assert!(
+        f.state
+            .claim_run_work(&HashSet::new(), true)
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(stored(&f, f.input.id), Some(memory));
+    let run = f.state.load_run(f.input.id).unwrap();
+    assert_eq!(
+        run.summary.phase,
+        RunPhase::AwaitingAttention {
+            reason: RunAttentionReason::ResultInvalid
+        }
+    );
+    assert!(run.turns.is_empty());
+    assert_eq!(run.summary.accounting, RunAccounting::default());
+}

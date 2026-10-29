@@ -20,7 +20,7 @@ Each turn starts with a separate User context message containing a fixed untrust
 
 The preface says that the current request takes precedence and memory grants no permissions. It does not prevent model prompt injection. Manager execution policy, exact approvals, and existing dispatch checks enforce permissions. Memory cannot grant a tool or alter a budget. The manager does not fetch source URIs or recheck frozen source references against later-deleted conversation history during dispatch.
 
-Admission bounds the complete serialized initial transcript to 32 KiB and the prepared provider request to 64 KiB. Provider-secret reflection checks include the injected document, including its sources. Existing image, token, output, operation, time, cost, parent, and task limits remain in force. The existing dispatch checks still apply to subsequent turns.
+Admission bounds the complete serialized initial transcript to 32 KiB and the prepared provider request to 64 KiB. Provider-secret reflection checks include the document before JSON rendering and the complete prepared request. This also catches keys containing quotes or backslashes. The shared transcript renderer repeats the document check at claim, including after key rotation and re-verification. Existing image, token, output, operation, time, cost, parent, and task limits remain in force. The existing dispatch checks still apply to subsequent turns.
 
 ## Verification
 

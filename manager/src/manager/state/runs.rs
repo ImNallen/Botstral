@@ -71,6 +71,7 @@ fn transcript(
     state: &State,
     view: &RunView,
     memory: Option<&Document>,
+    secret: &str,
 ) -> Result<Vec<RunMessage>, OperationError> {
     let initial = state.authorize_images(&view.request, &view.request.images)?;
     let mut images = initial.len();
@@ -80,6 +81,12 @@ fn transcript(
         .sum();
     let mut messages = Vec::new();
     if let Some(memory) = memory.filter(|d| !d.markdown.trim().is_empty()) {
+        if reflects_secret(
+            &serde_json::to_value(memory).map_err(|_| OperationError::Internal)?,
+            secret,
+        ) {
+            return Err(OperationError::InvalidInput);
+        }
         messages.push(RunMessage::User {
             content: format!("{MEMORY_PREFACE}{}", json(memory)?),
         });
@@ -305,7 +312,7 @@ impl State {
         if next_call_stop(&view)?.is_some() {
             return Err(OperationError::InferenceBudget);
         }
-        let messages = transcript(self, &view, memory.as_ref())?;
+        let messages = transcript(self, &view, memory.as_ref(), secret.expose_secret())?;
         if json(&messages)?.len() > MAX_RUN_TRANSCRIPT_BYTES {
             return Err(OperationError::InvalidInput);
         }
@@ -549,10 +556,10 @@ impl State {
                         tx.commit()?;
                         continue;
                     }
-                    let messages = match self
-                        .load_run_memory(&view)
-                        .and_then(|memory| transcript(self, &view, memory.as_ref()))
-                    {
+                    let secret = self.provider_secret()?;
+                    let messages = match self.load_run_memory(&view).and_then(|memory| {
+                        transcript(self, &view, memory.as_ref(), secret.expose_secret())
+                    }) {
                         Ok(messages) => messages,
                         Err(_) => {
                             view.summary.phase = RunPhase::AwaitingAttention {
@@ -572,7 +579,6 @@ impl State {
                         tx.commit()?;
                         continue;
                     }
-                    let secret = self.provider_secret()?;
                     let reservation = reservation(&view)?;
                     let turn = RunTurn {
                         manager_result: None,
