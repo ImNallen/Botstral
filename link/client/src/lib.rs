@@ -647,6 +647,41 @@ impl OwnerSession {
             }
         }
     }
+    pub async fn protected(
+        &mut self,
+        request: protected::ProtectedOwnerRequest,
+    ) -> Result<CredentialWriteStatus> {
+        let id = request.id;
+        let bytes = request.encode().map_err(|_| ClientError::Protocol)?;
+        drop(request);
+        tokio::time::timeout(
+            DEADLINE,
+            self.socket.send(Message::Binary(bytes.to_vec().into())),
+        )
+        .await
+        .map_err(|_| ClientError::UnknownOutcome)?
+        .map_err(|_| ClientError::UnknownOutcome)?;
+        drop(bytes);
+        tokio::time::timeout(Duration::from_secs(30), async {
+            loop {
+                match self.next().await.map_err(|_| ClientError::UnknownOutcome)? {
+                    OwnerServerMessage::ProtectedReply {
+                        id: response,
+                        status,
+                    } if response == id => return Ok(status),
+                    OwnerServerMessage::Error {
+                        id: Some(response),
+                        code,
+                    } if response == id => return Err(ClientError::Refused(code)),
+                    OwnerServerMessage::Notification { head } => self.notification = Some(head),
+                    OwnerServerMessage::Pong => {}
+                    _ => return Err(ClientError::UnknownOutcome),
+                }
+            }
+        })
+        .await
+        .map_err(|_| ClientError::UnknownOutcome)?
+    }
     pub async fn call(&mut self, operation: OwnerOperation) -> Result<OwnerReply> {
         let read = matches!(
             &operation,

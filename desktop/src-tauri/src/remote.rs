@@ -109,6 +109,22 @@ struct Envelope {
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
 pub enum IntentCommand {
+    Protected {
+        generation: u64,
+        request: protected::ProtectedOwnerRequest,
+        result: oneshot::Sender<Result<CredentialWriteStatus, String>>,
+    },
+    ProtectedStatus {
+        result: oneshot::Sender<Result<Option<CredentialWriteStatus>, String>>,
+    },
+    LoginItems {
+        result: oneshot::Sender<Result<Vec<LoginItemView>, String>>,
+    },
+    UpdateLogin {
+        id: CredentialId,
+        expected_revision: CredentialRevision,
+        metadata: Option<LoginMetadata>,
+    },
     Routine(RoutineCommand),
     RunDetails(RunId),
     RoutineText {
@@ -373,6 +389,31 @@ impl RemoteService {
         })
         .map_err(|_| "busy")?;
         result.await.map_err(|_| "stale")?
+    }
+    pub async fn protected(
+        &self,
+        generation: u64,
+        request: protected::ProtectedOwnerRequest,
+    ) -> Result<CredentialWriteStatus, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::Protected {
+            generation,
+            request,
+            result,
+        })
+        .await?;
+        receiver.await.map_err(|_| "unresolved".to_string())?
+    }
+    pub async fn protected_status(&self) -> Result<Option<CredentialWriteStatus>, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::ProtectedStatus { result })
+            .await?;
+        receiver.await.map_err(|_| "unresolved".to_string())?
+    }
+    pub async fn login_items(&self) -> Result<Vec<LoginItemView>, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::LoginItems { result }).await?;
+        receiver.await.map_err(|_| "offline".to_string())?
     }
     pub async fn artifact(
         &self,
@@ -1020,8 +1061,140 @@ impl Actor {
             bytes,
         })
     }
+    async fn protected(
+        &mut self,
+        generation: u64,
+        request: protected::ProtectedOwnerRequest,
+    ) -> Result<CredentialWriteStatus, String> {
+        if generation != self.generation
+            || self.view.borrow().generation != generation
+            || self.suspended
+            || self.revoked
+        {
+            return Err("stale".into());
+        }
+        self.recover().await?;
+        if matches!(
+            &request.operation,
+            protected::ProtectedOwnerOperation::Unlock { .. }
+        ) {
+            return self
+                .session
+                .as_mut()
+                .ok_or("offline")?
+                .protected(request)
+                .await
+                .map_err(error_code);
+        }
+        if self.root.join("protected-status.json").exists() {
+            let bytes = botstral_link::tls::private_bytes(&self.root.join("protected-status.json"))
+                .map_err(|_| "storage")?;
+            let previous: CredentialWriteStatus =
+                serde_json::from_slice(&bytes).map_err(|_| "storage")?;
+            if matches!(previous, CredentialWriteStatus::Unresolved { .. }) {
+                return Err("reconcile_previous_entry".into());
+            }
+        }
+        let id = request.id;
+        storage(
+            &self.root,
+            "protected-status.json",
+            &CredentialWriteStatus::Unresolved { request: id },
+        )?;
+        let status = match self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .protected(request)
+            .await
+        {
+            Ok(status) => status,
+            Err(_) => {
+                self.session = None;
+                return Ok(CredentialWriteStatus::Unresolved { request: id });
+            }
+        };
+        storage(&self.root, "protected-status.json", &status)?;
+        Ok(status)
+    }
+    async fn protected_status(&mut self) -> Result<Option<CredentialWriteStatus>, String> {
+        self.recover().await?;
+        if !self.root.join("protected-status.json").exists() {
+            return Ok(None);
+        }
+        let bytes = botstral_link::tls::private_bytes(&self.root.join("protected-status.json"))
+            .map_err(|_| "storage")?;
+        let status: CredentialWriteStatus =
+            serde_json::from_slice(&bytes).map_err(|_| "storage")?;
+        let CredentialWriteStatus::Unresolved { request } = status else {
+            return Ok(Some(status));
+        };
+        let OwnerReply::CredentialWriteStatus(status) = self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .call(OwnerOperation::CredentialWriteStatus {
+                request,
+                close: true,
+            })
+            .await
+            .map_err(error_code)?
+        else {
+            return Err("protocol".into());
+        };
+        storage(&self.root, "protected-status.json", &status)?;
+        Ok(Some(status))
+    }
     async fn execute(&mut self, command: IntentCommand) -> Result<(), String> {
         match command {
+            IntentCommand::Protected {
+                generation,
+                request,
+                result,
+            } => {
+                let value = self.protected(generation, request).await;
+                let _ = result.send(value);
+                Ok(())
+            }
+            IntentCommand::ProtectedStatus { result } => {
+                let value = self.protected_status().await;
+                let _ = result.send(value);
+                Ok(())
+            }
+            IntentCommand::LoginItems { result } => {
+                self.recover().await?;
+                let value = match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::LoginItems)
+                    .await
+                    .map_err(error_code)?
+                {
+                    OwnerReply::LoginItems(items) => Ok(items),
+                    _ => Err("protocol".into()),
+                };
+                let _ = result.send(value);
+                Ok(())
+            }
+            IntentCommand::UpdateLogin {
+                id,
+                expected_revision,
+                metadata,
+            } => {
+                self.recover().await?;
+                self.session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::UpdateLogin {
+                        id,
+                        expected_revision,
+                        metadata,
+                    })
+                    .await
+                    .map_err(error_code)?;
+                Ok(())
+            }
             IntentCommand::Fetch {
                 task,
                 artifact,

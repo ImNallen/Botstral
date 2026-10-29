@@ -122,6 +122,79 @@ async fn sign_out(
 }
 
 #[tauri::command]
+async fn open_login_entry(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, RemoteService>,
+    target: Option<botstral_link::CredentialWriteTarget>,
+) -> Result<botstral_link::CredentialWriteStatus, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    let before = service.inspect();
+    if before.status != "online" {
+        return Err("paired_owner_required".into());
+    }
+    if target.is_some()
+        && matches!(
+            service.protected_status().await?,
+            Some(botstral_link::CredentialWriteStatus::Unresolved { .. })
+        )
+    {
+        return Err("entry_unresolved".into());
+    }
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let generation = before.generation;
+    app.run_on_main_thread(move || {
+        let _ = tx.send(crate::protected_input::collect(generation, target));
+    })
+    .map_err(|_| "native_unavailable")?;
+    let operation = rx.await.map_err(|_| "cancelled")??;
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .protected(
+            generation,
+            botstral_link::protected::ProtectedOwnerRequest {
+                id: botstral_link::RequestId::new(),
+                operation,
+            },
+        )
+        .await
+}
+#[tauri::command]
+async fn login_items(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<Vec<botstral_link::LoginItemView>, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.login_items().await
+}
+#[tauri::command]
+async fn update_login(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    id: botstral_link::CredentialId,
+    expected_revision: botstral_link::CredentialRevision,
+    metadata: Option<botstral_link::LoginMetadata>,
+) -> Result<(), String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .command(IntentCommand::UpdateLogin {
+            id,
+            expected_revision,
+            metadata,
+        })
+        .await
+        .map(|_| ())
+}
+#[tauri::command]
+async fn credential_write_status(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<Option<botstral_link::CredentialWriteStatus>, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.protected_status().await
+}
+
+#[tauri::command]
 async fn remote_inspect(
     window: WebviewWindow,
     service: tauri::State<'_, RemoteService>,
@@ -555,6 +628,7 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .manage(LocalManager::new().expect("local client initialization"))
         .invoke_handler(tauri::generate_handler![
+            open_login_entry, login_items, update_login, credential_write_status,
             inspect,
             sign_in,
             refresh,
@@ -641,6 +715,9 @@ pub fn run() {
                 let mut cursor = None;
                 while changes.changed().await.is_ok() {
                     let view = changes.borrow_and_update().clone();
+                    let generation = view.generation;
+                    let online = view.status == "online";
+                    let _ = handle.run_on_main_thread(move || crate::protected_input::cancel_unless(generation, online));
                     if let Some(window) = handle.get_webview_window("main").filter(|w| w.url().is_ok_and(|u| allowed_page(&u))) {
                         let _ = window.emit_to(tauri::EventTarget::webview_window("main"), "workspace-changed", &view);
                     }
@@ -657,7 +734,7 @@ pub fn run() {
                     .title("Botstral")
                     .inner_size(1200.0, 800.0)
                     .min_inner_size(880.0, 620.0)
-                    .on_navigation(allowed_page)
+                    .on_navigation(|url| { crate::protected_input::cancel_unless(0, false); allowed_page(url) })
                     .on_new_window(|_, _| tauri::webview::NewWindowResponse::Deny);
             #[cfg(target_os = "macos")]
             let window = window

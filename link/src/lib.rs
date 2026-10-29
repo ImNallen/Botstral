@@ -84,7 +84,10 @@ mod inference;
 pub use inference::*;
 mod artifact;
 pub use artifact::*;
+mod credentials;
+pub use credentials::*;
 mod computer;
+pub mod protected;
 pub use computer::*;
 mod vision;
 pub use vision::*;
@@ -560,6 +563,7 @@ pub fn schema() -> String {
     #[derive(JsonSchema)]
     #[allow(dead_code)]
     struct Protocol {
+        credential_write_target: CredentialWriteTarget,
         owner_hello: OwnerHello,
         owner_client: OwnerClientMessage,
         owner_server: OwnerServerMessage,

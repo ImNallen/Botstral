@@ -1,4 +1,5 @@
 import type { ManagerOutcome, MemoryScope, MemoryRefusal } from '@botstral/link';
+import { LoginEntry } from './LoginEntry';
 
 function scopeName(scope: MemoryScope) {
   return scope.type === 'shared' ? 'Shared memory for all bots' : 'Individual memory for this bot';
@@ -24,6 +25,7 @@ export function MemoryNotice({
     return (
       <article className="memory-notice" aria-label="Vault handoff">
         <p>{result}</p>
+        {outcome.outcome.type === 'login_entry' && <LoginEntry bot={outcome.outcome.bot} />}
       </article>
     );
   }

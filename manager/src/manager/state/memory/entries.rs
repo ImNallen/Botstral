@@ -140,6 +140,7 @@ impl State {
     ) -> Result<(), OperationError> {
         let value = serde_json::to_value(value).map_err(|_| OperationError::Internal)?;
         let mut secrets = self.known_connector_secrets()?;
+        secrets.extend(self.known_login_secrets()?);
         match self.provider_secret() {
             Ok(secret) => secrets.push(secret),
             Err(OperationError::NotFound) => {}

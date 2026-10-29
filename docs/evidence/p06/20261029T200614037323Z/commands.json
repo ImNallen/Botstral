@@ -1,0 +1,32 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::"
+    ],
+    "started": "2026-10-29T20:06:14.037613+00:00",
+    "finished": "2026-10-29T20:06:29.083397+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  },
+  {
+    "name": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "started": "2026-10-29T20:06:29.083718+00:00",
+    "finished": "2026-10-29T20:06:48.164172+00:00",
+    "exit_code": 0,
+    "log": "native-storage.log"
+  }
+]

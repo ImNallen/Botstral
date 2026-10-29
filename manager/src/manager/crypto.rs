@@ -162,6 +162,41 @@ pub(super) fn decrypt_connector(
     Ok(Zeroizing::new(plaintext[prefix.len()..].to_vec()))
 }
 
+pub(super) fn encrypt_credential(
+    identity: &age::x25519::Identity,
+    context: &str,
+    plaintext: &[u8],
+) -> Result<Vec<u8>, OperationError> {
+    let recipient = identity.to_public();
+    let mut payload = Zeroizing::new(format!("botstral-login-v1\0{context}\0").into_bytes());
+    payload.extend_from_slice(plaintext);
+    encrypt(
+        age::Encryptor::with_recipients(std::iter::once(&recipient as &dyn age::Recipient))
+            .map_err(|_| OperationError::Internal)?,
+        &payload,
+    )
+}
+
+pub(super) fn decrypt_credential(
+    identity: &age::x25519::Identity,
+    context: &str,
+    ciphertext: &[u8],
+) -> Result<Zeroizing<Vec<u8>>, OperationError> {
+    let prefix = format!("botstral-login-v1\0{context}\0");
+    let mut plaintext = Zeroizing::new(Vec::new());
+    age::Decryptor::new(ciphertext)
+        .map_err(|_| OperationError::Internal)?
+        .decrypt(std::iter::once(identity as &dyn age::Identity))
+        .map_err(|_| OperationError::Internal)?
+        .take(32769)
+        .read_to_end(&mut plaintext)
+        .map_err(|_| OperationError::Internal)?;
+    if plaintext.len() > 32768 || !plaintext.starts_with(prefix.as_bytes()) {
+        return Err(OperationError::Internal);
+    }
+    Ok(Zeroizing::new(plaintext[prefix.len()..].to_vec()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

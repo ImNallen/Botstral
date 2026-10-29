@@ -13,7 +13,28 @@ export type InferenceAttemptId = string;
 export type CodingCallPhase = 'reserved' | 'sent' | 'settled' | 'unknown' | 'not_sent';
 export type TaskId = string;
 export type RequestId = string;
+export type CredentialWriteTarget =
+  | {
+      metadata: LoginMetadata;
+      type: 'create';
+    }
+  | {
+      expected_revision: CredentialRevision;
+      id: CredentialId;
+      type: 'rotate';
+    };
+export type BotAccess =
+  | {
+      type: 'all_owner_bots';
+    }
+  | {
+      bots: BotId[];
+      type: 'selected';
+    };
 export type BotId = string;
+export type PasswordPolicy = 'every_fill' | 'remembered_origins';
+export type CredentialRevision = number;
+export type CredentialId = string;
 export type DocumentKind = 'instructions' | 'memory';
 export type SourceReference =
   | {
@@ -549,6 +570,20 @@ export type OwnerClientMessage =
     };
 export type OwnerOperation =
   | {
+      method: 'login_items';
+    }
+  | {
+      close: boolean;
+      method: 'credential_write_status';
+      request: RequestId;
+    }
+  | {
+      expected_revision: CredentialRevision;
+      id: CredentialId;
+      metadata?: LoginMetadata | null;
+      method: 'update_login';
+    }
+  | {
       id: RequestId;
       method: 'routine_status';
     }
@@ -871,6 +906,18 @@ export type OwnerHello =
     };
 export type OwnerReply =
   | {
+      type: 'login_items';
+      value: LoginItemView[];
+    }
+  | {
+      type: 'login_item';
+      value: LoginItemView;
+    }
+  | {
+      type: 'credential_write_status';
+      value: CredentialWriteStatus;
+    }
+  | {
       type: 'routine_status';
       value: RoutineControlResult | null;
     }
@@ -972,6 +1019,22 @@ export type OwnerReply =
         base64: string;
         declaration: OutputDeclaration;
       };
+    };
+export type CredentialEpoch = number;
+export type CredentialState = 'active' | 'removed';
+export type CredentialWriteStatus =
+  | {
+      item: LoginItemView;
+      request: RequestId;
+      type: 'committed';
+    }
+  | {
+      request: RequestId;
+      type: 'closed_without_commit';
+    }
+  | {
+      request: RequestId;
+      type: 'unresolved';
     };
 export type ConnectorCallId = string;
 export type ConnectorResult =
@@ -1078,6 +1141,10 @@ export type VaultOutcome =
     }
   | {
       type: 'reusable_login_unsupported';
+    }
+  | {
+      bot: BotId;
+      type: 'login_entry';
     };
 export type EventReplay =
   | {
@@ -1226,6 +1293,11 @@ export type TaskEvent =
 export type LogCode = 'started' | 'input_applied' | 'stopped';
 export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
 export type OwnerServerMessage =
+  | {
+      id: RequestId;
+      status: CredentialWriteStatus;
+      type: 'protected_reply';
+    }
   | {
       device: DeviceId;
       manager: ManagerId;
@@ -1403,6 +1475,7 @@ export type ReleaseChannel = 'stable' | 'experimental';
 export interface Protocol {
   coding_calls: CodingCallView[];
   coding_result: VibeResult;
+  credential_write_target: CredentialWriteTarget;
   document: WriteDocument;
   inference: SubmitInference;
   inference_configuration: ConfigureInference;
@@ -1445,6 +1518,12 @@ export interface VibeResult {
   exit_code: number;
   native_session: RequestId;
   tool_errors: number;
+}
+export interface LoginMetadata {
+  allowed_origins: string[];
+  bots: BotAccess;
+  label: string;
+  password_policy: PasswordPolicy;
 }
 export interface WriteDocument {
   bot: BotId;
@@ -1959,6 +2038,14 @@ export interface OwnerInvitation {
   invitation: string;
   role: DeviceRole;
   trust: ManagerTrust;
+}
+export interface LoginItemView {
+  epoch: CredentialEpoch;
+  has_totp: boolean;
+  id: CredentialId;
+  metadata: LoginMetadata;
+  revision: CredentialRevision;
+  state: CredentialState;
 }
 export interface RoutineControlResult {
   message: string;

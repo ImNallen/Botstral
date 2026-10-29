@@ -12,6 +12,9 @@
     "coding_result": {
       "$ref": "#/$defs/VibeResult"
     },
+    "credential_write_target": {
+      "$ref": "#/$defs/CredentialWriteTarget"
+    },
     "document": {
       "$ref": "#/$defs/WriteDocument"
     },
@@ -65,6 +68,7 @@
     }
   },
   "required": [
+    "credential_write_target",
     "owner_hello",
     "owner_client",
     "owner_server",
@@ -524,6 +528,43 @@
         "length",
         "width",
         "height"
+      ]
+    },
+    "BotAccess": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "all_owner_bots"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bots": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BotId"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "selected"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bots"
+          ]
+        }
       ]
     },
     "BotConnectorGrants": {
@@ -1876,6 +1917,128 @@
         "text"
       ]
     },
+    "CredentialEpoch": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "CredentialId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CredentialRevision": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "CredentialState": {
+      "type": "string",
+      "enum": [
+        "active",
+        "removed"
+      ]
+    },
+    "CredentialWriteStatus": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/LoginItemView"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "committed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request",
+            "item"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "closed_without_commit"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "unresolved"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request"
+          ]
+        }
+      ]
+    },
+    "CredentialWriteTarget": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "$ref": "#/$defs/LoginMetadata"
+            },
+            "type": {
+              "type": "string",
+              "const": "create"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "metadata"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "$ref": "#/$defs/CredentialRevision"
+            },
+            "id": {
+              "$ref": "#/$defs/CredentialId"
+            },
+            "type": {
+              "type": "string",
+              "const": "rotate"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision"
+          ]
+        }
+      ]
+    },
     "DeviceFingerprint": {
       "type": "string"
     },
@@ -3013,6 +3176,65 @@
         "started",
         "input_applied",
         "stopped"
+      ]
+    },
+    "LoginItemView": {
+      "type": "object",
+      "properties": {
+        "epoch": {
+          "$ref": "#/$defs/CredentialEpoch"
+        },
+        "has_totp": {
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/CredentialId"
+        },
+        "metadata": {
+          "$ref": "#/$defs/LoginMetadata"
+        },
+        "revision": {
+          "$ref": "#/$defs/CredentialRevision"
+        },
+        "state": {
+          "$ref": "#/$defs/CredentialState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "revision",
+        "epoch",
+        "state",
+        "metadata",
+        "has_totp"
+      ]
+    },
+    "LoginMetadata": {
+      "type": "object",
+      "properties": {
+        "allowed_origins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bots": {
+          "$ref": "#/$defs/BotAccess"
+        },
+        "label": {
+          "type": "string"
+        },
+        "password_policy": {
+          "$ref": "#/$defs/PasswordPolicy"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "bots",
+        "allowed_origins",
+        "password_policy"
       ]
     },
     "ManagerId": {
@@ -4401,6 +4623,71 @@
         {
           "type": "object",
           "properties": {
+            "method": {
+              "type": "string",
+              "const": "login_items"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "close": {
+              "type": "boolean"
+            },
+            "method": {
+              "type": "string",
+              "const": "credential_write_status"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "request",
+            "close"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "$ref": "#/$defs/CredentialRevision"
+            },
+            "id": {
+              "$ref": "#/$defs/CredentialId"
+            },
+            "metadata": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/LoginMetadata"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "method": {
+              "type": "string",
+              "const": "update_login"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "id": {
               "$ref": "#/$defs/RequestId"
             },
@@ -5374,6 +5661,60 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "login_items"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LoginItemView"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "login_item"
+            },
+            "value": {
+              "$ref": "#/$defs/LoginItemView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "credential_write_status"
+            },
+            "value": {
+              "$ref": "#/$defs/CredentialWriteStatus"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "routine_status"
             },
             "value": {
@@ -5846,6 +6187,27 @@
         {
           "type": "object",
           "properties": {
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "status": {
+              "$ref": "#/$defs/CredentialWriteStatus"
+            },
+            "type": {
+              "type": "string",
+              "const": "protected_reply"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "status"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "device": {
               "$ref": "#/$defs/DeviceId"
             },
@@ -6163,6 +6525,13 @@
         "run_ready_bots",
         "vault_unlocked",
         "state"
+      ]
+    },
+    "PasswordPolicy": {
+      "type": "string",
+      "enum": [
+        "every_fill",
+        "remembered_origins"
       ]
     },
     "Permission": {
@@ -8807,6 +9176,23 @@
           "additionalProperties": false,
           "required": [
             "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "type": {
+              "type": "string",
+              "const": "login_entry"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot"
           ]
         }
       ]

@@ -137,6 +137,7 @@ pub struct RequestVaultEntry {
 pub enum VaultOutcome {
     ProviderKeySetup,
     ReusableLoginUnsupported,
+    LoginEntry { bot: BotId },
 }
 
 impl VaultOutcome {
@@ -144,6 +145,9 @@ impl VaultOutcome {
         match self {
             Self::ProviderKeySetup => {
                 "Set the Mistral provider key through protected local administration with the Vault unlocked. Do not send the key in chat. No secret was saved by this handoff."
+            }
+            Self::LoginEntry { .. } => {
+                "Open protected native login entry on your paired desktop. Do not send login secrets in chat. No secret was saved by this handoff."
             }
             Self::ReusableLoginUnsupported => {
                 "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved."

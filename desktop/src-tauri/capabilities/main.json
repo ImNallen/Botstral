@@ -40,6 +40,10 @@
     "allow-revoke-device",
     "allow-issue-invitation",
     "allow-import-trust",
-    "allow-acknowledge-uncertainty"
+    "allow-acknowledge-uncertainty",
+    "allow-open-login-entry",
+    "allow-login-items",
+    "allow-update-login",
+    "allow-credential-write-status"
   ]
 }

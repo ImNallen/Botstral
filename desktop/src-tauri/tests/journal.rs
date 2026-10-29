@@ -71,6 +71,99 @@ async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::
 
 #[tokio::test]
 #[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_protected_entry_never_enters_native_journal() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot: BotId = fixture["bot"].as_str().unwrap().parse().unwrap();
+    let username = "synthetic-p06-native-user";
+    let password = "synthetic-p06-native-\"\\\n-private";
+    let request = RequestId::new();
+    let status = service
+        .protected(
+            service.inspect().generation,
+            protected::ProtectedOwnerRequest {
+                id: request,
+                operation: protected::ProtectedOwnerOperation::Write {
+                    target: CredentialWriteTarget::Create {
+                        metadata: LoginMetadata {
+                            label: "Native fixture".into(),
+                            bots: BotAccess::Selected { bots: vec![bot] },
+                            allowed_origins: vec!["https://example.test".into()],
+                            password_policy: PasswordPolicy::EveryFill,
+                        },
+                    },
+                    values: protected::LoginValues {
+                        username: username.into(),
+                        password: password.into(),
+                        totp_seed: String::new(),
+                    },
+                },
+            },
+        )
+        .await
+        .unwrap();
+    let CredentialWriteStatus::Committed { item, .. } = status.clone() else {
+        panic!("protected write did not commit")
+    };
+    assert_eq!(service.login_items().await.unwrap(), vec![item.clone()]);
+    service.shutdown().await;
+    std::fs::write(
+        root.join("protected-status.json"),
+        serde_json::to_vec(&CredentialWriteStatus::Unresolved { request }).unwrap(),
+    )
+    .unwrap();
+    let restarted = RemoteService::new(root.clone(), store);
+    restarted.restore().await.unwrap();
+    assert_eq!(restarted.protected_status().await.unwrap(), Some(status));
+    assert_eq!(restarted.login_items().await.unwrap().len(), 1);
+    restarted
+        .command(IntentCommand::UpdateLogin {
+            id: item.id,
+            expected_revision: item.revision,
+            metadata: None,
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        restarted.login_items().await.unwrap()[0].state,
+        CredentialState::Removed
+    );
+    fn scan(root: &Path, secrets: &[&str]) {
+        for entry in std::fs::read_dir(root).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                scan(&path, secrets);
+            } else {
+                let bytes = std::fs::read(path).unwrap();
+                for secret in secrets {
+                    assert!(
+                        !bytes.windows(secret.len()).any(|v| v == secret.as_bytes()),
+                        "private value persisted in operational files"
+                    );
+                    let escaped = serde_json::to_string(secret).unwrap();
+                    assert!(
+                        !bytes
+                            .windows(escaped.len())
+                            .any(|v| v == escaped.as_bytes()),
+                        "escaped private value persisted in operational files"
+                    );
+                }
+            }
+        }
+    }
+    scan(&root, &[username, password]);
+    let manager =
+        PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap()).join("manager-state");
+    scan(&manager, &[username, password]);
+    if let Some(evidence) = std::env::var_os("BOTSTRAL_P06_EVIDENCE") {
+        std::fs::write(PathBuf::from(evidence).join("native-storage.json"), serde_json::to_vec_pretty(&serde_json::json!({"paired_protected_write":true,"metadata_only":true,"lost_reply_reconciled_without_resend":true,"removed":true,"desktop_and_manager_file_scan":"passed","native_controls":"not exercised by this service integration"})).unwrap()).unwrap();
+    }
+    restarted.sign_out().await.unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
 async fn observed_revocation_blocks_cached_activity_after_offline_restart() {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("owner");

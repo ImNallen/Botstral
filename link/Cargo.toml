@@ -13,7 +13,7 @@ tls = ["dep:rustls", "dep:rustls-pemfile", "dep:libc"]
 rustls = { workspace = true, optional = true }
 rustls-pemfile = { workspace = true, optional = true }
 libc = { version = "0.2", optional = true }
-zeroize = "1.8"
+zeroize = { version = "1.8", features = ["serde"] }
 
 schemars = { version = "1", features = ["uuid1"] }
 serde = { version = "1", features = ["derive"] }

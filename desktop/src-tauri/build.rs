@@ -2,6 +2,10 @@ fn main() {
     #[cfg(feature = "native-ui")]
     tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
         tauri_build::AppManifest::new().commands(&[
+            "open_login_entry",
+            "login_items",
+            "update_login",
+            "credential_write_status",
             "inspect",
             "sign_in",
             "refresh",

@@ -1,0 +1,2 @@
+ts	phase	decision	why	evidence	result
+2026-10-29T20:06:17Z	storage	Keep secret input outside ordinary owner operations.	The native mutation journal serializes complete OwnerOperation values.	desktop/src-tauri/src/remote.rs	Implemented separate binary transport and value-free recovery.

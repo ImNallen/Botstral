@@ -297,6 +297,22 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::LoginItems => Ok(OwnerReply::LoginItems(self.login_items(lease)?)),
+            OwnerOperation::CredentialWriteStatus { request, close } => {
+                Ok(OwnerReply::CredentialWriteStatus(
+                    self.credential_write_status(lease, request, close)?,
+                ))
+            }
+            OwnerOperation::UpdateLogin {
+                id,
+                expected_revision,
+                metadata,
+            } => Ok(OwnerReply::LoginItem(self.update_login(
+                lease,
+                id,
+                expected_revision,
+                metadata,
+            )?)),
             OwnerOperation::RoutineStatus { id } => {
                 Ok(OwnerReply::RoutineStatus(self.routine_status(lease, id)?))
             }

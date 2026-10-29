@@ -331,7 +331,7 @@ fn migration_preserves_old_frozen_document_and_null_no_context() {
         let mut f = fixture();
         f.state.submit_run(token(), f.input.clone()).unwrap();
         let doc = legacy(&f, "Present-day memory.");
-        f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_entries_snapshot; DROP TABLE memory_publications; DROP TABLE memory_imports; PRAGMA user_version=11;").unwrap();
+        f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_entries_snapshot; DROP TABLE memory_publications; DROP TABLE memory_imports; DROP TABLE credential_epochs; DROP TABLE credential_items; DROP TABLE credential_writes; PRAGMA user_version=11;").unwrap();
         if let Some(markdown) = old {
             let mut frozen = doc.clone();
             frozen.markdown = markdown.into();
@@ -664,7 +664,7 @@ fn limits_and_cancellation_precede_publication_and_vault_handoff_has_no_value() 
                 .contains(if purpose == VaultPurpose::ProviderKey {
                     "protected local administration"
                 } else {
-                    "not supported yet"
+                    "protected native login entry"
                 })
         );
         assert!(f.state.memory_context(f.input.bot).unwrap().is_empty());

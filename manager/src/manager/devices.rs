@@ -59,6 +59,16 @@ pub(crate) fn owner_error(error: OperationError) -> OwnerError {
 }
 
 impl Manager {
+    pub(crate) async fn protected_owner(
+        &self,
+        lease: DeviceLease,
+        request: protected::ProtectedOwnerRequest,
+    ) -> Result<CredentialWriteStatus, OperationError> {
+        self.queue
+            .call(true, move |s| s.protected_owner(lease, request))
+            .await
+    }
+
     pub async fn manager_identity(&self, token: SessionToken) -> Result<ManagerId, OperationError> {
         self.queue
             .call(false, move |s| {

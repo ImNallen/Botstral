@@ -360,6 +360,7 @@ dependencies = [
  "chrono",
  "chrono-tz",
  "futures-util",
+ "hmac",
  "http-body-util",
  "hyper",
  "hyper-util",
@@ -375,6 +376,7 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_json",
+ "sha1",
  "sha2 0.10.9",
  "subtle",
  "tempfile",
@@ -3600,6 +3602,7 @@ version = "1.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e13084392c5e4bc371903e2935a5eaeed24905a7511356b883835e18a78f6879"
 dependencies = [
+ "serde",
  "zeroize_derive",
 ]
 

@@ -212,7 +212,9 @@ impl State {
                                                         VaultOutcome::ProviderKeySetup
                                                     }
                                                     VaultPurpose::ReusableLogin => {
-                                                        VaultOutcome::ReusableLoginUnsupported
+                                                        VaultOutcome::LoginEntry {
+                                                            bot: view.request.bot,
+                                                        }
                                                     }
                                                 },
                                             }
@@ -407,7 +409,10 @@ impl State {
             return Ok(());
         }
         match result {
-            Ok(result) if result.len() <= MAX_RUN_RESULT_BYTES => {
+            Ok(result)
+                if result.len() <= MAX_RUN_RESULT_BYTES
+                    && self.reject_known_secrets(&result).is_ok() =>
+            {
                 intent.result = Some(result);
                 view.summary.phase = RunPhase::Ready;
             }
