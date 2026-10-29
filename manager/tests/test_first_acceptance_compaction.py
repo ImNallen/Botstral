@@ -91,6 +91,10 @@ def evidence_fixture():
         encoded({'attempts': [call]}), encoded([view]), encoded(active), encoded(parent), refusals, encoded(budget),
         encoded({'recorded_transport': False, 'production_binaries': True,
             'binary_sha256': {name: 'b' * 64 for name in ('manager', 'worker', 'native')},
+            'manager_process': {'pid': 123, 'unit': 'botstral-m06-unit-manager',
+                'executable': '/unit/bin/botstral-manager', 'sha256': 'b' * 64,
+                'arguments': ['/unit/bin/botstral-manager', '--state-dir', '/unit/state'],
+                'recorded_configuration_present': False}, 'recorded_manager_sha256': None,
             'provider_base': 'https://api.eu.mistral.ai', 'runtime_content_sha256': 'c' * 64,
             'provider_source_sha256': sha((SOURCE / 'manager/src/manager/provider.rs').read_bytes()),
             'relay_source_sha256': sha((SOURCE / 'agent/vibe/runtime.py').read_bytes())}),
@@ -205,6 +209,18 @@ class CompactionEvidenceTests(unittest.TestCase):
         recorded = self.altered('provenance', lambda p: p.update(recorded_transport=True, production_binaries=False))
         self.assertEqual(helper_verdict(asdict(recorded))['verdict'], 'NOT VERIFIED')
 
+    def test_relabeling_recorded_transport_cannot_replace_running_manager_proof(self):
+        def recorded_process(provenance):
+            provenance['manager_process'].update(executable='/unit/bin/manager-fixture',
+                arguments=['/unit/bin/manager-fixture', '--ignored', '--exact'], recorded_configuration_present=True)
+            provenance['recorded_manager_sha256'] = 'b' * 64
+        relabeled = self.altered('provenance', recorded_process)
+        self.assertEqual(helper_verdict(asdict(relabeled))['verdict'], 'NOT VERIFIED')
+        for name in ('manager', 'worker', 'native'):
+            with self.subTest(name=name):
+                invalid = self.altered('provenance', lambda p: p['binary_sha256'].update({name: ''}))
+                self.assertEqual(helper_verdict(asdict(invalid))['verdict'], 'NOT VERIFIED')
+
     def test_join_reader_does_not_fall_back_to_run_turns(self):
         import sqlite3
         with tempfile.TemporaryDirectory() as directory:
@@ -262,6 +278,16 @@ class AggregationTests(unittest.TestCase):
             with patch('subprocess.check_output', return_value='manager/src/manager/provider.rs\n'):
                 with self.assertRaisesRegex(ValueError, 'product changes'):
                     combine_acceptance(baseline, helper)
+            changed_config = copy.deepcopy(supplement['context']['configuration'])
+            changed_config['policy']['model_id'] = 'mistral-small-2603'
+            prior['checks'][0]['configuration'] = changed_config
+            supplement['context']['configuration'] = changed_config
+            baseline.write_text(encoded(prior))
+            helper.write_text(encoded(supplement))
+            with patch('subprocess.check_output', return_value='manager/tests/new.py\n'):
+                with self.assertRaisesRegex(ValueError, 'durable helper configuration'):
+                    combine_acceptance(baseline, helper)
+            baseline.write_bytes(original)
             supplement['binary_sha256'] = {'manager': 'changed'}
             helper.write_text(encoded(supplement))
             with self.assertRaisesRegex(ValueError, 'product binaries differ'):

@@ -16,6 +16,19 @@ import m06_remote
 
 def dispatch(root, request):
     operation = request['op']
+    if operation == 'manager_process':
+        import subprocess
+        unit = request['unit']
+        assert unit.startswith('botstral-m06-') and '/' not in unit
+        pid = int(subprocess.check_output(['systemctl', '--user', 'show', unit, '--property=MainPID', '--value'], text=True).strip())
+        assert pid > 0
+        process = Path('/proc') / str(pid)
+        executable = (process / 'exe').resolve(strict=True)
+        assert executable.is_relative_to(root / 'bin')
+        return {'unit': unit, 'pid': pid, 'executable': str(executable),
+                'sha256': hashlib.sha256((process / 'exe').read_bytes()).hexdigest(),
+                'arguments': (process / 'cmdline').read_bytes().decode().rstrip('\0').split('\0'),
+                'recorded_configuration_present': (root / 'recorded.json').exists()}
     if operation == 'compaction_runtime':
         import subprocess
         runtime = root / 'compaction-runtime'

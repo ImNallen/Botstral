@@ -260,7 +260,17 @@ class Acceptance:
         compiled = {name: digest for name, digest in manifest.items() if name.startswith(('manager/src/', 'agent/src/', 'link/', 'desktop/'))
             and (name.endswith(('.rs', '.ts', '.tsx', '.toml', '.json')) or name.endswith('/build.rs'))}
         assert compiled and all(hashlib.sha256((SOURCE / name).read_bytes()).hexdigest() == digest for name, digest in compiled.items())
-        if self.args.native:
+        if self.args.baseline:
+            from first_acceptance_compaction import source_delta, require
+            baseline = json.loads(self.args.baseline.read_bytes())
+            require(set(baseline['missing']) == {HELPER_GATE}, 'baseline must lack only helper acceptance')
+            base = baseline['provenance'].get('manager_upgrade', {}).get('base', baseline['provenance']['source'])
+            delta = source_delta(base)
+            require(sha(self.args.native.read_bytes()) == baseline['provenance']['binary_sha256']['native'], 'retained native binary mismatch')
+            self.report['retained_artifacts'] = {'baseline_sha256': sha(self.args.baseline.read_bytes()),
+                'baseline_provenance': baseline['provenance'], 'harness_only_delta': delta,
+                'native_executed': False, 'manager_path': self.args.retained_manager}
+        elif self.args.native:
             self.build_native(manifest)
         self.prepare_guests(manifest, compiled, build_root)
 
@@ -304,7 +314,9 @@ class Acceptance:
         assert all(value['executable'] == build_root + '/target/release/' + value['target']['name']
             and not value['profile']['test'] and 'nonproduction-test-worker' not in value['features']
             for value in self.report['linux_compiler_artifacts'])
-        binary = ssh(self.worker.host, ['cat', build_root + '/target/release/botstral-manager'], capture_output=True).stdout
+        binary = ssh(self.worker.host, ['cat', self.args.retained_manager or build_root + '/target/release/botstral-manager'], capture_output=True).stdout
+        if self.args.baseline:
+            assert sha(binary) == self.report['retained_artifacts']['baseline_provenance']['binary_sha256']['manager'], 'retained manager binary mismatch'
         self.manager.call('unlink', paths=['bin/botstral-manager'])
         self.manager.files({'bin/botstral-manager': binary})
         expected = hashlib.sha256(binary).hexdigest()
@@ -528,6 +540,7 @@ class Acceptance:
             lambda value: value is not None, 'recorded real compaction', seconds=90)
         self.report['helper_native'] = native
         active = self.manager.call('coding_evidence', task=task_id)
+        self.report['helper_manager_process'] = self.manager.call('manager_process', unit=self.manager_unit)
         task = self.owner('GET', '/v1/tasks/' + task_id)
         execution = task['command']['execution']
         self.report['helper_identity'] = {'task_id': task_id, 'execution_id': execution}
@@ -625,6 +638,8 @@ class Acceptance:
                 'reserved_microusd': reservation['microusd'], 'retained_microusd': retained['microusd'], 'ledger': ledger}),
             provenance=encoded({'recorded_transport': self.args.recorded, 'production_binaries': report['production_binaries'],
                 'binary_sha256': report['binary_sha256'], 'provider_base': 'https://api.eu.mistral.ai',
+                'manager_process': report['helper_manager_process'],
+                'recorded_manager_sha256': report.get('recorded_manager_sha256'),
                 'runtime_content_sha256': self.compaction_runtime['content_sha256'],
                 'provider_source_sha256': sha((SOURCE / 'manager/src/manager/provider.rs').read_bytes()),
                 'relay_source_sha256': sha((SOURCE / 'agent/vibe/runtime.py').read_bytes())}),
@@ -1149,7 +1164,11 @@ def main():
     parser.add_argument('--recorded', action='store_true')
     parser.add_argument('--recorded-mode', choices=['primary', 'fallback', 'empty'], default='primary')
     parser.add_argument('--probe', type=Path)
+    parser.add_argument('--baseline', type=Path)
+    parser.add_argument('--retained-manager')
     args = parser.parse_args()
+    if bool(args.baseline) != bool(args.retained_manager) or (args.baseline and (args.suite != 'helper' or args.recorded or not args.native)):
+        parser.error('--baseline and --retained-manager require a live helper suite and the retained --native binary')
     if args.recorded and (args.suite != 'helper' or args.key_file or args.resume):
         parser.error('--recorded requires a fresh helper suite without a provider key')
     if args.suite == 'helper':

@@ -242,6 +242,18 @@ def verify_helper(evidence, *, recorded=False):
     require(provenance['runtime_content_sha256'] == probe.runtime_digest, 'live runtime differs from recorded runtime')
     require(provenance['recorded_transport'] is recorded and provenance['production_binaries'] is (not recorded)
             and set(provenance['binary_sha256']) == ({'manager', 'worker'} if recorded else {'manager', 'worker', 'native'}), 'live production provenance required')
+    require(all(isinstance(value, str) and re.fullmatch('[0-9a-f]{64}', value)
+                for value in provenance['binary_sha256'].values()), 'valid executable hashes required')
+    process = provenance['manager_process']
+    executable = Path(process['executable'])
+    expected_name = 'manager-fixture' if recorded else 'botstral-manager'
+    expected_hash = provenance['recorded_manager_sha256'] if recorded else provenance['binary_sha256']['manager']
+    require(process['pid'] > 0 and process['unit'].startswith('botstral-m06-')
+            and executable.name == expected_name and process['arguments'][0] == str(executable)
+            and process['sha256'] == expected_hash, 'captured running manager must match the executed binary')
+    require(process['recorded_configuration_present'] is recorded
+            and ('--ignored' in process['arguments']) is recorded
+            and (recorded or provenance['recorded_manager_sha256'] is None), 'recorded manager cannot establish live transport')
     require(provenance['provider_base'] == 'https://api.eu.mistral.ai', 'pinned production endpoint selection')
     source = Path(__file__).resolve().parents[2]
     require(provenance['provider_source_sha256'] == sha((source / 'manager/src/manager/provider.rs').read_bytes())
@@ -299,8 +311,18 @@ def retained_runtimes(value):
     return found
 
 
-def combine_acceptance(prior_path, supplement_path):
+def source_delta(base):
     import subprocess
+    require(re.fullmatch('[0-9a-f]{40}', base) is not None, 'exact baseline source required')
+    source = Path(__file__).resolve().parents[2]
+    delta = subprocess.check_output(['git', 'diff', '--name-only', base, '--'], cwd=source, text=True).splitlines()
+    allowed = ('manager/tests/', 'agent/tests/', 'docs/', 'scripts/')
+    require(all(name.startswith(allowed) or name in ('AGENTS.md', 'PLAN.md', 'Makefile', '.gitattributes',
+        'manager/src/manager/inference/integrated_fixture.rs', 'manager/src/manager/inference/tests.rs') for name in delta), 'source delta includes product changes')
+    return delta
+
+
+def combine_acceptance(prior_path, supplement_path):
     prior_bytes, supplement_bytes = prior_path.read_bytes(), supplement_path.read_bytes()
     prior, supplement = json.loads(prior_bytes), json.loads(supplement_bytes)
     require(set(prior['missing']) == {HELPER_GATE} and not prior.get('cleanup_errors'), 'baseline must lack only the helper gate')
@@ -310,15 +332,12 @@ def combine_acceptance(prior_path, supplement_path):
     require(json.loads(supplement['compaction_evidence']['provenance'])['binary_sha256'] == supplement['binary_sha256'], 'supplement binary provenance mismatch')
     baseline_config = next(c['configuration'] for c in prior['checks'] if c['name'] == 'actual_eu_model_requests_and_preview_latest_configuration_blockers')
     require(policy_identity(baseline_config) == policy_identity(supplement['context']['configuration']), 'retained configuration differs')
+    calls = json.loads(supplement['compaction_evidence']['coding'])['attempts']
+    require(all(call['configuration'] == supplement['context']['configuration'] for call in calls), 'durable helper configuration differs from supplement context')
     context = supplement['context']
     require(retained_runtimes(prior) == {('computer', context['runtime']), ('connector', context['runner']['runtime'])}, 'retained runtime identities differ')
     base = prior['provenance'].get('manager_upgrade', {}).get('base', prior['provenance']['source'])
-    require(re.fullmatch('[0-9a-f]{40}', base) is not None, 'exact baseline source required')
-    source = Path(__file__).resolve().parents[2]
-    delta = subprocess.check_output(['git', 'diff', '--name-only', base, '--'], cwd=source, text=True).splitlines()
-    allowed = ('manager/tests/', 'agent/tests/', 'docs/', 'scripts/')
-    require(all(name.startswith(allowed) or name in ('AGENTS.md', 'PLAN.md', 'Makefile', '.gitattributes',
-        'manager/src/manager/inference/integrated_fixture.rs', 'manager/src/manager/inference/tests.rs') for name in delta), 'source delta includes product changes')
+    delta = source_delta(base)
     checks = [c for c in prior['checks'] if c['verdict'] == 'VERIFIED']
     require(FIRST_ACCEPTANCE_CHECKS <= {c['name'] for c in checks}, 'complete immutable retained checks required')
     return {'format': 1, 'passed': True, 'claim': 'Retained first acceptance checks plus explicit Vibe helper integration.',
