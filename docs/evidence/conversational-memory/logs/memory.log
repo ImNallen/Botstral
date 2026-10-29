@@ -1,0 +1,40 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0da55b78/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0da55b78/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-0da55b78/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.58s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-d9ffef598311d556)
+
+running 23 tests
+test manager::state::runs::tests::memory_tests::crash::child ... ok
+test manager::state::runs::tests::memory_tests::frozen_import_sources_survive_history_removal_and_cannot_enable_worker_tools ... ok
+test manager::state::runs::tests::memory_tests::acceptance::legacy_import_keeps_deleted_history_provenance_without_exposing_a_document_editor ... ok
+test manager::state::runs::tests::memory_tests::acceptance::rotation_guards_dispatch_list_and_every_public_run_response ... ok
+test manager::state::runs::tests::memory_tests::acceptance::secret_bearing_response_identifiers_are_not_saved_in_success_or_error_journals ... ok
+test manager::state::runs::tests::memory_tests::acceptance::entry_limits_and_private_file_checks_preserve_existing_content ... ok
+test manager::state::runs::tests::memory_tests::manager_only_admission_does_not_require_a_worker_but_worker_policy_requires_session ... ok
+test manager::state::runs::tests::memory_tests::acceptance::tombstones_count_toward_the_root_file_bound_before_creation_or_import ... ok
+test manager::state::runs::tests::memory_tests::individual_identity_cannot_cross_bots_and_shared_entries_survive_restart ... ok
+test manager::state::runs::tests::memory_tests::legacy_import_is_deterministic_preserves_provenance_and_archives_blank_documents ... ok
+test manager::state::runs::tests::memory_tests::new_snapshots_are_explicit_and_immutable_through_correction_and_restart ... ok
+test manager::state::runs::tests::memory_tests::known_and_escaped_secrets_are_rejected_in_admission_publication_import_and_rotation ... ok
+test manager::state::runs::tests::memory_tests::migration_preserves_old_frozen_document_and_null_no_context ... ok
+test manager::state::runs::tests::memory_tests::crash::admitted_publication_survives_cancellation_but_never_overwrites_an_unexpected_digest ... ok
+test manager::state::runs::tests::memory_tests::crash::backup_restores_entries_tombstones_archives_and_an_unfinished_publication ... ok
+test manager::state::runs::tests::memory_tests::both_scopes_crud_preserve_one_fact_and_derive_source_from_the_actual_run ... ok
+test manager::state::runs::tests::memory_tests::crash::interrupted_import_never_duplicates_or_promotes_legacy_memory ... ok
+test manager::state::runs::tests::memory_tests::acceptance::followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome ... ok
+test manager::state::runs::tests::memory_tests::limits_and_cancellation_precede_publication_and_vault_handoff_has_no_value ... ok
+test manager::state::runs::tests::memory_tests::crash::committed_intent_survives_every_publication_crash_without_provider_resend_or_extra_revision ... ok
+test manager::state::runs::tests::memory_tests::crash::updates_and_tombstones_recover_the_same_revision_at_each_boundary ... ok
+test manager::inference::tests::run_tests::memory_tests::conversational_memory_malformed_foreign_source_duplicate_secret_and_disabled_worker_calls_are_not_published ... ok
+test manager::inference::tests::run_tests::memory_tests::conversational_memory_real_provider_crud_both_scopes_restart_and_failed_followup ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 122 filtered out; finished in 20.58s

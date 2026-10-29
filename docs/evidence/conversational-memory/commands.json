@@ -1,0 +1,88 @@
+[
+  {
+    "name": "memory",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--features",
+      "nonproduction-test-worker",
+      "--lib",
+      "memory_tests",
+      "--",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T17:14:04.477286+00:00",
+    "finished": "2026-10-29T17:14:31.269975+00:00",
+    "exit_code": 0,
+    "log": "logs/memory.log"
+  },
+  {
+    "name": "connector-secrets",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "conversational_memory_excludes_connector",
+      "--",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T17:14:31.270246+00:00",
+    "finished": "2026-10-29T17:14:33.475894+00:00",
+    "exit_code": 0,
+    "log": "logs/connector-secrets.log"
+  },
+  {
+    "name": "native-memory",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-memory"
+    ],
+    "started": "2026-10-29T17:14:33.476156+00:00",
+    "finished": "2026-10-29T17:14:53.604525+00:00",
+    "exit_code": 0,
+    "log": "logs/native-memory.log"
+  },
+  {
+    "name": "fixture-types",
+    "command": [
+      "npx",
+      "tsc",
+      "-p",
+      "desktop/fixtures/tsconfig.memory.json"
+    ],
+    "started": "2026-10-29T17:14:53.604766+00:00",
+    "finished": "2026-10-29T17:14:54.558055+00:00",
+    "exit_code": 0,
+    "log": "logs/fixture-types.log"
+  },
+  {
+    "name": "frontend-tests",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "started": "2026-10-29T17:14:54.558391+00:00",
+    "finished": "2026-10-29T17:14:56.361896+00:00",
+    "exit_code": 0,
+    "log": "logs/frontend-tests.log"
+  },
+  {
+    "name": "component-video",
+    "command": [
+      "node",
+      "desktop/fixtures/conversational-memory.mjs",
+      "/private/tmp/botstral-conversational-proof/node_modules/playwright/index.mjs"
+    ],
+    "started": "2026-10-29T17:14:56.362184+00:00",
+    "finished": "2026-10-29T17:15:06.486281+00:00",
+    "exit_code": 0,
+    "log": "logs/component-video.log"
+  }
+]
