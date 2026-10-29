@@ -6,6 +6,7 @@ import { PairedWorkspace } from './PairedWorkspace';
 import { remoteSnapshotSchema } from './paired-domain';
 import { app, stage } from '../fixtures/memory-replay';
 import { managerOutcomeSchema } from './memory-outcomes';
+import legacyMemoryOutcome from '../fixtures/legacy-memory-outcome.json';
 
 HTMLDialogElement.prototype.showModal = function () {
   this.open = true;
@@ -23,6 +24,21 @@ function setup(name: string) {
 }
 
 describe('conversational memory from recorded manager outcomes', () => {
+  it('accepts a workspace snapshot containing an imported memory result', () => {
+    const snapshot = stage('listed');
+    const workspace = snapshot.workspace;
+    const run = workspace?.runs[0];
+    const turn = run?.turns[0];
+    if (!workspace || !run || !turn) throw new Error('Missing recorded conversation.');
+    const parsed = remoteSnapshotSchema.safeParse({
+      ...snapshot,
+      workspace: {
+        ...workspace,
+        runs: [{ ...run, turns: [{ ...turn, manager_outcome: legacyMemoryOutcome }] }],
+      },
+    });
+    expect(parsed.success).toBe(true);
+  });
   it('sends a memory request with no session, worker, permission, or worker tool', async () => {
     const { controller, send, user } = setup('before');
     const value = stage('before');

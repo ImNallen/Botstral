@@ -240,6 +240,40 @@ fn entry_limits_and_private_file_checks_preserve_existing_content() {
 }
 
 #[test]
+fn legacy_import_identifiers_are_renderer_compatible_and_stable() {
+    let mut f = fixture();
+    let bot = BotId(Uuid::parse_str("00000000-0000-4000-8000-000000000001").unwrap());
+    f.state
+        .create_bot(
+            token(),
+            NewBot {
+                id: bot,
+                name: BotName::new("Imported memory".into()).unwrap(),
+            },
+        )
+        .unwrap();
+    f.input.bot = bot;
+    legacy(&f, "Imported preference.");
+    let entries = f.state.memory_context(bot).unwrap();
+    let outcome = ManagerOutcome::Memory {
+        outcome: MemoryOutcome::Listed {
+            scope: MemoryScope::Individual { bot },
+            entries: entries.clone(),
+        },
+    };
+    if let Ok(path) = std::env::var("BOTSTRAL_LEGACY_MEMORY_OUTCOME") {
+        fs::write(
+            path,
+            format!("{}\n", serde_json::to_string_pretty(&outcome).unwrap()),
+        )
+        .unwrap();
+    }
+    assert_eq!(entries[0].id.0.get_variant(), uuid::Variant::RFC4122);
+    assert_eq!(entries[0].id.0.get_version(), Some(uuid::Version::Custom));
+    assert_eq!(f.state.memory_context(bot).unwrap(), entries);
+}
+
+#[test]
 fn legacy_import_keeps_deleted_history_provenance_without_exposing_a_document_editor() {
     let mut f = fixture();
     let mut doc = legacy(&f, "Imported fact with retained provenance.");
