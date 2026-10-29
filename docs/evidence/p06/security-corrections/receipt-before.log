@@ -1,0 +1,20 @@
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-b303e95a/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-f5210ab68dc1a740)
+
+running 1 test
+stale_generation_refused=true; original_manager_committed=true; replacement_manager_has_no_items=true; replacement_manager_reported_closed_without_commit=true
+
+thread 'review_native_receipt_manager_binding' (634214658) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-b303e95a/desktop/src-tauri/../../.audit/p06-manager-native/native-probes.rs:47:5:
+a different manager cannot close the original manager's committed protected write
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test review_native_receipt_manager_binding ... FAILED
+
+failures:
+
+failures:
+    review_native_receipt_manager_binding
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 3.70s
+
+error: test failed, to rerun pass `--test journal`

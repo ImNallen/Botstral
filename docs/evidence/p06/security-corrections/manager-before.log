@@ -1,0 +1,59 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.43s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-796b8ad5691d66dd)
+
+running 9 tests
+independent_cancel_fence=refused
+revoked_device_rejected=true; previously_approved_release_returned=true
+
+thread 'manager::state::credentials::tests::live::review_probe_device_revocation_before_release' (635384713) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager/../.audit/p06-manager-native/probes.rs:26:5:
+credential bytes released after approving device was revoked
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::review_probe_device_revocation_before_release ... FAILED
+after_device_revoke use=Released; task=Running; durable_cancellations=0
+
+thread 'manager::state::credentials::tests::live::review_probe_device_revocation_after_release' (635384712) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager/../.audit/p06-manager-native/probes.rs:41:5:
+assertion `left == right` failed: released use must become uncertain after device revocation
+  left: Released
+ right: Uncertain
+test manager::state::credentials::tests::live::review_probe_device_revocation_after_release ... FAILED
+failed_release_rolled_back_code_and_consumption=true; retry_released_once=true
+test manager::state::credentials::tests::live::review_probe_release_transaction_rollback ... ok
+raw_refused=true; form_urlencoded_metadata_persisted=true; bot_visible=true
+
+thread 'manager::state::credentials::tests::live::review_probe_form_urlencoded_screening' (635384714) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager/../.audit/p06-manager-native/probes.rs:88:5:
+standard URL form encoding bypassed retained-secret publication checks
+test manager::state::credentials::tests::live::review_probe_form_urlencoded_screening ... FAILED
+uppercase_percent_refused=true; lowercase_percent_screened=true; encoded_metadata_persisted=true; bot_visible=true
+
+thread 'manager::state::credentials::tests::live::review_probe_lowercase_percent_screening' (635384715) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager/../.audit/p06-manager-native/probes.rs:69:5:
+ordinary lowercase percent encoding bypassed retained-secret publication checks
+test manager::state::credentials::tests::live::review_probe_lowercase_percent_screening ... FAILED
+five_seconds_remaining_accepted=true; four_seconds_remaining_refused=true
+test manager::state::credentials::tests::live::review_probe_totp_validity_boundary ... ok
+independent_worker_revoke_fence=refused
+independent_execution_fence=refused
+independent_task_fence=refused
+independent_origin_fence=refused
+independent_profile_fence=refused
+independent_form_fence=refused
+independent_field_fence=refused
+independent_submitter_fence=refused
+independent_item_scope_fence=refused
+test manager::state::credentials::tests::live::review_probe_cancel_and_peer_fences ... ok
+cross_installation_decryption_refused=true; cross_kind_decryption_refused=true; original_binding_decrypts=true
+test manager::state::credentials::tests::live::review_probe_cross_installation_and_kind_binding ... ok
+late_rotation_after_closure_refused=true; original_epoch_preserved=true
+test manager::state::credentials::tests::live::review_probe_closed_rotation_stays_closed ... ok
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::review_probe_device_revocation_after_release
+    manager::state::credentials::tests::live::review_probe_device_revocation_before_release
+    manager::state::credentials::tests::live::review_probe_form_urlencoded_screening
+    manager::state::credentials::tests::live::review_probe_lowercase_percent_screening
+
+test result: FAILED. 5 passed; 4 failed; 0 ignored; 0 measured; 156 filtered out; finished in 5.27s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

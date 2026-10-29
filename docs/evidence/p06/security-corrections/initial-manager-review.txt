@@ -1,0 +1,98 @@
+P06 manager and native authority review
+
+The goal is protected reusable credentials and exact approved browser filling for daily desktop v1. This lane's verdict is DO NOT MERGE. Four verified defects remain. This is an independent review, not an implementation or release approval.
+
+Reviewed head is 3527f3cfc2a3e3486df1d7e166141de19c96c70b.
+Reviewed base is bf470fb00e98ed6e519b02f7a314fe48a808bdc1.
+The assigned checkout is /Users/nallen/.t3/worktrees/Botstral/t3-b303e95a. Its head matches, the base is an ancestor, and tracked files are unchanged. All artifacts below are under .audit/p06-manager-native in that checkout. final-checks.json records those commands, their outputs and exits. No other checkout was created or written.
+
+Verified findings
+
+1. P1. Device revocation does not revoke credential authority already granted by that device.
+
+Relevant code is manager/src/manager/state/credentials/uses.rs:110 and :177, with manager/src/manager/state/devices.rs:235. The decision checks the owner lease once but retains no approving-device authority. Device revocation disconnects the owner without invalidating the credential use.
+
+The two device probes approve with an enrolled owner device, revoke it through the actual manager API, and then test release or cancellation. The revoked device itself fails authorization, but the approved worker still receives a Released payload. Revocation after release leaves the use Released, the task Running, and zero durable cancellations.
+
+Actual output in adversarial.log includes:
+revoked_device_rejected=true; previously_approved_release_returned=true
+ after_device_revoke use=Released; task=Running; durable_cancellations=0
+
+Required output is no credential release after revocation. An affected released scope must become uncertain and receive durable cancellation. This violates the selected design's explicit device-revocation contract. Both probes fail their expected-safe assertions. They change only device revocation after otherwise valid approval.
+
+2. P1. Ordinary URL encodings bypass private screening and metadata publication checks.
+
+Relevant code is manager/src/manager/provider.rs:527, especially :534, and manager/src/manager/state/credentials/uses.rs:493. Only uppercase percent escapes with %20 for spaces are generated for comparison.
+
+The first probe releases an owned fixture password, verifies that uppercase percent encoding is rejected, then changes only escape-letter case. The manager returns Screened with the encoded private value. The same encoded value passes update_login, persists as a label, and is returned by accessible_login_items. A separate probe uses reqwest::Url::query_pairs_mut to produce standard form encoding with plus signs for spaces. That encoded password also persists and becomes bot-visible.
+
+Actual output in adversarial.log includes:
+uppercase_percent_refused=true; lowercase_percent_screened=true; encoded_metadata_persisted=true; bot_visible=true
+raw_refused=true; form_urlencoded_metadata_persisted=true; bot_visible=true
+
+Required output is refusal before screening response or metadata persistence. These are ordinary URL encodings covered by the claimed screening contract, not arbitrary transformations or covert channels. No raw fixture value appears in the evidence output.
+
+3. P1. Numeric private values survive run settlement and public run reads.
+
+Relevant code is manager/src/manager/provider.rs:563, manager/src/manager/state/memory/entries.rs:143, and manager/src/manager/state/runs/settlement.rs:91. The shared scanner ignores JSON numbers. P06 applies this existing scanner limitation to newly supported numeric passwords and credential inventory.
+
+The probe stores a generated six-digit password through write_login. It confirms that the same digits as a string are rejected. It then submits a recorded assistant tool response whose RequestWakeup.at number contains those exact digits. finish_run_call persists the response, and the actual public run API returns it. No inference request is sent.
+
+Actual output in publication-adversarial.log is:
+raw_string_secret_refused=true; numeric_secret_in_durable_run=true; numeric_secret_in_public_run=true
+
+Required output is rejection before turn persistence and public return. The serialized run contains the literal private digits. This is not an encoding or a conjectured TOTP exploit. The probe verifies a stored numeric password; numeric TOTP publication was not separately exercised.
+
+4. P2. Native receipt reconciliation can close a request against the wrong manager.
+
+Relevant code is desktop/src-tauri/src/remote.rs:1113 and :1134, especially :1150. protected-status.json stores a request and status without manager identity. Pairing to another manager retains this file, and reconciliation uses the newly connected session.
+
+The probe runs two real isolated managers with authenticated paired transport. Manager A commits a protected write. The probe restores Unresolved for that request to simulate a lost native receipt, signs out, and pairs the same desktop profile with manager B. Manager B has no login items. Reconcile returns ClosedWithoutCommit for A's committed request and persists that false closure.
+
+Actual output in native-adversarial.log is:
+stale_generation_refused=true; original_manager_committed=true; replacement_manager_has_no_items=true; replacement_manager_reported_closed_without_commit=true
+
+Required output is to retain the unresolved request under manager A and refuse resolution by manager B. A closure from B cannot establish that A did not commit or fence a late write at A. This run proves false closure of an already committed write. It does not claim to reproduce a late network write after switching managers.
+
+Exact commands and observed exits
+
+All commands ran from the assigned checkout. run.py records the nested command verbatim and preserves its output without filtering.
+
+python3 .audit/p06-manager-native/run.py credentials cargo test -p botstral-manager --locked --lib credentials::
+Exit 0. Twelve passed and one browser test was ignored. See credentials.json and credentials.log.
+
+python3 .audit/p06-manager-native/run.py native-controls cargo run --manifest-path desktop/src-tauri/Cargo.toml --locked --example p06-native-entry
+Exit 0. Actual AppKit controls passed save, cancel, generation change, disconnect and unlock clearing checks. See native-controls.json and native-controls.log.
+
+python3 .audit/p06-manager-native/run.py native-storage python3 desktop/fixtures/paired_manager.py --verify-journal --journal-case p06_protected_entry_never_enters_native_journal
+Exit 0. The actual paired service passed its journal, encrypted manager state, metadata, removal and unresolved-receipt replay checks. See native-storage.json and native-storage.log.
+
+python3 .audit/p06-manager-native/run.py manager-all cargo test -p botstral-manager --locked --lib
+Exit 0. One hundred fifty passed and six opt-in tests were ignored. This includes the real packaging backup/restore test. See manager-all.json and manager-all.log.
+
+python3 .audit/p06-manager-native/probe.py
+Exit 101. Five passed and four expected-safe assertions failed, establishing findings 1 and 2. Its nested command is cargo test -p botstral-manager --locked --lib review_probe_ -- --nocapture. See adversarial.json and adversarial.log. The first usable run had three passed and four failed; it remains in adversarial-first.json and adversarial-first.log. The initial harness compile attempt exited 101 because it referenced a private method and a nonexistent binding field. That harness error is preserved in probe-compile-attempt.json and probe-compile-attempt.log and is not a product finding.
+
+python3 .audit/p06-manager-native/publication-probe.py
+Exit 101. One expected-safe assertion failed, establishing finding 3. Its nested command is cargo test -p botstral-manager --locked --lib review_probe_numeric_secret_publication -- --nocapture. See publication-adversarial.json and publication-adversarial.log.
+
+python3 .audit/p06-manager-native/native-probe.py
+Exit 101. One expected-safe assertion failed, establishing finding 4. The two fixture launchers both exited 0. native-adversarial.json preserves the exact fixture commands and this nested command:
+cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked --test journal review_native_receipt_manager_binding -- --ignored --exact --nocapture
+
+python3 .audit/p06-manager-native/finalize.py
+Exit 0. Head, ancestry, clean tracked diff, clean status and the known-fixture-value scan of owned logs passed. See final-checks.json.
+
+Reproduction and coverage
+
+The three probe drivers are self-contained entry points with source in probes.rs, publication-probes.rs and native-probes.rs beside them. They temporarily include their probes in existing test modules, call unchanged production methods, and restore the original test files in finally blocks. No production implementation or existing assertion is modified. Run the drivers sequentially. Expected failure exits are intentional evidence, not passing tests.
+
+The five independent passing manager probes verify a failed release transaction rolls back issued-code storage and consumption; a retry releases once; TOTP releases with five seconds remaining and refuses four; closed rotation cannot create a later epoch; and installation/kind mismatches refuse decryption. A separate matrix in the passing fence probe changes cancellation, worker identity, worker revocation, execution, task, origin, profile, form, field, submitter and item-origin policy independently. Each refuses. The native probe also confirms stale-generation writes refuse before creating an item.
+
+The existing passing credential tests cover item/epoch authentication, create/rotate/remove retention, locked restart and restore, late create closure, revoked owner connections, one-shot release, document identity, remembered-rule precedence, fresh TOTP approval, permissions, generations, journal identity, input takeover, lock, rotation, expiry, missing profile history, missing issued codes and uncertain lost releases. The full manager suite adds publication and real backup/restore coverage. The actual paired native test scans owned desktop and manager files for raw and escaped fixture values and excludes private writes from the mutation journal.
+
+Unverified limits
+
+This lane did not execute the production Linux cgroup/private-TLS worker release path, real browser submission, or one packaged native-to-Linux sign-in. Those belong to the other assigned lanes. Native controls and paired transport were verified separately. Native lost-reply recovery used persisted-status fault injection after a real commit, not an actual dropped network response. Item/history capacity exhaustion was inspected in source but not stress-tested. This review does not claim defenses against arbitrary guest code, arbitrary transformations, receiving-site scripts, or zeroization beyond owned Rust buffers. No real credentials, paid inference, deployment, external messages, pull requests, pushes, merges, monitoring or subagents were used.
+
+Poteto mode was applied without delegation, as explicitly required. The throughput checkpoint was not applicable to this read-only investigation. Prove It Works determined the evidence standard: every retained finding has a failing expected-safe assertion against the actual implementation. Comments and source reasoning alone did not become findings.

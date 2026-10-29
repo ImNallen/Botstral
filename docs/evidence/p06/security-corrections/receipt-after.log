@@ -1,0 +1,15 @@
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.19s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p06_native_receipt_manager_binding ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 4.61s
+

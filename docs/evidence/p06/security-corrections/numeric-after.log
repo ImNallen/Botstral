@@ -1,0 +1,10 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.37s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+test manager::state::runs::tests::publication_tests::p06_private_identifiers_colliding_with_public_scaffolding_fail_closed ... ok
+test manager::state::runs::tests::publication_tests::review_probe_numeric_secret_publication ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 168 filtered out; finished in 0.09s
+
