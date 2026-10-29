@@ -1,0 +1,11 @@
+command	result	log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo check -p botstral-manager --all-targets --locked	PASS	check.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo test -p botstral-manager --locked --lib p01_	PASS 13 tests	p01-focused.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo test -p botstral-manager --locked --lib	PASS 122 tests, 5 ignored before final three focused additions	manager-lib.log
+python3 -m unittest discover -s manager/packaging -p 'test_recovery.py' -v	PASS 9 tests	Covered again by verify-isolated.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" make verify	FAIL missing packaging fixture binary override	verify.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" BOTSTRAL_MANAGER_BINARY="$PWD/.audit/p01-memory/target/debug/botstral-manager" make verify	PASS before final escaped-key guard	verify-isolated.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo test -p botstral-manager --locked --lib p01_json_escaping	EXPECTED FAIL admitted Ready instead of InvalidInput	escaped-secret-before.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo test -p botstral-manager --locked --lib p01_frozen_memory_reflection	EXPECTED FAIL returned a call permit after key rotation	rotated-secret-before.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" cargo test -p botstral-manager --locked --lib p01_	PASS 15 tests after final guards	p01-final.log
+CARGO_TARGET_DIR="$PWD/.audit/p01-memory/target" BOTSTRAL_MANAGER_BINARY="$PWD/.audit/p01-memory/target/debug/botstral-manager" make verify	PASS at 109112c; formatter, both Clippy configurations, workspace/feature tests, packaging, production guards	verify-final.log

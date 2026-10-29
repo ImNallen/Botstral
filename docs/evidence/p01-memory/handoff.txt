@@ -1,0 +1,34 @@
+Base: 7ac6c61d571fe18ecba27cc1d823c2882ea916cd
+Head: 109112c3632474f073ef725dfc0e1bf0fc35fa1f
+Branch: t3/persist-run-memory-snapshot
+Commits: bb1cf2b, 7b65b9d, 109112c
+Tree: clean
+Scope: only bounded same-bot Memory snapshots and delivery; full P01 remains open.
+Proof: 15 focused P01 Rust tests pass. Final make verify exits 0, including 127 manager tests, 15 packaging tests, both Clippy configurations, feature recovery tests, and production release guards. Five opt-in manager tests remain ignored by the existing suite.
+Commands and logs: proof-commands.tsv; p01-final.log; verify-final.log.
+Design adjustments: prepare routine test/event packages before the outer transaction; recheck event batch budget/capacity inside it. Reflect raw emitted Document as well as PreparedChat, at admission and claim, to cover JSON escaping and later key rotation. No public protocol or TypeScript change.
+Limits: one bounded current Memory document, no historical/FTS/semantic retrieval, no model-adherence claim, no public Ready snapshot field. Untrusted memory cannot grant tool permissions.
+Handoff: independently review admission/legacy NULL semantics, routine transaction boundaries, wakeup timing, full-context bounds and raw/encoded secret reflection. Replay focused P01 tests and inspect final verify log before publication. No PR, push, merge, credential retrieval, paid inference, guest change, or nested agent work occurred.
+Files:
+  PLAN.md
+  docs/p01-memory.md
+  manager/migrations/0011.sql
+  manager/packaging/recovery.py
+  manager/packaging/test_recovery.py
+  manager/src/manager/inference/memory_tests.rs
+  manager/src/manager/inference/run_tests.rs
+  manager/src/manager/inference/tests.rs
+  manager/src/manager/state.rs
+  manager/src/manager/state/connectors/tests/catalog_bounds.rs
+  manager/src/manager/state/memory.rs
+  manager/src/manager/state/routines/commands.rs
+  manager/src/manager/state/routines/ingress.rs
+  manager/src/manager/state/routines/reconcile.rs
+  manager/src/manager/state/routines/wakeups.rs
+  manager/src/manager/state/runs.rs
+  manager/src/manager/state/runs/memory_tests.rs
+  manager/src/manager/state/runs/routine_tests.rs
+  manager/src/manager/state/runs/tests.rs
+  manager/src/manager/state/runs/vision_tests.rs
+  manager/src/manager/state/tasks.rs
+  manager/tests/m01_local.rs

@@ -1,0 +1,14 @@
+test_available_ledger_bytes_are_required (test_recovery.RecoveryTests) ... ok
+test_backup_links_and_extra_content_are_refused (test_recovery.RecoveryTests) ... ok
+test_flock_matches_service (test_recovery.RecoveryTests) ... ok
+test_future_database_schema_is_refused (test_recovery.RecoveryTests) ... ok
+test_link_and_source_change_refusals (test_recovery.RecoveryTests) ... ok
+test_malicious_manifest_refusals_before_destination (test_recovery.RecoveryTests) ... ok
+test_schema_11_restores_frozen_run_memory_and_immutable_guard (test_recovery.RecoveryTests) ... ok
+test_wal_restore_and_locked_state (test_recovery.RecoveryTests) ... ok
+test_selected_guest_roots_identity_evidence_and_no_clone (test_recovery.WorkerRecoveryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.102s
+
+OK

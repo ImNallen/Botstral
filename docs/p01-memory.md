@@ -37,4 +37,10 @@ python3 -m unittest discover -s manager/packaging -p 'test_recovery.py' -v
 
 The local provider proves delivery and recorded response behavior. It does not establish stochastic real-model adherence. No paid inference is required. `SubmitRun` has no conversation identifier, so the new conversation is owner history and the run is a separate existing API operation.
 
+The [independent review](evidence/p01-memory/independent-review.md) approved this slice after replaying 15 memory tests, 15 routine tests, and nine recovery tests. Root separately replayed the [15 focused tests](evidence/p01-memory/root-focused.log) and [nine recovery checks](evidence/p01-memory/root-recovery.log). The owner's [full repository verification](evidence/p01-memory/repository-verification.log) passed on the identical implementation tree. The [handoff](evidence/p01-memory/handoff.txt) and [proof commands](evidence/p01-memory/proof-commands.tsv) distinguish broad verification from focused replay.
+
+Both escaping regressions failed before correction. Their [raw-document](evidence/p01-memory/escaped-secret-before.log) and [rotated-key](evidence/p01-memory/rotated-secret-before.log) failures remain preserved. The [decision trail](p01-memory-decisions.tsv) records the transaction and reflection choices. [Artifact hashes](evidence/p01-memory/manifest.json) preserve these records.
+
+The [final trail audit](evidence/p01-memory/final-audit.md) found no false success or material omitted pivot. Its pointer-resolution finding is corrected by an appended trail row and the [public artifact index](evidence/p01-memory/artifact-index.json). Historical pointer text stays intact; each alias names a byte-identical published copy.
+
 This slice retrieves the single current bounded document. It adds no conversation-history retrieval, ranking, FTS5, semantic search, bot management, templates, UI, helper model, or release work. The prior helper acceptance evidence remains unchanged.
