@@ -6,7 +6,7 @@ The owner can inspect, correct, and clear the selected bot's current saved Memor
 
 Expand **Memory** in the paired workspace to read plain Markdown, its saved revision, and ordered source references. **Edit memory** prepares a multiline draft. **Clear current memory** prepares a blank draft. Both require **Save memory**. The counter measures UTF-8 bytes against 4096. **Discard draft** leaves saved Memory unchanged.
 
-Absent Memory is read-only because initial authoring needs a source-selection workflow outside this slice. A saved blank document remains editable. Worker readiness, inference configuration, vault unlock, and execution permission do not gate Memory edits.
+The [initial authoring slice](p01-initial-memory.md) now creates absent Memory through explicit message selection. This document records the existing edit and clear controls. A saved blank document remains editable. Worker readiness, inference configuration, vault unlock, and execution permission do not gate Memory edits.
 
 Ordinary refreshes retain drafts. A changed document puts the editor into conflict and shows the current version alongside the retained draft. **Review draft against current** explicitly adopts the displayed revision as the new base. A subsequent **Save memory** remains a deliberate action. Further refresh changes require another review.
 

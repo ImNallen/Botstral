@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -21,9 +22,15 @@ def main():
     parser.add_argument('--duration', type=int, default=3600)
     verification = parser.add_mutually_exclusive_group()
     verification.add_argument('--verify-native', action='store_true', help='Run the actual-manager contract with the real OS keychain, then clean up.')
+    verification.add_argument('--verify-initial-memory', action='store_true', help='Verify native initial Memory creation, manager restart, and recorded provider input.')
     verification.add_argument('--verify-journal', action='store_true', help='Run actual-manager journal recovery contracts without an OS keychain.')
     parser.add_argument('--journal-case', help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.journal_case == 'p01_initial_memory_creation_and_restart':
+        args.verify_initial_memory = True
+    if args.verify_initial_memory:
+        args.verify_journal = True
+        args.journal_case = 'p01_initial_memory_creation_and_restart'
     if args.journal_case and not args.verify_journal:
         parser.error('--journal-case requires --verify-journal')
     if args.verify_journal and args.journal_case is None:
@@ -47,6 +54,8 @@ def main():
         raise RuntimeError('Choose a fresh fixture directory.')
     m.certificates(root)
     env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root), BOTSTRAL_C02_VIEW_OUTPUT=str(root/'desktop-view.json'))
+    if args.verify_initial_memory:
+        env['BOTSTRAL_INITIAL_MEMORY_PROOF'] = '1'
     with (root/'manager.log').open('w') as log:
         process = subprocess.Popen(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'c02_desktop_fixture', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env, stdout=log, stderr=log, start_new_session=True)
         try:
@@ -94,6 +103,8 @@ def main():
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid, signal.SIGTERM)
                 process.wait(timeout=10)
+            if args.verify_initial_memory and os.environ.get('BOTSTRAL_INITIAL_MEMORY_VIEWS'):
+                shutil.copyfile(root/'manager.log', Path(os.environ['BOTSTRAL_INITIAL_MEMORY_VIEWS']).with_name('native-manager.log'))
             if temporary:
                 temporary.cleanup()
 

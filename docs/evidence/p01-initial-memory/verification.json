@@ -1,0 +1,142 @@
+{
+  "scope": "Initial saved Memory from one explicitly selected existing same-bot conversation message. Existing edits preserve authoritative sources. Full P01 remains open.",
+  "checkout": "/Users/nallen/.t3/worktrees/Botstral/t3-3d8f5c25",
+  "branch": "t3/add-initial-memory",
+  "base_commit": "7495f8c120c8cb8acb6f2f5c943fbedcb75d11f6",
+  "checks": [
+    {
+      "command": "npm ci",
+      "result": "passed",
+      "evidence": null,
+      "detail": "119 packages installed; audit found no vulnerabilities."
+    },
+    {
+      "command": "npm run check",
+      "result": "passed",
+      "evidence": "frontend-check.log",
+      "detail": "Generated bindings and both TypeScript workspaces pass."
+    },
+    {
+      "command": "npm test",
+      "result": "passed",
+      "evidence": "frontend-tests.log",
+      "detail": "64 passed; two external-fixture tests skipped in this invocation."
+    },
+    {
+      "command": "npm run build",
+      "result": "passed",
+      "evidence": "frontend-build.log",
+      "detail": "Production frontend build passes."
+    },
+    {
+      "command": "npm run format:check",
+      "result": "passed",
+      "evidence": "frontend-format.log",
+      "detail": "All matched files pass."
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --no-default-features --locked",
+      "result": "passed",
+      "evidence": "native-tests.log",
+      "detail": "14 passed; journal, local actual-manager, and OS-keychain contracts run separately or remain ignored."
+    },
+    {
+      "command": "cargo test --manifest-path desktop/src-tauri/Cargo.toml --locked",
+      "result": "passed",
+      "evidence": "native-ui-tests.log",
+      "detail": "16 passed, including caller authorization; external-fixture contracts are ignored in this invocation."
+    },
+    {
+      "command": "cargo test -p botstral-manager --locked --lib",
+      "result": "passed",
+      "evidence": "manager-tests.log",
+      "detail": "127 passed; five fixture tests ignored in this invocation."
+    },
+    {
+      "command": "cargo test -p botstral-manager --locked --lib p01",
+      "result": "passed",
+      "evidence": "manager-p01.log",
+      "detail": "15 passed."
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-journal",
+      "result": "passed",
+      "evidence": "native-journals.log",
+      "detail": "All ten discovered real-manager journal cases passed in separate fixtures."
+    },
+    {
+      "command": "BOTSTRAL_INITIAL_MEMORY_VIEWS=\"$PWD/docs/evidence/p01-initial-memory/native-controls.json\" python3 desktop/fixtures/paired_manager.py --verify-initial-memory",
+      "result": "passed",
+      "evidence": "native-initial.log",
+      "detail": "Dedicated creation, missing/foreign sources, native byte bound, overlapping owner requests, exact journal reconciliation, native and manager restart, captured provider context and unchanged historical run pass."
+    },
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-journal --journal-case p01_memory_controls_and_crash_journal_recovery",
+      "result": "passed",
+      "evidence": "native-edit-regression.log",
+      "detail": "Existing edit, clear, source order and recovery behavior passes."
+    },
+    {
+      "command": "BOTSTRAL_INITIAL_MEMORY_VIEWS=\"$PWD/docs/evidence/p01-initial-memory/native-controls.json\" npm test -- src/paired-contract.test.ts",
+      "result": "passed",
+      "evidence": "renderer-contract.log",
+      "detail": "Two passed; one unrelated external C02 fixture check skipped."
+    },
+    {
+      "command": "cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets --locked -- -D warnings",
+      "result": "passed",
+      "evidence": "native-clippy.log",
+      "detail": "Full native UI and all test targets pass with warnings denied."
+    },
+    {
+      "command": "cargo clippy -p botstral-manager --all-targets --locked -- -D warnings",
+      "result": "passed",
+      "evidence": "manager-clippy.log",
+      "detail": "All manager targets pass with warnings denied."
+    },
+    {
+      "command": "cargo fmt --all -- --check; cargo fmt --manifest-path desktop/src-tauri/Cargo.toml -- --check",
+      "result": "passed",
+      "evidence": "rust-format.log",
+      "detail": "Both Rust workspaces pass."
+    },
+    {
+      "command": "npx tsc --noEmit -p desktop/fixtures/tsconfig.p01-memory.json; npx tsc --noEmit -p desktop/fixtures/tsconfig.p03.json; npx tsc --noEmit -p desktop/fixtures/tsconfig.m06.json",
+      "result": "passed",
+      "evidence": "fixture-check.log",
+      "detail": "All three evidence fixtures type-check."
+    },
+    {
+      "command": "BOTSTRAL_CHROME=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" BOTSTRAL_MEMORY_BASELINE_REF=7495f8c120c8cb8acb6f2f5c943fbedcb75d11f6 node desktop/fixtures/p01-memory-proof.mjs /Users/nallen/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs --baseline",
+      "result": "passed",
+      "evidence": "baseline-proof.json",
+      "detail": "Baseline Memory component captured against the recorded absent stage."
+    },
+    {
+      "command": "BOTSTRAL_CHROME=\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" node desktop/fixtures/p01-memory-proof.mjs /Users/nallen/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs --initial",
+      "result": "passed",
+      "evidence": "component-proof.json",
+      "detail": "Actual component interaction recording passes with no page errors. Before, selection, and saved frames visually inspected."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed",
+      "evidence": null,
+      "detail": "No whitespace errors."
+    }
+  ],
+  "limits": [
+    "Independent review, no-comments review and integration remain with the parent. No push, PR, merge or watch was performed.",
+    "The recording is labeled snapshot replay. It does not prove interaction in a packaged Tauri window.",
+    "Native tests use an in-memory SecretStore, a local recorded provider and a synthetic worker. No operating-system keychain, paid inference or external execution is claimed.",
+    "Sources must already exist as conversation messages. This feature does not create messages from paired run history. The preview list is bounded to 100 entries and 240 Unicode characters each.",
+    "Concurrent owner transfers can be definitively refused Busy before document admission. Tests deliberately submit new requests after refusal; journal recovery never replays writes.",
+    "Playwright browser and encoder versions initially differed from the installed module. Evidence uses installed Chrome and the matching Playwright video encoder."
+  ],
+  "principles": {
+    "Model the Domain": "DraftBase separates creation provenance from the authoritative existing document.",
+    "Type System Discipline": "Strict schemas brand message identifiers at the native projection boundary."
+  },
+  "decision_trail": ".audit/p01-initial-memory.tsv",
+  "log_policy": "Command output retains local fixture connection metadata and explicitly synthetic credentials. Trailing blank lines are normalized."
+}

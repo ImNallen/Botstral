@@ -1146,6 +1146,15 @@ summary {
   padding: 12px;
   font: inherit;
 }
+.memory-panel select {
+  width: 100%;
+  padding: 8px;
+  font: inherit;
+  color: inherit;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
 .memory-label {
   display: block;
   margin: 16px 0 8px;

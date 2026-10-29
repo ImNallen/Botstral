@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { PairedController } from './paired-application';
 import type { MemoryDocument, RemoteSnapshot, Workspace } from './paired-domain';
 
-type Draft = { readonly base: MemoryDocument; readonly markdown: string };
+type DraftBase =
+  | {
+      readonly kind: 'creation';
+      readonly sourceMessage: Workspace['memory_sources'][number]['id'] | null;
+    }
+  | { readonly kind: 'existing'; readonly document: MemoryDocument };
+type Draft = { readonly base: DraftBase; readonly markdown: string };
 type Editor =
   | { kind: 'view'; message: { text: string; document: MemoryDocument | null } | null }
   | ({ kind: 'editing'; error: string | null } & Draft)
@@ -17,19 +23,39 @@ function sameDocument(left: MemoryDocument | undefined, right: MemoryDocument) {
     JSON.stringify(left.sources) === JSON.stringify(right.sources)
   );
 }
-function matchesEdit(current: MemoryDocument | undefined, draft: Draft) {
+function sameBase(current: MemoryDocument | undefined, base: DraftBase) {
+  return base.kind === 'creation' ? !current : sameDocument(current, base.document);
+}
+function matchesDraft(
+  current: MemoryDocument | undefined,
+  draft: Draft,
+  bot: MemoryDocument['bot'],
+) {
+  if (draft.base.kind === 'creation') {
+    return (
+      draft.base.sourceMessage !== null &&
+      sameDocument(current, {
+        bot,
+        kind: 'memory',
+        revision: 1,
+        markdown: draft.markdown,
+        sources: [{ type: 'message', id: draft.base.sourceMessage }],
+      })
+    );
+  }
+  const document = draft.base.document;
   return (
-    Number.isSafeInteger(draft.base.revision + 1) &&
+    Number.isSafeInteger(document.revision + 1) &&
     sameDocument(current, {
-      ...draft.base,
-      revision: draft.base.revision + 1,
+      ...document,
+      revision: document.revision + 1,
       markdown: draft.markdown,
     })
   );
 }
 function SavedMemory({ document }: { document: MemoryDocument | undefined }) {
   if (!document)
-    return <p>No saved Memory. Initial authoring requires trusted manager administration.</p>;
+    return <p>No saved Memory. Select a message and write a preference to create it.</p>;
   return (
     <>
       <p>Saved revision {document.revision}</p>
@@ -66,6 +92,7 @@ export function Memory({
   busy: boolean;
 }) {
   const current = workspace.documents.find((document) => document.bot === bot.id);
+  const sources = workspace.memory_sources.filter((source) => source.bot === bot.id);
   const [editor, setEditor] = useState<Editor>({ kind: 'view', message: null });
   const mounted = useRef(true);
   useEffect(() => {
@@ -77,9 +104,17 @@ export function Memory({
   const unresolved = snapshot.intents.some((intent) => intent.status === 'unknown');
   const online = snapshot.status === 'online';
   const blocked = busy || !online || unresolved;
-  const dirty = editor.kind !== 'view' && editor.markdown !== editor.base.markdown;
+  const dirty =
+    editor.kind !== 'view' &&
+    editor.markdown !== (editor.base.kind === 'existing' ? editor.base.document.markdown : '');
   const bytes = editor.kind === 'view' ? 0 : new TextEncoder().encode(editor.markdown).length;
-  const changed = editor.kind !== 'view' && !sameDocument(current, editor.base);
+  const changed = editor.kind !== 'view' && !sameBase(current, editor.base);
+  const selectedMessage =
+    editor.kind !== 'view' && editor.base.kind === 'creation' ? editor.base.sourceMessage : null;
+  const sourceMissing =
+    editor.kind !== 'view' &&
+    editor.base.kind === 'creation' &&
+    !sources.some((source) => source.id === selectedMessage);
   useEffect(() => {
     if (editor.kind === 'editing' && changed)
       setEditor({ kind: 'conflict', base: editor.base, markdown: editor.markdown });
@@ -88,20 +123,33 @@ export function Memory({
   async function save({ base, markdown }: Draft) {
     const draft = { base, markdown };
     setEditor({ kind: 'saving', ...draft });
-    await controller.run(() =>
-      controller.app.writeMemory({
+    await controller.run(() => {
+      if (base.kind === 'existing')
+        return controller.app.writeMemory({
+          bot: bot.id,
+          expectedRevision: base.document.revision,
+          markdown,
+        });
+      if (base.sourceMessage === null) throw new Error('memory_source_invalid');
+      return controller.app.createMemory({
         bot: bot.id,
-        expectedRevision: draft.base.revision,
-        markdown: draft.markdown,
-      }),
-    );
+        sourceMessage: base.sourceMessage,
+        markdown,
+      });
+    });
     if (!mounted.current) return;
     const state = controller.getState();
     const latest = state.snapshot?.workspace?.documents.find((document) => document.bot === bot.id);
-    if (latest && matchesEdit(latest, draft)) {
+    if (latest && matchesDraft(latest, draft, bot.id)) {
       setEditor({
         kind: 'view',
-        message: { text: 'Current memory matches this edit', document: latest },
+        message: {
+          text:
+            base.kind === 'creation'
+              ? 'Current memory matches this creation'
+              : 'Current memory matches this edit',
+          document: latest,
+        },
       });
     } else if (
       state.snapshot?.intents.some((intent) => ['unknown', 'pending'].includes(intent.status)) ||
@@ -109,14 +157,14 @@ export function Memory({
       ['unknown_outcome', 'offline'].includes(state.issue ?? '')
     ) {
       setEditor({ kind: 'uncertain', ...draft });
-    } else if (!sameDocument(latest, draft.base)) {
+    } else if (!sameBase(latest, draft.base)) {
       setEditor({ kind: 'conflict', ...draft });
     } else {
       setEditor({
         kind: 'editing',
         ...draft,
         error:
-          'The edit was not confirmed. Your draft is retained. Review the workspace error before saving again.',
+          'The save was not confirmed. Your draft is retained. Review the workspace error before saving again.',
       });
     }
   }
@@ -133,6 +181,28 @@ export function Memory({
       loaded?.status === 'online' &&
       !loaded.intents.some((intent) => intent.status === 'unknown')
     ) {
+      if (editor.kind === 'uncertain' && editor.base.kind === 'creation') {
+        const latest = loaded.workspace?.documents.find((document) => document.bot === bot.id);
+        if (matchesDraft(latest, editor, bot.id) && latest) {
+          setEditor({
+            kind: 'view',
+            message: { text: 'Current memory matches this creation', document: latest },
+          });
+        } else {
+          setEditor(
+            latest
+              ? { kind: 'conflict', base: editor.base, markdown: editor.markdown }
+              : {
+                  kind: 'editing',
+                  base: editor.base,
+                  markdown: editor.markdown,
+                  error:
+                    'No matching saved Memory was found. Your draft is retained. Review it before saving again.',
+                },
+          );
+        }
+        return;
+      }
       setEditor({
         kind: 'view',
         message: {
@@ -163,7 +233,7 @@ export function Memory({
                 onClick={() =>
                   setEditor({
                     kind: 'editing',
-                    base: current,
+                    base: { kind: 'existing', document: current },
                     markdown: current.markdown,
                     error: null,
                   })
@@ -174,16 +244,88 @@ export function Memory({
               <button
                 disabled={blocked || current.markdown === ''}
                 onClick={() =>
-                  setEditor({ kind: 'editing', base: current, markdown: '', error: null })
+                  setEditor({
+                    kind: 'editing',
+                    base: { kind: 'existing', document: current },
+                    markdown: '',
+                    error: null,
+                  })
                 }
               >
                 Clear current memory
               </button>
             </div>
           )}
+          {!current && (
+            <>
+              {sources.length === 0 && (
+                <p>
+                  No source messages are available for this bot. A conversation message is required
+                  to create Memory.
+                </p>
+              )}
+              <button
+                disabled={blocked || sources.length === 0}
+                onClick={() =>
+                  setEditor({
+                    kind: 'editing',
+                    base: { kind: 'creation', sourceMessage: null },
+                    markdown: '',
+                    error: null,
+                  })
+                }
+              >
+                Create memory
+              </button>
+            </>
+          )}
         </>
       ) : (
         <>
+          {editor.base.kind === 'creation' && (
+            <>
+              <label className="memory-label" htmlFor="memory-source">
+                Source message
+              </label>
+              <select
+                id="memory-source"
+                value={editor.base.sourceMessage ?? ''}
+                disabled={editor.kind === 'saving' || uncertain}
+                onChange={(event) => {
+                  const source = sources.find((source) => source.id === event.target.value);
+                  if (editor.kind === 'editing' || editor.kind === 'conflict')
+                    setEditor({
+                      ...editor,
+                      base: { kind: 'creation', sourceMessage: source?.id ?? null },
+                    });
+                }}
+              >
+                <option value="">Select a source message</option>
+                {sourceMissing && editor.base.sourceMessage !== null && (
+                  <option value={editor.base.sourceMessage} disabled>
+                    Selected message is unavailable
+                  </option>
+                )}
+                {sources.map((source) => (
+                  <option key={source.id} value={source.id}>
+                    {source.text || '(Blank message)'} ({source.id})
+                  </option>
+                ))}
+              </select>
+              {sourceMissing && editor.base.sourceMessage !== null && (
+                <p role="alert">
+                  The selected message is no longer available for this bot. Your draft is retained.
+                  Select a source before saving.
+                </p>
+              )}
+              {sources.length === 0 && (
+                <p>
+                  No source messages are available for this bot. A conversation message is required
+                  to create Memory.
+                </p>
+              )}
+            </>
+          )}
           <label className="memory-label" htmlFor="memory-draft">
             Memory draft
           </label>
@@ -219,7 +361,12 @@ export function Memory({
               <>
                 <button
                   disabled={
-                    blocked || !dirty || bytes > 4096 || changed || editor.kind === 'conflict'
+                    blocked ||
+                    !dirty ||
+                    bytes > 4096 ||
+                    changed ||
+                    sourceMissing ||
+                    editor.kind === 'conflict'
                   }
                   onClick={() => void save(editor)}
                 >
@@ -231,7 +378,7 @@ export function Memory({
                     onClick={() =>
                       setEditor({
                         kind: 'editing',
-                        base: current,
+                        base: { kind: 'existing', document: current },
                         markdown: editor.markdown,
                         error: null,
                       })

@@ -15,6 +15,7 @@ import {
 
 const id = z.uuid();
 const taskId = id.brand<'TaskId'>();
+export const messageIdSchema = id.brand<'MessageId'>();
 const runId = id.brand<'RunId'>();
 const sessionId = id.brand<'ComputerSessionId'>();
 const workerId = id.brand<'WorkerId'>();
@@ -50,7 +51,7 @@ export const memoryDocumentSchema = z.strictObject({
   sources: z.array(
     z.discriminatedUnion('type', [
       z.strictObject({ type: z.literal('task'), id: taskId }),
-      z.strictObject({ type: z.literal('message'), id }),
+      z.strictObject({ type: z.literal('message'), id: messageIdSchema }),
       z.strictObject({ type: z.literal('external'), reference: z.string() }),
     ]),
   ),
@@ -59,6 +60,16 @@ export const memoryDocumentSchema = z.strictObject({
 export type MemoryDocument = z.infer<typeof memoryDocumentSchema>;
 const workspace = z.strictObject({
   documents: z.array(memoryDocumentSchema).default([]),
+  memory_sources: z
+    .array(
+      z.strictObject({
+        id: messageIdSchema,
+        bot: botIdSchema,
+        text: z.string().max(480),
+      }),
+    )
+    .max(100)
+    .default([]),
   routines: z.array(routineViewSchema).default([]),
   routine_occurrences: z.array(occurrenceSchema).default([]),
   inbox: z.array(inboxSchema).default([]),
@@ -222,6 +233,11 @@ export type SendInput = {
   output_tokens: number;
 };
 export interface PairedApplication {
+  createMemory(input: {
+    bot: MemoryDocument['bot'];
+    sourceMessage: z.infer<typeof messageIdSchema>;
+    markdown: string;
+  }): Promise<RemoteSnapshot>;
   writeMemory(input: {
     bot: MemoryDocument['bot'];
     expectedRevision: number;
@@ -267,8 +283,9 @@ export interface PairedApplication {
   issueInvitation(fingerprint: string, label: string): Promise<boolean>;
 }
 export const remoteIssues: Record<string, string> = {
-  memory_absent:
-    'No saved Memory exists. Initial authoring requires trusted manager administration.',
+  memory_absent: 'No saved Memory exists. Select a message to create it.',
+  memory_source_invalid:
+    'The selected message is unavailable for this bot. Review the source before saving.',
   memory_conflict: 'Memory changed. Review the current version before saving your draft.',
   offline:
     'The paired manager is offline. Cached activity is read-only. Reconnect to recover current state.',

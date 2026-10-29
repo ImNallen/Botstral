@@ -564,3 +564,12 @@ mod memory;
 async fn p01_memory_controls_and_crash_journal_recovery() {
     memory::verify().await;
 }
+
+#[path = "journal/initial_memory.rs"]
+mod initial_memory;
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py --verify-initial-memory."]
+async fn p01_initial_memory_creation_and_restart() {
+    initial_memory::verify().await;
+}

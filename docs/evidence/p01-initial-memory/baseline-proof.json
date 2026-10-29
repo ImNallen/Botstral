@@ -1,0 +1,6 @@
+{
+  "component_ref": "7495f8c120c8cb8acb6f2f5c943fbedcb75d11f6",
+  "fixture": "native-controls.json absent stage",
+  "limitations": "The Memory component comes from the baseline commit. The surrounding workspace and normalized native snapshot use the current evidence fixture.",
+  "errors": []
+}

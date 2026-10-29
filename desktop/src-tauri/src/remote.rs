@@ -109,6 +109,11 @@ struct Envelope {
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
 pub enum IntentCommand {
+    CreateMemory {
+        bot: BotId,
+        source_message: MessageId,
+        markdown: String,
+    },
     WriteMemory {
         bot: BotId,
         expected_revision: u64,
@@ -1039,6 +1044,44 @@ impl Actor {
     }
     async fn execute(&mut self, command: IntentCommand) -> Result<(), String> {
         match command {
+            IntentCommand::CreateMemory {
+                bot,
+                source_message,
+                markdown,
+            } => {
+                if markdown.len() > 4096 {
+                    return Err("invalid_input".into());
+                }
+                self.recover().await?;
+                let image = self.view.borrow().workspace.clone().ok_or("offline")?;
+                if image
+                    .state
+                    .documents
+                    .iter()
+                    .any(|d| d.bot == bot && d.kind == DocumentKind::Memory)
+                {
+                    return Err("memory_conflict".into());
+                }
+                let valid_source = image.state.messages.iter().any(|message| {
+                    message.id == source_message
+                        && image.state.conversations.iter().any(|conversation| {
+                            conversation.id == message.conversation && conversation.bot == bot
+                        })
+                });
+                if !valid_source {
+                    return Err("memory_source_invalid".into());
+                }
+                self.mutate(OwnerOperation::WriteDocument {
+                    input: WriteDocument {
+                        bot,
+                        kind: DocumentKind::Memory,
+                        expected_revision: 0,
+                        sources: vec![SourceReference::Message { id: source_message }],
+                        markdown,
+                    },
+                })
+                .await
+            }
             IntentCommand::WriteMemory {
                 bot,
                 expected_revision,
@@ -1528,6 +1571,7 @@ struct WorkspaceView<'a> {
     cursor: u64,
     owner: &'a str,
     documents: Vec<&'a Document>,
+    memory_sources: Vec<MemorySourceView>,
     bots: &'a [WorkspaceBot],
     workers: &'a [WorkspaceWorker],
     sessions: &'a [ComputerSession],
@@ -1541,6 +1585,12 @@ struct WorkspaceView<'a> {
     routine_budget: &'a Option<RoutineBudget>,
     runs: Vec<RunViewModel<'a>>,
     tasks: Vec<TaskViewModel<'a>>,
+}
+#[derive(Serialize)]
+struct MemorySourceView {
+    id: MessageId,
+    bot: BotId,
+    text: String,
 }
 #[derive(Serialize)]
 struct RoutineViewModel {
@@ -1691,6 +1741,25 @@ fn serialize_workspace<S: serde::Serializer>(
                 .documents
                 .iter()
                 .filter(|d| d.kind == DocumentKind::Memory)
+                .collect(),
+            memory_sources: w
+                .state
+                .messages
+                .iter()
+                .rev()
+                .filter_map(|message| {
+                    let conversation = w
+                        .state
+                        .conversations
+                        .iter()
+                        .find(|c| c.id == message.conversation)?;
+                    Some(MemorySourceView {
+                        id: message.id,
+                        bot: conversation.bot,
+                        text: message.text.chars().take(240).collect(),
+                    })
+                })
+                .take(100)
                 .collect(),
             bots: &w.bots,
             workers: &w.workers,

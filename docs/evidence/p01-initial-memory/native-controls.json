@@ -1,0 +1,709 @@
+{
+  "absent": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 7,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793287364,
+          "id": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "name": "Other bot"
+        },
+        {
+          "created_at": 1793287361,
+          "id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 21,
+      "documents": [],
+      "inbox": [],
+      "manager": "4875b54a-e369-438a-929b-e60065e1acec",
+      "memory_sources": [
+        {
+          "bot": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "id": "46f70f84-acee-49ac-a5e3-1462fc280b8d",
+          "text": "Foreign preference."
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "238c00b3-f579-4098-a784-d50285bc4502",
+          "text": "🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀"
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+          "text": "Prefer concise answers."
+        }
+      ],
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "ea7f055c-4a14-4eae-8221-703d3283d20e",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "16c209d0-7b30-4306-8781-96a7f99de033"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "16c209d0-7b30-4306-8781-96a7f99de033",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "created": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "f40a05d0-cb77-43f4-bf0e-2cc235180433",
+        "identity": "a7251b81-3cb4-41c8-8bee-ad95307b395a",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0c3a3461-0e05-4e3b-bfea-5c191fe4c985",
+        "identity": "0c3a3461-0e05-4e3b-bfea-5c191fe4c985",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 7,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793287364,
+          "id": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "name": "Other bot"
+        },
+        {
+          "created_at": 1793287361,
+          "id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 25,
+      "documents": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "kind": "memory",
+          "markdown": "Use concise answers.\nKeep the preference across new runs.",
+          "revision": 1,
+          "sources": [
+            {
+              "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+              "type": "message"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4875b54a-e369-438a-929b-e60065e1acec",
+      "memory_sources": [
+        {
+          "bot": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "id": "46f70f84-acee-49ac-a5e3-1462fc280b8d",
+          "text": "Foreign preference."
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "238c00b3-f579-4098-a784-d50285bc4502",
+          "text": "🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀"
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+          "text": "Prefer concise answers."
+        }
+      ],
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "created_at": 1793287368,
+          "id": "a7251b81-3cb4-41c8-8bee-ad95307b395a",
+          "phase": "completed",
+          "prompt": "A greeting before any saved preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "841fabbd-0515-4cc1-94f6-c9d489320e6d",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "ea7f055c-4a14-4eae-8221-703d3283d20e",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "16c209d0-7b30-4306-8781-96a7f99de033"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "16c209d0-7b30-4306-8781-96a7f99de033",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "recovered": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "identity": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "identity": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "identity": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "identity": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "identity": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "identity": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "status": "unknown"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 3,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793287364,
+          "id": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "name": "Other bot"
+        },
+        {
+          "created_at": 1793287361,
+          "id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 25,
+      "documents": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "kind": "memory",
+          "markdown": "Use concise answers.\nKeep the preference across new runs.",
+          "revision": 1,
+          "sources": [
+            {
+              "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+              "type": "message"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4875b54a-e369-438a-929b-e60065e1acec",
+      "memory_sources": [
+        {
+          "bot": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "id": "46f70f84-acee-49ac-a5e3-1462fc280b8d",
+          "text": "Foreign preference."
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "238c00b3-f579-4098-a784-d50285bc4502",
+          "text": "🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀"
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+          "text": "Prefer concise answers."
+        }
+      ],
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "created_at": 1793287368,
+          "id": "a7251b81-3cb4-41c8-8bee-ad95307b395a",
+          "phase": "completed",
+          "prompt": "A greeting before any saved preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "841fabbd-0515-4cc1-94f6-c9d489320e6d",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "ea7f055c-4a14-4eae-8221-703d3283d20e",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "16c209d0-7b30-4306-8781-96a7f99de033"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "16c209d0-7b30-4306-8781-96a7f99de033",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "restarted": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "identity": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "identity": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "identity": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "identity": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "identity": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "identity": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "status": "unknown"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 3,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793287364,
+          "id": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "name": "Other bot"
+        },
+        {
+          "created_at": 1793287361,
+          "id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 28,
+      "documents": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "kind": "memory",
+          "markdown": "Use concise answers.\nKeep the preference across new runs.",
+          "revision": 1,
+          "sources": [
+            {
+              "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+              "type": "message"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4875b54a-e369-438a-929b-e60065e1acec",
+      "memory_sources": [
+        {
+          "bot": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "id": "46f70f84-acee-49ac-a5e3-1462fc280b8d",
+          "text": "Foreign preference."
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "238c00b3-f579-4098-a784-d50285bc4502",
+          "text": "🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀"
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+          "text": "Prefer concise answers."
+        }
+      ],
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "created_at": 1793287368,
+          "id": "a7251b81-3cb4-41c8-8bee-ad95307b395a",
+          "phase": "completed",
+          "prompt": "A greeting before any saved preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "841fabbd-0515-4cc1-94f6-c9d489320e6d",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "ea7f055c-4a14-4eae-8221-703d3283d20e",
+          "owner": "bot",
+          "revision": 3,
+          "status": "confirmed",
+          "worker_id": "16c209d0-7b30-4306-8781-96a7f99de033"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "16c209d0-7b30-4306-8781-96a7f99de033",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "settled": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "identity": "8945ba11-d474-47a1-92fb-2f9fdbb7d517",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "identity": "1d25b1e0-4bc4-4dc5-b027-884da7b89ad7",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "identity": "0ec17e24-c4cf-4260-a678-7154d79d8d64",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "identity": "c892c5c2-f2cb-4d32-a6b6-aa00c49d0108",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "identity": "278fa0d9-8867-4e02-ae60-9897873b9715",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "identity": "0d917cd9-6c66-4f74-8fae-009cb5e34415",
+        "status": "attention"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 11,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793287364,
+          "id": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "name": "Other bot"
+        },
+        {
+          "created_at": 1793287361,
+          "id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 28,
+      "documents": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "kind": "memory",
+          "markdown": "Use concise answers.\nKeep the preference across new runs.",
+          "revision": 1,
+          "sources": [
+            {
+              "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+              "type": "message"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4875b54a-e369-438a-929b-e60065e1acec",
+      "memory_sources": [
+        {
+          "bot": "6764685a-e641-46a9-9f43-3f24fc2eb981",
+          "id": "46f70f84-acee-49ac-a5e3-1462fc280b8d",
+          "text": "Foreign preference."
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "238c00b3-f579-4098-a784-d50285bc4502",
+          "text": "🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀🦀"
+        },
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "c8f8dc9a-b338-4a69-a06e-c6bc0906506e",
+          "text": "Prefer concise answers."
+        }
+      ],
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "created_at": 1793287368,
+          "id": "a7251b81-3cb4-41c8-8bee-ad95307b395a",
+          "phase": "completed",
+          "prompt": "A greeting before any saved preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "841fabbd-0515-4cc1-94f6-c9d489320e6d",
+              "ordinal": 1,
+              "result": null,
+              "task": null,
+              "text": "This is a durable recorded assistant response from the real manager. No paid inference was used.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "797607e4-e701-47ec-b7df-bea79bdad8da",
+          "id": "ea7f055c-4a14-4eae-8221-703d3283d20e",
+          "owner": "bot",
+          "revision": 3,
+          "status": "confirmed",
+          "worker_id": "16c209d0-7b30-4306-8781-96a7f99de033"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "16c209d0-7b30-4306-8781-96a7f99de033",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  }
+}
