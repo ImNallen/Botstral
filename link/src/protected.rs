@@ -1,4 +1,5 @@
 //! Ephemeral frames are deliberately absent from OwnerOperation and its replay journal.
+use crate::*;
 use crate::{CredentialWriteTarget, RequestId};
 use serde::{Deserialize, Serialize};
 use zeroize::{Zeroize, Zeroizing};
@@ -65,4 +66,71 @@ impl ProtectedOwnerRequest {
         }
         serde_json::from_slice(&bytes[PREFIX.len()..]).map_err(|_| crate::ErrorCode::InvalidMessage)
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BrowserAuthority {
+    pub task: TaskId,
+    pub execution: ExecutionId,
+    pub fence: InputFence,
+    pub journal: JournalId,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ProtectedBrowserOperation {
+    Prepare {
+        destination: LiveDestination,
+        previous: Option<CredentialUseId>,
+    },
+    Poll {
+        id: CredentialUseId,
+    },
+    Release {
+        id: CredentialUseId,
+        destination: LiveDestination,
+        protection: ProfileProtection,
+    },
+    Settle {
+        id: CredentialUseId,
+        applied: bool,
+    },
+    Screen {
+        protection: ProfileProtection,
+        text: Zeroizing<String>,
+    },
+}
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ProtectedBrowserRequest {
+    pub authority: BrowserAuthority,
+    pub operation: ProtectedBrowserOperation,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
+pub enum FillValues {
+    Password {
+        username: Zeroizing<String>,
+        password: Zeroizing<String>,
+    },
+    Totp {
+        code: Zeroizing<String>,
+    },
+}
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
+pub enum ProtectedBrowserReply {
+    Review {
+        review: Box<CredentialUseReview>,
+    },
+    Released {
+        release: ReleaseId,
+        values: FillValues,
+        valid_until: i64,
+    },
+    Screened {
+        text: Zeroizing<String>,
+    },
+    Refused,
 }

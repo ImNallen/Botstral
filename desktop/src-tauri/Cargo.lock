@@ -319,6 +319,7 @@ dependencies = [
  "base64 0.22.1",
  "botstral-link",
  "botstral-owner-client",
+ "dispatch2",
  "keyring",
  "libc",
  "objc2",

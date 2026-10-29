@@ -172,6 +172,32 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     fs::write(&blob, bytes).unwrap();
     fs::set_permissions(blob, fs::Permissions::from_mode(0o600)).unwrap();
     let backup = root.join("backup");
+    let login_request = RequestId::new();
+    let CredentialWriteStatus::Committed { item, .. } = state
+        .write_login(
+            session(&grant),
+            login_request,
+            CredentialWriteTarget::Create {
+                metadata: LoginMetadata {
+                    label: "Recovery login".into(),
+                    bots: BotAccess::Selected { bots: vec![bot] },
+                    allowed_origins: vec!["https://example.test".into()],
+                    password_policy: PasswordPolicy::EveryFill,
+                },
+            },
+            protected::LoginValues {
+                username: "synthetic recovery private username".into(),
+                password: "synthetic recovery private password".into(),
+                totp_seed: String::new(),
+            },
+        )
+        .unwrap()
+    else {
+        panic!("committed login required")
+    };
+    state
+        .update_login(session(&grant), item.id, item.revision, None)
+        .unwrap();
     let command = [
         "create".as_ref(),
         "--state-dir".as_ref(),
@@ -223,12 +249,28 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
         VaultStatus::Locked
     );
     assert!(recovered.provider_secret().is_err());
+    assert!(recovered.known_login_secrets().is_err());
     recovered
         .unlock_vault(session(&grant), passphrase())
         .unwrap();
     assert_eq!(
         recovered.provider_secret().unwrap().expose_secret(),
         "synthetic restored provider credential"
+    );
+    assert_eq!(
+        recovered.load_login(item.id).unwrap().state,
+        CredentialState::Removed
+    );
+    assert!(matches!(
+        recovered
+            .credential_write_status(session(&grant), login_request, false)
+            .unwrap(),
+        CredentialWriteStatus::Committed { .. }
+    ));
+    assert!(
+        recovered
+            .reject_known_secrets(&"synthetic recovery private password")
+            .is_err()
     );
     let EventReplay::Snapshot {
         state: snapshot, ..

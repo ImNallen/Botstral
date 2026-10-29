@@ -145,7 +145,7 @@ def database(path, component, immutable=False):
     try:
         require(connection.execute('PRAGMA integrity_check').fetchall() == [('ok',)], 'SQLite integrity failed')
         version = connection.execute('PRAGMA user_version').fetchone()[0]
-        require(1 <= version <= (12 if component == 'manager' else 2), 'unsupported database schema')
+        require(1 <= version <= (14 if component == 'manager' else 2), 'unsupported database schema')
         if component == 'manager':
             row = connection.execute('SELECT identity_ciphertext FROM vault WHERE id=1').fetchone()
             require(row is not None, 'configured vault required')

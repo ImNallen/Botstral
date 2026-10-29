@@ -7,6 +7,8 @@ import { formatDate } from './format';
 import type { RunTemplate } from '@botstral/link';
 import { Routines, RoutineInbox } from './Routines';
 import { MemoryNotice } from './MemoryNotice';
+import { LoginEntry } from './LoginEntry';
+import { LoginReviews } from './LoginReviews';
 
 function WorkspaceDialog({
   label,
@@ -660,6 +662,8 @@ export function PairedWorkspace({
               Cached workspace. Actions require pinned authentication and complete recovery.
             </div>
           )}
+          {workspace && <LoginReviews online={snapshot?.status === 'online'} />}
+          {workspace && bot && <LoginEntry key={bot.id} bot={bot.id} />}
           {workspace && (
             <RoutineInbox
               workspace={workspace}

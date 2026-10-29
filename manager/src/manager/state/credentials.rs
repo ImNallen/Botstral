@@ -77,6 +77,22 @@ impl State {
         self.reject_known_secrets(&items)?;
         Ok(items)
     }
+    pub(super) fn accessible_login_items(
+        &self,
+        bot: BotId,
+    ) -> Result<Vec<LoginItemView>, OperationError> {
+        let items = self
+            .connection
+            .prepare("SELECT view FROM credential_items ORDER BY id")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|r| parse::<LoginItemView>(r?))
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .filter(|item| item.state == CredentialState::Active && item.metadata.bots.permits(bot))
+            .collect::<Vec<_>>();
+        self.reject_known_secrets(&items)?;
+        Ok(items)
+    }
     fn validate_login_metadata(&self, metadata: &LoginMetadata) -> Result<(), OperationError> {
         if metadata.label.trim().is_empty()
             || metadata.label.len() > 100
@@ -246,6 +262,7 @@ impl State {
             "INSERT INTO credential_writes VALUES(?1,?2)",
             params![request.to_string(), json(&status)?],
         )?;
+        uses::invalidate(&tx, Some(view.id))?;
         event(&tx, "credential_changed", view.id)?;
         tx.commit()?;
         Ok(status)
@@ -277,6 +294,11 @@ impl State {
         tx.execute(
             "UPDATE credential_items SET view=?2 WHERE id=?1",
             params![id.to_string(), json(&view)?],
+        )?;
+        uses::invalidate(&tx, Some(id))?;
+        tx.execute(
+            "DELETE FROM credential_rules WHERE item=?1",
+            [id.to_string()],
         )?;
         event(&tx, "credential_changed", id)?;
         tx.commit()?;
@@ -329,8 +351,10 @@ impl State {
                     .map(|s| SecretString::from(s.clone())),
             );
         }
+        secrets.extend(self.known_issued_codes()?);
         Ok(secrets)
     }
 }
 
 mod totp;
+mod uses;

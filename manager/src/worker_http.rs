@@ -76,6 +76,43 @@ pub(crate) async fn worker_request(
             ),
             Err(error) => error_response(StatusCode::FORBIDDEN, protocol_error(error)),
         }
+    } else if request.method() == "POST" && request.uri().path() == "/worker/v1/protected-browser" {
+        let result = async {
+            if request.uri().query().is_some()
+                || request
+                    .headers()
+                    .get("content-type")
+                    .and_then(|h| h.to_str().ok())
+                    != Some("application/octet-stream")
+            {
+                return Err(OperationError::InvalidInput);
+            }
+            let bytes = tokio::time::timeout(
+                DEADLINE,
+                to_bytes(Body::new(request.into_body()), MAX_MESSAGE),
+            )
+            .await
+            .map_err(|_| OperationError::InvalidInput)?
+            .map_err(|_| OperationError::InvalidInput)?;
+            let bytes = zeroize::Zeroizing::new(bytes.to_vec());
+            let input = serde_json::from_slice(&bytes).map_err(|_| OperationError::InvalidInput)?;
+            manager.protected_browser(peer, input).await
+        }
+        .await;
+        match result {
+            Ok(reply) => match serde_json::to_vec(&reply) {
+                Ok(bytes) => Response::builder()
+                    .status(StatusCode::OK)
+                    .header("content-type", "application/octet-stream")
+                    .header("cache-control", "no-store")
+                    .body(Body::from(bytes))
+                    .unwrap(),
+                Err(_) => {
+                    error_response(StatusCode::INTERNAL_SERVER_ERROR, ErrorCode::InvalidMessage)
+                }
+            },
+            Err(_) => error_response(StatusCode::FORBIDDEN, ErrorCode::Unauthorized),
+        }
     } else if request.method() == "POST"
         && request.uri().path().starts_with("/worker/v1/connectors/")
     {

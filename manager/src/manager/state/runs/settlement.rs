@@ -224,7 +224,17 @@ impl State {
                                     let result = match &outcome {
                                         ManagerOutcome::Memory { outcome } => json(outcome)?,
                                         ManagerOutcome::Vault { outcome } => {
-                                            outcome.notice().into()
+                                            if matches!(outcome, VaultOutcome::LoginEntry { .. }) {
+                                                format!(
+                                                    "{}\nAccessible login metadata: {}",
+                                                    outcome.notice(),
+                                                    json(&self.accessible_login_items(
+                                                        view.request.bot
+                                                    )?)?
+                                                )
+                                            } else {
+                                                outcome.notice().into()
+                                            }
                                         }
                                     };
                                     view.summary.accounting.admitted_operations += 1;

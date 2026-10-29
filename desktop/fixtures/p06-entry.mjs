@@ -37,7 +37,7 @@ try {
   await page.getByLabel('Exact allowed origin', { exact: true }).fill('https://example.test');
   await page.getByLabel('Permit remembered password rules for this exact origin').check();
   assert.equal(await page.locator('input[type=password]').count(), 0);
-  await page.getByRole('button', { name: 'Enter private login' }).isEnabled();
+  assert.equal(await page.getByRole('button', { name: 'Enter private login' }).isEnabled(), true);
   await page.screenshot({ path: path.join(evidence, 'handoff.png') });
   const video = page.video();
   await context.close();

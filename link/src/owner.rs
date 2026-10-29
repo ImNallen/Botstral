@@ -134,6 +134,12 @@ pub enum OwnerHello {
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    LockVault,
+    CredentialUses,
+    DecideCredentialUse {
+        review: Box<CredentialUseReview>,
+        decision: UseDecision,
+    },
     LoginItems,
     CredentialWriteStatus {
         request: RequestId,
@@ -343,6 +349,9 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    VaultLocked,
+    CredentialUses(Vec<CredentialUseReview>),
+    CredentialUse(Box<CredentialUseReview>),
     LoginItems(Vec<LoginItemView>),
     LoginItem(LoginItemView),
     CredentialWriteStatus(CredentialWriteStatus),

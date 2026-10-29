@@ -519,16 +519,47 @@ fn message(message: &RunMessage) -> serde_json::Value {
 }
 
 pub(super) fn reflects_secret(value: &serde_json::Value, secret: &str) -> bool {
+    use base64::{
+        Engine,
+        engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
+    };
+    let quoted = Zeroizing::new(serde_json::to_string(secret).expect("string serializes"));
+    let percent = Zeroizing::new(
+        secret
+            .bytes()
+            .map(|byte| {
+                if byte.is_ascii_alphanumeric() || b"-_.~".contains(&byte) {
+                    (byte as char).to_string()
+                } else {
+                    format!("%{byte:02X}")
+                }
+            })
+            .collect::<String>(),
+    );
+    let base64 = Zeroizing::new(STANDARD.encode(secret));
+    let url_base64 = Zeroizing::new(URL_SAFE_NO_PAD.encode(secret));
+    reflects_forms(
+        value,
+        &[
+            secret,
+            &quoted[1..quoted.len() - 1],
+            &percent,
+            &base64,
+            &url_base64,
+        ],
+    )
+}
+fn reflects_forms(value: &serde_json::Value, secrets: &[&str]) -> bool {
     match value {
         serde_json::Value::String(value) => {
-            value.contains(secret)
+            secrets.iter().any(|secret| value.contains(secret))
                 || serde_json::from_str::<serde_json::Value>(value)
-                    .is_ok_and(|v| reflects_secret(&v, secret))
+                    .is_ok_and(|v| reflects_forms(&v, secrets))
         }
-        serde_json::Value::Array(values) => values.iter().any(|v| reflects_secret(v, secret)),
-        serde_json::Value::Object(values) => values
-            .iter()
-            .any(|(k, v)| k.contains(secret) || reflects_secret(v, secret)),
+        serde_json::Value::Array(values) => values.iter().any(|v| reflects_forms(v, secrets)),
+        serde_json::Value::Object(values) => values.iter().any(|(k, v)| {
+            secrets.iter().any(|secret| k.contains(secret)) || reflects_forms(v, secrets)
+        }),
         _ => false,
     }
 }

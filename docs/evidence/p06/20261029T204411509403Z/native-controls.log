@@ -1,0 +1,38 @@
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling rustls-webpki v0.103.16
+   Compiling mac-notification-sys v0.6.15
+   Compiling rustls v0.23.46
+   Compiling objc2-foundation v0.3.2
+   Compiling wry v0.57.1
+   Compiling objc2-core-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/link/client)
+   Compiling objc2-quartz-core v0.3.2
+   Compiling notify-rust v4.18.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling tao v0.37.2
+   Compiling muda v0.20.0
+   Compiling window-vibrancy v0.8.1
+   Compiling rfd v0.17.2
+   Compiling tauri-runtime v2.12.2
+   Compiling tray-icon v0.25.1
+   Compiling tauri-runtime-wry v2.12.3
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-fs v2.7.1
+   Compiling tauri-plugin-deep-link v2.6.3
+   Compiling tauri-plugin-notification v2.7.0
+   Compiling tauri-plugin-dialog v2.8.4
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.47s
+     Running `desktop/src-tauri/target/debug/examples/p06-native-entry`
+native save: secure controls cleared
+native cancel: secure controls cleared
+native generation: secure controls cleared
+native disconnect: secure controls cleared
+native unlock: secure controls cleared

@@ -297,6 +297,18 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::LockVault => {
+                self.lock_vault(lease)?;
+                Ok(OwnerReply::VaultLocked)
+            }
+            OwnerOperation::CredentialUses => {
+                Ok(OwnerReply::CredentialUses(self.credential_uses(lease)?))
+            }
+            OwnerOperation::DecideCredentialUse { review, decision } => {
+                Ok(OwnerReply::CredentialUse(Box::new(
+                    self.decide_credential_use(lease, *review, decision)?,
+                )))
+            }
             OwnerOperation::LoginItems => Ok(OwnerReply::LoginItems(self.login_items(lease)?)),
             OwnerOperation::CredentialWriteStatus { request, close } => {
                 Ok(OwnerReply::CredentialWriteStatus(

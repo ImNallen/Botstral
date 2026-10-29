@@ -1,0 +1,25 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
+     Running tests/m01_local.rs (target/debug/deps/m01_local-fb4428d4922a568f)
+
+running 1 test
+Manager stopped with exit status: 0.
+Setup is atomic, capability protected, and isolated from the regular listener.
+Bots, sessions, revocation, explicit locking, protected replacement, and read refusal pass over TCP.
+Browser boundaries, strict JSON, body and header limits, deadlines, and credential limits pass.
+Refused startup with exit status: 1.
+Manager stopped with signal: 9 (SIGKILL).
+Manager stopped with exit status: 0.
+Graceful shutdown completes with an unread bot-list response.
+Manager stopped with exit status: 0.
+A forced restart preserves the full bot and encrypted metadata, invalidates sessions, and locks the vault. Tampering fails unlock.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Refused startup with exit status: 1.
+Private permissions, second-process exclusion, unsafe binds and state rejection, migration refusal, and complete secret scans pass.
+test m01_real_binary_over_tcp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 43.97s

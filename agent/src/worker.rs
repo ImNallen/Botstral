@@ -7,6 +7,8 @@ pub(crate) struct Worker {
     runtime: Option<Runtime>,
     pending: HashMap<ComputerSessionId, Envelope<WorkerMessage>>,
     test_worker: bool,
+    browser_listener: Option<(ExecutionId, std::os::unix::net::UnixListener)>,
+    browser_request: Option<(protected::BrowserAuthority, tokio::task::JoinHandle<()>)>,
 }
 impl Worker {
     pub async fn open(directory: &Path, test_worker: bool) -> io::Result<Self> {
@@ -17,7 +19,62 @@ impl Worker {
             runtime: None,
             pending: HashMap::new(),
             test_worker,
+            browser_listener: None,
+            browser_request: None,
         })
+    }
+    pub fn protected_browser(&mut self, config: &crate::Config) -> io::Result<()> {
+        let Some(runtime) = &self.runtime else {
+            return Ok(());
+        };
+        let Some(scope) = self.journal.browser_scope(&runtime.sessions)? else {
+            self.stop_browser_request();
+            self.browser_listener = None;
+            return Ok(());
+        };
+        if self
+            .browser_request
+            .as_ref()
+            .is_some_and(|(authority, task)| *authority != scope.authority || task.is_finished())
+        {
+            self.stop_browser_request();
+        }
+        if self.browser_request.is_some() {
+            return Ok(());
+        }
+        if self
+            .browser_listener
+            .as_ref()
+            .is_none_or(|(id, _)| *id != scope.authority.execution)
+        {
+            crate::protected_browser::initialize(&scope.profile, scope.authority.journal)?;
+            let listener =
+                std::os::unix::net::UnixListener::bind(scope.directory.join("protected.sock"))?;
+            listener.set_nonblocking(true)?;
+            self.browser_listener = Some((scope.authority.execution, listener));
+        }
+        let listener = &self.browser_listener.as_ref().unwrap().1;
+        match listener.accept() {
+            Ok((stream, _)) => {
+                stream.set_nonblocking(true)?;
+                let stream = tokio::net::UnixStream::from_std(stream)?;
+                let config = config.clone();
+                self.browser_request = Some((
+                    scope.authority,
+                    tokio::spawn(async move {
+                        let _ = crate::protected_browser::handle(&config, scope, stream).await;
+                    }),
+                ));
+            }
+            Err(error) if error.kind() == io::ErrorKind::WouldBlock => {}
+            Err(error) => return Err(error),
+        }
+        Ok(())
+    }
+    fn stop_browser_request(&mut self) {
+        if let Some((_, request)) = self.browser_request.take() {
+            request.abort();
+        }
     }
     pub fn connector_settlements(&self) -> io::Result<Vec<crate::connector::Settlement>> {
         self.journal.connector_settlements()
@@ -74,6 +131,8 @@ impl Worker {
         })
     }
     pub fn disconnected(&mut self) -> io::Result<()> {
+        self.stop_browser_request();
+        self.browser_listener = None;
         self.pending.clear();
         self.journal.stop_processes(false)?;
         self.journal.disconnected()
@@ -127,6 +186,7 @@ impl Worker {
         Ok(messages)
     }
     pub async fn shutdown(&mut self) -> io::Result<()> {
+        self.stop_browser_request();
         self.journal.stop_processes(true)?;
         let deadline = tokio::time::Instant::now() + Duration::from_secs(18);
         while !self.journal.processes_stopped()? {

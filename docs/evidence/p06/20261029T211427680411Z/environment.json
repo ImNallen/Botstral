@@ -1,0 +1,6 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "head": "51d0177c1684bdb3a88c03670c66f94308b99387",
+  "diff_sha256": "0f44eb7c91f0ef38369af6fc1773b6f1d99ed6985adf75363d122523215a59b0",
+  "native_controls": "macOS native fixture"
+}

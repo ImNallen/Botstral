@@ -7,6 +7,9 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
+import platform
+import hashlib
 
 
 def main():
@@ -19,12 +22,26 @@ def main():
     evidence = root / 'docs/evidence/p06' / stamp
     evidence.mkdir(parents=True)
     environment = {**os.environ, 'BOTSTRAL_P06_EVIDENCE': str(evidence)}
+    (evidence / 'environment.json').write_text(json.dumps({
+        'platform': platform.platform(),
+        'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip(),
+        'diff_sha256': hashlib.sha256(subprocess.check_output(['git', 'diff', '--binary'], cwd=root)).hexdigest(),
+        'native_controls': 'macOS native fixture' if sys.platform == 'darwin' else 'Not run: native entry adapter supports macOS only.',
+    }, indent=2) + '\n')
     commands = ([('handoff', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib',
                               'limits_and_cancellation_precede_publication_and_vault_handoff_has_no_value'])]
                 if args.baseline else
                 [('credentials', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'credentials::'])])
     if not args.baseline:
-        commands.append(('native-storage', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_protected_entry_never_enters_native_journal']))
+        commands += [
+            ('profile', ['cargo', 'test', '-p', 'botstral-agent', '--locked', '--lib', 'protected_browser::']),
+            ('native-storage', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_protected_entry_never_enters_native_journal']),
+            ('browser', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'p06_controlled_browser_acceptance', '--', '--ignored', '--nocapture']),
+            ('submission-boundary', ['node', 'agent/tests/p06_submission_boundary.mjs']),
+            ('entry-component', ['node', 'desktop/fixtures/p06-entry.mjs']),
+        ]
+        if sys.platform == 'darwin':
+            commands.append(('native-controls', ['cargo', 'run', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--locked', '--example', 'p06-native-entry']))
     if args.full:
         commands += [('repository', ['./scripts/verify.sh']), ('desktop', ['./scripts/verify-desktop.sh'])]
     results = []

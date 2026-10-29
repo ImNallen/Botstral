@@ -229,11 +229,13 @@ async fn connection(config: &Config, once: bool, worker: &mut Worker) -> io::Res
                 let message = message?;
                 idle.as_mut().reset(tokio::time::Instant::now() + Duration::from_secs(30));
                 let reports = worker.handle(message)?;
+                worker.protected_browser(config)?;
                 for report in reports {
                     send(&mut socket, report.request_id, report.message).await?;
                 }
             }
             _ = ticks.tick() => {
+                worker.protected_browser(config)?;
                 for report in worker.tick(true).await? { send(&mut socket, report.request_id, report.message).await?; }
             }
             _ = settlement_tick.tick(), if settlements.is_empty() => {

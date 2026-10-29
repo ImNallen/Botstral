@@ -109,6 +109,14 @@ struct Envelope {
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
 pub enum IntentCommand {
+    CredentialUses {
+        result: oneshot::Sender<Result<Vec<CredentialUseReview>, String>>,
+    },
+    DecideCredentialUse {
+        review: Box<CredentialUseReview>,
+        decision: UseDecision,
+    },
+    LockVault,
     Protected {
         generation: u64,
         request: protected::ProtectedOwnerRequest,
@@ -409,6 +417,12 @@ impl RemoteService {
         self.command(IntentCommand::ProtectedStatus { result })
             .await?;
         receiver.await.map_err(|_| "unresolved".to_string())?
+    }
+    pub async fn credential_uses(&self) -> Result<Vec<CredentialUseReview>, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::CredentialUses { result })
+            .await?;
+        receiver.await.map_err(|_| "offline".to_string())?
     }
     pub async fn login_items(&self) -> Result<Vec<LoginItemView>, String> {
         let (result, receiver) = oneshot::channel();
@@ -1161,6 +1175,42 @@ impl Actor {
                 let _ = result.send(value);
                 Ok(())
             }
+            IntentCommand::CredentialUses { result } => {
+                self.recover().await?;
+                let value = match self
+                    .session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::CredentialUses)
+                    .await
+                    .map_err(error_code)?
+                {
+                    OwnerReply::CredentialUses(reviews) => Ok(reviews),
+                    _ => Err("protocol".into()),
+                };
+                let _ = result.send(value);
+                Ok(())
+            }
+            IntentCommand::DecideCredentialUse { review, decision } => {
+                self.recover().await?;
+                self.session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::DecideCredentialUse { review, decision })
+                    .await
+                    .map_err(error_code)?;
+                Ok(())
+            }
+            IntentCommand::LockVault => {
+                self.recover().await?;
+                self.session
+                    .as_mut()
+                    .ok_or("offline")?
+                    .call(OwnerOperation::LockVault)
+                    .await
+                    .map_err(error_code)?;
+                Ok(())
+            }
             IntentCommand::LoginItems { result } => {
                 self.recover().await?;
                 let value = match self
@@ -1734,6 +1784,7 @@ fn describe_action(command: &CommandBody) -> String {
             .enumerate()
             .map(|(index, operation)| {
                 let step = match operation {
+                    ComputerOperation::ProtectedLogin { item, revision, purpose, plan } => format!("Protected {purpose:?} login using item {item}, revision {}. Native form POST to {}{}. A separate exact live review is required.", revision.get(), plan.origin, plan.action),
                     ComputerOperation::Navigate { url } => format!("Navigate to {url:?}"),
                     ComputerOperation::Click { selector } => format!("Click {selector:?}"),
                     ComputerOperation::Fill { selector, text } => {

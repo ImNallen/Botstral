@@ -351,3 +351,5 @@ fn metadata_cannot_publish_private_values_or_ambiguous_origins() {
             .is_err()
     );
 }
+
+mod live;

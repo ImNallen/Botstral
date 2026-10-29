@@ -78,7 +78,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 13 {
+    if version > 14 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -144,6 +144,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 13 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0013.sql"))?;
+        tx.commit()?;
+    }
+    if version < 14 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0014.sql"))?;
         tx.commit()?;
     }
     connection.execute(
@@ -219,6 +224,7 @@ impl State {
             #[cfg(test)]
             test_time: None,
         };
+        state.recover_credential_uses()?;
         state.reconcile_documents()?;
         state.reconcile_artifacts()?;
         state.recover_inferences(false)?;
@@ -548,8 +554,12 @@ impl State {
         tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
-    pub(super) fn lock_vault(&mut self, token: SessionToken) -> Result<(), OperationError> {
-        self.authorize(&token)?;
+    pub(super) fn lock_vault(
+        &mut self,
+        authority: impl Into<OwnerAuthority>,
+    ) -> Result<(), OperationError> {
+        self.authorize_owner(&authority.into())?;
+        self.recover_credential_uses()?;
         self.installation = Installation::Configured {
             vault: VaultState::Locked,
         };
@@ -650,12 +660,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 14).unwrap();
+        db.pragma_update(None, "user_version", 15).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            14
+            15
         );
     }
 

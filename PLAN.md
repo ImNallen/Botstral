@@ -305,6 +305,8 @@ Complete when the owner finds an earlier result, inspects its source task, edits
 
 Depends on M03, M04, and C02. Connector-specific flows also require M06. Build protected Playwright fills for v1 on W01. Manual takeover extends those flows through W02 in v1.x.
 
+Implementation and local evidence are in [Protected reusable logins](docs/p06-protected-logins.md). The native controls, paired transport, controlled browser and capture checks are separate proofs. The complete packaged native-to-Linux flow and independent review remain open; no completion box is advanced by these local checks.
+
 - [ ] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
 - [ ] Support private website sign-in, saved credentials, rotation, and revocation. Add manual takeover through W02 in v1.x.
 - [ ] Extend the encrypted store from M01 with individual owner-created login items, metadata, and per-item usage policy. Do not import an entire password vault automatically.

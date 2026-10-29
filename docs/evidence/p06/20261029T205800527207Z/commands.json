@@ -1,0 +1,114 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::"
+    ],
+    "started": "2026-10-29T20:58:00.576012+00:00",
+    "finished": "2026-10-29T20:58:15.543216+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  },
+  {
+    "name": "profile",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-agent",
+      "--locked",
+      "--lib",
+      "protected_browser::"
+    ],
+    "started": "2026-10-29T20:58:15.543549+00:00",
+    "finished": "2026-10-29T20:58:19.494144+00:00",
+    "exit_code": 0,
+    "log": "profile.log"
+  },
+  {
+    "name": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "started": "2026-10-29T20:58:19.494444+00:00",
+    "finished": "2026-10-29T20:58:29.570589+00:00",
+    "exit_code": 0,
+    "log": "native-storage.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T20:58:29.570916+00:00",
+    "finished": "2026-10-29T20:58:47.770101+00:00",
+    "exit_code": 0,
+    "log": "browser.log"
+  },
+  {
+    "name": "entry-component",
+    "command": [
+      "node",
+      "desktop/fixtures/p06-entry.mjs"
+    ],
+    "started": "2026-10-29T20:58:47.770423+00:00",
+    "finished": "2026-10-29T20:58:48.665539+00:00",
+    "exit_code": 0,
+    "log": "entry-component.log"
+  },
+  {
+    "name": "native-controls",
+    "command": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "desktop/src-tauri/Cargo.toml",
+      "--locked",
+      "--example",
+      "p06-native-entry"
+    ],
+    "started": "2026-10-29T20:58:48.666360+00:00",
+    "finished": "2026-10-29T20:58:50.380782+00:00",
+    "exit_code": 0,
+    "log": "native-controls.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T20:58:50.381162+00:00",
+    "finished": "2026-10-29T21:05:41.640572+00:00",
+    "exit_code": 0,
+    "log": "repository.log"
+  },
+  {
+    "name": "desktop",
+    "command": [
+      "./scripts/verify-desktop.sh"
+    ],
+    "started": "2026-10-29T21:05:41.640956+00:00",
+    "finished": "2026-10-29T21:09:01.787538+00:00",
+    "exit_code": 0,
+    "log": "desktop.log"
+  }
+]

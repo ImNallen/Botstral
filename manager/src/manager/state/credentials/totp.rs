@@ -27,7 +27,6 @@ pub(super) fn decode_seed(seed: &str) -> Result<Zeroizing<Vec<u8>>, OperationErr
     Ok(bytes)
 }
 
-#[cfg(test)]
 fn truncate(seed: &[u8], time: u64) -> u32 {
     use hmac::{Hmac, Mac};
     let mut mac =
@@ -42,6 +41,19 @@ fn truncate(seed: &[u8], time: u64) -> u32 {
     ) & 0x7fff_ffff;
     digest.clear();
     value
+}
+
+pub(super) fn current(seed: &str, time: i64) -> Result<(Zeroizing<String>, i64), OperationError> {
+    let time = u64::try_from(time).map_err(|_| OperationError::InvalidInput)?;
+    let until = (time / 30 + 1) * 30;
+    if until - time < 5 {
+        return Err(OperationError::Conflict);
+    }
+    let seed = decode_seed(seed)?;
+    Ok((
+        Zeroizing::new(format!("{:06}", truncate(&seed, time) % 1_000_000)),
+        until as i64,
+    ))
 }
 
 #[cfg(test)]

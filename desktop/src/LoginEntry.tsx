@@ -1,31 +1,8 @@
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { z } from 'zod';
+import { itemSchema, statusSchema } from './login-domain';
 import type { CredentialWriteStatus, CredentialWriteTarget, LoginItemView } from '@botstral/link';
-
-const revision = z.number().int().positive().safe();
-const metadataSchema = z.strictObject({
-  label: z.string(),
-  bots: z.discriminatedUnion('type', [
-    z.strictObject({ type: z.literal('all_owner_bots') }),
-    z.strictObject({ type: z.literal('selected'), bots: z.array(z.uuid()) }),
-  ]),
-  allowed_origins: z.array(z.string()),
-  password_policy: z.enum(['every_fill', 'remembered_origins']),
-});
-const itemSchema = z.strictObject({
-  id: z.uuid(),
-  revision,
-  epoch: revision,
-  state: z.enum(['active', 'removed']),
-  metadata: metadataSchema,
-  has_totp: z.boolean(),
-}) satisfies z.ZodType<LoginItemView>;
-const statusSchema = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('committed'), request: z.uuid(), item: itemSchema }),
-  z.strictObject({ type: z.literal('closed_without_commit'), request: z.uuid() }),
-  z.strictObject({ type: z.literal('unresolved'), request: z.uuid() }),
-]) satisfies z.ZodType<CredentialWriteStatus>;
 
 export function LoginEntry({ bot }: { bot: string }) {
   const [open, setOpen] = useState(false);
@@ -109,6 +86,19 @@ export function LoginEntry({ bot }: { bot: string }) {
             Unlock Vault
           </button>
           <button
+            disabled={busy}
+            onClick={() =>
+              void action(async () => {
+                await invoke('lock_vault');
+                setMessage(
+                  'Vault locked. Pending uses were revoked; any possible release remains protected.',
+                );
+              })
+            }
+          >
+            Lock Vault
+          </button>
+          <button
             disabled={busy || !origin || !label}
             onClick={() =>
               void action(() =>
@@ -153,7 +143,9 @@ export function LoginEntry({ bot }: { bot: string }) {
           {items.map((item) => (
             <div key={item.id}>
               <p>
-                {item.metadata.label}. Revision {item.revision}. {item.state}.
+                {item.metadata.label}. Revision {item.revision}. {item.state}.{' '}
+                {item.metadata.allowed_origins.join(', ')}.{' '}
+                {item.metadata.password_policy.replaceAll('_', ' ')}.
               </p>
               {item.state === 'active' && (
                 <>
@@ -166,6 +158,47 @@ export function LoginEntry({ bot }: { bot: string }) {
                     }
                   >
                     Rotate {item.metadata.label}
+                  </button>
+                  <button
+                    disabled={busy}
+                    onClick={() =>
+                      void action(async () => {
+                        await invoke('update_login', {
+                          id: item.id,
+                          expectedRevision: item.revision,
+                          metadata: item.metadata,
+                        });
+                        setItems([]);
+                        setMessage('Remembered rules cleared. Pending uses were revoked.');
+                      })
+                    }
+                  >
+                    Forget rules for {item.metadata.label}
+                  </button>
+                  <button
+                    disabled={busy || !origin || !label}
+                    onClick={() =>
+                      void action(async () => {
+                        await invoke('update_login', {
+                          id: item.id,
+                          expectedRevision: item.revision,
+                          metadata: {
+                            label,
+                            allowed_origins: [origin],
+                            bots: allBots
+                              ? { type: 'all_owner_bots' }
+                              : { type: 'selected', bots: [bot] },
+                            password_policy: remember ? 'remembered_origins' : 'every_fill',
+                          },
+                        });
+                        setItems([]);
+                        setMessage(
+                          'Metadata replaced with the form values. Remembered rules cleared and pending uses revoked.',
+                        );
+                      })
+                    }
+                  >
+                    Replace metadata for {item.metadata.label}
                   </button>
                   <button
                     disabled={busy}

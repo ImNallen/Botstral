@@ -160,6 +160,35 @@ async fn open_login_entry(
         .await
 }
 #[tauri::command]
+async fn credential_uses(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<Vec<botstral_link::CredentialUseReview>, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.credential_uses().await
+}
+#[tauri::command]
+async fn decide_credential_use(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    review: Box<botstral_link::CredentialUseReview>,
+    decision: botstral_link::UseDecision,
+) -> Result<(), String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service
+        .command(IntentCommand::DecideCredentialUse { review, decision })
+        .await
+        .map(|_| ())
+}
+#[tauri::command]
+async fn lock_vault(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<(), String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.command(IntentCommand::LockVault).await.map(|_| ())
+}
+#[tauri::command]
 async fn login_items(
     window: WebviewWindow,
     service: tauri::State<'_, RemoteService>,
@@ -628,7 +657,7 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .manage(LocalManager::new().expect("local client initialization"))
         .invoke_handler(tauri::generate_handler![
-            open_login_entry, login_items, update_login, credential_write_status,
+            open_login_entry, login_items, update_login, credential_write_status, credential_uses, decide_credential_use, lock_vault,
             inspect,
             sign_in,
             refresh,

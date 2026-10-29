@@ -33,7 +33,7 @@ impl State {
         let saved: Option<(String, i64, String)> = self
             .connection
             .query_row(
-                "SELECT execution,generation,fence FROM connector_leases WHERE task=?1",
+                "SELECT execution,generation,fence FROM execution_leases WHERE task=?1",
                 [task.id.to_string()],
                 |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
             )
@@ -682,7 +682,7 @@ impl State {
     }
     pub(in crate::manager) fn recover_connectors(&mut self) -> Result<(), OperationError> {
         self.connection
-            .execute("DELETE FROM connector_leases", [])?;
+            .execute("DELETE FROM execution_leases", [])?;
         let calls = self
             .connection
             .prepare("SELECT view FROM connector_calls")?

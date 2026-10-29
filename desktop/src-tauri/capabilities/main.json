@@ -44,6 +44,9 @@
     "allow-open-login-entry",
     "allow-login-items",
     "allow-update-login",
-    "allow-credential-write-status"
+    "allow-credential-write-status",
+    "allow-credential-uses",
+    "allow-decide-credential-use",
+    "allow-lock-vault"
   ]
 }

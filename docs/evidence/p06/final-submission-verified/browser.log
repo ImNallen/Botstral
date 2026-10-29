@@ -1,0 +1,19 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.90s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-796b8ad5691d66dd)
+
+running 1 test
+P06 controlled browser acceptance passed 22 cases.
+test manager::state::credentials::tests::live::browser::p06_controlled_browser_acceptance ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 155 filtered out; finished in 21.48s

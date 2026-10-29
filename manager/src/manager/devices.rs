@@ -59,6 +59,16 @@ pub(crate) fn owner_error(error: OperationError) -> OwnerError {
 }
 
 impl Manager {
+    pub(crate) async fn protected_browser(
+        &self,
+        peer: crate::worker_http::VerifiedIdentity,
+        request: protected::ProtectedBrowserRequest,
+    ) -> Result<protected::ProtectedBrowserReply, OperationError> {
+        self.queue
+            .call(false, move |s| s.protected_browser(peer, request))
+            .await
+    }
+
     pub(crate) async fn protected_owner(
         &self,
         lease: DeviceLease,
