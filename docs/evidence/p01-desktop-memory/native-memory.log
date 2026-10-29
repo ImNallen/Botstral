@@ -1,0 +1,8 @@
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+PASS Memory projection, existing-only writes, source order, stale refusal, edit/clear persistence, native restart, exact reconciliation, unchanged/later/source/bot/overflow non-confirmation, no replay and acknowledgement
+test p01_memory_controls_and_crash_journal_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 2.52s

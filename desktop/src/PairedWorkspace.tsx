@@ -6,6 +6,7 @@ import { Icon } from './Icon';
 import { formatDate } from './format';
 import type { RunTemplate } from '@botstral/link';
 import { Routines, RoutineInbox } from './Routines';
+import { Memory } from './Memory';
 
 function WorkspaceDialog({
   label,
@@ -674,6 +675,19 @@ export function PairedWorkspace({
             <Pairing controller={controller} local={local} onLocal={onLocal} />
           ) : bot ? (
             <>
+              <Memory
+                key={JSON.stringify([
+                  workspace.manager,
+                  workspace.owner,
+                  snapshot.generation,
+                  bot.id,
+                ])}
+                workspace={workspace}
+                bot={bot}
+                snapshot={snapshot}
+                controller={controller}
+                busy={state.busy}
+              />
               <Routines
                 workspace={workspace}
                 bot={bot}

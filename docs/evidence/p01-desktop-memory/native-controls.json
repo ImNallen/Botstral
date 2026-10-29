@@ -1,0 +1,976 @@
+{
+  "absent": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": "memory_absent",
+    "pairing": null,
+    "review": null,
+    "revision": 7,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "blocked",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 14,
+      "documents": [],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "acknowledged": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "identity": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "identity": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "identity": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "identity": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "identity": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "identity": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "identity": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "status": "attention"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 14,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 18,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "",
+          "revision": 3,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "before": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 3,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 16,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "Original saved preference.",
+          "revision": 1,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "cleared": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "identity": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "8daa43b8-03bb-4d1d-8b1b-772f8784f896",
+        "identity": "8daa43b8-03bb-4d1d-8b1b-772f8784f896",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 7,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 18,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "",
+          "revision": 3,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "conflict": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "identity": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "status": "confirmed"
+      }
+    ],
+    "issue": "memory_conflict",
+    "pairing": null,
+    "review": null,
+    "revision": 12,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "blocked",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 17,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "Corrected saved preference.\nUse concise answers.",
+          "revision": 2,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "edited": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "identity": "2765097f-4cdb-46d3-8500-fb84e0425942",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 8,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 17,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "Corrected saved preference.\nUse concise answers.",
+          "revision": 2,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "restored": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "identity": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "identity": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "identity": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "identity": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "identity": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "identity": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "identity": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "b7032eb5-b8c0-43a1-8d72-b6431a334ac9",
+        "identity": "b7032eb5-b8c0-43a1-8d72-b6431a334ac9",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 7,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 19,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "Deliberate new edit after current-state review.",
+          "revision": 4,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "reviewed": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "identity": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "identity": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "identity": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "identity": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "identity": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "identity": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "identity": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "status": "attention"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "b7032eb5-b8c0-43a1-8d72-b6431a334ac9",
+        "identity": "b7032eb5-b8c0-43a1-8d72-b6431a334ac9",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "fd9161ff-7d0f-466a-966b-66dad9e4c664",
+        "identity": "fd9161ff-7d0f-466a-966b-66dad9e4c664",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 12,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 20,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "Reviewed draft after conflict.",
+          "revision": 5,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "uncertain": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Current saved Memory edit",
+        "id": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "identity": "2c6692a2-17a9-4830-b523-9751d88c5b4e",
+        "status": "confirmed"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "identity": "55e31dfd-a78c-49de-bdb3-659ee6e8d97c",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "identity": "3407e70b-3b8e-4019-b36e-3f8326e4aca6",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "identity": "366de1f2-5d1e-4602-b9d8-05a1eedb956f",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "identity": "ba00c663-d80e-4ec8-a055-96dd739b2152",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "identity": "5ecd28b6-e265-40d3-84c2-78a2b6f9c935",
+        "status": "unknown"
+      },
+      {
+        "description": "Current saved Memory edit",
+        "id": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "identity": "c13c29a2-97b4-44e3-abd9-7bebdca64d9d",
+        "status": "unknown"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 3,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793283095,
+          "id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 18,
+      "documents": [
+        {
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "kind": "memory",
+          "markdown": "",
+          "revision": 3,
+          "sources": [
+            {
+              "reference": "https://example.test/owner-preference",
+              "type": "external"
+            },
+            {
+              "reference": "https://example.test/trusted/notes.md",
+              "type": "external"
+            }
+          ]
+        }
+      ],
+      "inbox": [],
+      "manager": "4b4a92af-7981-47c8-9b37-69f001878555",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "bb99b3bc-a772-4f37-8007-1be7e3c5f39c",
+          "id": "5d008b76-e588-4e90-bedf-c6cad9a82297",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c73a6c80-b884-4eef-a121-cfa7ded3b733"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c73a6c80-b884-4eef-a121-cfa7ded3b733",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  }
+}

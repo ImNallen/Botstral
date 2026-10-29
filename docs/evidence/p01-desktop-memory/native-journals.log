@@ -1,0 +1,77 @@
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+JOURNAL_OVERFLOW generated_bytes=101435 admitted_records=5 restore_status=Ok("online") retained_records=5
+test admitted_journal_must_remain_readable_after_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 38.94s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+UNKNOWN_REGRANT historical_revoked_status=unknown
+test historical_approval_cannot_confirm_an_unknown_regrant ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 3.43s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+JOURNAL_READ_FAILURE restored_status=Err("journal_unavailable") restored_disk_records=1 pairing_ok=false mutation_ok=false permission_before=2 permission_after=2 unknown_visible=0
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 2.81s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+test missing_journal_does_not_become_an_empty_paired_profile ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 1.39s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+REVOKED_OFFLINE_RESTART result=Err("revoked") cached_activity=false
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 2.82s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+PASS Memory projection, existing-only writes, source order, stale refusal, edit/clear persistence, native restart, exact reconciliation, unchanged/later/source/bot/overflow non-confirmation, no replay and acknowledgement
+test p01_memory_controls_and_crash_journal_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 2.55s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+test p03_routine_controls_and_crash_journal_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 4.61s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+PASS readable unknown journal remains durable, blocks mutations, and leaves manager permission unchanged
+test readable_unknown_journal_blocks_mutation_without_replay ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 1.46s
+
+Worker is synthetic. No real process or browser execution is proved.
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-d0d2907e685265a7)
+
+running 1 test
+test trimmed_run_history_does_not_strand_unknown_intents ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 6.03s

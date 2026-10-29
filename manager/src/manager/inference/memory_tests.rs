@@ -154,7 +154,91 @@ async fn p01_corrected_memory_reaches_new_conversation_run_after_restart_over_ht
         corrected
     );
     drop(db);
+    let cleared = app
+        .manager
+        .write_document(
+            app.session(),
+            WriteDocument {
+                bot,
+                kind: DocumentKind::Memory,
+                expected_revision: corrected.revision,
+                sources: corrected.sources.clone(),
+                markdown: String::new(),
+            },
+        )
+        .await
+        .unwrap();
+    assert_eq!(cleared.sources, corrected.sources);
+    let mut after_clear = request(&app, worker.session.id);
+    after_clear.prompt = "A new run after clearing Memory.".into();
+    fixture.reply(Reply::default());
+    app.call("POST", "/v1/runs", json!(after_clear), 200).await;
+    let clear_run = phase(&app, after_clear.id, |p| matches!(p, RunPhase::Completed)).await;
+    assert_eq!(fixture.chats(), 2);
+    assert_eq!(
+        clear_run.turns[0].messages,
+        vec![RunMessage::User {
+            content: after_clear.prompt.clone()
+        }]
+    );
+    let clear_request = fixture.state.requests.lock().unwrap()[1].clone();
+    assert_eq!(
+        clear_request["messages"],
+        json!([{"role":"user","content":after_clear.prompt}])
+    );
+    let old: RunView = serde_json::from_value(
+        app.call("GET", &format!("/v1/runs/{}", input.id), Value::Null, 200)
+            .await,
+    )
+    .unwrap();
+    assert_eq!(old, completed);
+    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
+    let snapshots: Vec<(String, Option<String>)> = db
+        .prepare("SELECT id,memory_snapshot FROM runs ORDER BY id")
+        .unwrap()
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect();
+    for (id, snapshot) in snapshots {
+        let document: Document = serde_json::from_str(&snapshot.unwrap()).unwrap();
+        assert_eq!(
+            document,
+            if id == input.id.to_string() {
+                corrected.clone()
+            } else {
+                cleared.clone()
+            }
+        );
+    }
+    drop(db);
     drop(worker);
+    app.shutdown().await;
+    let mut app = App::start(local.directory().into(), &fixture).await;
+    app.bot = bot;
+    let EventReplay::Snapshot { state, .. } =
+        app.manager.resume(app.session(), 0, 64).await.unwrap()
+    else {
+        panic!("expected current workspace snapshot")
+    };
+    assert!(state.documents.contains(&cleared));
+    let original: RunView = serde_json::from_value(
+        app.call("GET", &format!("/v1/runs/{}", input.id), Value::Null, 200)
+            .await,
+    )
+    .unwrap();
+    let persisted_clear: RunView = serde_json::from_value(
+        app.call(
+            "GET",
+            &format!("/v1/runs/{}", after_clear.id),
+            Value::Null,
+            200,
+        )
+        .await,
+    )
+    .unwrap();
+    assert_eq!(original, completed);
+    assert_eq!(persisted_clear, clear_run);
     app.shutdown().await;
 }
 

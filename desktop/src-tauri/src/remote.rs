@@ -109,6 +109,11 @@ struct Envelope {
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
 pub enum IntentCommand {
+    WriteMemory {
+        bot: BotId,
+        expected_revision: u64,
+        markdown: String,
+    },
     Routine(RoutineCommand),
     RunDetails(RunId),
     RoutineText {
@@ -235,7 +240,7 @@ fn read_journal(path: &Path) -> Result<Vec<Intent>, String> {
                 i.status.as_str(),
                 "unknown" | "pending" | "confirmed" | "attention" | "refused"
             ) || !matches!(
-                i.operation,
+                &i.operation,
                 OwnerOperation::RoutineCommand { .. }
                     | OwnerOperation::RoutineConversation { .. }
                     | OwnerOperation::SubmitRun { .. }
@@ -245,7 +250,7 @@ fn read_journal(path: &Path) -> Result<Vec<Intent>, String> {
                     | OwnerOperation::RevokeApproval { .. }
                     | OwnerOperation::SetPermission { .. }
                     | OwnerOperation::OpenComputerSession { .. }
-            )
+            ) && !matches!(&i.operation, OwnerOperation::WriteDocument { input } if input.kind == DocumentKind::Memory)
         })
     {
         return Err("storage".into());
@@ -289,6 +294,15 @@ fn error_code(error: ClientError) -> String {
     }
     .into()
 }
+fn memory_matches(input: &WriteDocument, document: &Document) -> bool {
+    input.kind == DocumentKind::Memory
+        && document.kind == DocumentKind::Memory
+        && document.bot == input.bot
+        && Some(document.revision) == input.expected_revision.checked_add(1)
+        && document.markdown == input.markdown
+        && document.sources == input.sources
+}
+
 fn latest_configuration(workspace: &OwnerWorkspace, bot: BotId) -> Option<&InferenceConfiguration> {
     workspace
         .state
@@ -807,6 +821,11 @@ impl Actor {
                 OwnerOperation::RevokeApproval { .. } => {
                     recovered_task.is_some_and(|t| t.approval.revoked)
                 }
+                OwnerOperation::WriteDocument { input } => image
+                    .state
+                    .documents
+                    .iter()
+                    .any(|document| memory_matches(input, document)),
                 OwnerOperation::SetPermission {
                     bot,
                     expected_revision,
@@ -861,6 +880,7 @@ impl Actor {
                     }
                     OwnerOperation::GrantReviewedApproval { .. } => "Approval",
                     OwnerOperation::RevokeApproval { .. } => "Approval revocation",
+                    OwnerOperation::WriteDocument { .. } => "Current saved Memory edit",
                     OwnerOperation::SetPermission { .. } => "Permission change",
                     OwnerOperation::OpenComputerSession { .. } => "Computer connection",
                     _ => "Operation",
@@ -928,6 +948,10 @@ impl Actor {
             OwnerOperation::RoutineConversation { id, .. } => Some(*id),
             _ => None,
         };
+        let memory_write = match &operation {
+            OwnerOperation::WriteDocument { input } => Some(input.clone()),
+            _ => None,
+        };
         let reply = self
             .session
             .as_mut()
@@ -937,6 +961,12 @@ impl Actor {
         let routine_ack = matches!(&reply,Ok(OwnerReply::RoutineControl(result)) if Some(result.request)==routine_request);
         if routine_request.is_some() && reply.is_ok() && !routine_ack {
             return Err("incompatible_manager".into());
+        }
+        if let Some(input) = &memory_write
+            && reply.is_ok()
+            && !matches!(&reply, Ok(OwnerReply::Document(document)) if memory_matches(input, document))
+        {
+            return Err("unknown_outcome".into());
         }
         if let Ok(OwnerReply::RoutineControl(result)) = &reply {
             self.publish(|v| v.routine_panel.message = Some(result.message.clone()));
@@ -1009,6 +1039,36 @@ impl Actor {
     }
     async fn execute(&mut self, command: IntentCommand) -> Result<(), String> {
         match command {
+            IntentCommand::WriteMemory {
+                bot,
+                expected_revision,
+                markdown,
+            } => {
+                if markdown.len() > 4096 {
+                    return Err("invalid_input".into());
+                }
+                self.recover().await?;
+                let image = self.view.borrow().workspace.clone().ok_or("offline")?;
+                let document = image
+                    .state
+                    .documents
+                    .iter()
+                    .find(|d| d.bot == bot && d.kind == DocumentKind::Memory)
+                    .ok_or("memory_absent")?;
+                if document.revision != expected_revision {
+                    return Err("memory_conflict".into());
+                }
+                self.mutate(OwnerOperation::WriteDocument {
+                    input: WriteDocument {
+                        bot,
+                        kind: DocumentKind::Memory,
+                        expected_revision,
+                        sources: document.sources.clone(),
+                        markdown,
+                    },
+                })
+                .await
+            }
             IntentCommand::Fetch {
                 task,
                 artifact,
@@ -1467,6 +1527,7 @@ struct WorkspaceView<'a> {
     manager: ManagerId,
     cursor: u64,
     owner: &'a str,
+    documents: Vec<&'a Document>,
     bots: &'a [WorkspaceBot],
     workers: &'a [WorkspaceWorker],
     sessions: &'a [ComputerSession],
@@ -1625,6 +1686,12 @@ fn serialize_workspace<S: serde::Serializer>(
             manager: w.manager,
             cursor: w.cursor,
             owner: &w.owner,
+            documents: w
+                .state
+                .documents
+                .iter()
+                .filter(|d| d.kind == DocumentKind::Memory)
+                .collect(),
             bots: &w.bots,
             workers: &w.workers,
             sessions: &w.sessions,
@@ -1719,4 +1786,78 @@ fn serialize_workspace<S: serde::Serializer>(
                 .collect(),
         })
         .serialize(serializer)
+}
+
+#[cfg(test)]
+mod memory_tests {
+    use super::*;
+
+    #[test]
+    fn memory_acknowledgement_requires_the_exact_document() {
+        let input = WriteDocument {
+            bot: BotId::new(),
+            kind: DocumentKind::Memory,
+            expected_revision: 7,
+            sources: vec![
+                SourceReference::External {
+                    reference: "https://example.test/a".into(),
+                },
+                SourceReference::External {
+                    reference: "https://example.test/b".into(),
+                },
+            ],
+            markdown: "Exact\nedit".into(),
+        };
+        let document = Document {
+            bot: input.bot,
+            kind: input.kind.clone(),
+            revision: 8,
+            sources: input.sources.clone(),
+            markdown: input.markdown.clone(),
+        };
+        assert!(memory_matches(&input, &document));
+        let mut wrong = document.clone();
+        wrong.sources.reverse();
+        assert!(!memory_matches(&input, &wrong));
+        wrong = document.clone();
+        wrong.revision = 9;
+        assert!(!memory_matches(&input, &wrong));
+        wrong = document.clone();
+        wrong.bot = BotId::new();
+        assert!(!memory_matches(&input, &wrong));
+        wrong = document.clone();
+        wrong.kind = DocumentKind::Instructions;
+        assert!(!memory_matches(&input, &wrong));
+        wrong = document.clone();
+        wrong.markdown.push(' ');
+        assert!(!memory_matches(&input, &wrong));
+    }
+
+    #[test]
+    fn journal_accepts_only_memory_document_writes() {
+        let root = tempfile::tempdir().unwrap();
+        let mut input = WriteDocument {
+            bot: BotId::new(),
+            kind: DocumentKind::Memory,
+            expected_revision: 1,
+            sources: vec![],
+            markdown: String::new(),
+        };
+        let save = |input: WriteDocument| {
+            storage(
+                root.path(),
+                "intents.json",
+                &vec![Intent {
+                    id: Uuid::new_v4(),
+                    operation: OwnerOperation::WriteDocument { input },
+                    status: "unknown".into(),
+                }],
+            )
+            .unwrap();
+            read_journal(&root.path().join("intents.json"))
+        };
+        assert!(save(input.clone()).is_ok());
+        input.kind = DocumentKind::Instructions;
+        assert!(save(input).is_err());
+    }
 }

@@ -43,7 +43,22 @@ const output = z.strictObject({
     }),
   ]),
 });
+export const memoryDocumentSchema = z.strictObject({
+  bot: botIdSchema,
+  kind: z.literal('memory'),
+  revision: integer,
+  sources: z.array(
+    z.discriminatedUnion('type', [
+      z.strictObject({ type: z.literal('task'), id: taskId }),
+      z.strictObject({ type: z.literal('message'), id }),
+      z.strictObject({ type: z.literal('external'), reference: z.string() }),
+    ]),
+  ),
+  markdown: z.string(),
+});
+export type MemoryDocument = z.infer<typeof memoryDocumentSchema>;
 const workspace = z.strictObject({
+  documents: z.array(memoryDocumentSchema).default([]),
   routines: z.array(routineViewSchema).default([]),
   routine_occurrences: z.array(occurrenceSchema).default([]),
   inbox: z.array(inboxSchema).default([]),
@@ -207,6 +222,11 @@ export type SendInput = {
   output_tokens: number;
 };
 export interface PairedApplication {
+  writeMemory(input: {
+    bot: MemoryDocument['bot'];
+    expectedRevision: number;
+    markdown: string;
+  }): Promise<RemoteSnapshot>;
   runDetails(id: Workspace['runs'][number]['id']): Promise<RemoteSnapshot>;
   routineText(bot: SendInput['bot'], text: string): Promise<RemoteSnapshot>;
   routine(input: RoutineCommand): Promise<RemoteSnapshot>;
@@ -247,6 +267,9 @@ export interface PairedApplication {
   issueInvitation(fingerprint: string, label: string): Promise<boolean>;
 }
 export const remoteIssues: Record<string, string> = {
+  memory_absent:
+    'No saved Memory exists. Initial authoring requires trusted manager administration.',
+  memory_conflict: 'Memory changed. Review the current version before saving your draft.',
   offline:
     'The paired manager is offline. Cached activity is read-only. Reconnect to recover current state.',
   trust:

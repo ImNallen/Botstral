@@ -1122,3 +1122,32 @@ summary {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.memory-panel {
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.memory-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.memory-text,
+.memory-sources {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.memory-panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  min-height: 140px;
+  padding: 12px;
+  font: inherit;
+}
+.memory-label {
+  display: block;
+  margin: 16px 0 8px;
+  font-weight: 600;
+}
