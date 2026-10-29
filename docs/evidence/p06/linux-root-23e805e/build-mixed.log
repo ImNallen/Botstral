@@ -1,0 +1,59 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.mixed
+#1 transferring dockerfile: 1.21kB done
+#1 WARN: FromPlatformFlagConstDisallowed: FROM --platform flag should not use constant value "linux/amd64" (line 2)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/botstral-p06-fae8ad814bf4-runtime:latest
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/7] FROM docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+#5 resolve docker.io/library/ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 done
+#5 DONE 0.0s
+
+#6 [sealed 1/1] FROM docker.io/library/botstral-p06-fae8ad814bf4-runtime:latest@sha256:d9b8ecdd9676841de6900c258d191469a63981ec5720bbf78bf3bfb5cc84f453
+#6 resolve docker.io/library/botstral-p06-fae8ad814bf4-runtime:latest@sha256:d9b8ecdd9676841de6900c258d191469a63981ec5720bbf78bf3bfb5cc84f453 done
+#6 DONE 0.0s
+
+#7 [stage-1 2/7] RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd systemd-sysv dbus-user-session python3 python3-websocket libnss3-tools ca-certificates openssl     && systemd --version | head -1 | grep '^systemd 255 '     && useradd --uid 10001 --create-home --shell /bin/bash p06     && install -d /var/lib/systemd/linger     && touch /var/lib/systemd/linger/p06     && ln -s /dev/null /etc/systemd/system/systemd-binfmt.service     && ln -s /dev/null /etc/systemd/system/systemd-sysctl.service     && ln -s /dev/null /etc/systemd/system/systemd-modules-load.service     && ln -s /usr/lib/systemd/system/user@.service /etc/systemd/system/multi-user.target.wants/user@10001.service
+#7 CACHED
+
+#8 [stage-1 3/7] COPY --from=sealed /opt/p06-runtime /opt/p06-runtime
+#8 DONE 0.9s
+
+#9 [stage-1 4/7] COPY --from=sealed /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
+#9 DONE 0.3s
+
+#10 [stage-1 5/7] COPY --from=sealed /usr/lib64 /usr/lib64
+#10 DONE 0.0s
+
+#11 [stage-1 6/7] RUN ln -s usr/lib64 /lib64
+#11 DONE 0.1s
+
+#12 [stage-1 7/7] COPY --from=sealed /usr/share/fonts /usr/share/fonts
+#12 DONE 0.1s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 17.7s done
+#13 exporting manifest sha256:440c680ea0d43de943e865ffe4c6ece18b81fc0d5969a5ce8bb7cdf76dc15827 done
+#13 exporting config sha256:b05b93e7c59e9390090fdd71934e75be46525160941440ed0687b0b221be40f3 done
+#13 exporting attestation manifest sha256:7e67f68ee3954e3fed34de364d07b39db39ab1dc1dd9a9f1ccd290a155e619df done
+#13 exporting manifest list sha256:8d727d4ab7edd6cc8f4064569716fc0c73497546271ff1d472c3890c666972f3 done
+#13 naming to docker.io/library/botstral-p06-fae8ad814bf4-mixed:latest done
+#13 unpacking to docker.io/library/botstral-p06-fae8ad814bf4-mixed:latest
+#13 unpacking to docker.io/library/botstral-p06-fae8ad814bf4-mixed:latest 4.2s done
+#13 DONE 21.9s
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - FromPlatformFlagConstDisallowed: FROM --platform flag should not use constant value "linux/amd64" (line 2)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/zr1lr22taphg7f6dm3r5tmfcp

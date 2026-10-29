@@ -1,0 +1,817 @@
+{
+  "linux-readiness-diagnostic": {
+    "source": {
+      "reviewed_head": "9191b91682fa8dbe26da31fcca1e698f33ad9c5e",
+      "binaries": {
+        "botstral-agent": "181fbf2b9e0643ee59460ae81cb146c443f388994977e991f4cdd1ecee54a3e0",
+        "botstral-agent-supervisor-check": "b3b46c479352795ba76942f1349664aa14855a9fc8ef0360e4e0c523f4888e30",
+        "botstral-manager": "9e540071da4310de2d4930c6df8ee371c9be33260b4ed53b16c6da21b7fa455f"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "commands": [
+      {
+        "log": "docker-architecture.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-before.log",
+        "exit": 0
+      },
+      {
+        "log": "start-container.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent-supervisor-check.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-manager.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-fixture.log",
+        "exit": 0
+      },
+      {
+        "log": "user-systemd.log",
+        "exit": 0
+      },
+      {
+        "log": "integration.log",
+        "exit": 0
+      },
+      {
+        "log": "service-logs.log",
+        "exit": 0
+      },
+      {
+        "log": "remove-owned-container.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-after.log",
+        "exit": 0
+      }
+    ],
+    "checks": [
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "environment"
+      },
+      {
+        "check": "production_supervisor",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "manager_started"
+      },
+      {
+        "check": "paired_owner_authenticated"
+      },
+      {
+        "check": "paired_private_unlock"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "runtime_identity"
+      },
+      {
+        "check": "worker_ready"
+      },
+      {
+        "check": "sealed_runtime_warmup"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "protected_write_receipt"
+      },
+      {
+        "check": "protected_item_committed"
+      },
+      {
+        "check": "supervised_browser_awaiting_approval"
+      },
+      {
+        "check": "authenticated_worker_tls_poll",
+        "status": 200
+      },
+      {
+        "check": "missing_client_certificate_refused",
+        "status": 403
+      },
+      {
+        "check": "changed_generation_refused",
+        "status": 403
+      },
+      {
+        "check": "same_uid_outside_scope_refused",
+        "submissions": 0
+      },
+      {
+        "check": "sign_in_result",
+        "submissions": [
+          {
+            "valid": true,
+            "path": "/session",
+            "method": "POST"
+          }
+        ],
+        "reviews": [
+          {
+            "id": "49e51055-a83b-4791-8286-4ef37c03dffd",
+            "release": "0eaaf9c4-f268-4e00-a224-4a67fdbfad00",
+            "item": {
+              "id": "b0286da2-c516-46d4-b717-87d180bcac18",
+              "revision": 1,
+              "epoch": 1,
+              "state": "active",
+              "metadata": {
+                "label": "Linux synthetic sign-in",
+                "bots": {
+                  "type": "selected",
+                  "bots": [
+                    "ce4872a3-ccae-4d00-a8fa-7ece2497eeaa"
+                  ]
+                },
+                "allowed_origins": [
+                  "https://127.0.0.1:42489"
+                ],
+                "password_policy": "every_fill"
+              },
+              "has_totp": false
+            },
+            "purpose": "password",
+            "binding": {
+              "owner": "e84f94be-d202-443d-a0de-755c9bbda4db",
+              "bot": "ce4872a3-ccae-4d00-a8fa-7ece2497eeaa",
+              "task": "70ab2c60-77f2-40f3-8604-419dcc150a3b",
+              "operation": "52ee8623-1a45-4391-bde0-953dd9ef7028",
+              "arguments": "39451d413a39eee5dca5f6b766b5d0d67b08e8f4edef4e05c71e7650ee4db805",
+              "permission_revision": 2,
+              "approval": "69aca1bc-d167-4733-8dca-7f7cb814cf74",
+              "execution": "366ba69d-5938-4d38-819e-c6cd371a5570",
+              "expires_at": 1793313779
+            },
+            "fence": {
+              "generation": 1,
+              "session_id": "eaa83b86-b19a-4570-a522-47dba65d8bc5",
+              "revision": 1,
+              "owner": "bot"
+            },
+            "incarnation": "ff4f9dd1-0dab-40f3-a64b-6294e6bb8401",
+            "destination": {
+              "profile": "c7b0c89d-7726-4126-a3ae-51236d37dad1",
+              "browser": "d6578cf1-569d-47ea-9454-54f94d91dce8",
+              "page": "f097d1cd-5b40-4d04-8395-b3a6f8ea255d",
+              "top_document": "263b6c6c-3c2b-44a2-b4a5-e6974f50b341",
+              "frame": "38f7a819-97ea-4312-9e11-6a51c4d581b9",
+              "frame_document": "08313c2b-8596-486a-a76a-8a6a9d32964d",
+              "top_origin": "https://127.0.0.1:42489",
+              "frame_origin": "https://127.0.0.1:42489",
+              "plan": {
+                "version": 1,
+                "origin": "https://127.0.0.1:42489",
+                "route": "/login",
+                "frame": null,
+                "form": "#login",
+                "username": "#username",
+                "password": "#password",
+                "totp": "#totp",
+                "submitter": "#submit",
+                "action": "/session"
+              },
+              "form": "4a4f1e10-d1f8-4faa-9968-86c47f8c1b3f",
+              "fields": [
+                {
+                  "object": "20d85181-4906-4b9e-a098-f0c7f832c3fc",
+                  "role": "username",
+                  "name": "username",
+                  "input_type": "text"
+                },
+                {
+                  "object": "fa7fc2a7-77e0-402b-aaf6-3a92c14c781f",
+                  "role": "password",
+                  "name": "password",
+                  "input_type": "password"
+                }
+              ],
+              "submitter": "aa73287a-8d7d-4db0-82cc-ce3eacfd73dd",
+              "certain": true
+            },
+            "expires_at": 1793313716,
+            "state": "applied"
+          }
+        ]
+      },
+      {
+        "check": "repeated_tls_release_refused",
+        "status": 403
+      },
+      {
+        "check": "production_linux_protected_sign_in_passed"
+      },
+      {
+        "check": "helper_readiness_samples"
+      },
+      {
+        "check": "owned_scope_already_removed"
+      },
+      {
+        "check": "owned_scope_already_removed"
+      },
+      {
+        "check": "fixture_processes_stopped",
+        "exits": [
+          0,
+          0
+        ]
+      }
+    ],
+    "log_sha256": "bd62809bfaf6e8b525ed68b923bb786a0e72d3d60d4476c6f31d0012d4e5193e"
+  },
+  "linux-root-23e805e": {
+    "source": {
+      "reviewed_head": "23e805e823cc8fd514cad27a6da719d0c8e72abd",
+      "binaries": {
+        "botstral-agent": "181fbf2b9e0643ee59460ae81cb146c443f388994977e991f4cdd1ecee54a3e0",
+        "botstral-agent-supervisor-check": "b3b46c479352795ba76942f1349664aa14855a9fc8ef0360e4e0c523f4888e30",
+        "botstral-manager": "9e540071da4310de2d4930c6df8ee371c9be33260b4ed53b16c6da21b7fa455f"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "commands": [
+      {
+        "log": "docker-architecture.log",
+        "exit": 0
+      },
+      {
+        "log": "build-runtime.log",
+        "exit": 0
+      },
+      {
+        "log": "build-mixed.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-before.log",
+        "exit": 0
+      },
+      {
+        "log": "start-container.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent-supervisor-check.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-manager.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-fixture.log",
+        "exit": 0
+      },
+      {
+        "log": "user-systemd.log",
+        "exit": 0
+      },
+      {
+        "log": "integration.log",
+        "exit": 1
+      },
+      {
+        "log": "service-logs.log",
+        "exit": 0
+      },
+      {
+        "log": "remove-owned-container.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-after.log",
+        "exit": 0
+      }
+    ],
+    "checks": [
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "environment"
+      },
+      {
+        "check": "production_supervisor",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "manager_started"
+      },
+      {
+        "check": "paired_owner_authenticated"
+      },
+      {
+        "check": "paired_private_unlock"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "runtime_identity"
+      },
+      {
+        "check": "worker_ready"
+      },
+      {
+        "check": "owned_scope_cleanup",
+        "exit": 0
+      },
+      {
+        "check": "fixture_processes_stopped",
+        "exits": [
+          0,
+          0
+        ]
+      },
+      {
+        "check": "fixture_failed",
+        "error": "HTTP POST /v1/tasks status 409"
+      }
+    ],
+    "log_sha256": "dd474d103c2ed096fafbf0aa202adf00485fb1e292d174c7aa927a7c8810bfd3"
+  },
+  "linux-password-totp": {
+    "source": {
+      "reviewed_head": "9191b91682fa8dbe26da31fcca1e698f33ad9c5e",
+      "binaries": {
+        "botstral-agent": "181fbf2b9e0643ee59460ae81cb146c443f388994977e991f4cdd1ecee54a3e0",
+        "botstral-agent-supervisor-check": "b3b46c479352795ba76942f1349664aa14855a9fc8ef0360e4e0c523f4888e30",
+        "botstral-manager": "9e540071da4310de2d4930c6df8ee371c9be33260b4ed53b16c6da21b7fa455f"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "commands": [
+      {
+        "log": "docker-architecture.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-before.log",
+        "exit": 0
+      },
+      {
+        "log": "start-container.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent-supervisor-check.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-manager.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-fixture.log",
+        "exit": 0
+      },
+      {
+        "log": "user-systemd.log",
+        "exit": 0
+      },
+      {
+        "log": "integration.log",
+        "exit": 1
+      },
+      {
+        "log": "service-logs.log",
+        "exit": 0
+      },
+      {
+        "log": "remove-owned-container.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-after.log",
+        "exit": 0
+      }
+    ],
+    "checks": [
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "environment"
+      },
+      {
+        "check": "production_supervisor",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "manager_started"
+      },
+      {
+        "check": "paired_owner_authenticated"
+      },
+      {
+        "check": "paired_private_unlock"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "runtime_identity"
+      },
+      {
+        "check": "worker_ready"
+      },
+      {
+        "check": "sealed_runtime_warmup"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "protected_write_receipt"
+      },
+      {
+        "check": "protected_item_committed"
+      },
+      {
+        "check": "supervised_browser_awaiting_approval"
+      },
+      {
+        "check": "authenticated_worker_tls_poll",
+        "status": 200
+      },
+      {
+        "check": "missing_client_certificate_refused",
+        "status": 403
+      },
+      {
+        "check": "changed_generation_refused",
+        "status": 403
+      },
+      {
+        "check": "same_uid_outside_scope_refused",
+        "submissions": 0
+      },
+      {
+        "check": "sign_in_result",
+        "submissions": [
+          {
+            "valid": true,
+            "path": "/session",
+            "method": "POST"
+          }
+        ],
+        "reviews": [
+          {
+            "id": "1ab96d45-cfc8-484f-97b0-2c953d507cfd",
+            "release": "bc5d4bb7-f94f-4cac-8d25-fbe47ea6ab9b",
+            "item": {
+              "id": "13b294ab-2bfb-4ca7-8a86-e74fc2761726",
+              "revision": 1,
+              "epoch": 1,
+              "state": "active",
+              "metadata": {
+                "label": "Linux synthetic sign-in",
+                "bots": {
+                  "type": "selected",
+                  "bots": [
+                    "a17dece9-a2d9-4fda-99f4-359f1f1bc70f"
+                  ]
+                },
+                "allowed_origins": [
+                  "https://127.0.0.1:37143"
+                ],
+                "password_policy": "remembered_origins"
+              },
+              "has_totp": true
+            },
+            "purpose": "password",
+            "binding": {
+              "owner": "c3ff0821-7a56-4d90-bbbf-51dcb57e66a6",
+              "bot": "a17dece9-a2d9-4fda-99f4-359f1f1bc70f",
+              "task": "b9b34310-b471-4f4a-add4-e57f06bb834e",
+              "operation": "bc41d059-bb06-4cfe-8a03-0499664831ab",
+              "arguments": "11143cb74698e36491e35c18a951427f3106f1cd732ba562dc591f0cfe21acda",
+              "permission_revision": 2,
+              "approval": "8369b3ed-a470-40ae-9dca-16286b627a5b",
+              "execution": "b44abde7-7dbc-451a-bcbe-632b2d3c8ba9",
+              "expires_at": 1793313857
+            },
+            "fence": {
+              "generation": 1,
+              "session_id": "ed87d8b2-3642-406e-a8bf-4cdb42da58c2",
+              "revision": 1,
+              "owner": "bot"
+            },
+            "incarnation": "f50d6637-d8dc-4a3d-b9d7-114174aa1806",
+            "destination": {
+              "profile": "5b5f9367-9d71-4ad0-bd32-caa31e2521e2",
+              "browser": "b71e06b2-8436-40ca-923d-0b3cda23b6e5",
+              "page": "c8edf836-8bf3-48fe-981d-88bbe54e39f0",
+              "top_document": "ac274240-950d-44af-b130-0eef4475df15",
+              "frame": "3825638c-4e44-4420-ab6a-70b0a36d0b54",
+              "frame_document": "4df1c7f4-25f5-4150-974d-ec91e3205fba",
+              "top_origin": "https://127.0.0.1:37143",
+              "frame_origin": "https://127.0.0.1:37143",
+              "plan": {
+                "version": 1,
+                "origin": "https://127.0.0.1:37143",
+                "route": "/login",
+                "frame": null,
+                "form": "#login",
+                "username": "#username",
+                "password": "#password",
+                "totp": "#totp",
+                "submitter": "#submit",
+                "action": "/session"
+              },
+              "form": "82d12f2a-2849-4a7c-bba0-dcf464e0c873",
+              "fields": [
+                {
+                  "object": "4ed0eaf4-73f1-450d-acf4-de4a9e90fe17",
+                  "role": "username",
+                  "name": "username",
+                  "input_type": "text"
+                },
+                {
+                  "object": "d9da151c-1e4b-4781-a266-da2f8ce798d4",
+                  "role": "password",
+                  "name": "password",
+                  "input_type": "password"
+                }
+              ],
+              "submitter": "cce1e4dc-c26e-497b-a9d6-45667ce2909e",
+              "certain": true
+            },
+            "expires_at": 1793313794,
+            "state": "applied"
+          }
+        ]
+      },
+      {
+        "check": "repeated_tls_release_refused",
+        "status": 403
+      },
+      {
+        "check": "helper_readiness_samples"
+      },
+      {
+        "check": "owned_scope_already_removed"
+      },
+      {
+        "check": "owned_scope_already_removed"
+      },
+      {
+        "check": "owned_scope_already_removed"
+      },
+      {
+        "check": "fixture_processes_stopped",
+        "exits": [
+          0,
+          0
+        ]
+      },
+      {
+        "check": "fixture_failed",
+        "error": ""
+      }
+    ],
+    "log_sha256": "3fd447276b02a5710745f5f562b6c60231c7f4ebc11126f225f3d7efa8550559"
+  },
+  "linux-totp-diagnostic": {
+    "source": {
+      "reviewed_head": "9191b91682fa8dbe26da31fcca1e698f33ad9c5e",
+      "binaries": {
+        "botstral-agent": "181fbf2b9e0643ee59460ae81cb146c443f388994977e991f4cdd1ecee54a3e0",
+        "botstral-agent-supervisor-check": "b3b46c479352795ba76942f1349664aa14855a9fc8ef0360e4e0c523f4888e30",
+        "botstral-manager": "9e540071da4310de2d4930c6df8ee371c9be33260b4ed53b16c6da21b7fa455f"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "commands": [
+      {
+        "log": "docker-architecture.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-before.log",
+        "exit": 0
+      },
+      {
+        "log": "start-container.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-agent-supervisor-check.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-botstral-manager.log",
+        "exit": 0
+      },
+      {
+        "log": "copy-fixture.log",
+        "exit": 0
+      },
+      {
+        "log": "user-systemd.log",
+        "exit": 0
+      },
+      {
+        "log": "integration.log",
+        "exit": 1
+      },
+      {
+        "log": "service-logs.log",
+        "exit": 0
+      },
+      {
+        "log": "remove-owned-container.log",
+        "exit": 0
+      },
+      {
+        "log": "binfmt-after.log",
+        "exit": 0
+      }
+    ],
+    "checks": [
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "environment"
+      },
+      {
+        "check": "production_supervisor",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "manager_started"
+      },
+      {
+        "check": "paired_owner_authenticated"
+      },
+      {
+        "check": "paired_private_unlock"
+      },
+      {
+        "check": "command",
+        "exit": 0
+      },
+      {
+        "check": "runtime_identity"
+      },
+      {
+        "check": "worker_ready"
+      },
+      {
+        "check": "helper_readiness_samples"
+      },
+      {
+        "check": "owned_scope_cleanup",
+        "exit": 0
+      },
+      {
+        "check": "fixture_processes_stopped",
+        "exits": [
+          0,
+          0
+        ]
+      },
+      {
+        "check": "fixture_failed",
+        "error": "HTTP POST /v1/tasks status 409"
+      }
+    ],
+    "log_sha256": "a012198da9560cdb1ce5878ad346bd776686ac2547d0a64930c38b2860c80c1b"
+  }
+}

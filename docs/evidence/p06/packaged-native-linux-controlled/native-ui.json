@@ -1,0 +1,16 @@
+{
+  "source": "5d5da18",
+  "native_binary_sha256": "d914c416b66a0b364e806b811039996c6da1a37c888a5fd6ca4a1814f68e5d63",
+  "files_checked": 4,
+  "private_matches": [],
+  "manager": "13753b94-7eb8-4892-8801-50aaffbf40a3",
+  "item": "89555f3a-ba8c-44d6-8efb-48090c038cbf",
+  "native_fields_cleared": true,
+  "native_cancel_feedback": true,
+  "native_receipt_manager_bound": true,
+  "packaged_approval_clicked": true,
+  "packaged_task_completed": true,
+  "native_collision_refusal": true,
+  "rejected_write_value_free": true,
+  "final_files_checked": 4
+}

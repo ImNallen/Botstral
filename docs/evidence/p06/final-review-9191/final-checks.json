@@ -1,0 +1,246 @@
+{
+  "checks": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "9191b91682fa8dbe26da31fcca1e698f33ad9c5e\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "bf470fb00e98ed6e519b02f7a314fe48a808bdc1",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "commands": {
+    "profile-worker": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-agent",
+        "--locked",
+        "protected_browser::tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 12.34704327583313
+    },
+    "native-receipts": {
+      "command": [
+        "python3",
+        "desktop/fixtures/p06-manager-switch.py"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 12.74952483177185
+    },
+    "profile-runtime": {
+      "command": [
+        "node",
+        "agent/tests/p06_profile_provenance.mjs"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 0.09838676452636719
+    },
+    "adversarial": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "final_review_",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 101,
+      "elapsed_seconds": 3.7937560081481934
+    },
+    "native-unlock": {
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_locked_reads_preserve_the_paired_unlock_path"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 12.49379301071167
+    },
+    "migration-v2": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "populated_version_two_migration_preserves_worker_and_session",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 101,
+      "elapsed_seconds": 0.17313098907470703
+    },
+    "native-build": {
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "desktop/src-tauri/Cargo.toml",
+        "--no-default-features",
+        "--locked",
+        "--test",
+        "journal",
+        "--no-run"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 13.956202983856201
+    },
+    "credentials": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "credentials::"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 35.05630588531494
+    },
+    "runtime-dependencies": {
+      "command": [
+        "npm",
+        "ci",
+        "--prefix",
+        "agent/runtime",
+        "--ignore-scripts"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 0.6043519973754883
+    },
+    "scanner": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "screening_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 0.14960002899169922
+    },
+    "publication": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "publication_tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 6.264425277709961
+    },
+    "migration-memory": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "migration_preserves_old_frozen_document_and_null_no_context",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 101,
+      "elapsed_seconds": 0.20165514945983887
+    },
+    "browser-adversarial": {
+      "command": [
+        "node",
+        ".audit/p06-final-review/browser-probe.mjs"
+      ],
+      "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+      "exit": 0,
+      "elapsed_seconds": 5.573253154754639
+    }
+  },
+  "report_sha256": "4ecd980ab72c37e2c1f5a3dc3e4527163475729e70ba45fa737222169c2d7be6"
+}

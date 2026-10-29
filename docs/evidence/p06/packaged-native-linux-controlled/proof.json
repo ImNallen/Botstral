@@ -1,0 +1,92 @@
+{
+  "production_source": "5d5da18",
+  "native_ui": {
+    "source": "5d5da18",
+    "native_binary_sha256": "d914c416b66a0b364e806b811039996c6da1a37c888a5fd6ca4a1814f68e5d63",
+    "files_checked": 4,
+    "private_matches": [],
+    "manager": "13753b94-7eb8-4892-8801-50aaffbf40a3",
+    "item": "89555f3a-ba8c-44d6-8efb-48090c038cbf",
+    "native_fields_cleared": true,
+    "native_cancel_feedback": true,
+    "native_receipt_manager_bound": true,
+    "packaged_approval_clicked": true,
+    "packaged_task_completed": true,
+    "native_collision_refusal": true,
+    "rejected_write_value_free": true,
+    "final_files_checked": 4
+  },
+  "task": "b7469e46-8043-4dab-af9d-0a4b8970e4f1",
+  "state": "completed",
+  "submissions": [
+    {
+      "valid": true,
+      "path": "/session",
+      "method": "POST"
+    }
+  ],
+  "review_states": [
+    "applied"
+  ],
+  "consumed": [
+    "c8b96cd9-ab2f-4f86-ab8d-4584b3bd9c5d"
+  ],
+  "refused_checks": [
+    "missing_client_certificate_refused",
+    "changed_generation_refused",
+    "same_uid_outside_scope_refused",
+    "repeated_tls_release_refused"
+  ],
+  "registration_snapshots_identical": true,
+  "command_exits": [
+    {
+      "command": "docker-architecture.log",
+      "exit": 0
+    },
+    {
+      "command": "binfmt-before.log",
+      "exit": 0
+    },
+    {
+      "command": "start-container.log",
+      "exit": 0
+    },
+    {
+      "command": "copy-botstral-agent.log",
+      "exit": 0
+    },
+    {
+      "command": "copy-botstral-agent-supervisor-check.log",
+      "exit": 0
+    },
+    {
+      "command": "copy-botstral-manager.log",
+      "exit": 0
+    },
+    {
+      "command": "copy-fixture.log",
+      "exit": 0
+    },
+    {
+      "command": "user-systemd.log",
+      "exit": 0
+    },
+    {
+      "command": "integration.log",
+      "exit": 0
+    },
+    {
+      "command": "service-logs.log",
+      "exit": 0
+    },
+    {
+      "command": "remove-owned-container.log",
+      "exit": 0
+    },
+    {
+      "command": "binfmt-after.log",
+      "exit": 0
+    }
+  ],
+  "integration_sha256": "3f6d02f8e1fce74f2f82d764f19ab8ab87d790e10d676cd913eab8395ebae3c8"
+}

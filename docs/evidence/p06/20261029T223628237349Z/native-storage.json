@@ -1,0 +1,8 @@
+{
+  "desktop_and_manager_file_scan": "passed",
+  "lost_reply_reconciled_without_resend": true,
+  "metadata_only": true,
+  "native_controls": "not exercised by this service integration",
+  "paired_protected_write": true,
+  "removed": true
+}

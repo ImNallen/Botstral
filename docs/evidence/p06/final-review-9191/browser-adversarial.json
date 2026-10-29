@@ -1,0 +1,9 @@
+{
+  "command": [
+    "node",
+    ".audit/p06-final-review/browser-probe.mjs"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-0740371b",
+  "exit": 0,
+  "elapsed_seconds": 5.573253154754639
+}
