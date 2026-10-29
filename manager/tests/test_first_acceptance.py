@@ -72,6 +72,24 @@ class AcceptanceCleanupTests(unittest.TestCase):
             self.assertNotEqual(snapshot, (acceptance.output / 'results.json').read_bytes())
             self.assertNotIn('reconciled_budget', json.loads(snapshot))
 
+    def test_reconciliation_failure_is_retained_as_a_cleanup_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            acceptance = self.fixture(Path(directory))
+            acceptance.ledger = '/private/campaign/budget.json'
+            acceptance.root = '/private/fixture'
+            acceptance.run_id = 'fixture'
+            original = acceptance.manager.call
+            def call(operation, **values):
+                if operation == 'reconcile_budget':
+                    raise RuntimeError('durable attempt exceeds reservation')
+                return original(operation, **values)
+            acceptance.manager.call = call
+            acceptance.cleanup()
+            saved = json.loads((acceptance.output / 'results.json').read_text())
+            self.assertEqual(saved['cleanup_errors'], [{'budget_reconciliation': 'RuntimeError'}])
+            self.assertNotIn('reconciled_budget', saved)
+            self.assertTrue((acceptance.output / 'budget-evidence.json').is_file())
+
 
 if __name__ == '__main__':
     unittest.main()

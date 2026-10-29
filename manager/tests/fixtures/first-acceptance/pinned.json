@@ -1,0 +1,17 @@
+{
+  "sources": {
+    "core/agent_loop/_loop.py": "8ff6a0daf3d5626470340bab9b88735812f1e018fc063496e4b72bcd04bdc0d8",
+    "core/compaction/manager.py": "432dc5e40dc0ecff5cd8310f1f8b67db05d1fd8d024077a663270766a7838c02",
+    "core/compaction/context.py": "e327d6135b670ee78dc2357143c84a64659c484697e0e89edc1c61c9737e728a",
+    "core/prompts/compact.md": "0896e28f70a29d9fca8bf232f45326f3a8a576f441dd1cdcc4b1298fc82d6712",
+    "core/prompts/compact_system.md": "659618478c2f834518947deaa53f0c68bfc307db485d8c6ec45d44b7a6787211",
+    "core/prompts/compact_summary_prefix.md": "aa9d3d0c970b8426dd87bdd8362237748f1d1031da9b501a8c970a4d5f954ed2",
+    "core/llm/backend/generic.py": "8b171367ede3ee1216bfd3cf1abb75843b8586e4f256667fb9dba9769c2eb111",
+    "core/utils/retry.py": "d2848224aeb1a8c388e2982607e70df402f4d2255017cbf964a62763b037a194",
+    "core/middleware.py": "ede809d72ced3328986a3a7c93d4793f66506467182e45f89168fd8ae8343a7a"
+  },
+  "prompts": {
+    "compact.md": "19ae20b3f216c1c90c15db614d701af87b2148bbd31b24b25deec618ab9417c1",
+    "compact_system.md": "d9657f8fedd7c77f9badca52a021cd3c6f22025a020b68eb304c32573bf815f2"
+  }
+}

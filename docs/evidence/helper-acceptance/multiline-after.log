@@ -1,0 +1,23 @@
+test_budget_evidence_remains_immutable_after_report_update (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_missing_comparison_key_does_not_claim_a_secret_scan (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_native_timeout_preserves_remote_shutdown_key_deletion_and_report (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_reconciliation_failure_is_retained_as_a_cleanup_failure (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_mismatched_binaries_and_product_changes_block_retention (test_first_acceptance_compaction.AggregationTests) ... ok
+test_boundary_without_provider_summary_and_tool_free_primary_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_certificate_and_task_identifiers_without_worker_lease_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_complete_correlated_evidence_passes (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_failed_policy_control_is_saved_before_its_assertion (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_join_reader_does_not_fall_back_to_run_turns (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_matching_boundary_cannot_substitute_a_different_provider_summary (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_missing_proof_never_passes (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_missing_refusals_and_added_attempts_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_model_endpoint_response_and_accounting_joins_fail_closed (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_multiline_provider_summary_matches_saved_json_history (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_recorded_transport_cannot_verify_live_acceptance (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_relabeling_recorded_transport_cannot_replace_running_manager_proof (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_unreconciled_budget_and_incomplete_cleanup_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.086s
+
+OK

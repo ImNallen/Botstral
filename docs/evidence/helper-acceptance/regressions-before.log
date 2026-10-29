@@ -1,0 +1,27 @@
+test_relabeling_recorded_transport_cannot_replace_running_manager_proof (test_first_acceptance_compaction.CompactionEvidenceTests) ... FAIL
+test_mismatched_binaries_and_product_changes_block_retention (test_first_acceptance_compaction.AggregationTests) ... FAIL
+
+======================================================================
+FAIL: test_relabeling_recorded_transport_cannot_replace_running_manager_proof (test_first_acceptance_compaction.CompactionEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 218, in test_relabeling_recorded_transport_cannot_replace_running_manager_proof
+    self.assertEqual(helper_verdict(asdict(relabeled))['verdict'], 'NOT VERIFIED')
+AssertionError: 'VERIFIED' != 'NOT VERIFIED'
+- VERIFIED
++ NOT VERIFIED
+? ++++
+
+
+======================================================================
+FAIL: test_mismatched_binaries_and_product_changes_block_retention (test_first_acceptance_compaction.AggregationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 289, in test_mismatched_binaries_and_product_changes_block_retention
+    combine_acceptance(baseline, helper)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.012s
+
+FAILED (failures=2)

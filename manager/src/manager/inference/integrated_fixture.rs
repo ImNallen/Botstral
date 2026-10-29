@@ -4,6 +4,34 @@ use std::os::unix::fs::PermissionsExt;
 pub(super) fn response(body: &Value, path: &str) -> String {
     let config: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
     let mut value: Value = serde_json::from_str(COMPLETION).unwrap();
+    if let Some(summary) = config["compaction_summary"].as_str() {
+        if body["tools"]
+            .as_array()
+            .is_some_and(|tools| tools.iter().any(|tool| tool["function"]["name"] == "vibe"))
+            && !body["messages"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|m| m["role"] == "tool")
+        {
+            value["choices"][0]["finish_reason"] = json!("tool_calls");
+            value["choices"][0]["message"] = json!({"role":"assistant","content":null,"tool_calls":[{"id":"recorded-compaction-launch","type":"function","function":{"name":"vibe","arguments":json!({"prompt":"Retain the acceptance fixture context.","session":{"type":"new"}}).to_string()}}]});
+        } else {
+            let primary = body["tools"].as_array().is_some_and(|tools| {
+                tools
+                    .iter()
+                    .any(|tool| tool["function"]["name"] == "read_file")
+            });
+            value["choices"][0]["message"]["content"] = if config["compaction_mode"] == "empty"
+                || (config["compaction_mode"] == "fallback" && primary)
+            {
+                json!("The recorded provider omitted its summary.")
+            } else {
+                json!(format!("<summary>{summary}</summary>"))
+            };
+        }
+        return value.to_string();
+    }
     let done = body["messages"]
         .as_array()
         .unwrap()

@@ -10,6 +10,10 @@ import ssl
 import subprocess
 import time
 import uuid
+from dataclasses import asdict
+
+from first_acceptance_compaction import (CAMPAIGN_ADMISSION_BOUND, CompactionEvidence,
+    FIRST_ACCEPTANCE_CHECKS, HELPER_ADMISSION_BOUND, HELPER_GATE, RUNTIME_CALL_BOUND, encoded, helper_verdict, probe_compaction, sha)
 
 from c02_production import Native, private
 from m05_acceptance import WebSocket, certificates
@@ -71,6 +75,7 @@ class OwnerSocket(WebSocket):
 class Acceptance:
     def __init__(self, args):
         self.args = args
+        self.model = 'mistral-small-2506' if args.recorded else MODEL
         self.output = args.output.resolve()
         self.output.mkdir(mode=0o700, parents=True, exist_ok=False)
         self.build = json.loads(args.build.read_text())
@@ -85,14 +90,18 @@ class Acceptance:
         self.token = None
         self.native = None
         self.socket = None
+        harness = [Path(__file__), Path(__file__).with_name('first_acceptance_remote.py'),
+            SOURCE / 'manager/tests/fixtures/m06-integrated/acceptance-server.mjs']
+        if args.suite == 'helper':
+            harness += [Path(__file__).with_name('first_acceptance_compaction.py'),
+                SOURCE / 'manager/tests/fixtures/first-acceptance/compact.py',
+                SOURCE / 'manager/tests/fixtures/first-acceptance/pinned.json']
         self.report = {'id': self.identifier, 'root': self.root, 'workspace': self.workspace, 'source': self.build['base'],
             'production_binaries': True, 'provider': {'endpoint': 'eu', 'model': MODEL},
             'checks': [], 'cleanup': [], 'passed': False,
             'harness_sha256': {str(path.relative_to(SOURCE)): hashlib.sha256(path.read_bytes()).hexdigest()
-                for path in [Path(__file__), Path(__file__).with_name('first_acceptance_remote.py'),
-                    SOURCE / 'manager/tests/fixtures/m06-integrated/acceptance-server.mjs']}}
-        for path in [Path(__file__), Path(__file__).with_name('first_acceptance_remote.py'),
-                SOURCE / 'manager/tests/fixtures/m06-integrated/acceptance-server.mjs']:
+                for path in harness}}
+        for path in harness:
             (self.output / (path.name + '.source')).write_bytes(path.read_bytes())
 
     def save(self):
@@ -111,7 +120,7 @@ class Acceptance:
         scan = self.report.get('provider_secret_scan')
         if scan and scan.get('not_provisioned'):
             scan = {'files': 0, 'leaks': None, 'verdict': 'NOT SCANNED', 'reason': 'comparison key unavailable'}
-        provenance = {name: self.report[name] for name in ('source', 'binary_sha256',
+        provenance = {name: self.report.get(name) for name in ('source', 'binary_sha256',
             'build_source_manifest_sha256', 'harness_sha256')}
         provenance['source_report_sha256'] = hashlib.sha256((self.output / 'results.json').read_bytes()).hexdigest()
         provenance['evidence_writer_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -121,6 +130,7 @@ class Acceptance:
         private(self.output / 'evidence.json', {'format': 1, 'passed': self.report['passed'],
             'missing': self.report['missing'], 'provenance': provenance, 'checks': self.report['checks'],
             'helper_routing': self.report['helper_routing'], 'cleanup_errors': self.report.get('cleanup_errors', []),
+            'compaction_evidence': self.report.get('compaction_evidence'), 'error': self.report.get('error'),
             'new_provider_attempts': self.report.get('continuation_budget', {}).get('new_attempt_ids', []),
             'provider_secret_scan': scan})
 
@@ -151,6 +161,29 @@ class Acceptance:
         return result
 
     def start_manager(self, name):
+        if self.args.recorded:
+            build = self.worker.run(['/usr/bin/env', 'PATH=/home/botstral/.cargo/bin:/usr/bin:/bin',
+                'RUSTUP_TOOLCHAIN=1.93.0', 'CARGO_TARGET_DIR=' + self.build['root'] + '/target',
+                '/home/botstral/.cargo/bin/cargo', 'test', '--manifest-path', self.build['root'] + '/src/Cargo.toml',
+                '--locked', '-p', 'botstral-manager', '--lib', '--no-run', '--message-format=json'], timeout=240)
+            (self.output / 'recorded-manager-build.jsonl').write_text(build)
+            artifacts = [json.loads(line) for line in build.splitlines() if line.startswith('{')]
+            artifact = next(value for value in artifacts if value.get('reason') == 'compiler-artifact'
+                and value.get('executable') and value['target']['name'] == 'botstral_manager')
+            raw = ssh(self.worker.host, ['cat', artifact['executable']], capture_output=True).stdout
+            self.manager.call('unlink', paths=['bin/manager-fixture'])
+            self.manager.files({'bin/manager-fixture': raw, 'config.json': b'{"public":"0.0.0.0:0"}',
+                'recorded.json': json.dumps({'compaction_summary': 'The recorded helper retained the acceptance fixture context.',
+                    'compaction_mode': self.args.recorded_mode}).encode()})
+            self.report['recorded_manager_sha256'] = sha(raw)
+            self.report['production_binaries'] = False
+            self.manager_unit = self.start(self.manager, name, self.root + '/bin/manager-fixture',
+                ['manager::inference::tests::integrated_fixture::m06_integrated_remote_fixture', '--ignored', '--exact', '--nocapture'],
+                {'BOTSTRAL_M06_FIXTURE_ROOT': self.root})
+            addresses = json.loads(poll(lambda: self.manager.read('fixture.json'), lambda v: v is not None, 'recorded manager listeners'))
+            self.addresses = {'listen': addresses['local'], 'setup': addresses['local'], 'public': addresses['public']}
+            self.manager.run(['ln', '-s', 'manager-state', self.root + '/state'])
+            return
         self.manager.call('unlink', paths=['state/listeners.json'])
         self.manager_unit = self.start(self.manager, name, self.root + '/bin/botstral-manager', [
             '--state-dir', self.root + '/state', '--listen', self.addresses['listen'] if self.addresses else '127.0.0.1:0',
@@ -161,10 +194,10 @@ class Acceptance:
             lambda value: value is not None, 'production manager listeners', seconds=30))
 
     def login(self):
-        self.token = self.owner('POST', '/v1/sessions', {'password': PASSWORD}, status=201)['token']
+        self.token = self.owner('POST', '/v1/sessions', {'password': 'synthetic M04 login password' if self.args.recorded else PASSWORD}, status=201)['token']
 
     def unlock(self):
-        self.owner('POST', '/v1/vault/unlock', {'passphrase': PASSPHRASE}, status=204)
+        self.owner('POST', '/v1/vault/unlock', {'passphrase': 'synthetic M04 vault passphrase' if self.args.recorded else PASSPHRASE}, status=204)
 
     def open_socket(self, first=False):
         assert self.socket is None
@@ -227,6 +260,21 @@ class Acceptance:
         compiled = {name: digest for name, digest in manifest.items() if name.startswith(('manager/src/', 'agent/src/', 'link/', 'desktop/'))
             and (name.endswith(('.rs', '.ts', '.tsx', '.toml', '.json')) or name.endswith('/build.rs'))}
         assert compiled and all(hashlib.sha256((SOURCE / name).read_bytes()).hexdigest() == digest for name, digest in compiled.items())
+        if self.args.baseline:
+            from first_acceptance_compaction import source_delta, require
+            baseline = json.loads(self.args.baseline.read_bytes())
+            require(set(baseline['missing']) == {HELPER_GATE}, 'baseline must lack only helper acceptance')
+            base = baseline['provenance'].get('manager_upgrade', {}).get('base', baseline['provenance']['source'])
+            delta = source_delta(base)
+            require(sha(self.args.native.read_bytes()) == baseline['provenance']['binary_sha256']['native'], 'retained native binary mismatch')
+            self.report['retained_artifacts'] = {'baseline_sha256': sha(self.args.baseline.read_bytes()),
+                'baseline_provenance': baseline['provenance'], 'harness_only_delta': delta,
+                'native_executed': False, 'manager_path': self.args.retained_manager}
+        elif self.args.native:
+            self.build_native(manifest)
+        self.prepare_guests(manifest, compiled, build_root)
+
+    def build_native(self, manifest):
         with (self.output / 'native-current-build.log').open('wb') as log:
             subprocess.run(['cargo', 'build', '--manifest-path', str(SOURCE / 'desktop/src-tauri/Cargo.toml'),
                 '--no-default-features', '--locked', '--example', 'c02-remote-driver', '--message-format=json'],
@@ -237,6 +285,8 @@ class Acceptance:
         assert Path(native_artifact['executable']).resolve() == self.args.native.resolve()
         assert all(hashlib.sha256((SOURCE / name).read_bytes()).hexdigest() == digest for name, digest in manifest.items())
         self.report['native_compiler_artifact'] = native_artifact
+
+    def prepare_guests(self, manifest, compiled, build_root):
         self.report['compiled_source_manifest'] = compiled
         for remote in (self.manager, self.worker):
             ssh(remote.host, ['mkdir', '-p', '-m', '700', str(Path(self.root).parent)], capture_output=True)
@@ -264,7 +314,10 @@ class Acceptance:
         assert all(value['executable'] == build_root + '/target/release/' + value['target']['name']
             and not value['profile']['test'] and 'nonproduction-test-worker' not in value['features']
             for value in self.report['linux_compiler_artifacts'])
-        binary = ssh(self.worker.host, ['cat', build_root + '/target/release/botstral-manager'], capture_output=True).stdout
+        binary = ssh(self.worker.host, ['cat', self.args.retained_manager or build_root + '/target/release/botstral-manager'], capture_output=True).stdout
+        if self.args.baseline:
+            assert sha(binary) == self.report['retained_artifacts']['baseline_provenance']['binary_sha256']['manager'], 'retained manager binary mismatch'
+        self.manager.call('unlink', paths=['bin/botstral-manager'])
         self.manager.files({'bin/botstral-manager': binary})
         expected = hashlib.sha256(binary).hexdigest()
         assert self.manager.call('hashes', files=['bin/botstral-manager'])['bin/botstral-manager'] == expected
@@ -274,7 +327,7 @@ class Acceptance:
         worker_digest = hashlib.sha256(worker_binary).hexdigest()
         assert self.worker.call('hashes', files=['bin/botstral-agent'])['bin/botstral-agent'] == worker_digest
         self.report['binary_sha256'] = {'manager': expected, 'worker': worker_digest,
-            'native': hashlib.sha256(self.args.native.read_bytes()).hexdigest()}
+            **({'native': hashlib.sha256(self.args.native.read_bytes()).hexdigest()} if self.args.native else {})}
         certificates(self.output)
         self.context = ssl.create_default_context(cafile=str(self.output / 'ca.pem'))
         for remote in (self.manager, self.worker):
@@ -287,12 +340,14 @@ class Acceptance:
         assert identities[0] != identities[1]
         self.check('same_source_production_binaries_on_distinct_linux_guests', identities=identities, binary_sha256=self.report['binary_sha256'])
         self.start_manager('manager')
-        proof = self.manager.read('state/bootstrap.token')
-        response = self.manager.call('http', address=self.addresses['setup'], method='POST', path='/v1/owner', token=proof,
-            body={'name': 'First acceptance owner', 'password': PASSWORD, 'vault_passphrase': PASSPHRASE, 'acknowledge_no_escrow': True})
-        assert response['status'] == 201
+        if not self.args.recorded:
+            proof = self.manager.read('state/bootstrap.token')
+            response = self.manager.call('http', address=self.addresses['setup'], method='POST', path='/v1/owner', token=proof,
+                body={'name': 'First acceptance owner', 'password': PASSWORD, 'vault_passphrase': PASSPHRASE, 'acknowledge_no_escrow': True})
+            assert response['status'] == 201
         self.login()
-        self.unlock()
+        if not self.args.recorded:
+            self.unlock()
         self.bot = str(uuid.uuid4())
         self.owner('PUT', '/v1/bots/' + self.bot, {'name': 'First acceptance bot'})
         self.permission = self.owner('PUT', '/v1/bots/' + self.bot + '/permission', {'expected_revision': 1, 'allow': True})
@@ -321,6 +376,8 @@ class Acceptance:
                 'runtime': self.runner['runtime'], 'account': ACCOUNT, 'ceilings': PROCESS_LIMITS}).encode(),
             'agent/computer.json': json.dumps({'account': ACCOUNT, 'runtime': {'sha256': self.runtime},
                 'directory': self.root + '/browser-runtime', 'ceilings': COMPUTER_LIMITS}).encode()})
+        if self.args.suite == 'helper':
+            self.prepare_compaction()
         diagnostics = self.worker.call('run', args=[self.root + '/bin/botstral-agent', 'check', '--state-dir', self.root + '/agent'], timeout=120)
         assert diagnostics['code'] == 0 and diagnostics['stdout'].strip() == 'worker ready'
         assert 'computer capability unavailable' not in diagnostics['stderr'], diagnostics
@@ -332,7 +389,8 @@ class Acceptance:
         self.worker_id = worker['id']
         self.session = self.owner('POST', '/v1/computer-sessions', {'bot_id': self.bot, 'worker_id': self.worker_id})
         self.session = poll(lambda: self.owner('GET', '/v1/computer-sessions/' + self.session['id']), lambda value: value['status'] == 'confirmed', 'confirmed session')
-        self.pair_clients()
+        if self.args.suite != 'helper':
+            self.pair_clients()
 
     def pair_clients(self):
         self.credential = secrets.token_urlsafe(32)
@@ -440,18 +498,167 @@ class Acceptance:
             results.append({'method': method, 'path': path, **value})
         self.check('worker_credentials_cannot_approve_enroll_owner_or_read_credentials', responses=results)
 
+    def prepare_compaction(self):
+        driver = SOURCE / 'manager/tests/fixtures/first-acceptance/compact.py'
+        self.worker.files({'compact.py': driver.read_bytes()})
+        pinned = json.loads(driver.with_name('pinned.json').read_text())
+        self.compaction_runtime = self.worker.call('compaction_runtime', source_digests=pinned['sources'])
+        if not self.args.recorded:
+            probe = json.loads(self.args.probe.read_text())['compaction_probe']
+            assert self.compaction_runtime['content_sha256'] == probe['runtime_digest'], 'runtime changed after recorded probe'
+        self.worker.files({'agent/vibe.json': json.dumps({**{k: self.compaction_runtime[k] for k in ('runtime', 'directory', 'manifest')},
+            'account': ACCOUNT, 'ceilings': PROCESS_LIMITS}, default=str).encode()})
+
+    def helper_compaction(self):
+        workspace = {'id': str(uuid.uuid4()), 'path': self.workspace}
+        hold = ((self.configuration['policy']['context_tokens'] * 200000 + 999999) // 1000000
+                + (OUTPUT * 800000 + 999999) // 1000000)
+        deadline = int(time.time()) + 240
+        def limits(calls):
+            return {'deadline': deadline, 'max_turns': calls,
+                'max_total_tokens': calls * (self.configuration['policy']['context_tokens'] + OUTPUT),
+                'max_cost_microusd': calls * hold, 'max_output_tokens': OUTPUT,
+                'max_operations': 1, 'max_concurrent_operations': 1}
+        policy = {'workspace': workspace, 'runtime': self.compaction_runtime['runtime'], 'account': ACCOUNT,
+            'resources': PROCESS_LIMITS, 'configuration_revision': self.configuration['revision'],
+            'model_id': self.model, 'access': 'edit_files_as_guest_account', 'outputs': []}
+        identity = str(uuid.uuid4())
+        request = {'id': identity, 'bot': self.bot, 'session': self.session['id'],
+            'configuration_revision': self.configuration['revision'],
+            'prompt': 'Call the vibe tool exactly once with a new session and prompt: Retain the acceptance fixture context. Then finish.',
+            'execution_policy': {'vibe': {'policy': policy, 'limits': limits(HELPER_ADMISSION_BOUND)},
+                'computer': None, 'process': None}, 'limits': limits(CAMPAIGN_ADMISSION_BOUND)}
+        self.report['helper_request'] = request
+        self.save()
+        self.owner('POST', '/v1/runs', request)
+        run = poll(lambda: self.owner('GET', '/v1/runs/' + identity),
+            lambda value: value['summary']['phase']['type'] in ('waiting_for_tool', 'completed', 'stopped', 'awaiting_attention'), 'helper coding proposal')
+        assert run['summary']['phase']['type'] == 'waiting_for_tool', run
+        task_id = run['summary']['phase']['task']
+        self.approve(task_id)
+        native = poll(lambda: self.worker.call('compaction_native', workspace=workspace['id']),
+            lambda value: value is not None, 'recorded real compaction', seconds=90)
+        self.report['helper_native'] = native
+        active = self.manager.call('coding_evidence', task=task_id)
+        self.report['helper_manager_process'] = self.manager.call('manager_process', unit=self.manager_unit)
+        task = self.owner('GET', '/v1/tasks/' + task_id)
+        execution = task['command']['execution']
+        self.report['helper_identity'] = {'task_id': task_id, 'execution_id': execution}
+        active['worker_scope'] = self.worker.call('scope', execution=execution)
+        active['worker_process'] = native['process']
+        self.report['helper_active_lease'] = active
+        self.save()
+        from first_acceptance_compaction import validate_lease, verify_native
+        try:
+            verify_native(native)
+            validate_lease(active, task_id, execution)
+            self.report['helper_refusals'] = self.helper_policy(task_id, execution, native)
+        finally:
+            self.worker.call('compaction_release', workspace=workspace['id'])
+            finished = self.task(task_id)
+        assert finished['state'] == 'completed', finished
+        parent = poll(lambda: self.owner('GET', '/v1/runs/' + identity),
+            lambda value: value['summary']['phase']['type'] in ('completed', 'stopped', 'awaiting_attention'), 'parent helper settlement')
+        assert parent['summary']['phase']['type'] == 'completed', parent
+        self.report['helper_coding'] = self.manager.call('coding_evidence', task=task_id)
+        self.report['helper_owner_calls'] = self.owner('GET', '/v1/tasks/' + task_id + '/coding-calls')
+        self.report['helper_parent'] = parent
+        if self.args.recorded:
+            record = {'recorded_transport': True, 'offline_passed': True, 'native': native,
+                'active_lease': active, 'task_id': task_id, 'execution_id': execution,
+                'runtime_content_sha256': self.compaction_runtime['content_sha256']}
+            self.report['compaction_probe'] = asdict(probe_compaction(record))
+        self.save()
+
+    def helper_policy(self, task, execution, native):
+        results = []
+        self.report['helper_refusals'] = results
+        current = self.owner('GET', '/v1/inference-configurations/' + self.bot)
+        for name, model in [('missing_acknowledgment', None), ('unconsented_preview', 'mistral-small-preview'),
+                            ('unconsented_latest', 'mistral-small-latest')]:
+            policy = json.loads(json.dumps(current['policy']))
+            if model:
+                policy['model_id'] = model
+            else:
+                del policy['acknowledgment']
+            before = self.manager.call('attempt_inventory')
+            response = self.manager.call('http', address=self.addresses['listen'], method='PUT', path='/v1/inference-configurations',
+                token=self.token, body={'bot': self.bot, 'expected_revision': current['revision'], 'policy': policy})
+            after = self.manager.call('attempt_inventory')
+            results.append({'name': name, 'synthetic': True, 'status': response['status'],
+                'request': {'bot': self.bot, 'expected_revision': current['revision'], 'policy': policy},
+                'response': response['body'], 'before': before, 'after': after})
+            self.save()
+            assert response['status'] == 400 and before == after, response
+        assert self.owner('GET', '/v1/inference-configurations/' + self.bot) == current
+        for name in ('wrong_model', 'unsupported_tool'):
+            body = json.loads(native['requests'][0]['body'])
+            if name == 'wrong_model':
+                body['model'] = 'mistral-small-latest'
+            else:
+                body['tools'][0]['function']['name'] = 'unsupported_acceptance_capability'
+            before = self.manager.call('attempt_inventory')
+            response = self.worker.call('worker_http', method='POST',
+                path='/worker/v1/coding/' + task + '/' + execution + '/' + str(uuid.uuid4()), body=body)
+            after = self.manager.call('attempt_inventory')
+            results.append({'name': name, 'synthetic': True, 'request': body, 'status': response['status'],
+                'response': response['body'], 'before': before, 'after': after})
+            self.save()
+            assert response['status'] == 409 and json.loads(response['body'])['error'] == 'invalid_message' and before == after, response
+        request = self.process_request('unsupported-compaction-policy.txt')
+        request['settings']['model'] = self.model
+        request['work'] = {'type': 'unavailable'}
+        before = self.manager.call('attempt_inventory')
+        submitted = self.owner('POST', '/v1/tasks', request)
+        refused = self.task(submitted['id'])
+        after = self.manager.call('attempt_inventory')
+        results.append({'name': 'unsupported_capability', 'synthetic': True, 'request': request,
+            'status': 200, 'outcome': refused['outcome'], 'before': before, 'after': after})
+        self.save()
+        assert refused['state'] == 'failed' and refused['outcome']['code'] == 'unsupported_execution' and before == after, refused
+        return results
+
+    def helper_evidence(self):
+        report = self.report
+        probe = dict(report['compaction_probe']) if self.args.recorded else json.loads(self.args.probe.read_text())['compaction_probe']
+        from first_acceptance_compaction import CompactionProbe
+        probe['source_digests'] = tuple(tuple(item) for item in probe['source_digests'])
+        ledger = report['reconciled_budget']
+        reservation = next(item for item in report['budget']['reservations'] if item['run'] == self.run_id)
+        retained = next(item for item in ledger['reservations'] if item['run'] == self.run_id)
+        return asdict(CompactionEvidence(CompactionProbe(**probe), **report['helper_identity'],
+            session_id=report['helper_native']['native_session'],
+            coding_call_ids=tuple(c['id'] for c in report['helper_coding']['attempts']),
+            native=encoded(report['helper_native']), coding=encoded(report['helper_coding']),
+            owner_calls=encoded(report['helper_owner_calls']), active_lease=encoded(report['helper_active_lease']),
+            parent_run=encoded(report['helper_parent']), policy_refusals=tuple(encoded(r) for r in report['helper_refusals']),
+            budget_evidence=encoded({'cap_microusd': ledger['cap_microusd'], 'maximum_attempts': CAMPAIGN_ADMISSION_BOUND,
+                'runtime_attempt_bound': RUNTIME_CALL_BOUND, 'reconciled': True,
+                'run': self.run_id, 'snapshot_sha256': sha((self.output / 'budget-evidence.json').read_bytes()),
+                'reserved_microusd': reservation['microusd'], 'retained_microusd': retained['microusd'], 'ledger': ledger}),
+            provenance=encoded({'recorded_transport': self.args.recorded, 'production_binaries': report['production_binaries'],
+                'binary_sha256': report['binary_sha256'], 'provider_base': 'https://api.eu.mistral.ai',
+                'manager_process': report['helper_manager_process'],
+                'recorded_manager_sha256': report.get('recorded_manager_sha256'),
+                'runtime_content_sha256': self.compaction_runtime['content_sha256'],
+                'provider_source_sha256': sha((SOURCE / 'manager/src/manager/provider.rs').read_bytes()),
+                'relay_source_sha256': sha((SOURCE / 'agent/vibe/runtime.py').read_bytes())}),
+            cleanup=encoded({'errors': report.get('cleanup_errors', []), 'secret_scan': report['provider_secret_scan'],
+                'scope': report['helper_scope_cleanup'],
+                'temporary_provider_key_removed': report['temporary_provider_key_removed']})))
+
     def configure_provider(self):
         ssh(self.manager.host, ['mkdir', '-p', '-m', '700', self.args.campaign_directory], capture_output=True)
         campaign = self.args.campaign_directory + '/budget.json'
         self.ledger = campaign
         ledger = self.manager.call('reserve', path=campaign, run=self.run_id, cap_microusd=1000000,
-            previous_reserved_microusd=0, reservation_microusd=CALL_HOLD * PLANNED_CALLS)
+            previous_reserved_microusd=0, reservation_microusd=CALL_HOLD * (CAMPAIGN_ADMISSION_BOUND if self.args.suite == 'helper' else PLANNED_CALLS))
         self.report['budget'] = ledger
-        self.manager.files({'provider-key': self.args.key_file.read_bytes()})
+        self.manager.files({'provider-key': b'synthetic-m04-provider-secret' if self.args.recorded else self.args.key_file.read_bytes()})
         self.manager.call('provision', address=self.addresses['listen'], token=self.token)
         now = int(time.time())
         config = self.owner('PUT', '/v1/inference-configurations', {'bot': self.bot, 'expected_revision': 0, 'policy': {
-            'endpoint': 'eu', 'model_id': MODEL, 'context_tokens': CONTEXT,
+            'endpoint': 'eu', 'model_id': self.model, 'context_tokens': 32768 if self.args.recorded else CONTEXT,
             'acknowledgment': {'model_developer': 'mistralai', 'developer_terms_url': 'https://legal.mistral.ai/terms/api',
                 'privacy_terms_url': 'https://legal.mistral.ai/terms/privacy-policy', 'acknowledged_at': now, 'release': {'type': 'stable'}},
             'prices': {'input_microusd_per_million_tokens': 200000, 'output_microusd_per_million_tokens': 800000,
@@ -909,6 +1116,14 @@ class Acceptance:
                 self.stop(remote, unit)
             except Exception as error:
                 self.report.setdefault('cleanup_errors', []).append({'unit': unit, 'error': type(error).__name__})
+        if self.report.get('helper_identity'):
+            try:
+                observed = self.report.get('helper_active_lease', {}).get('worker_scope', {}).get('pids', [])
+                scope = poll(lambda: self.worker.call('scope', execution=self.report['helper_identity']['execution_id'], observed=observed),
+                    lambda value: not value['pids'] and not value['survivors'], 'helper process cleanup')
+                self.report['helper_scope_cleanup'] = scope
+            except Exception as error:
+                self.report.setdefault('cleanup_errors', []).append({'helper_scope': type(error).__name__})
         try:
             scan = self.manager.call('scan_provider')
             self.report['provider_secret_scan'] = scan
@@ -929,8 +1144,11 @@ class Acceptance:
             snapshot.write_bytes((self.output / 'results.json').read_bytes())
             snapshot.chmod(0o600)
             evidence = hashlib.sha256(snapshot.read_bytes()).hexdigest()
-            ledger = self.manager.call('reconcile_budget', root=self.root, run=self.run_id, ledger=self.ledger, evidence_sha256=evidence)
-            self.report['reconciled_budget'] = ledger
+            try:
+                ledger = self.manager.call('reconcile_budget', root=self.root, run=self.run_id, ledger=self.ledger, evidence_sha256=evidence)
+                self.report['reconciled_budget'] = ledger
+            except Exception as error:
+                self.report.setdefault('cleanup_errors', []).append({'budget_reconciliation': type(error).__name__})
             self.save()
 
 
@@ -940,11 +1158,34 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--key-file', type=Path)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--native', type=Path, required=True)
+    parser.add_argument('--native', type=Path)
     parser.add_argument('--campaign-directory', default='/home/botstral/first-acceptance-20261028')
-    parser.add_argument('--suite', choices=['p03', 'full'], default='full')
+    parser.add_argument('--suite', choices=['p03', 'full', 'helper'], default='full')
+    parser.add_argument('--recorded', action='store_true')
+    parser.add_argument('--recorded-mode', choices=['primary', 'fallback', 'empty'], default='primary')
+    parser.add_argument('--probe', type=Path)
+    parser.add_argument('--baseline', type=Path)
+    parser.add_argument('--retained-manager')
     args = parser.parse_args()
-    if not args.resume and not args.key_file:
+    if bool(args.baseline) != bool(args.retained_manager) or (args.baseline and (args.suite != 'helper' or args.recorded or not args.native)):
+        parser.error('--baseline and --retained-manager require a live helper suite and the retained --native binary')
+    if args.recorded and (args.suite != 'helper' or args.key_file or args.resume):
+        parser.error('--recorded requires a fresh helper suite without a provider key')
+    if args.suite == 'helper':
+        if args.resume or args.campaign_directory == '/home/botstral/first-acceptance-20261028':
+            parser.error('helper requires a fresh fixture and a separately named campaign directory')
+        if not args.recorded:
+            if not args.probe:
+                parser.error('live helper requires --probe from the recorded worker lease suite')
+            probe = json.loads(args.probe.read_text())
+            probe_compaction(json.loads(probe['compaction_probe']['recorded_evidence']))
+            from first_acceptance_compaction import decode_evidence, verify_helper
+            verify_helper(decode_evidence(probe['compaction_evidence']), recorded=True)
+            if probe.get('offline_passed') is not True or probe.get('cleanup_errors') or not probe.get('reconciled_budget'):
+                parser.error('recorded probe cleanup and reconciliation must pass')
+    if not args.recorded and not args.native:
+        parser.error('--native is required for production binary provenance')
+    if not args.resume and not args.key_file and not args.recorded:
         parser.error('--key-file is required for a new fixture')
     os.umask(0o077)
     acceptance = Acceptance.resume(args) if args.resume else Acceptance(args)
@@ -953,8 +1194,11 @@ def main():
             acceptance.prepare()
             acceptance.worker_authority()
             acceptance.configure_provider()
-            acceptance.configure_connector()
-            acceptance.p03()
+            if args.suite == 'helper':
+                acceptance.helper_compaction()
+            else:
+                acceptance.configure_connector()
+                acceptance.p03()
         if args.suite == 'full':
             steps = [('native_desktop_browser_file_exact_approval_and_verified_export', acceptance.desktop_browser),
                 ('native_desktop_cancellation_confirms_empty_scope', acceptance.desktop_cancel),
@@ -974,33 +1218,33 @@ def main():
                 acceptance.report['continuation_budget']['new_attempt_ids'] = added
     except Exception as error:
         acceptance.report['error'] = type(error).__name__ + ' ' + str(error)
-        raise
     finally:
         acceptance.cleanup()
-    required = {'worker_credentials_cannot_approve_enroll_owner_or_read_credentials',
-        'native_desktop_browser_file_exact_approval_and_verified_export',
-        'native_desktop_cancellation_confirms_empty_scope',
-        'p03_closed_client_live_inference_exact_approval_and_one_effect',
-        'manager_restart_preserves_original_routine_and_duplicate_trigger',
-        'worker_disconnect_after_effect_reconciles_without_reexecution',
-        'native_desktop_snapshot_after_actual_event_retention_gap',
-        'denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work',
-        'offline_backup_restores_history_memory_credentials_artifacts_and_computer_state',
-        'actual_eu_model_requests_and_preview_latest_configuration_blockers'}
+    required = FIRST_ACCEPTANCE_CHECKS
     verified = {check['name'] for check in acceptance.report['checks'] if check['verdict'] == 'VERIFIED'}
-    acceptance.report['missing'] = sorted(required - verified)
-    acceptance.report['helper_routing'] = {'verdict': 'NOT VERIFIED',
-        'reason': 'This run exercised primary inference. No helper inference path was configured or invoked.'}
-    if args.suite == 'full':
-        acceptance.report['missing'].append('configured_helper_model_endpoint_and_privacy_blockers')
+    acceptance.report['missing'] = sorted(required - verified) if args.suite != 'helper' else []
+    if args.suite == 'helper' and not acceptance.report.get('error'):
+        try:
+            acceptance.report['compaction_evidence'] = acceptance.helper_evidence()
+            if args.recorded:
+                from first_acceptance_compaction import decode_evidence, verify_helper
+                acceptance.report['recorded_helper'] = verify_helper(decode_evidence(acceptance.report['compaction_evidence']), recorded=True)
+        except (KeyError, ValueError) as error:
+            acceptance.report['error'] = str(error)
+    acceptance.report['helper_routing'] = helper_verdict(acceptance.report.get('compaction_evidence'))
+    if args.suite in ('full', 'helper') and acceptance.report['helper_routing']['verdict'] != 'VERIFIED':
+        acceptance.report['missing'].append(HELPER_GATE)
     acceptance.report['p03_passed'] = 'p03_closed_client_live_inference_exact_approval_and_one_effect' in verified
     clean = not acceptance.report.get('cleanup_errors') and not acceptance.report.get('native_cleanup_error')
-    acceptance.report['passed'] = not acceptance.report['missing'] and clean
+    acceptance.report['passed'] = not acceptance.report['missing'] and clean and not acceptance.report.get('error')
+    acceptance.report['offline_passed'] = bool(args.recorded and acceptance.report.get('compaction_probe') and clean
+        and acceptance.report.get('reconciled_budget') and acceptance.report.get('recorded_helper') and not acceptance.report.get('error'))
     acceptance.save()
     acceptance.write_evidence()
     print(json.dumps({'passed': acceptance.report['passed'], 'p03_passed': acceptance.report['p03_passed'],
         'clean': clean, 'missing': acceptance.report['missing']}))
-    return 0 if clean and (acceptance.report['passed'] or args.suite == 'p03') else 1
+    return 0 if clean and (acceptance.report['passed'] or acceptance.report['offline_passed'] or
+        (args.suite == 'p03' and not acceptance.report.get('error'))) else 1
 
 
 if __name__ == '__main__':

@@ -1,0 +1,310 @@
+{
+  "botstral-manager": [
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/047a62d6-8af9-4051-bfd5-9c21785126ca",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "4b58f8e8a493282e319c4255a58fe430aa010d8bfcc7c2656ab7c2190ba3e3c9"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/05e5f8e5-3eb8-448a-9774-c3fc5b92d97f",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "0adc02c45d7e381feb961e815d52beb42a216944b3d012f825f52419d478a81d"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/33b6b0b4-40eb-46cd-876a-ef74c37362c3",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "efe8f94fb5848917235285f529426a10b4d7bf12a7e8349c22523d19c2ccc3f0"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/36e06027-7ca4-4b88-8ccf-e324cbc83646",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "84c557b7deff1e2d3c0fcb64fbdad920f715a9d16b2d10fe6ce6115fc4f5b5b3"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/41d6a36b-b862-4548-ad3b-f52ca6f59572",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "d64f90bbbe4cabe1e916e3c14059ed9cb5fd7ccf118e311d614efc167da6aaf8"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/4524f28e-523f-440c-b895-624ee9706e6b",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "2ba2ea81a3667305472991c45837c532c992d02728244574a5d6c5c0494d8957"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/7c991cb8-d354-4d0e-849e-e2f48bd9e329",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "cf89e75773c205167e60d1bc9827d6ca02906f349485dd72f4614cc1002c6e44"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/8c92b23f-ce78-476c-b5fb-dacb385241df",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "0f6610709482450f695d8eb684ea4b41cb62801881d955f5f5a4f2ae3abe3c7b"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/8fb849b5-009c-41f9-be1d-69624db6ab11",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "15fb0f7c8ad89c7140627fa5a9044029eff9aa35fa0a988f12d4a4815bf4adf4"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/921847fc-38a1-4ccc-a496-f287a569ae1e",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "1cff32d9367046573f6420cf195c66dde66066b91fb90e7fdbcd25b7766a8cb8"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/9a39c55c-9d82-4d8b-8bee-cacb86317707",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "85d6e50b44f9421e0a9ada3d22ac820a926226df51439cb74acbb9b051d1178a"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/ac8f55f1-55cb-4c43-be33-a1b97ff97a05",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "2dfbac19838cd9cb6bd54f9187f35c112d703398177e47521fdbdd28a9f905a8"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/ad803de9-0f58-4f64-858b-0b35957aa7e9",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "f5bae0d9583406cb6d429c6f0135654b6471f0405742f24e5c445935381445d4"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/e5c07c2b-4d2e-4ffa-8b41-ccb26e45a990",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "3bba5756fa613925cdb0f789685aaef2f3e97dfd6d8c5e51e78f45c2190a1604"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/eda26bad-ac75-445c-9ca3-43881168332e",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "661ece402b884633a213146b6c00762fcca2a1e585fa828f0fdb39bd54d8452c"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/f59dbf37-f944-4b44-949b-ab79a66b9a3d",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "e1bad6b96eafd95a561670a93046d2ba6ccc3314c0a976db30af83e72c016e3d"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/fcac5479-c9a8-4651-b7e8-a0f665383a52",
+      "busy": [],
+      "database_sha256": {
+        "state/manager.sqlite3": "1025f929f028277c273c591b1db6a308474c6c5e35902a39c680df9b00b0ac78"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    }
+  ],
+  "botstral-computer": [
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/047a62d6-8af9-4051-bfd5-9c21785126ca",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "779e307758065f5387bf7fca01a325e06536dcb645de4c41156c6ea35b0c6aa7"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/05e5f8e5-3eb8-448a-9774-c3fc5b92d97f",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "60cd4993b36689352669d93a01143d5b0aa5b8ef3a635c1037341b115c2f2140"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/33b6b0b4-40eb-46cd-876a-ef74c37362c3",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "11a52f400df2f315a6085bb990971809fd4df1a871908eadbe8e03c57a07c151"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/36e06027-7ca4-4b88-8ccf-e324cbc83646",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "9c85d75dfdd1fd56329c2d61b16b15b7d2e91998caf0d86ea7831b2f7d414956"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/41d6a36b-b862-4548-ad3b-f52ca6f59572",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "e0bc2370a47e0146dd2c895756ae9b76402eb81c357f5664ebdafbd08a752713"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/4524f28e-523f-440c-b895-624ee9706e6b",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "ac2834f0932242cd7d93d61a07823027a10c695a90f0754b67cdf220913c480b"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/7c991cb8-d354-4d0e-849e-e2f48bd9e329",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "00e091042630815c9d5e826beba2e08a5ac2b62038d1c2165dbc0cf5b1572290"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/8c92b23f-ce78-476c-b5fb-dacb385241df",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "fc1ae8e9291541f144fbfeb1b2dd0c82d31fe40672f571545ed3693657ed4ea1"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/8fb849b5-009c-41f9-be1d-69624db6ab11",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "3b46dda9a4409ee09be72779c7dff9db884e0b0d58539d38148574b9a82c1008"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/921847fc-38a1-4ccc-a496-f287a569ae1e",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "b3875b68d9d325f0a6846b3822f37a108227d8539cd7fb41f9f16c5c6c4abada"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/9a39c55c-9d82-4d8b-8bee-cacb86317707",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "1b9fd75401f68585ab1577387694e54345804992e4c7ad65418ba4bf7d2da7a1"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/ac8f55f1-55cb-4c43-be33-a1b97ff97a05",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "0613033f1f35a5809c70c941e87eeb6627899138a54cec8736884851b69a0332"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/ad803de9-0f58-4f64-858b-0b35957aa7e9",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "e8609b6192cb6b5e10907b6f4ab0c177515c947b449feafddd64ccc0d9544f72"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/e5c07c2b-4d2e-4ffa-8b41-ccb26e45a990",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "18ea6e0be5c4b7a211e7d65dbb20b4c6dcd294a97f77c4dc5e71648bc4c6a4c0"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/eda26bad-ac75-445c-9ca3-43881168332e",
+      "busy": [],
+      "database_sha256": {},
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/f59dbf37-f944-4b44-949b-ab79a66b9a3d",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "df069fcac2e946ff9c6a2b50b532dd9fb959aee7dbc557a0afcb282105b28f1a"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    },
+    {
+      "root": "/home/botstral/first-acceptance-fixtures/fcac5479-c9a8-4651-b7e8-a0f665383a52",
+      "busy": [],
+      "database_sha256": {
+        "agent/agent.sqlite3": "095c6a439337f4cfffd5eec2ac8f30d52c8fc27e34e46e499217a1c56b09828c"
+      },
+      "temporary_provider_key_absent": true,
+      "removed": true
+    }
+  ]
+}

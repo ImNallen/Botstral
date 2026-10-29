@@ -212,9 +212,9 @@ Run these checks on one owner, one bot, one worker, and the desktop app after th
 - [x] Disconnect the client beyond event replay retention and restore current state through a snapshot.
 - [x] Deny, alter, expire, consume, and revoke approval authority. Verify that stale requests cannot execute.
 - [x] Restore a backup and inspect history, memory, credentials, artifacts, and the documented Computer VM state.
-- [ ] Inspect model and helper requests for the configured Mistral-developed model and endpoint. Verify that privacy and unsupported-capability blockers remain visible.
+- [x] Inspect model and helper requests for the configured Mistral-developed model and endpoint. Verify that privacy and unsupported-capability blockers remain visible.
 
-[First acceptance evidence](docs/first-acceptance.md) records eight verified checks. Primary model requests and refusal paths passed. Helper inference was not configured or invoked, so the milestone remains open.
+[First acceptance evidence](docs/first-acceptance.md) records all nine checks. The original eight checks are retained unchanged. The [helper supplement](docs/helper-acceptance.md) verifies live Vibe compaction, configured EU inference, policy refusals, and accounting. Strict aggregation preserves exact production binary identities. Automatic headless CLI compaction remains outside this explicit helper check.
 
 ## Feature-parity milestones
 

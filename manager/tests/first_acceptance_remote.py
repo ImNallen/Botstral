@@ -9,12 +9,65 @@ import ssl
 import stat
 import shutil
 import sys
+import uuid
 
 import m06_remote
 
 
 def dispatch(root, request):
     operation = request['op']
+    if operation == 'manager_process':
+        import subprocess
+        unit = request['unit']
+        assert unit.startswith('botstral-m06-') and '/' not in unit
+        pid = int(subprocess.check_output(['systemctl', '--user', 'show', unit, '--property=MainPID', '--value'], text=True).strip())
+        assert pid > 0
+        process = Path('/proc') / str(pid)
+        executable = (process / 'exe').resolve(strict=True)
+        assert executable.is_relative_to(root / 'bin')
+        return {'unit': unit, 'pid': pid, 'executable': str(executable),
+                'sha256': hashlib.sha256((process / 'exe').read_bytes()).hexdigest(),
+                'arguments': (process / 'cmdline').read_bytes().decode().rstrip('\0').split('\0'),
+                'recorded_configuration_present': (root / 'recorded.json').exists()}
+    if operation == 'compaction_runtime':
+        import subprocess
+        runtime = root / 'compaction-runtime'
+        shutil.copytree(Path('/home/botstral/m04-vibe-2.24.2'), runtime, symlinks=False,
+                        ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        driver = (root / 'compact.py').read_bytes()
+        launcher = runtime / 'bin/vibe'
+        launcher.write_bytes(('#!' + str(runtime / 'bin/python3') + '\n').encode() + driver)
+        launcher.chmod(0o700)
+        result = subprocess.run(['python3', str(root / 'src/agent/vibe/seal.py'), '--runtime', str(runtime),
+            '--manifest', str(root / 'compaction-runtime.json')], check=True, capture_output=True, text=True, timeout=90)
+        manifest = json.loads((root / 'compaction-runtime.json').read_text())
+        files = dict(manifest['files'])
+        assert all(files['lib/python3.12/site-packages/vibe/' + name] == digest
+                   for name, digest in request['source_digests'].items())
+        return {'runtime': result.stdout.strip(), 'directory': str(runtime), 'manifest': str(root / 'compaction-runtime.json'),
+                'content_sha256': hashlib.sha256(json.dumps({name: digest for name, digest in files.items()
+                    if name != 'bin/vibe'}, sort_keys=True).encode()).hexdigest(),
+                'driver_sha256': hashlib.sha256(launcher.read_bytes()).hexdigest()}
+    if operation in ('compaction_native', 'compaction_release'):
+        workspace = str(uuid.UUID(request['workspace']))
+        home = root / 'agent/coding' / workspace
+        if operation == 'compaction_release':
+            (home / 'compaction-release').touch(exist_ok=False)
+            return True
+        path = home / 'compaction-evidence.json'
+        if not path.exists():
+            return None
+        assert path.is_file() and not path.is_symlink() and path.stat().st_size <= 4194304
+        try:
+            return json.loads(path.read_text())
+        except json.JSONDecodeError:
+            return None
+    if operation == 'coding_evidence':
+        return coding_evidence(root, request['task'])
+    if operation == 'attempt_inventory':
+        with sqlite3.connect('file:' + str(root / 'state/manager.sqlite3') + '?mode=ro', uri=True) as database:
+            return {table: [json.loads(row[0]) for row in database.execute('SELECT view FROM ' + table + ' ORDER BY rowid')]
+                    for table in ('run_turns', 'coding_calls', 'inferences')}
     if operation in ('guest_read', 'guest_write', 'guest_cleanup'):
         workspace = Path(json.loads((root / 'guest-workspace.json').read_text()))
         assert workspace == root / 'workspace' or (workspace.parent == Path('/home/botstral') and workspace.name.startswith('acceptance-'))
@@ -112,6 +165,31 @@ def dispatch(root, request):
                 for request, view, configuration in database.execute(
                     'SELECT t.provider_request,t.view,r.configuration FROM run_turns t JOIN runs r ON r.id=t.run ORDER BY r.rowid,t.ordinal')]
     return m06_remote.dispatch(root, request)
+
+
+CODING_QUERY = '''SELECT c.id,c.task,c.execution,c.generation,c.request,c.configuration,c.view,c.response,
+    t.view,l.generation,l.closed,r.summary,r.configuration
+    FROM coding_calls c JOIN tasks t ON t.id=c.task
+    JOIN coding_leases l ON l.task=c.task AND l.execution=c.execution AND l.generation=c.generation
+    LEFT JOIN run_children o ON o.task=c.task LEFT JOIN runs r ON r.id=o.run
+    WHERE c.task=? ORDER BY c.rowid'''
+
+
+def coding_evidence(root, task):
+    assert str(uuid.UUID(task)) == task
+    with sqlite3.connect('file:' + str(root / 'state/manager.sqlite3') + '?mode=ro', uri=True) as database:
+        rows = database.execute(CODING_QUERY, (task,)).fetchall()
+        assert len(rows) <= 16
+        attempts = []
+        for identity, task, execution, generation, request, config, view, response, task_view, lease_generation, closed, parent, parent_config in rows:
+            attempts.append({'id': identity, 'task': task, 'execution': execution, 'generation': generation,
+                'request': json.loads(request), 'configuration': json.loads(config), 'view': json.loads(view),
+                'response': json.loads(response) if response else None, 'task_view': json.loads(task_view),
+                'lease': {'generation': lease_generation, 'closed': bool(closed)},
+                'parent': json.loads(parent) if parent else None,
+                'parent_configuration': json.loads(parent_config) if parent_config else None})
+    return {'database': 'state/manager.sqlite3', 'query': CODING_QUERY,
+            'reader_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'attempts': attempts}
 
 
 if __name__ == '__main__':
