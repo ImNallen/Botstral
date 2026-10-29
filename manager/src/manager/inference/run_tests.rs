@@ -40,6 +40,11 @@ impl SyntheticWorker {
             .await,
         )
         .unwrap();
+        Self::reconnect(app, session).await
+    }
+    async fn reconnect(app: &App, session: ComputerSession) -> Self {
+        let peer = || VerifiedIdentity::for_test(b"M04 recorded worker identity");
+        let gateway = app.manager.worker_gateway();
         let (out, outbound) = mpsc::channel(32);
         let (stop, _) = watch::channel(false);
         let mut hello = Hello::current(false);

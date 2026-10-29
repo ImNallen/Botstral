@@ -6,6 +6,7 @@ import { PairedController } from './paired-application';
 import { pairedApplication } from './paired-native';
 import {
   memoryDocumentSchema,
+  messageIdSchema,
   remoteSnapshotSchema,
   type PairedApplication,
   type RemoteSnapshot,
@@ -75,6 +76,24 @@ function setup(initial = snapshot(), overrides: Partial<PairedApplication> = {})
   const app = {
     ...pairedApplication,
     writeMemory,
+    createMemory: vi.fn<PairedApplication['createMemory']>().mockImplementation(async (input) =>
+      remoteSnapshotSchema.parse({
+        ...initial,
+        revision: initial.revision + 1,
+        workspace: {
+          ...initial.workspace,
+          documents: [
+            {
+              bot: input.bot,
+              kind: 'memory',
+              revision: 1,
+              markdown: input.markdown,
+              sources: [{ type: 'message', id: input.sourceMessage }],
+            },
+          ],
+        },
+      }),
+    ),
     refresh: vi.fn(async () => initial),
     ...overrides,
   };
@@ -315,7 +334,7 @@ describe('current saved Memory', () => {
     });
     await edit(user);
     await user.click(screen.getByRole('button', { name: 'Save memory' }));
-    expect(screen.getByText(/The edit was not confirmed/)).toBeTruthy();
+    expect(screen.getByText(/The save was not confirmed/)).toBeTruthy();
     expect(screen.queryByText('Current memory matches this edit')).toBeNull();
   });
   it('discards drafts on bot, owner, manager and native generation changes with visible disclosure', async () => {
@@ -358,6 +377,343 @@ describe('current saved Memory', () => {
       });
       expect(screen.queryByLabelText('Memory draft')).toBeNull();
       expect(controller.getState().snapshot?.workspace).toBeNull();
+    },
+  );
+});
+
+const source = messageIdSchema.parse('00000000-0000-4000-8000-000000000003');
+const foreign = messageIdSchema.parse('00000000-0000-4000-8000-000000000004');
+function creationSnapshot() {
+  return remoteSnapshotSchema.parse({
+    ...snapshot(),
+    workspace: {
+      ...workspace(),
+      documents: [],
+      memory_sources: [
+        { id: source, bot, text: 'Prefer concise answers.' },
+        { id: foreign, bot: other, text: 'Foreign source text' },
+      ],
+    },
+  });
+}
+async function createDraft(
+  user: ReturnType<typeof userEvent.setup>,
+  text = 'Use concise answers.',
+) {
+  await open(user);
+  await user.click(screen.getByRole('button', { name: 'Create memory' }));
+  await user.type(screen.getByLabelText('Memory draft'), text);
+}
+function creationChange(controller: PairedController, change: Partial<RemoteSnapshot>) {
+  act(() =>
+    controller.accept({
+      ...creationSnapshot(),
+      revision: (controller.getState().snapshot?.revision ?? 10) + 1,
+      ...change,
+    }),
+  );
+}
+describe('initial saved Memory', () => {
+  it('requires an explicit same-bot source selection and deliberate save', async () => {
+    const { user, app } = setup(creationSnapshot());
+    await createDraft(user);
+    expect(screen.getByLabelText<HTMLSelectElement>('Source message').value).toBe('');
+    expect(screen.queryByRole('option', { name: /Foreign source text/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(true);
+    expect(app.createMemory).not.toHaveBeenCalled();
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    expect(app.createMemory).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    expect(app.createMemory).toHaveBeenCalledExactlyOnceWith({
+      bot,
+      sourceMessage: source,
+      markdown: 'Use concise answers.',
+    });
+    expect(app.writeMemory).not.toHaveBeenCalled();
+    expect(screen.getByText('Saved revision 1')).toBeTruthy();
+    expect(screen.getByText(`Message ${source}`)).toBeTruthy();
+    expect(screen.getByText('Current memory matches this creation')).toBeTruthy();
+  });
+  it.each([
+    { memory_sources: [] },
+    { memory_sources: [{ id: foreign, bot: other, text: 'Foreign source text' }] },
+  ])(
+    'explains an empty same-bot source list without inventing provenance',
+    async ({ memory_sources }) => {
+      const initial = creationSnapshot();
+      const { user, app } = setup(
+        remoteSnapshotSchema.parse({
+          ...initial,
+          workspace: { ...initial.workspace, memory_sources },
+        }),
+      );
+      await open(user);
+      expect(screen.getByText(/No source messages are available for this bot/)).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Create memory' }).hasAttribute('disabled')).toBe(
+        true,
+      );
+      expect(app.createMemory).not.toHaveBeenCalled();
+    },
+  );
+  it('retains text and the missing selection without selecting its replacement', async () => {
+    const { user, app, controller } = setup(creationSnapshot());
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    creationChange(controller, {
+      workspace: {
+        ...workspace(),
+        documents: [],
+        memory_sources: [{ id: foreign, bot: document.bot, text: 'Another message' }],
+      },
+    });
+    expect(screen.getByLabelText<HTMLSelectElement>('Source message').value).toBe(source);
+    expect(screen.getByLabelText<HTMLTextAreaElement>('Memory draft').value).toBe(
+      'Use concise answers.',
+    );
+    expect(screen.getByText(/The selected message is no longer available/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(true);
+    expect(app.createMemory).not.toHaveBeenCalled();
+    await user.selectOptions(screen.getByLabelText('Source message'), foreign);
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    expect(app.createMemory).toHaveBeenCalledWith({
+      bot,
+      sourceMessage: foreign,
+      markdown: 'Use concise answers.',
+    });
+  });
+  it('keeps a competing creation as a conflict until explicit review adopts authoritative sources', async () => {
+    const { user, app, controller } = setup(creationSnapshot());
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    creationChange(controller, {
+      workspace: {
+        ...workspace(),
+        documents: [{ ...document, revision: 1, markdown: 'Competing creation' }],
+      },
+    });
+    expect(screen.getByLabelText<HTMLTextAreaElement>('Memory draft').value).toBe(
+      'Use concise answers.',
+    );
+    expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(true);
+    expect(app.createMemory).not.toHaveBeenCalled();
+    expect(app.writeMemory).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Review draft against current' }));
+    expect(screen.queryByLabelText('Source message')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    expect(app.writeMemory).toHaveBeenCalledWith({
+      bot,
+      expectedRevision: 1,
+      markdown: 'Use concise answers.',
+    });
+    expect(app.createMemory).not.toHaveBeenCalled();
+  });
+  it('retains a refused creation after a competing write arrives during save', async () => {
+    const pending = deferred<RemoteSnapshot>();
+    const { user, controller } = setup(creationSnapshot(), { createMemory: () => pending.promise });
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    expect(screen.getByLabelText('Source message').hasAttribute('disabled')).toBe(true);
+    await act(async () => {
+      pending.resolve(
+        remoteSnapshotSchema.parse({
+          ...creationSnapshot(),
+          revision: 11,
+          workspace: { ...workspace(), documents: [document] },
+        }),
+      );
+      await pending.promise;
+    });
+    expect(screen.getByText(/Memory changed since this draft began/)).toBeTruthy();
+    expect(screen.getByLabelText<HTMLTextAreaElement>('Memory draft').value).toBe(
+      'Use concise answers.',
+    );
+    expect(controller.getState().snapshot?.workspace?.documents).toEqual([document]);
+  });
+  it('counts creation bytes and accepts the exact 4096-byte boundary', async () => {
+    const { user, app } = setup(creationSnapshot());
+    await createDraft(user, 'é');
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    await user.clear(screen.getByLabelText('Memory draft'));
+    await user.paste('é'.repeat(2049));
+    expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(true);
+    await user.clear(screen.getByLabelText('Memory draft'));
+    await user.paste('é'.repeat(2048));
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    expect(app.createMemory).toHaveBeenCalledWith({
+      bot,
+      sourceMessage: source,
+      markdown: 'é'.repeat(2048),
+    });
+  });
+  it('retains the creation draft offline and never saves on reconnect', async () => {
+    const { user, app, controller } = setup(creationSnapshot());
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    creationChange(controller, { status: 'offline' });
+    expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(true);
+    creationChange(controller, { status: 'online' });
+    expect(screen.getByLabelText<HTMLTextAreaElement>('Memory draft').value).toBe(
+      'Use concise answers.',
+    );
+    expect(screen.getByLabelText<HTMLSelectElement>('Source message').value).toBe(source);
+    expect(app.createMemory).not.toHaveBeenCalled();
+  });
+  it.each(['absent', 'later', 'source', 'markdown'])(
+    'does not replay an uncertain creation with %s current state',
+    async (variant) => {
+      const initial = creationSnapshot();
+      const matching = {
+        bot,
+        kind: 'memory',
+        revision: 1,
+        markdown: 'Use concise answers.',
+        sources: [{ type: 'message', id: source }],
+      };
+      const documents =
+        variant === 'absent'
+          ? []
+          : [
+              {
+                ...matching,
+                ...(variant === 'later'
+                  ? { revision: 2 }
+                  : variant === 'source'
+                    ? { sources: [{ type: 'message', id: foreign }] }
+                    : { markdown: 'Different preference' }),
+              },
+            ];
+      const result = remoteSnapshotSchema.parse({
+        ...initial,
+        revision: 11,
+        intents: [{ id: other, identity: other, description: 'Memory save', status: 'unknown' }],
+        workspace: { ...initial.workspace, documents },
+      });
+      const loaded = remoteSnapshotSchema.parse({
+        ...result,
+        revision: 13,
+        intents: result.intents.map((intent) => ({ ...intent, status: 'attention' })),
+      });
+      const { user, app, controller } = setup(initial, {
+        createMemory: vi.fn(async () => result),
+        refresh: vi.fn(async () => loaded),
+      });
+      await createDraft(user);
+      await user.selectOptions(screen.getByLabelText('Source message'), source);
+      await user.click(screen.getByRole('button', { name: 'Save memory' }));
+      expect(screen.queryByText('Current memory matches this creation')).toBeNull();
+      expect(screen.getByText(/Save outcome is uncertain/)).toBeTruthy();
+      creationChange(controller, { ...loaded, revision: 12 });
+      await user.click(screen.getByRole('button', { name: 'Load current memory' }));
+      expect(screen.getByLabelText<HTMLTextAreaElement>('Memory draft').value).toBe(
+        'Use concise answers.',
+      );
+      expect(app.createMemory).toHaveBeenCalledTimes(1);
+      expect(app.writeMemory).not.toHaveBeenCalled();
+      if (variant !== 'absent')
+        expect(screen.getByRole('button', { name: 'Save memory' }).hasAttribute('disabled')).toBe(
+          true,
+        );
+    },
+  );
+  it('confirms only matching revision-one state after explicit uncertain reconciliation', async () => {
+    const initial = creationSnapshot();
+    const loaded = remoteSnapshotSchema.parse({
+      ...initial,
+      revision: 13,
+      workspace: {
+        ...initial.workspace,
+        documents: [
+          {
+            bot,
+            kind: 'memory',
+            revision: 1,
+            markdown: 'Use concise answers.',
+            sources: [{ type: 'message', id: source }],
+          },
+        ],
+      },
+    });
+    const { user, app } = setup(initial, {
+      createMemory: vi.fn(async () => {
+        throw new Error('unknown_outcome');
+      }),
+      refresh: async () => loaded,
+    });
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    await user.click(screen.getByRole('button', { name: 'Load current memory' }));
+    expect(screen.getByText('Current memory matches this creation')).toBeTruthy();
+    expect(app.createMemory).toHaveBeenCalledTimes(1);
+  });
+  it('ignores a creation reply after the owner controller and component are disposed', async () => {
+    const pending = deferred<RemoteSnapshot>();
+    const initial = creationSnapshot();
+    const { user, app, controller, unmount } = setup(initial, {
+      createMemory: vi.fn(() => pending.promise),
+    });
+    await createDraft(user);
+    await user.selectOptions(screen.getByLabelText('Source message'), source);
+    await user.click(screen.getByRole('button', { name: 'Save memory' }));
+    controller.dispose();
+    unmount();
+    await act(async () => {
+      pending.resolve(
+        remoteSnapshotSchema.parse({
+          ...initial,
+          revision: 11,
+          workspace: {
+            ...initial.workspace,
+            documents: [
+              {
+                bot,
+                kind: 'memory',
+                revision: 1,
+                markdown: 'Use concise answers.',
+                sources: [{ type: 'message', id: source }],
+              },
+            ],
+          },
+        }),
+      );
+      await pending.promise;
+    });
+    expect(controller.getState().snapshot).toEqual(initial);
+    expect(app.createMemory).toHaveBeenCalledTimes(1);
+    expect(app.writeMemory).not.toHaveBeenCalled();
+  });
+  it.each(['signed_out', 'blocked', 'generation', 'owner', 'manager', 'bot'])(
+    'disposes creation drafts on %s while a save is pending',
+    async (transition) => {
+      const pending = deferred<RemoteSnapshot>();
+      const { user, controller } = setup(creationSnapshot(), {
+        createMemory: () => pending.promise,
+      });
+      await createDraft(user);
+      await user.selectOptions(screen.getByLabelText('Source message'), source);
+      await user.click(screen.getByRole('button', { name: 'Save memory' }));
+      if (transition === 'bot') await user.click(screen.getByRole('button', { name: /Other/ }));
+      else
+        creationChange(
+          controller,
+          transition === 'signed_out' || transition === 'blocked'
+            ? { generation: 3, status: transition, workspace: null }
+            : transition === 'generation'
+              ? { generation: 3 }
+              : {
+                  workspace: {
+                    ...workspace(),
+                    documents: [],
+                    ...(transition === 'owner' ? { owner: 'New owner' } : { manager: other }),
+                  },
+                },
+        );
+      await act(async () => {
+        pending.resolve({ ...creationSnapshot(), revision: 11 });
+        await pending.promise;
+      });
+      expect(screen.queryByLabelText('Memory draft')).toBeNull();
     },
   );
 });

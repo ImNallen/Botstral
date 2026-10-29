@@ -1,0 +1,22 @@
+{
+  "browser": "156.0.8078.48",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "source": "Actual PairedWorkspace and Memory components consuming snapshots recorded by the real-manager native initial creation contract.",
+  "normalization": "Renderer generation and revision counters are normalized across native restarts. Saved documents and source previews are unchanged.",
+  "limitations": "This video replays recorded snapshots. Save checks the selected message and exact Markdown before returning the recorded native creation. Refresh returns the recorded post-restart snapshot. Native journal tests separately prove manager writes, manager restart and captured provider input. No external inference or execution occurs in this video.",
+  "actions": [
+    "open initial authoring",
+    "write a multiline preference",
+    "verify save is blocked without a source",
+    "explicitly select a same-bot message",
+    "explicitly save revision one",
+    "inspect authoritative provenance",
+    "refresh to recorded post-restart state"
+  ],
+  "errors": [],
+  "video": "docs/evidence/p01-initial-memory/initial-memory.webm",
+  "sha256": "0f6efdb42a15777f2238736db3ee3ff20c938c9dc257fbca5a78bd98cb80e5c4"
+}

@@ -1,0 +1,6 @@
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!

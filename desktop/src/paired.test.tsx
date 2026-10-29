@@ -67,6 +67,7 @@ function snapshot(status: 'online' | 'offline' = 'online') {
 function application(initial = snapshot()) {
   const result = () => Promise.resolve(initial);
   return {
+    createMemory: result,
     writeMemory: result,
     runDetails: result,
     routine: result,

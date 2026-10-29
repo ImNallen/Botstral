@@ -1,0 +1,21 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-usr4sh9l
+Local manager: 127.0.0.1:55183
+Paired WSS route: wss://127.0.0.1:55199/owner/v1/connect
+Manager identity: 3a8d7bdc-5054-4a89-926f-7d7323ff1380
+Manager leaf: 6e6c23cfc1cf04c627ca08755fcb1ecaaa723a90cf580f6fb4a928c473b5e068
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-usr4sh9l/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-usr4sh9l/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-8b206f03/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-31e4620aa8d3a6f9)
+
+running 1 test
+PASS initial native creation, missing/foreign sources, byte bound, conflicting and identical manager writes, revision-one exact journal recovery without replay, manager and native restart, captured new-run provider Memory and unchanged historical run
+test p01_initial_memory_creation_and_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 6.95s

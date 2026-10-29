@@ -1,0 +1,16 @@
+
+> test
+> npm run test --workspace @botstral/desktop src/paired-contract.test.ts
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run src/paired-contract.test.ts
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-3d8f5c25/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 1 skipped (3)
+   Start at  16:23:19
+   Duration  423ms (environment 77%, setup 11%, import 7%, tests 2%, transform 2%, worker 1%)

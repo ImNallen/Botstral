@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { nativeApplication } from './native';
 import { pairedApplication } from './paired-native';
 import { signedIn, signedOut } from './fixtures.test-support';
+import { messageIdSchema } from './paired-domain';
 
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }));
 const native = vi.mocked(invoke);
@@ -10,6 +11,31 @@ beforeEach(() => {
   native.mockReset();
 });
 describe('native boundary', () => {
+  it('invokes the dedicated creation command with one branded source and validates its snapshot', async () => {
+    const snapshot = {
+      generation: 1,
+      revision: 1,
+      status: 'online',
+      issue: null,
+      pairing: null,
+      candidate: null,
+      workspace: null,
+      review: null,
+      intents: [],
+    };
+    const bot = signedIn().bots[0];
+    if (!bot) throw new Error('Missing fixture bot');
+    const input = {
+      bot: bot.id,
+      sourceMessage: messageIdSchema.parse('00000000-0000-4000-8000-000000000003'),
+      markdown: 'Use concise answers.',
+    };
+    native.mockResolvedValueOnce(snapshot);
+    await pairedApplication.createMemory(input);
+    expect(native).toHaveBeenCalledWith('create_memory', input);
+    native.mockResolvedValueOnce({ ...snapshot, sources: [] });
+    await expect(pairedApplication.createMemory(input)).rejects.toThrow();
+  });
   it('invokes only the narrow Memory write command and validates its snapshot', async () => {
     const snapshot = {
       generation: 1,

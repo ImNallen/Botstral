@@ -7,7 +7,7 @@ async fn c02_desktop_fixture() {
     let local = crate::LocalState::open(&root.join("manager-state")).unwrap();
     let fixture = Fixture::start().await;
     fixture.state.desktop.store(true, Ordering::SeqCst);
-    let app = App::start(local.directory().into(), &fixture).await;
+    let mut app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
     app.configure(1).await;
     app.verify(2, 200).await;
@@ -19,20 +19,8 @@ async fn c02_desktop_fixture() {
         200,
     )
     .await;
-    let listener = crate::public_http::PublicListener::bind(crate::PublicTls {
-        listen: "127.0.0.1:0".parse().unwrap(),
-        certificate: root.join("manager.pem"),
-        key: root.join("manager.key"),
-        client_ca: root.join("ca.pem"),
-    })
-    .await
-    .unwrap();
-    let public = listener.local_addr().unwrap();
-    let (stop, stopped) = watch::channel(false);
-    let manager = app.manager.clone();
-    let public_task = tokio::spawn(async move {
-        listener.serve(manager, stopped).await.unwrap();
-    });
+    let (public, mut stop, mut public_task) =
+        desktop_listener(&root, &app, "127.0.0.1:0".parse().unwrap()).await;
     let trust = app.call("POST", "/v1/device-trust", json!({"endpoint":public.to_string(),"server_name":"localhost","ca_pem":std::fs::read_to_string(root.join("ca.pem")).unwrap(),"certificate_pem":std::fs::read_to_string(root.join("manager.pem")).unwrap()}), 200).await;
     use std::os::unix::fs::PermissionsExt;
     std::fs::write(
@@ -45,11 +33,66 @@ async fn c02_desktop_fixture() {
         std::fs::Permissions::from_mode(0o600),
     )
     .unwrap();
-    std::fs::write(root.join("fixture.json"), json!({"local":app.address.trim_start_matches("http://"),"public":public,"password":PASSWORD,"bot":app.bot,"session":worker.session.id,"runtime":CertificateFingerprint::from_der(b"fixture runtime"),"synthetic_worker":true}).to_string()).unwrap();
+    let mut details = json!({"local":app.address.trim_start_matches("http://"),"public":public,"password":PASSWORD,"bot":app.bot,"session":worker.session.id,"runtime":CertificateFingerprint::from_der(b"fixture runtime"),"synthetic_worker":true});
+    if std::env::var_os("BOTSTRAL_INITIAL_MEMORY_PROOF").is_some() {
+        let foreign = BotId::new();
+        app.call(
+            "PUT",
+            &format!("/v1/bots/{foreign}"),
+            json!({"name":"Other bot"}),
+            200,
+        )
+        .await;
+        details["memory_source"] =
+            json!(desktop_source(&app, app.bot, "Prefer concise answers.").await);
+        details["second_source"] = json!(desktop_source(&app, app.bot, &"🦀".repeat(300)).await);
+        details["foreign_source"] =
+            json!(desktop_source(&app, foreign, "Foreign preference.").await);
+    }
+    std::fs::write(root.join("fixture.json"), details.to_string()).unwrap();
     let mut sequence = 0;
     let mut started = std::collections::HashMap::new();
     let mut finished = std::collections::HashSet::new();
     while !root.join("stop").exists() {
+        if std::env::var_os("BOTSTRAL_INITIAL_MEMORY_PROOF").is_some() {
+            std::fs::write(
+                root.join("provider-requests.json"),
+                serde_json::to_vec_pretty(&*fixture.state.requests.lock().unwrap()).unwrap(),
+            )
+            .unwrap();
+            if root.join("restart-manager").exists() {
+                let snapshots = desktop_memory_snapshots(local.directory());
+                stop.send_replace(true);
+                public_task.await.unwrap();
+                let prior_session = worker.session.clone();
+                drop(worker);
+                let bot = app.bot;
+                app.shutdown().await;
+                app = App::start(local.directory().into(), &fixture).await;
+                app.bot = bot;
+                app.call(
+                    "POST",
+                    "/v1/vault/unlock",
+                    json!({"passphrase":PASSPHRASE}),
+                    204,
+                )
+                .await;
+                assert_eq!(desktop_memory_snapshots(local.directory()), snapshots);
+                worker = SyntheticWorker::reconnect(&app, prior_session).await;
+                (_, stop, public_task) = desktop_listener(&root, &app, public).await;
+                std::fs::write(root.join("restart-proof.json"), serde_json::to_vec_pretty(&json!({"historical_snapshots_before_and_after":snapshots,"unchanged":true})).unwrap()).unwrap();
+                std::fs::write(
+                    root.join("restart-session.json"),
+                    serde_json::to_vec(&worker.session).unwrap(),
+                )
+                .unwrap();
+                std::fs::remove_file(root.join("restart-manager")).unwrap();
+                std::fs::write(root.join("manager-restarted"), b"ready").unwrap();
+                sequence = 0;
+                started.clear();
+                finished.clear();
+            }
+        }
         if root.join("pause-worker").exists() {
             tokio::time::sleep(Duration::from_millis(10)).await;
             continue;
@@ -192,4 +235,55 @@ fn synthetic_scope(journal: JournalId, execution: ExecutionId) -> ProcessScope {
         cgroup: format!("/synthetic/{unit}"),
         unit,
     }
+}
+
+async fn desktop_listener(
+    root: &std::path::Path,
+    app: &App,
+    address: std::net::SocketAddr,
+) -> (std::net::SocketAddr, watch::Sender<bool>, JoinHandle<()>) {
+    let listener = crate::public_http::PublicListener::bind(crate::PublicTls {
+        listen: address,
+        certificate: root.join("manager.pem"),
+        key: root.join("manager.key"),
+        client_ca: root.join("ca.pem"),
+    })
+    .await
+    .unwrap();
+    let public = listener.local_addr().unwrap();
+    let (stop, stopped) = watch::channel(false);
+    let manager = app.manager.clone();
+    let task = tokio::spawn(async move {
+        listener.serve(manager, stopped).await.unwrap();
+    });
+    (public, stop, task)
+}
+
+fn desktop_memory_snapshots(
+    directory: &std::path::Path,
+) -> std::collections::BTreeMap<String, Option<String>> {
+    let connection = rusqlite::Connection::open(directory.join("manager.sqlite3")).unwrap();
+    connection
+        .prepare("SELECT id,memory_snapshot FROM runs ORDER BY id")
+        .unwrap()
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+        .unwrap()
+        .map(Result::unwrap)
+        .collect()
+}
+
+async fn desktop_source(app: &App, bot: BotId, text: &str) -> MessageId {
+    let conversation = Conversation {
+        id: ConversationId::new(),
+        bot,
+    };
+    app.call("POST", "/v1/conversations", json!(conversation), 200)
+        .await;
+    let message = ConversationMessage {
+        id: MessageId::new(),
+        conversation: conversation.id,
+        text: text.into(),
+    };
+    app.call("POST", "/v1/messages", json!(message), 200).await;
+    message.id
 }

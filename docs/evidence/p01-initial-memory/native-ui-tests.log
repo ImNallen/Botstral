@@ -1,0 +1,240 @@
+   Compiling memchr v2.8.3
+   Compiling siphasher v1.0.4
+   Compiling serde_core v1.0.229
+   Compiling time-core v0.1.9
+   Compiling num-conv v0.2.2
+   Compiling powerfmt v0.2.1
+   Compiling thiserror v2.0.21
+   Compiling winnow v1.0.4
+   Compiling toml_writer v1.1.3+spec-1.1.0
+   Compiling zerofrom v0.1.8
+   Compiling typeid v1.0.3
+   Compiling regex-syntax v0.8.11
+   Compiling fnv v1.0.7
+   Compiling web-time v1.1.0
+   Compiling parking_lot_core v0.9.12
+   Compiling hashbrown v0.17.1
+   Compiling phf_shared v0.13.1
+   Compiling yoke v0.8.4
+   Compiling equivalent v1.0.3
+   Compiling objc2-encode v4.1.0
+   Compiling alloc-no-stdlib v3.0.0
+   Compiling toml_datetime v1.1.2+spec-1.1.0
+   Compiling serde_spanned v1.1.2
+   Compiling same-file v1.0.6
+   Compiling dunce v1.0.5
+   Compiling form_urlencoded v1.2.2
+   Compiling phf_generator v0.13.1
+   Compiling toml_parser v1.1.5+spec-1.1.0
+   Compiling parking_lot v0.12.5
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling alloc-stdlib v0.3.0
+   Compiling serde_json v1.0.154
+   Compiling aho-corasick v1.1.5
+   Compiling phf_codegen v0.13.1
+   Compiling string_cache_codegen v0.6.1
+   Compiling quick-xml v0.42.0
+   Compiling phf_macros v0.13.1
+   Compiling brotli-decompressor v6.2.0
+   Compiling string_cache v0.9.0
+   Compiling selectors v0.38.0
+   Compiling indexmap v2.14.2
+   Compiling walkdir v2.5.0
+   Compiling toml v1.1.8+spec-1.1.0
+   Compiling anyhow v1.0.104
+   Compiling uuid v1.29.0
+   Compiling web_atoms v0.2.6
+   Compiling tinystr v0.8.5
+   Compiling potential_utf v0.1.6
+   Compiling ctor v1.0.13
+   Compiling glob v0.3.4
+   Compiling icu_collections v2.4.0
+   Compiling icu_locale_core v2.4.0
+   Compiling phf v0.13.1
+   Compiling objc2-exception-helper v0.1.1
+   Compiling time v0.3.55
+   Compiling objc2 v0.6.5
+   Compiling cfb v0.14.0
+   Compiling brotli v9.1.0
+   Compiling jsonptr v0.7.1
+   Compiling cssparser v0.37.0
+   Compiling swift-rs v1.0.9
+   Compiling erased-serde v0.4.11
+   Compiling cargo_metadata v0.19.2
+   Compiling json-patch v4.2.0
+   Compiling regex-automata v0.4.18
+   Compiling icu_provider v2.4.0
+   Compiling serde-untagged v0.1.9
+   Compiling infer v0.22.0
+   Compiling icu_properties v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling serde_with v3.24.0
+   Compiling bitflags v2.13.2
+   Compiling serde v1.0.229
+   Compiling markup5ever v0.39.0
+   Compiling block2 v0.6.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling html5ever v0.39.0
+   Compiling option-ext v0.2.0
+   Compiling dirs-sys v0.5.0
+   Compiling simd-adler32 v0.3.10
+   Compiling adler2 v2.0.1
+   Compiling dirs v7.0.0
+   Compiling embed-resource v3.0.12
+   Compiling heck v0.5.0
+   Compiling plist v1.10.3
+   Compiling tauri-winres v0.3.7
+   Compiling tokio v1.54.1
+   Compiling crc32fast v1.5.3
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling dom_query v0.28.0
+   Compiling miniz_oxide v0.9.1
+   Compiling deranged v0.5.9
+   Compiling cargo_toml v1.0.1
+   Compiling objc2-foundation v0.3.2
+   Compiling time-macros v0.2.32
+   Compiling url v2.5.8
+   Compiling schemars v0.8.22
+   Compiling regex v1.13.1
+   Compiling flate2 v1.1.10
+   Compiling miniz_oxide v0.8.9
+   Compiling fdeflate v0.3.7
+   Compiling urlpattern v0.6.0
+   Compiling dpi v0.1.2
+   Compiling raw-window-handle v0.6.2
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-channel v0.5.17
+   Compiling tauri-utils v2.10.2
+   Compiling foreign-types-shared v0.3.1
+   Compiling foreign-types v0.5.0
+   Compiling png v0.18.1
+   Compiling core-graphics-types v0.2.0
+   Compiling dispatch2 v0.3.1
+   Compiling wry v0.57.1
+   Compiling semver v1.0.28
+   Compiling core-graphics v0.25.0
+   Compiling num-traits v0.2.19
+   Compiling ico v0.6.0
+   Compiling zeroize v1.9.1
+   Compiling keyboard-types v0.8.3
+   Compiling pxfm v0.1.30
+   Compiling futures-util v0.3.34
+   Compiling rustls-pki-types v1.15.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling bytemuck v1.25.2
+   Compiling byteorder-lite v0.1.0
+   Compiling serialize-to-javascript v0.1.2
+   Compiling mime v0.3.17
+   Compiling embed_plist v1.2.2
+   Compiling rustls-webpki v0.103.16
+   Compiling tracing v0.1.44
+   Compiling ref-cast v1.0.27
+   Compiling tungstenite v0.28.0
+   Compiling rustls-pemfile v2.2.0
+   Compiling schemars v1.2.3
+   Compiling hyper v1.12.0
+   Compiling security-framework v3.7.0
+   Compiling tokio-util v0.7.20
+   Compiling rustix v1.1.5
+   Compiling cookie v0.18.2
+   Compiling rustls v0.23.46
+   Compiling keyring v3.6.3
+   Compiling tempfile v3.27.0
+   Compiling tower v0.5.3
+   Compiling tokio-tungstenite v0.28.0
+   Compiling hyper-util v0.1.21
+   Compiling moxcms v0.8.1
+   Compiling tower-http v0.6.11
+   Compiling reqwest v0.13.5
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-3d8f5c25/link)
+   Compiling image v0.25.10
+   Compiling tauri-build v2.7.3
+   Compiling tauri-plugin v2.7.2
+   Compiling tauri-codegen v2.7.4
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-fs v2.7.1
+   Compiling tauri-macros v2.7.4
+   Compiling tauri-plugin-dialog v2.8.4
+   Compiling tauri-plugin-notification v2.7.0
+   Compiling tauri-plugin-deep-link v2.6.3
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-3d8f5c25/desktop/src-tauri)
+   Compiling objc2-quartz-core v0.3.2
+   Compiling mac-notification-sys v0.6.15
+   Compiling notify-rust v4.18.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-3d8f5c25/link/client)
+   Compiling objc2-web-kit v0.3.2
+   Compiling tao v0.37.2
+   Compiling muda v0.20.0
+   Compiling window-vibrancy v0.8.1
+   Compiling rfd v0.17.2
+   Compiling tauri-runtime v2.12.2
+   Compiling tray-icon v0.25.1
+   Compiling tauri-runtime-wry v2.12.3
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.66s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-9004ecd9b2b76f4f)
+
+running 4 tests
+test remote::memory_tests::memory_acknowledgement_requires_the_exact_document ... ok
+test shell::tests::rejected_callers_receive_no_application_data ... ok
+test shell::tests::native_page_policy_rejects_remote_and_nested_content ... ok
+test remote::memory_tests::journal_accepts_only_memory_document_writes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/main.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-50ddc6224ea375f2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-8b4fed57eea06eb2)
+
+running 10 tests
+test admitted_journal_must_remain_readable_after_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test historical_approval_cannot_confirm_an_unknown_regrant ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test missing_journal_does_not_become_an_empty_paired_profile ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p01_initial_memory_creation_and_restart ... ignored, Requires desktop/fixtures/paired_manager.py --verify-initial-memory.
+test p01_memory_controls_and_crash_journal_recovery ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p03_routine_controls_and_crash_journal_recovery ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test readable_unknown_journal_blocks_mutation_without_replay ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test trimmed_run_history_does_not_strand_unknown_intents ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+
+test result: ok. 0 passed; 0 failed; 10 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-ce1ca366903d1e8b)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-1c0eea74d3c69c6e)
+
+running 8 tests
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ignored, Requires desktop/fixtures/paired_manager.py and the real unlocked OS keychain.
+test pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths ... ok
+test unavailable_native_storage_never_publishes_a_fingerprint ... ok
+test a_journal_larger_than_secret_file_limits_restores_without_credentials_on_disk ... ok
+test failed_secret_deletion_leaves_a_durable_signed_out_tombstone ... ok
+test sign_out_blocks_new_intents_while_an_admitted_native_call_is_finishing ... ok
+test sign_out_clears_native_authority_when_the_profile_directory_was_removed ... ok
+test concurrent_sign_out_callers_wait_until_native_deletion_finishes ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+   Doc-tests botstral_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

@@ -13,6 +13,7 @@ async function snapshot(command: string, args?: Record<string, unknown>) {
   return remoteSnapshotSchema.parse(await call(command, args));
 }
 export const pairedApplication: PairedApplication = {
+  createMemory: (input) => snapshot('create_memory', input),
   writeMemory: (input) => snapshot('write_memory', input),
   runDetails: (id) => snapshot('run_details', { id }),
   routineText: (bot, text) => snapshot('routine_text', { bot, text }),

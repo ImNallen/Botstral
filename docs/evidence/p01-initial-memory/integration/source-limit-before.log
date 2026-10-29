@@ -1,0 +1,37 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qc01ocw
+Local manager: 127.0.0.1:55110
+Paired WSS route: wss://127.0.0.1:55124/owner/v1/connect
+Manager identity: a75bc513-86e5-45bc-9310-bd26da4e85f6
+Manager leaf: 1f5e2f6badda10c0ae46dace76145b5350fd5b5ef8a5e8b6252f2b17a208e1c8
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qc01ocw/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-7qc01ocw/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-8b206f03/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-31e4620aa8d3a6f9)
+
+running 1 test
+
+thread 'p01_initial_memory_creation_and_restart' (626224871) panicked at tests/journal/initial_memory.rs:132:5:
+Later messages from another bot must not hide an existing Memory source
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test p01_initial_memory_creation_and_restart ... FAILED
+
+failures:
+
+failures:
+    p01_initial_memory_creation_and_restart
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.46s
+
+error: test failed, to rerun pass `--test journal`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-8b206f03/desktop/fixtures/paired_manager.py", line 112, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-8b206f03/desktop/fixtures/paired_manager.py", line 92, in main
+    raise RuntimeError('The native journal contract failed.')
+RuntimeError: The native journal contract failed.

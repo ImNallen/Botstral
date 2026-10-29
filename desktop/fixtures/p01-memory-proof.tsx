@@ -4,9 +4,13 @@ import { PairedWorkspace } from '../src/PairedWorkspace';
 import { PairedController } from '../src/paired-application';
 import { remoteSnapshotSchema, type PairedApplication } from '../src/paired-domain';
 import native from '../../docs/evidence/p01-desktop-memory/native-controls.json';
+import initialNative from '../../docs/evidence/p01-initial-memory/native-controls.json';
 import '../src/styles.css';
 
-const data = z.record(z.string(), remoteSnapshotSchema).parse(native);
+const initialProof = new URLSearchParams(location.search).has('initial');
+const data = z
+  .record(z.string(), remoteSnapshotSchema)
+  .parse(initialProof ? initialNative : native);
 let revision = 0;
 const stage = (name: string) => {
   const snapshot = data[name];
@@ -17,6 +21,19 @@ const unavailable = async (): Promise<never> => {
   throw new Error('This component replay cannot perform external work.');
 };
 const app: PairedApplication = {
+  createMemory: ({ bot, sourceMessage, markdown }) => {
+    const document = data.created?.workspace?.documents[0];
+    if (
+      !initialProof ||
+      document?.bot !== bot ||
+      document.markdown !== markdown ||
+      document.sources.length !== 1 ||
+      document.sources[0]?.type !== 'message' ||
+      document.sources[0].id !== sourceMessage
+    )
+      return unavailable();
+    return stage('created');
+  },
   writeMemory: ({ expectedRevision }) => {
     switch (expectedRevision) {
       case 1:
@@ -29,14 +46,14 @@ const app: PairedApplication = {
         return unavailable();
     }
   },
-  inspect: () => stage('before'),
+  inspect: () => stage(initialProof ? 'absent' : 'before'),
   observe: async () => () => {},
   beginPairing: unavailable,
   importPairing: unavailable,
   importTrust: unavailable,
   pairLocal: unavailable,
   confirmPairing: unavailable,
-  refresh: () => stage('restored'),
+  refresh: () => stage(initialProof ? 'settled' : 'restored'),
   send: unavailable,
   openSession: unavailable,
   permission: unavailable,
@@ -60,7 +77,7 @@ const app: PairedApplication = {
   routineText: unavailable,
 };
 const controller = new PairedController(app);
-const initial = data.before;
+const initial = data[initialProof ? 'absent' : 'before'];
 if (!initial) throw new Error('Missing before stage.');
 controller.accept({ ...initial, generation: 1, revision: 0 });
 const root = document.getElementById('root');

@@ -1,0 +1,45 @@
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-8b206f03/desktop
+
+
+ Test Files  7 passed (7)
+      Tests  65 passed | 1 skipped (66)
+   Start at  16:33:38
+   Duration  4.10s (tests 67%, environment 24%, setup 4%, import 3%, transform 1%)
+
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 131 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-DUpNINSw.css   17.07 kB │ gzip:   4.16 kB
+dist/assets/index-BQ2bknxl.js   390.23 kB │ gzip: 115.88 kB
+
+✓ built in 71ms
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!
