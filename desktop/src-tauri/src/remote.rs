@@ -20,6 +20,13 @@ use uuid::Uuid;
 const MAX_JOURNAL_BYTES: usize = 1024 * 1024;
 const MAX_JOURNAL_RECORDS: usize = 128;
 
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProtectedWriteRecord {
+    manager: ManagerId,
+    status: CredentialWriteStatus,
+}
+
 #[derive(Clone, Serialize)]
 pub struct PairingCandidate {
     pub id: Uuid,
@@ -1100,20 +1107,25 @@ impl Actor {
                 .await
                 .map_err(error_code);
         }
-        if self.root.join("protected-status.json").exists() {
-            let bytes = botstral_link::tls::private_bytes(&self.root.join("protected-status.json"))
-                .map_err(|_| "storage")?;
-            let previous: CredentialWriteStatus =
-                serde_json::from_slice(&bytes).map_err(|_| "storage")?;
-            if matches!(previous, CredentialWriteStatus::Unresolved { .. }) {
-                return Err("reconcile_previous_entry".into());
+        let manager = self.protected_manager()?;
+        if let Some(previous) = self.protected_record()? {
+            if matches!(previous.status, CredentialWriteStatus::Unresolved { .. }) {
+                return Err(if previous.manager == manager {
+                    "reconcile_previous_entry"
+                } else {
+                    "receipt_manager_mismatch"
+                }
+                .into());
             }
         }
         let id = request.id;
         storage(
             &self.root,
             "protected-status.json",
-            &CredentialWriteStatus::Unresolved { request: id },
+            &ProtectedWriteRecord {
+                manager,
+                status: CredentialWriteStatus::Unresolved { request: id },
+            },
         )?;
         let status = match self
             .session
@@ -1128,18 +1140,47 @@ impl Actor {
                 return Ok(CredentialWriteStatus::Unresolved { request: id });
             }
         };
-        storage(&self.root, "protected-status.json", &status)?;
+        storage(
+            &self.root,
+            "protected-status.json",
+            &ProtectedWriteRecord {
+                manager,
+                status: status.clone(),
+            },
+        )?;
         Ok(status)
+    }
+    fn protected_manager(&self) -> Result<ManagerId, String> {
+        self.client
+            .as_ref()
+            .and_then(|client| client.trust())
+            .map(|trust| trust.manager)
+            .ok_or_else(|| "offline".into())
+    }
+    fn protected_record(&self) -> Result<Option<ProtectedWriteRecord>, String> {
+        let path = self.root.join("protected-status.json");
+        if !path.exists() {
+            return Ok(None);
+        }
+        let bytes = botstral_link::tls::private_bytes(&path).map_err(|_| "storage")?;
+        serde_json::from_slice(&bytes)
+            .map(Some)
+            .map_err(|_| "receipt_provenance_unknown".into())
     }
     async fn protected_status(&mut self) -> Result<Option<CredentialWriteStatus>, String> {
         self.recover().await?;
-        if !self.root.join("protected-status.json").exists() {
+        let manager = self.protected_manager()?;
+        let Some(record) = self.protected_record()? else {
             return Ok(None);
+        };
+        if record.manager != manager {
+            return if matches!(record.status, CredentialWriteStatus::Unresolved { .. }) {
+                Err("receipt_manager_mismatch".into())
+            } else {
+                Ok(None)
+            };
         }
-        let bytes = botstral_link::tls::private_bytes(&self.root.join("protected-status.json"))
-            .map_err(|_| "storage")?;
-        let status: CredentialWriteStatus =
-            serde_json::from_slice(&bytes).map_err(|_| "storage")?;
+        let status = record.status;
         let CredentialWriteStatus::Unresolved { request } = status else {
             return Ok(Some(status));
         };
@@ -1156,7 +1197,14 @@ impl Actor {
         else {
             return Err("protocol".into());
         };
-        storage(&self.root, "protected-status.json", &status)?;
+        storage(
+            &self.root,
+            "protected-status.json",
+            &ProtectedWriteRecord {
+                manager,
+                status: status.clone(),
+            },
+        )?;
         Ok(Some(status))
     }
     async fn execute(&mut self, command: IntentCommand) -> Result<(), String> {

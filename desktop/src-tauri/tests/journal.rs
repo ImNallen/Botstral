@@ -28,6 +28,12 @@ impl SecretStore for MemorySecrets {
 }
 async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::Value) {
     let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
+    paired_at(root, &fixture_root).await
+}
+async fn paired_at(
+    root: &Path,
+    fixture_root: &Path,
+) -> (RemoteService, Arc<MemorySecrets>, serde_json::Value) {
     let fixture: serde_json::Value =
         serde_json::from_slice(&std::fs::read(fixture_root.join("fixture.json")).unwrap()).unwrap();
     let store = Arc::new(MemorySecrets::default());
@@ -143,11 +149,7 @@ async fn p06_protected_entry_never_enters_native_journal() {
     };
     assert_eq!(service.login_items().await.unwrap(), vec![item.clone()]);
     service.shutdown().await;
-    std::fs::write(
-        root.join("protected-status.json"),
-        serde_json::to_vec(&CredentialWriteStatus::Unresolved { request }).unwrap(),
-    )
-    .unwrap();
+    simulate_lost_protected_reply(&root, request);
     let restarted = RemoteService::new(root.clone(), store);
     restarted.restore().await.unwrap();
     assert_eq!(restarted.protected_status().await.unwrap(), Some(status));
@@ -691,4 +693,81 @@ mod conversational_memory;
 #[ignore = "Requires desktop/fixtures/paired_manager.py --verify-memory."]
 async fn conversational_memory_and_obsolete_journal() {
     conversational_memory::verify().await;
+}
+
+fn simulate_lost_protected_reply(root: &Path, request: RequestId) {
+    let path = root.join("protected-status.json");
+    let mut record: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    record["status"] = serde_json::to_value(CredentialWriteStatus::Unresolved { request }).unwrap();
+    std::fs::write(path, serde_json::to_vec(&record).unwrap()).unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires two owned synthetic manager fixtures from p06-manager-switch.py."]
+async fn p06_native_receipt_manager_binding() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, _, _) = paired(&root).await;
+    let request = RequestId::new();
+    let make_request = |id| protected::ProtectedOwnerRequest {
+        id,
+        operation: protected::ProtectedOwnerOperation::Write {
+            target: CredentialWriteTarget::Create {
+                metadata: LoginMetadata {
+                    label: "Authority bound receipt".into(),
+                    bots: BotAccess::AllOwnerBots,
+                    allowed_origins: vec!["https://example.test".into()],
+                    password_policy: PasswordPolicy::EveryFill,
+                },
+            },
+            values: protected::LoginValues {
+                username: uuid::Uuid::new_v4().to_string(),
+                password: uuid::Uuid::new_v4().to_string(),
+                totp_seed: String::new(),
+            },
+        },
+    };
+    let stale = service
+        .protected(
+            service.inspect().generation + 1,
+            make_request(RequestId::new()),
+        )
+        .await;
+    assert!(matches!(stale, Err(ref e) if e == "stale"));
+    assert!(service.login_items().await.unwrap().is_empty());
+    let committed = service
+        .protected(service.inspect().generation, make_request(request))
+        .await
+        .unwrap();
+    assert!(matches!(committed, CredentialWriteStatus::Committed { .. }));
+    service.shutdown().await;
+    simulate_lost_protected_reply(&root, request);
+    let original = std::fs::read(root.join("protected-status.json")).unwrap();
+    service.sign_out().await.unwrap();
+    let other_root = PathBuf::from(std::env::var_os("BOTSTRAL_REVIEW_OTHER_MANAGER").unwrap());
+    let (other, _, _) = paired_at(&root, &other_root).await;
+    assert!(other.login_items().await.unwrap().is_empty());
+    assert!(
+        matches!(other.protected_status().await, Err(ref e) if e == "receipt_manager_mismatch")
+    );
+    assert_eq!(
+        std::fs::read(root.join("protected-status.json")).unwrap(),
+        original
+    );
+    let refused = other
+        .protected(other.inspect().generation, make_request(RequestId::new()))
+        .await;
+    assert!(matches!(refused, Err(ref e) if e == "receipt_manager_mismatch"));
+    assert_eq!(
+        std::fs::read(root.join("protected-status.json")).unwrap(),
+        original
+    );
+    other.sign_out().await.unwrap();
+    let (original_manager, _, _) = paired(&root).await;
+    assert_eq!(
+        original_manager.protected_status().await.unwrap(),
+        Some(committed)
+    );
+    original_manager.sign_out().await.unwrap();
 }
