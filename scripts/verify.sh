@@ -5,7 +5,7 @@ cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo build --workspace --locked
 python3 -m unittest discover -s manager/packaging -p 'test_*.py' -v
-python3 -m unittest discover -s manager/tests -p 'test_first_acceptance.py' -v
+python3 -m unittest discover -s manager/tests -p 'test_first_acceptance*.py' -v
 python3 agent/tests/m06_connector_contract.py
 cargo test --workspace --locked -- --nocapture
 

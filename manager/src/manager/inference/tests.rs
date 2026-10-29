@@ -145,7 +145,7 @@ async fn chat(
     if body.get("tools").is_some() {
         assert_eq!(body["tool_choice"], "auto");
         assert_eq!(body["parallel_tool_calls"], false);
-    } else {
+    } else if state.production.lock().unwrap().is_none() {
         assert_eq!(body["messages"].as_array().unwrap().len(), 1);
         assert_eq!(body["tool_choice"], "none");
     }

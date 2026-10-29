@@ -48,6 +48,8 @@ Three [tool regressions](evidence/first-acceptance/harness-regressions.log) veri
 
 The [independent product review](evidence/first-acceptance/issue39-review.md) approved the corrected execution lifecycle. The [evidence audit](evidence/first-acceptance/evidence-audit.md) required the restored accounting snapshots and appended trail corrections recorded here. The [harness review](evidence/first-acceptance/harness-final-review.md) reproduced the cleanup interruption and missing scan coverage. Those two findings are corrected and covered by the tool regressions. These reviews do not close helper routing.
 
+The [focused helper procedure](helper-acceptance.md) adds a recorded worker-lease probe and a separately capped live supplement. Its existence does not close the helper gate.
+
 ## Repeat the run
 
 Use disposable Linux guests with the existing SSH aliases, Rust 1.93.0, a systemd user manager, and the browser runtime described in `manager/tests/m06_integrated.py`. Use a private provider-key file supplied through the secret handoff. Do not put its contents in the command line.
