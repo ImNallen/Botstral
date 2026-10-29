@@ -248,6 +248,7 @@ impl State {
         {
             return Err(OperationError::NotFound);
         }
+        credentials::uses::invalidate_device(&tx, device)?;
         tx.commit()?;
         self.owner_connections.retain(|_, c| {
             if c.lease.device == device {

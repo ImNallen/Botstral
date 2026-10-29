@@ -5,6 +5,55 @@ use botstral_link::protected::{
     ProtectedBrowserRequest,
 };
 
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+enum FillAuthority {
+    Owner,
+    Device { device: DeviceId, epoch: i64 },
+}
+impl FillAuthority {
+    fn capture(authority: &OwnerAuthority) -> Self {
+        match authority {
+            OwnerAuthority::Local(_) => Self::Owner,
+            OwnerAuthority::Device(lease) => Self::Device {
+                device: lease.device,
+                epoch: lease.epoch,
+            },
+        }
+    }
+    fn valid(&self, db: &Connection) -> Result<bool, OperationError> {
+        match self {
+            Self::Owner => Ok(true),
+            Self::Device { device, epoch } => Ok(db.query_row(
+                "SELECT EXISTS(SELECT 1 FROM owner_devices WHERE id=?1 AND epoch=?2 AND revoked=0)",
+                params![device.to_string(), epoch],
+                |r| r.get(0),
+            )?),
+        }
+    }
+}
+fn load_authority(db: &Connection, id: &str) -> Result<Option<FillAuthority>, OperationError> {
+    db.query_row(
+        "SELECT source FROM credential_authorities WHERE use_id=?1",
+        [id],
+        |r| r.get::<_, String>(0),
+    )
+    .optional()?
+    .map(parse)
+    .transpose()
+}
+fn save_authority(
+    db: &Connection,
+    id: CredentialUseId,
+    source: &FillAuthority,
+) -> Result<(), OperationError> {
+    db.execute(
+        "INSERT INTO credential_authorities VALUES(?1,?2)",
+        params![id.to_string(), json(source)?],
+    )?;
+    Ok(())
+}
+
 pub(super) fn contract(destination: &LiveDestination) -> Result<String, OperationError> {
     json(&(
         &destination.top_origin,
@@ -31,15 +80,31 @@ pub(super) fn invalidate(
     db: &Connection,
     item: Option<CredentialId>,
 ) -> Result<(), OperationError> {
+    invalidate_matching(db, |review| Ok(item.is_none_or(|id| review.item.id == id)))
+}
+pub(in crate::manager::state) fn invalidate_device(
+    db: &Connection,
+    device: DeviceId,
+) -> Result<(), OperationError> {
+    invalidate_matching(db, |review| {
+        Ok(
+            matches!(load_authority(db, &review.id.to_string())?, Some(FillAuthority::Device { device: source, .. }) if source == device),
+        )
+    })
+}
+fn invalidate_matching(
+    db: &Connection,
+    matches: impl Fn(&CredentialUseReview) -> Result<bool, OperationError>,
+) -> Result<(), OperationError> {
     let reviews = db
         .prepare("SELECT view FROM credential_uses")?
         .query_map([], |r| r.get::<_, String>(0))?
         .map(|r| parse::<CredentialUseReview>(r?))
         .collect::<Result<Vec<_>, _>>()?;
-    for mut review in reviews
-        .into_iter()
-        .filter(|r| item.is_none_or(|id| r.item.id == id) && active(r.state))
-    {
+    for mut review in reviews {
+        if !active(review.state) || !matches(&review)? {
+            continue;
+        }
         if review.state == UseState::Released {
             review.state = UseState::Uncertain;
             let body: String = db.query_row(
@@ -115,6 +180,13 @@ impl State {
             journal: review.incarnation,
         })?;
         self.credential_identity()?;
+        if matches!(review.state, UseState::Authorized | UseState::Released) {
+            let source = load_authority(&self.connection, &review.id.to_string())?
+                .ok_or(OperationError::Unauthorized)?;
+            if !source.valid(&self.connection)? {
+                return Err(OperationError::Unauthorized);
+            }
+        }
         let item = self.load_login(review.item.id)?;
         if task.approval.binding.as_ref() != Some(&review.binding)
             || item != review.item
@@ -183,7 +255,9 @@ impl State {
         expected: CredentialUseReview,
         decision: UseDecision,
     ) -> Result<CredentialUseReview, OperationError> {
-        self.authorize_owner(&authority.into())?;
+        let authority = authority.into();
+        self.authorize_owner(&authority)?;
+        let source = FillAuthority::capture(&authority);
         let mut review = self.load_credential_use(expected.id)?;
         if review != expected || review.state != UseState::AwaitingApproval {
             return Err(OperationError::Conflict);
@@ -218,6 +292,7 @@ impl State {
             };
         }
         save(&tx, &review)?;
+        save_authority(&tx, review.id, &source)?;
         tx.commit()?;
         Ok(review)
     }
@@ -329,17 +404,33 @@ impl State {
             }
         }
         self.use_authority(&review)?;
-        if review.purpose == CredentialFields::Password
+        let source = if review.purpose == CredentialFields::Password
             && review.item.metadata.password_policy == PasswordPolicy::RememberedOrigins
             && review.destination.certain
-            && self
-                .rule(&review)?
-                .is_some_and(|(decision, _)| decision == "allow")
         {
+            match self.rule(&review)? {
+                Some((decision, cause)) if decision == "allow" => {
+                    load_authority(&self.connection, &cause)?
+                }
+                _ => None,
+            }
+        } else {
+            None
+        };
+        let source = match source {
+            Some(source) if source.valid(&self.connection)? => Some(source),
+            _ => None,
+        };
+        if source.is_some() {
             review.state = UseState::Authorized;
         }
         self.credential_capacity("credential_uses", MAX_CREDENTIAL_USES)?;
-        save(&self.connection, &review)?;
+        let tx = self.connection.transaction()?;
+        save(&tx, &review)?;
+        if let Some(source) = source {
+            save_authority(&tx, review.id, &source)?;
+        }
+        tx.commit()?;
         Ok(review)
     }
     fn release_credential(

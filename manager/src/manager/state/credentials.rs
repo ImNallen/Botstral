@@ -357,4 +357,4 @@ impl State {
 }
 
 mod totp;
-mod uses;
+pub(super) mod uses;

@@ -256,7 +256,15 @@ impl Live {
             },
         })
     }
-    fn allow_rule(&self) {
+    fn allow_rule(&mut self) {
+        let review = self.prepare(None);
+        self.state
+            .connection
+            .execute(
+                "INSERT INTO credential_authorities VALUES(?1,?2)",
+                params![review.id.to_string(), r#"{"kind":"owner"}"#],
+            )
+            .unwrap();
         self.state
             .connection
             .execute(
@@ -270,7 +278,7 @@ impl Live {
                         .bot
                         .to_string(),
                     uses::contract(&self.destination).unwrap(),
-                    CredentialUseId::new().to_string()
+                    review.id.to_string()
                 ],
             )
             .unwrap();
@@ -619,3 +627,5 @@ fn p06_metadata_edits_clear_rules_and_bot_inventory_never_includes_removed_items
 }
 
 mod browser;
+
+mod authority;

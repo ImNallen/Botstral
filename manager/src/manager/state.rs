@@ -78,7 +78,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 14 {
+    if version > 15 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -155,6 +155,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
         "INSERT OR IGNORE INTO manager_identity VALUES(1, ?1)",
         [Uuid::new_v4().to_string()],
     )?;
+    if version < 15 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0015.sql"))?;
+        tx.commit()?;
+    }
     Ok(())
 }
 
@@ -660,12 +665,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 15).unwrap();
+        db.pragma_update(None, "user_version", 16).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            15
+            16
         );
     }
 
