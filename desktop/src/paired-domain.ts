@@ -275,7 +275,7 @@ export const remoteIssues: Record<string, string> = {
     'Verify a tool-capable inference configuration for this bot in trusted manager administration.',
   configure_inference_locally:
     'Configure and verify inference for this bot through trusted manager administration.',
-  vault_locked: 'Unlock the manager vault through trusted local administration.',
+  vault_locked: 'Unlock the manager Vault through protected entry or trusted local administration.',
   permission_denied: 'Allow execution for this bot before reviewing an action.',
   stale_review: 'This review expired or the workspace changed. Review the current action again.',
   refused: 'The manager refused the request. Refresh and review its current state.',

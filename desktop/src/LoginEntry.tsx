@@ -41,9 +41,14 @@ export function LoginEntry({ bot }: { bot: string }) {
     }
   }
   async function enter(target: CredentialWriteTarget | null) {
-    const status = statusSchema.parse(await invoke<unknown>('open_login_entry', { target }));
-    if (target === null && status.type === 'closed_without_commit') setMessage('Vault unlocked.');
-    else receipt(status);
+    try {
+      const status = statusSchema.parse(await invoke<unknown>('open_login_entry', { target }));
+      if (target === null && status.type === 'closed_without_commit') setMessage('Vault unlocked.');
+      else receipt(status);
+    } catch (error) {
+      if (error !== 'cancelled') throw error;
+      setMessage('Protected entry cancelled. No values were sent.');
+    }
   }
   return (
     <div>

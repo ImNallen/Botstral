@@ -498,7 +498,7 @@ export function PairedWorkspace({
     snapshot?.status !== 'online'
       ? 'Reconnect and recover the workspace before sending.'
       : !workspace?.vault_unlocked
-        ? 'Unlock the manager vault in trusted local administration.'
+        ? 'Unlock the manager Vault through protected entry or trusted local administration.'
         : !config?.ready
           ? 'Configure and verify a tool-capable inference model for this bot in trusted manager administration.'
           : unknown

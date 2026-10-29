@@ -1183,10 +1183,11 @@ impl Actor {
                     .ok_or("offline")?
                     .call(OwnerOperation::CredentialUses)
                     .await
-                    .map_err(error_code)?
                 {
-                    OwnerReply::CredentialUses(reviews) => Ok(reviews),
-                    _ => Err("protocol".into()),
+                    Ok(OwnerReply::CredentialUses(reviews)) => Ok(reviews),
+                    Err(ClientError::Refused(OwnerError::Locked)) => Err("vault_locked".into()),
+                    Err(error) => return Err(error_code(error)),
+                    Ok(_) => Err("protocol".into()),
                 };
                 let _ = result.send(value);
                 Ok(())
@@ -1219,10 +1220,11 @@ impl Actor {
                     .ok_or("offline")?
                     .call(OwnerOperation::LoginItems)
                     .await
-                    .map_err(error_code)?
                 {
-                    OwnerReply::LoginItems(items) => Ok(items),
-                    _ => Err("protocol".into()),
+                    Ok(OwnerReply::LoginItems(items)) => Ok(items),
+                    Err(ClientError::Refused(OwnerError::Locked)) => Err("vault_locked".into()),
+                    Err(error) => return Err(error_code(error)),
+                    Ok(_) => Err("protocol".into()),
                 };
                 let _ = result.send(value);
                 Ok(())

@@ -71,6 +71,41 @@ async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::
 
 #[tokio::test]
 #[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_locked_reads_preserve_the_paired_unlock_path() {
+    let directory = tempfile::tempdir().unwrap();
+    let (service, _, _) = paired(&directory.path().join("owner")).await;
+    service.command(IntentCommand::LockVault).await.unwrap();
+    assert!(service.credential_uses().await.is_err());
+    assert_eq!(
+        service.inspect().status,
+        "online",
+        "A locked Vault must preserve the paired owner connection needed to unlock it."
+    );
+    assert!(service.login_items().await.is_err());
+    assert_eq!(service.inspect().status, "online");
+    let status = service
+        .protected(
+            service.inspect().generation,
+            protected::ProtectedOwnerRequest {
+                id: RequestId::new(),
+                operation: protected::ProtectedOwnerOperation::Unlock {
+                    passphrase: Zeroizing::new("synthetic M04 vault passphrase".into()),
+                },
+            },
+        )
+        .await
+        .unwrap();
+    assert!(matches!(
+        status,
+        CredentialWriteStatus::ClosedWithoutCommit { .. }
+    ));
+    assert!(service.login_items().await.is_ok());
+    assert_eq!(service.inspect().status, "online");
+    service.sign_out().await.unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
 async fn p06_protected_entry_never_enters_native_journal() {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("owner");
