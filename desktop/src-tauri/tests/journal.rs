@@ -555,3 +555,12 @@ async fn trimmed_run_history_does_not_strand_unknown_intents() {
 async fn p03_routine_controls_and_crash_journal_recovery() {
     p03::verify().await;
 }
+
+#[path = "journal/memory.rs"]
+mod memory;
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p01_memory_controls_and_crash_journal_recovery() {
+    memory::verify().await;
+}
