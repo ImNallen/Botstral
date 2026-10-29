@@ -60,7 +60,7 @@ async fn aggregate_admission_limits_keep_complete_snapshots_bounded() {
         let sources = (0..8)
             .map(|_| json!({"type":"external","reference":reference}))
             .collect::<Vec<_>>();
-        assert_eq!(f.owner("PUT", "/v1/documents", json!({"bot":bot,"kind":"memory","expected_revision":0,"sources":sources,"markdown":content})).await.0, 200);
+        assert_eq!(f.owner("PUT", "/v1/documents", json!({"bot":bot,"kind":"instructions","expected_revision":0,"sources":sources,"markdown":content})).await.0, 200);
     }
     for _ in 0..128 {
         assert_eq!(f.owner("POST", "/v1/tasks", json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,
@@ -99,7 +99,7 @@ async fn aggregate_admission_limits_keep_complete_snapshots_bounded() {
         .0,
         503
     );
-    assert_eq!(f.owner("PUT", "/v1/documents", json!({"bot":extra_bot,"kind":"memory","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"overflow"})).await.0, 409);
+    assert_eq!(f.owner("PUT", "/v1/documents", json!({"bot":extra_bot,"kind":"instructions","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"overflow"})).await.0, 409);
     let overflow = json!({"id":TaskId::new(),"session_id":session.id,"conversation_id":null,
         "settings":{"model":"unavailable","max_turns":1,"max_tokens":1,"deadline":4000000000i64,"max_cost_micros":1},"work":{"type":"unavailable"}});
     assert_eq!(f.owner("POST", "/v1/tasks", overflow).await.0, 503);

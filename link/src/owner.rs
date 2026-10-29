@@ -441,12 +441,14 @@ pub struct WorkspaceWorker {
 #[serde(deny_unknown_fields)]
 pub struct WorkspaceRun {
     pub summary: RunSummary,
-    pub request: SubmitRun,
+    pub request: Option<SubmitRun>,
     pub turns: Vec<WorkspaceRunTurn>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct WorkspaceRunTurn {
+    #[serde(default)]
+    pub manager_outcome: Option<ManagerOutcome>,
     pub id: RunTurnId,
     pub ordinal: u32,
     pub text: Option<String>,
@@ -471,7 +473,7 @@ impl WorkspaceRun {
         }
         let mut projected = Self {
             summary: view.summary,
-            request: view.request,
+            request: Some(view.request),
             turns: view
                 .turns
                 .into_iter()
@@ -485,10 +487,12 @@ impl WorkspaceRun {
                     );
                     let result = turn
                         .manager_result
-                        .map(|r| r.result)
+                        .as_ref()
+                        .map(|r| r.result.clone())
                         .or_else(|| turn.intent.as_ref().and_then(|i| i.result.clone()));
                     let (result, result_truncated) = text(result, preview);
                     WorkspaceRunTurn {
+                        manager_outcome: turn.manager_result.and_then(|r| r.outcome),
                         id: turn.id,
                         ordinal: turn.ordinal,
                         text: content,
@@ -503,12 +507,17 @@ impl WorkspaceRun {
             .turns
             .extend(view.archived_turns.into_iter().map(|turn| {
                 let (content, truncated) = text(turn.text, preview);
+                let result = match &turn.manager_outcome {
+                    Some(ManagerOutcome::Vault { outcome }) => outcome.notice().into(),
+                    _ => "Older execution details were compacted.".into(),
+                };
                 WorkspaceRunTurn {
+                    manager_outcome: turn.manager_outcome,
                     id: turn.id,
                     ordinal: turn.ordinal,
                     text: content,
                     task: None,
-                    result: Some("Older execution details were compacted.".into()),
+                    result: Some(result),
                     truncated,
                 }
             }));

@@ -159,7 +159,7 @@ async fn historical_approval_cannot_confirm_an_unknown_regrant() {
     service
         .command(IntentCommand::Send(SendInput {
             bot,
-            session: fixture["session"].as_str().unwrap().parse().unwrap(),
+            session: Some(fixture["session"].as_str().unwrap().parse().unwrap()),
             text: "Create a file".into(),
             account: ProcessAccount {
                 uid: 1000,
@@ -405,7 +405,7 @@ async fn admitted_journal_must_remain_readable_after_restart() {
         let result = service
             .command(IntentCommand::Send(SendInput {
                 bot,
-                session,
+                session: Some(session),
                 text: format!("a{}", "\u{1}".repeat(4095)),
                 account: ProcessAccount {
                     uid: 1000,
@@ -556,20 +556,11 @@ async fn p03_routine_controls_and_crash_journal_recovery() {
     p03::verify().await;
 }
 
-#[path = "journal/memory.rs"]
-mod memory;
+#[path = "journal/conversational_memory.rs"]
+mod conversational_memory;
 
 #[tokio::test]
-#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
-async fn p01_memory_controls_and_crash_journal_recovery() {
-    memory::verify().await;
-}
-
-#[path = "journal/initial_memory.rs"]
-mod initial_memory;
-
-#[tokio::test]
-#[ignore = "Requires desktop/fixtures/paired_manager.py --verify-initial-memory."]
-async fn p01_initial_memory_creation_and_restart() {
-    initial_memory::verify().await;
+#[ignore = "Requires desktop/fixtures/paired_manager.py --verify-memory."]
+async fn conversational_memory_and_obsolete_journal() {
+    conversational_memory::verify().await;
 }

@@ -25,7 +25,6 @@ struct Reply {
     gate: Option<Arc<Semaphore>>,
     interrupted: bool,
     chunked: bool,
-    memory_echo: bool,
 }
 impl Default for Reply {
     fn default() -> Self {
@@ -35,11 +34,11 @@ impl Default for Reply {
             gate: None,
             interrupted: false,
             chunked: false,
-            memory_echo: false,
         }
     }
 }
 struct FixtureState {
+    script: Mutex<std::collections::VecDeque<Reply>>,
     reply: Mutex<Reply>,
     model: Mutex<String>,
     chats: AtomicUsize,
@@ -60,6 +59,7 @@ impl Fixture {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let endpoint = format!("http://{}", listener.local_addr().unwrap());
         let state = Arc::new(FixtureState {
+            script: Mutex::new(std::collections::VecDeque::new()),
             reply: Mutex::new(Reply::default()),
             model: Mutex::new(MODEL.into()),
             chats: AtomicUsize::new(0),
@@ -152,7 +152,12 @@ async fn chat(
         assert_eq!(body["tool_choice"], "none");
     }
     let coding_path = state.coding_path.lock().unwrap().clone();
-    let mut reply = state.reply.lock().unwrap().clone();
+    let mut reply = state
+        .script
+        .lock()
+        .unwrap()
+        .pop_front()
+        .unwrap_or_else(|| state.reply.lock().unwrap().clone());
     if let Some(path) = coding_path {
         let edited = body["messages"]
             .as_array()
@@ -204,15 +209,6 @@ async fn chat(
                 "This is a durable recorded assistant response from the real manager. No paid inference was used."
             });
         }
-        reply.body = value.to_string();
-    }
-    if reply.memory_echo {
-        let content = body["messages"][0]["content"].as_str().unwrap();
-        let (_, serialized) = content.split_once('\n').unwrap();
-        let document: Document = serde_json::from_str(serialized).unwrap();
-        let mut value: Value = serde_json::from_str(COMPLETION).unwrap();
-        value["choices"][0]["message"]["content"] =
-            json!(format!("Observed saved preference: {}", document.markdown));
         reply.body = value.to_string();
     }
     if let Some(config) = state.production.lock().unwrap().as_ref() {

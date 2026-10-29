@@ -78,6 +78,28 @@ class RecoveryTests(unittest.TestCase):
                 self.create()
         self.assertFalse(self.backup.exists())
 
+    def test_schema_12_keeps_pending_publication_and_distinguishes_empty_from_legacy_snapshots(self):
+        self.db.executescript("CREATE TABLE runs(id TEXT PRIMARY KEY,owner TEXT,request TEXT,configuration TEXT,summary TEXT); CREATE TRIGGER immutable_run BEFORE UPDATE OF id ON runs BEGIN SELECT RAISE(ABORT, 'immutable run'); END;")
+        migrations = Path(__file__).resolve().parents[1] / 'migrations'
+        for version in (11, 12):
+            self.db.executescript((migrations / f'{version:04}.sql').read_text())
+        self.db.execute("INSERT INTO runs VALUES('new','owner','{}','{}','{}',NULL,'[]')")
+        self.db.execute("INSERT INTO runs VALUES('legacy','owner','{}','{}','{}','legacy frozen document',NULL)")
+        self.db.execute("INSERT INTO memory_publications VALUES('turn','new','attempt','call','entry',NULL,?,'receipt','pending')", (b'exact intended bytes',))
+        self.db.commit()
+        self.private()
+        self.create()
+        restored = self.root / 'restored'
+        r.restore('manager', self.backup, restored)
+        with sqlite3.connect(restored / 'manager.sqlite3') as db:
+            self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0], 12)
+            self.assertEqual(db.execute('SELECT memory_snapshot,memory_entries_snapshot FROM runs ORDER BY id').fetchall(), [('legacy frozen document', None), (None, '[]')])
+            self.assertEqual(db.execute('SELECT intended_bytes,state FROM memory_publications').fetchall(), [(b'exact intended bytes', 'pending')])
+            with self.assertRaisesRegex(sqlite3.IntegrityError, 'immutable run'):
+                db.execute("UPDATE runs SET memory_entries_snapshot='[]' WHERE id='legacy'")
+            with self.assertRaisesRegex(sqlite3.IntegrityError, 'immutable memory publication'):
+                db.execute("UPDATE memory_publications SET intended_bytes=x'00'")
+
     def test_available_ledger_bytes_are_required(self):
         identity = str(uuid.uuid4())
         content = b'durable deliverable'

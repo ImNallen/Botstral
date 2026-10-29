@@ -894,11 +894,11 @@ class Acceptance:
 
     def backup_restore(self):
         documents = self.call({'method': 'workspace'})['state']['documents']
-        memory = next((document for document in documents if document['bot'] == self.bot and document['kind'] == 'memory'), None)
-        if memory is None:
-            memory = self.owner('PUT', '/v1/documents', {'bot': self.bot, 'kind': 'memory', 'expected_revision': 0,
-                'sources': [{'type': 'message', 'id': self.history_messages[0]['id']}], 'markdown': 'First acceptance retained memory.'})
-        assert memory['markdown'] == 'First acceptance retained memory.'
+        instructions = next((document for document in documents if document['bot'] == self.bot and document['kind'] == 'instructions'), None)
+        if instructions is None:
+            instructions = self.owner('PUT', '/v1/documents', {'bot': self.bot, 'kind': 'instructions', 'expected_revision': 0,
+                'sources': [{'type': 'message', 'id': self.history_messages[0]['id']}], 'markdown': 'First acceptance retained instructions.'})
+        assert instructions['markdown'] == 'First acceptance retained instructions.'
         connection_before = self.owner('GET', '/v1/connectors/' + self.connection['id'])
         workspace_before = self.call({'method': 'workspace'})
         journal_before = self.worker.call('journal')
@@ -957,7 +957,7 @@ class Acceptance:
         after = self.call({'method': 'workspace'})
         for name in ('messages', 'documents'):
             assert after['state'][name] == workspace_before['state'][name]
-        assert any(document == memory for document in after['state']['documents'])
+        assert any(document == instructions for document in after['state']['documents'])
         artifact = self.manager.call('artifact', address=self.addresses['listen'], token=self.token,
             path='/v1/tasks/' + self.browser_task['id'] + '/artifacts/' + self.browser_artifact['id'])
         assert artifact['sha256'] == self.browser_artifact['content']['sha256']
@@ -965,8 +965,8 @@ class Acceptance:
         native = poll(lambda: self.native.call('inspect'), lambda value: value['workspace'] is not None and
             any(message['id'] == self.history_messages[0]['id'] for message in value['workspace']['state']['messages']),
             'native keychain restore after manager and Computer recovery', seconds=60)
-        self.check('offline_backup_restores_history_memory_credentials_artifacts_and_computer_state',
-            memory=memory, artifact=artifact, worker_journal=journal_before, guest_proof=proof_before,
+        self.check('offline_backup_restores_history_instructions_credentials_artifacts_and_computer_state',
+            instructions=instructions, artifact=artifact, worker_journal=journal_before, guest_proof=proof_before,
             native_cursor=native['workspace']['cursor'], retained_connection=connection_before,
             restored_credential_task=restored_task['id'], provider_verification=provider,
             selected_worker_roots=['agent', 'workspace', 'certs', 'tools', 'browser-runtime'], original_instance_retired=True)
@@ -1206,7 +1206,7 @@ def main():
                 ('native_desktop_snapshot_after_actual_event_retention_gap', acceptance.retention_recovery),
                 ('denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work', acceptance.approval_authority),
                 ('actual_eu_model_requests_and_preview_latest_configuration_blockers', acceptance.model_policy),
-                ('offline_backup_restores_history_memory_credentials_artifacts_and_computer_state', acceptance.backup_restore)]
+                ('offline_backup_restores_history_instructions_credentials_artifacts_and_computer_state', acceptance.backup_restore)]
             for name, operation in steps:
                 if name not in {check['name'] for check in acceptance.report['checks'] if check['verdict'] == 'VERIFIED'}:
                     operation()

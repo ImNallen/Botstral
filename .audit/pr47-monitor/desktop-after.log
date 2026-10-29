@@ -1,0 +1,12 @@
+
+> @botstral/desktop@0.1.0 test
+> vitest run src/conversational-memory.test.tsx
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  19:20:57
+   Duration  620ms (tests 48%, environment 37%, import 7%, setup 5%, transform 3%)

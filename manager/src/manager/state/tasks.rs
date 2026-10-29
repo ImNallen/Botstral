@@ -606,10 +606,7 @@ impl State {
         let runs = state
             .runs
             .iter()
-            .map(|r| {
-                self.run(lease, r.id)
-                    .map(|run| WorkspaceRun::project(run, true))
-            })
+            .map(|r| self.workspace_run(r.id))
             .collect::<Result<Vec<_>, _>>()?;
         let owner = self
             .connection
@@ -664,7 +661,7 @@ impl State {
             let mut tasks = Vec::new();
             for row in self
                 .connection
-                .prepare("SELECT view FROM tasks WHERE json_extract(view,'$.state') IN ('queued','running','awaiting_approval','cancelling','awaiting_attention') OR id IN (SELECT id FROM tasks WHERE json_extract(view,'$.state') IN ('completed','failed','cancelled') ORDER BY rowid DESC LIMIT ?1) OR id IN (SELECT task FROM run_children WHERE run IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','cancelling','awaiting_attention') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT ?2))) ORDER BY rowid")?
+                .prepare("SELECT view FROM tasks WHERE json_extract(view,'$.state') IN ('queued','running','awaiting_approval','cancelling','awaiting_attention') OR id IN (SELECT id FROM tasks WHERE json_extract(view,'$.state') IN ('completed','failed','cancelled') ORDER BY rowid DESC LIMIT ?1) OR id IN (SELECT task FROM run_children WHERE run IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','waiting_for_memory','cancelling','awaiting_attention') OR id IN (SELECT id FROM runs WHERE json_extract(summary,'$.phase.type') IN ('completed','cancelled','stopped') ORDER BY rowid DESC LIMIT ?2))) ORDER BY rowid")?
                 .query_map(params![MAX_TASK_HISTORY as i64, MAX_RUN_HISTORY as i64], |r| r.get::<_, String>(0))?
             {
                 tasks.push(parse(row?)?);
@@ -880,7 +877,7 @@ mod tests {
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |r| r.get(0))
                 .unwrap(),
-            11
+            12
         );
     }
 }

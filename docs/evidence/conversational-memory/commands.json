@@ -1,0 +1,108 @@
+[
+  {
+    "name": "memory",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--features",
+      "nonproduction-test-worker",
+      "--lib",
+      "memory_tests",
+      "--",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T17:44:49.226520+00:00",
+    "finished": "2026-10-29T17:45:15.537351+00:00",
+    "exit_code": 0,
+    "log": "logs/memory.log"
+  },
+  {
+    "name": "connector-secrets",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "conversational_memory_excludes_connector",
+      "--",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T17:45:15.537518+00:00",
+    "finished": "2026-10-29T17:45:17.569992+00:00",
+    "exit_code": 0,
+    "log": "logs/connector-secrets.log"
+  },
+  {
+    "name": "native-memory",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-memory"
+    ],
+    "started": "2026-10-29T17:45:17.570163+00:00",
+    "finished": "2026-10-29T17:45:31.477948+00:00",
+    "exit_code": 0,
+    "log": "logs/native-memory.log"
+  },
+  {
+    "name": "fixture-types",
+    "command": [
+      "npx",
+      "tsc",
+      "-p",
+      "desktop/fixtures/tsconfig.memory.json"
+    ],
+    "started": "2026-10-29T17:45:31.478138+00:00",
+    "finished": "2026-10-29T17:45:32.419459+00:00",
+    "exit_code": 0,
+    "log": "logs/fixture-types.log"
+  },
+  {
+    "name": "frontend-tests",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "started": "2026-10-29T17:45:32.419662+00:00",
+    "finished": "2026-10-29T17:45:34.237128+00:00",
+    "exit_code": 0,
+    "log": "logs/frontend-tests.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T17:45:34.237315+00:00",
+    "finished": "2026-10-29T17:51:33.725881+00:00",
+    "exit_code": 0,
+    "log": "logs/repository.log"
+  },
+  {
+    "name": "desktop",
+    "command": [
+      "./scripts/verify-desktop.sh"
+    ],
+    "started": "2026-10-29T17:51:33.726089+00:00",
+    "finished": "2026-10-29T17:54:34.451348+00:00",
+    "exit_code": 0,
+    "log": "logs/desktop.log"
+  },
+  {
+    "name": "component-video",
+    "command": [
+      "node",
+      "desktop/fixtures/conversational-memory.mjs",
+      "/private/tmp/botstral-conversational-proof/node_modules/playwright/index.mjs"
+    ],
+    "started": "2026-10-29T17:54:34.451552+00:00",
+    "finished": "2026-10-29T17:54:44.763472+00:00",
+    "exit_code": 0,
+    "log": "logs/component-video.log"
+  }
+]

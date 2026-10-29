@@ -42,6 +42,15 @@ pub struct RunExecutionPolicy {
     pub computer: Option<ComputerToolPolicy>,
     pub process: Option<ProcessToolPolicy>,
 }
+impl RunExecutionPolicy {
+    pub fn requires_session(&self) -> bool {
+        self.computer.is_some()
+            || self.process.is_some()
+            || self.vibe.is_some()
+            || self.connectors.is_some()
+            || self.vision.is_some()
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RunLimits {
@@ -60,7 +69,8 @@ pub struct SubmitRun {
     pub images: Vec<ImageReference>,
     pub id: RunId,
     pub bot: BotId,
-    pub session: ComputerSessionId,
+    #[serde(default)]
+    pub session: Option<ComputerSessionId>,
     pub configuration_revision: u64,
     pub prompt: String,
     pub execution_policy: RunExecutionPolicy,
@@ -92,6 +102,8 @@ pub enum ToolProposal {
     Vibe(VibeProposal),
     Connector(ConnectorProposal),
     RequestWakeup(RequestWakeup),
+    Memory(MemoryProposal),
+    RequestVaultEntry(RequestVaultEntry),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -138,6 +150,7 @@ pub enum RunStopReason {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum RunAttentionReason {
+    MemoryPublication,
     Provider,
     Worker,
     ResultInvalid,
@@ -149,6 +162,7 @@ pub enum RunAttentionReason {
 pub enum RunPhase {
     Ready,
     Calling { turn: RunTurnId },
+    WaitingForMemory { turn: RunTurnId },
     WaitingForTool { turn: RunTurnId, task: TaskId },
     Completed,
     Cancelling,
@@ -241,6 +255,8 @@ pub struct RunView {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ArchivedRunTurn {
+    #[serde(default)]
+    pub manager_outcome: Option<ManagerOutcome>,
     pub id: RunTurnId,
     pub ordinal: u32,
     pub attempt: RunAttemptId,

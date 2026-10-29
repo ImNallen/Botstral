@@ -233,6 +233,8 @@ pub struct RequestWakeup {
 pub struct ManagerToolResult {
     pub call: RunToolCall,
     pub result: String,
+    #[serde(default)]
+    pub outcome: Option<ManagerOutcome>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

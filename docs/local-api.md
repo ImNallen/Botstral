@@ -160,10 +160,12 @@ M03 adds these owner-authenticated methods. All mutations use strict JSON and th
 | `POST /v1/conversations` | `Conversation` with `id` and `bot`. | Idempotent conversation. |
 | `POST /v1/messages` | `ConversationMessage` with `id`, `conversation` and `text`. | Idempotent immutable message. Snapshots preserve append order, including after restart. A retry keeps the original position. |
 | `GET /v1/events/{cursor}/{limit}` | None. Limit is 1 through 64. | Retained events, or a snapshot with a replacement cursor. Zero requests a snapshot. Future cursors return `400`. |
-| `PUT /v1/documents` | `WriteDocument`. | Owner instructions or memory with validated source references and revision. |
-| `PUT /v1/generated-memory` | `WriteDocument` whose kind is `memory`. | Generated data. An instruction kind returns `400`. No Markdown text changes typed permission or approval policy. |
-| `POST /v1/documents/rebuild` | `{}`. | Documents rebuilt from authoritative Markdown sources. |
-| `POST /v1/documents/search/{bot}` | `{"query":"text"}`. | Bot-scoped exact text matches with source references. Sources reconcile before search. |
+| `PUT /v1/documents` | `WriteDocument` whose kind is `instructions`. | Owner instructions with validated source references and revision. Memory writes return `400`. |
+| `PUT /v1/generated-memory` | Legacy `WriteDocument`. | Returns `400`. Use conversational memory tools. |
+| `POST /v1/documents/rebuild` | `{}`. | Instruction documents rebuilt from authoritative Markdown sources. |
+| `POST /v1/documents/search/{bot}` | `{"query":"text"}`. | Bot-scoped exact instruction matches with source references. Sources reconcile before search. |
+
+[Conversational memory](conversational-memory.md) defines entry operations, scope, revision checks, and migration from legacy Memory documents. Markdown cannot change typed permission or approval policy.
 
 Task states are queued, running, awaiting approval, cancelling, completed, failed, cancelled and awaiting attention. Attention has no generic retry or acknowledgment-to-resume API. Unknown effects cannot become safe through an owner acknowledgment alone.
 

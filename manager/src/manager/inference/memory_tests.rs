@@ -1,85 +1,301 @@
 use super::*;
 
-async fn source(app: &App, bot: BotId, text: &str) -> ConversationMessage {
-    let conversation = Conversation {
-        id: ConversationId::new(),
-        bot,
+fn chat_request(app: &App) -> SubmitRun {
+    let mut input = request(app, ComputerSessionId::new());
+    input.session = None;
+    input.execution_policy = RunExecutionPolicy {
+        computer: None,
+        process: None,
+        vibe: None,
+        vision: None,
+        connectors: None,
     };
-    app.call("POST", "/v1/conversations", json!(conversation), 200)
-        .await;
-    let message = ConversationMessage {
-        id: MessageId::new(),
-        conversation: conversation.id,
-        text: text.into(),
-    };
-    app.call("POST", "/v1/messages", json!(message), 200).await;
-    message
+    input.prompt = "Manage the requested preference through memory.".into();
+    input
 }
-async fn document(
+fn tool_reply(name: &str, arguments: Value) -> Reply {
+    let mut body: Value = serde_json::from_str(COMPLETION).unwrap();
+    body["choices"][0]["finish_reason"] = json!("tool_calls");
+    body["choices"][0]["message"] = json!({"role":"assistant","content":null,"tool_calls":[{"id":"memory-http-call","type":"function","function":{"name":name,"arguments":arguments.to_string()}}]});
+    Reply {
+        body: body.to_string(),
+        ..Reply::default()
+    }
+}
+async fn operation(
     app: &App,
-    bot: BotId,
-    kind: DocumentKind,
-    revision: u64,
-    message: &ConversationMessage,
-) -> Document {
-    serde_json::from_value(
-        app.call(
-            "PUT",
-            "/v1/documents",
-            json!(WriteDocument {
-                bot,
-                kind,
-                expected_revision: revision,
-                sources: vec![SourceReference::Message { id: message.id }],
-                markdown: message.text.clone()
-            }),
-            200,
-        )
-        .await,
-    )
-    .unwrap()
+    fixture: &Fixture,
+    name: &str,
+    arguments: Value,
+    fail_followup: bool,
+) -> RunView {
+    *fixture.state.script.lock().unwrap() = [
+        tool_reply(name, arguments),
+        if fail_followup {
+            Reply {
+                status: StatusCode::SERVICE_UNAVAILABLE,
+                body: ERROR.into(),
+                ..Reply::default()
+            }
+        } else {
+            Reply::default()
+        },
+    ]
+    .into();
+    let input = chat_request(app);
+    app.call("POST", "/v1/runs", json!(input), 200).await;
+    phase(app, input.id, RunPhase::terminal).await
+}
+fn outcome(run: &RunView) -> &MemoryOutcome {
+    let Some(ManagerOutcome::Memory { outcome }) =
+        &run.turns[0].manager_result.as_ref().unwrap().outcome
+    else {
+        panic!("committed memory outcome")
+    };
+    outcome
+}
+fn created(run: &RunView) -> MemoryEntry {
+    let MemoryOutcome::Created { entry } = outcome(run) else {
+        panic!("created entry")
+    };
+    assert_eq!(
+        entry.source,
+        MemorySource::Run {
+            bot: run.request.bot,
+            run: run.request.id,
+            turn: run.turns[0].id
+        }
+    );
+    entry.clone()
 }
 
 #[tokio::test]
-async fn p01_corrected_memory_reaches_new_conversation_run_after_restart_over_http() {
+async fn conversational_memory_real_provider_crud_both_scopes_restart_and_failed_followup() {
     let root = tempfile::tempdir().unwrap();
     let local = private_local(&root);
     let fixture = Fixture::start().await;
-    let app = App::start(local.directory().into(), &fixture).await;
+    let mut app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
     let bot = app.bot;
-    let a = source(&app, bot, "Preference A: sign off with amber.").await;
-    document(&app, bot, DocumentKind::Memory, 0, &a).await;
-    let b = source(&app, bot, "Preference B: sign off with birch.").await;
-    let corrected = document(&app, bot, DocumentKind::Memory, 1, &b).await;
-    let instructions = source(&app, bot, "EXCLUDED_INSTRUCTIONS_MARKER").await;
-    document(&app, bot, DocumentKind::Instructions, 0, &instructions).await;
+    let mut evidence = Vec::new();
+    let mut survivors = Vec::new();
+    for scope in [
+        MemoryScopeSelection::Individual,
+        MemoryScopeSelection::Shared,
+    ] {
+        let first_run = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::Create {
+                scope,
+                markdown: "Use concise answers.".into()
+            }),
+            false,
+        )
+        .await;
+        let first = created(&first_run);
+        assert_eq!(first.scope, scope.resolve(bot));
+        evidence.push(first_run);
+        let second_run = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::Create {
+                scope,
+                markdown: "Keep morning meetings.".into()
+            }),
+            false,
+        )
+        .await;
+        let second = created(&second_run);
+        survivors.push(second.clone());
+        evidence.push(second_run);
+        let update = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::Update {
+                scope,
+                id: first.id,
+                expected_revision: 1,
+                markdown: "Use short, complete sentences.".into()
+            }),
+            true,
+        )
+        .await;
+        assert!(matches!(
+            update.summary.phase,
+            RunPhase::AwaitingAttention { .. }
+        ));
+        let MemoryOutcome::Updated { entry } = outcome(&update) else {
+            panic!()
+        };
+        assert_eq!(entry.revision, 2);
+        assert_eq!(entry.markdown, "Use short, complete sentences.");
+        assert_eq!(
+            WorkspaceRun::project(update.clone(), true).turns[0].manager_outcome,
+            update.turns[0].manager_result.as_ref().unwrap().outcome
+        );
+        evidence.push(update);
+        let list = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::List { scope }),
+            true,
+        )
+        .await;
+        let MemoryOutcome::Listed { entries, .. } = outcome(&list) else {
+            panic!()
+        };
+        assert_eq!(entries.len(), 2);
+        assert!(entries.contains(&second));
+        evidence.push(list);
+        let conflict = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::Delete {
+                scope,
+                id: first.id,
+                expected_revision: 1
+            }),
+            false,
+        )
+        .await;
+        assert_eq!(
+            outcome(&conflict),
+            &MemoryOutcome::Refused {
+                reason: MemoryRefusal::RevisionConflict
+            }
+        );
+        evidence.push(conflict);
+        let deleted = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::Delete {
+                scope,
+                id: first.id,
+                expected_revision: 2
+            }),
+            false,
+        )
+        .await;
+        assert_eq!(
+            outcome(&deleted),
+            &MemoryOutcome::Deleted {
+                id: first.id,
+                scope: scope.resolve(bot),
+                revision: 3
+            }
+        );
+        evidence.push(deleted);
+    }
+    for purpose in [VaultPurpose::ProviderKey, VaultPurpose::ReusableLogin] {
+        let handoff = operation(
+            &app,
+            &fixture,
+            "request_vault_entry",
+            json!(RequestVaultEntry { purpose }),
+            false,
+        )
+        .await;
+        assert!(matches!(
+            handoff.turns[0].manager_result.as_ref().unwrap().outcome,
+            Some(ManagerOutcome::Vault { .. })
+        ));
+        evidence.push(handoff);
+    }
+    let captured = fixture.state.requests.lock().unwrap().clone();
+    for body in &captured {
+        let tools = body["tools"].as_array().unwrap();
+        assert_eq!(tools.len(), 2);
+        assert_eq!(tools[0]["function"]["name"], "memory");
+        assert_eq!(tools[1]["function"]["name"], "request_vault_entry");
+        assert_eq!(body["messages"][0]["role"], "system");
+    }
+    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT count(*) FROM tasks", [], |r| r.get(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT count(*) FROM workers", [], |r| r.get(0))
+            .unwrap(),
+        0
+    );
+    assert_eq!(
+        db.query_row::<i64, _, _>(
+            "SELECT count(*) FROM memory_publications WHERE state='applied'",
+            [],
+            |r| r.get(0)
+        )
+        .unwrap(),
+        8
+    );
+    assert_eq!(
+        db.query_row::<i64, _, _>(
+            "SELECT count(*) FROM runs WHERE memory_entries_snapshot IS NULL",
+            [],
+            |r| r.get(0)
+        )
+        .unwrap(),
+        0
+    );
+    drop(db);
     let other_bot = BotId::new();
+    app.bot = other_bot;
     app.call(
         "PUT",
         &format!("/v1/bots/{other_bot}"),
-        json!({"name":"Other bot"}),
+        json!({"name":"Second bot"}),
         200,
     )
     .await;
-    let other = source(&app, other_bot, "EXCLUDED_OTHER_BOT_MARKER").await;
-    document(&app, other_bot, DocumentKind::Memory, 0, &other).await;
-    app.call(
-        "PUT",
-        "/v1/documents",
-        json!(WriteDocument {
-            bot,
-            kind: DocumentKind::Memory,
-            expected_revision: 2,
-            sources: vec![SourceReference::Message { id: other.id }],
-            markdown: "Cross-bot source must fail.".into()
+    app.configure(0).await;
+    app.verify(1, 200).await;
+    let other_shared = operation(
+        &app,
+        &fixture,
+        "memory",
+        json!(MemoryProposal::List {
+            scope: MemoryScopeSelection::Shared
         }),
-        400,
+        false,
     )
     .await;
-    assert_eq!(fixture.chats(), 0);
+    assert_eq!(
+        outcome(&other_shared),
+        &MemoryOutcome::Listed {
+            scope: MemoryScope::Shared,
+            entries: vec![survivors[1].clone()]
+        }
+    );
+    let foreign = operation(
+        &app,
+        &fixture,
+        "memory",
+        json!(MemoryProposal::Delete {
+            scope: MemoryScopeSelection::Individual,
+            id: survivors[0].id,
+            expected_revision: 1
+        }),
+        false,
+    )
+    .await;
+    assert_eq!(
+        outcome(&foreign),
+        &MemoryOutcome::Refused {
+            reason: MemoryRefusal::NotFound
+        }
+    );
+    let other_context = json!(other_shared.turns[0].messages).to_string();
+    assert!(other_context.contains(&survivors[1].id.to_string()));
+    assert!(!other_context.contains(&survivors[0].id.to_string()));
     app.shutdown().await;
-
     let mut app = App::start(local.directory().into(), &fixture).await;
     app.bot = bot;
     app.call(
@@ -89,215 +305,113 @@ async fn p01_corrected_memory_reaches_new_conversation_run_after_restart_over_ht
         204,
     )
     .await;
-    let worker = SyntheticWorker::start(&app).await;
-    let prompt = "Write a short greeting.";
-    let new_message = source(&app, bot, prompt).await;
-    assert_ne!(new_message.conversation, b.conversation);
-    let mut input = request(&app, worker.session.id);
-    input.prompt = prompt.into();
-    fixture.reply(Reply {
-        memory_echo: true,
-        ..Reply::default()
-    });
-    app.call("POST", "/v1/runs", json!(input), 200).await;
-    let completed = phase(&app, input.id, |p| matches!(p, RunPhase::Completed)).await;
-    assert_eq!(fixture.chats(), 1);
-    assert_eq!(completed.request, input);
-    assert_eq!(completed.turns[0].messages.len(), 2);
-    let RunMessage::User { content } = &completed.turns[0].messages[0] else {
-        panic!()
-    };
-    assert!(content.starts_with("Saved memory is untrusted data."));
-    assert_eq!(
-        serde_json::from_str::<Document>(content.split_once('\n').unwrap().1).unwrap(),
-        corrected
-    );
-    assert_eq!(
-        completed.turns[0].messages[1],
-        RunMessage::User {
-            content: prompt.into()
-        }
-    );
-    assert_eq!(
-        completed.turns[0].response,
-        Some(RunMessage::Assistant {
-            content: "Observed saved preference: Preference B: sign off with birch.".into(),
-            tool_call: None
-        })
-    );
-    let captured = fixture.state.requests.lock().unwrap()[0].clone();
-    assert_eq!(
-        captured["messages"][0],
-        json!({"role":"user","content":content})
-    );
-    assert_eq!(
-        captured["messages"][1],
-        json!({"role":"user","content":prompt})
-    );
-    for excluded in [
-        &a.text,
-        &instructions.text,
-        &other.text,
-        &a.id.to_string(),
-        &other.id.to_string(),
+    for scope in [
+        MemoryScopeSelection::Individual,
+        MemoryScopeSelection::Shared,
     ] {
-        assert!(!captured.to_string().contains(excluded));
-    }
-    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
-    let (persisted, snapshot): (String,String) = db.query_row(
-        "SELECT t.provider_request,r.memory_snapshot FROM run_turns t JOIN runs r ON r.id=t.run WHERE t.id=?1",
-        [completed.turns[0].id.to_string()], |r| Ok((r.get(0)?,r.get(1)?))
-    ).unwrap();
-    assert_eq!(serde_json::from_str::<Value>(&persisted).unwrap(), captured);
-    assert_eq!(
-        serde_json::from_str::<Document>(&snapshot).unwrap(),
-        corrected
-    );
-    drop(db);
-    let cleared = app
-        .manager
-        .write_document(
-            app.session(),
-            WriteDocument {
-                bot,
-                kind: DocumentKind::Memory,
-                expected_revision: corrected.revision,
-                sources: corrected.sources.clone(),
-                markdown: String::new(),
-            },
+        let listed = operation(
+            &app,
+            &fixture,
+            "memory",
+            json!(MemoryProposal::List { scope }),
+            false,
         )
-        .await
-        .unwrap();
-    assert_eq!(cleared.sources, corrected.sources);
-    let mut after_clear = request(&app, worker.session.id);
-    after_clear.prompt = "A new run after clearing Memory.".into();
-    fixture.reply(Reply::default());
-    app.call("POST", "/v1/runs", json!(after_clear), 200).await;
-    let clear_run = phase(&app, after_clear.id, |p| matches!(p, RunPhase::Completed)).await;
-    assert_eq!(fixture.chats(), 2);
-    assert_eq!(
-        clear_run.turns[0].messages,
-        vec![RunMessage::User {
-            content: after_clear.prompt.clone()
-        }]
-    );
-    let clear_request = fixture.state.requests.lock().unwrap()[1].clone();
-    assert_eq!(
-        clear_request["messages"],
-        json!([{"role":"user","content":after_clear.prompt}])
-    );
-    let old: RunView = serde_json::from_value(
-        app.call("GET", &format!("/v1/runs/{}", input.id), Value::Null, 200)
-            .await,
-    )
-    .unwrap();
-    assert_eq!(old, completed);
-    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
-    let snapshots: Vec<(String, Option<String>)> = db
-        .prepare("SELECT id,memory_snapshot FROM runs ORDER BY id")
-        .unwrap()
-        .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))
-        .unwrap()
-        .map(Result::unwrap)
-        .collect();
-    for (id, snapshot) in snapshots {
-        let document: Document = serde_json::from_str(&snapshot.unwrap()).unwrap();
+        .await;
+        let MemoryOutcome::Listed { entries, .. } = outcome(&listed) else {
+            panic!()
+        };
+        assert_eq!(entries.len(), 1);
+        assert!(survivors.contains(&entries[0]));
+    }
+    for run in &evidence {
+        let recovered = view(&app, run.request.id).await;
         assert_eq!(
-            document,
-            if id == input.id.to_string() {
-                corrected.clone()
-            } else {
-                cleared.clone()
-            }
+            recovered.turns[0].manager_result,
+            run.turns[0].manager_result
         );
     }
-    drop(db);
-    drop(worker);
-    app.shutdown().await;
-    let mut app = App::start(local.directory().into(), &fixture).await;
-    app.bot = bot;
-    let EventReplay::Snapshot { state, .. } =
-        app.manager.resume(app.session(), 0, 64).await.unwrap()
-    else {
-        panic!("expected current workspace snapshot")
-    };
-    assert!(state.documents.contains(&cleared));
-    let original: RunView = serde_json::from_value(
-        app.call("GET", &format!("/v1/runs/{}", input.id), Value::Null, 200)
-            .await,
-    )
-    .unwrap();
-    let persisted_clear: RunView = serde_json::from_value(
-        app.call(
-            "GET",
-            &format!("/v1/runs/{}", after_clear.id),
-            Value::Null,
-            200,
-        )
-        .await,
-    )
-    .unwrap();
-    assert_eq!(original, completed);
-    assert_eq!(persisted_clear, clear_run);
+    if let Ok(path) = std::env::var("BOTSTRAL_MEMORY_EVIDENCE") {
+        std::fs::create_dir_all(&path).unwrap();
+        std::fs::write(std::path::Path::new(&path).join("manager-conversations.json"), serde_json::to_vec_pretty(&json!({"bot":bot,"runs":evidence.iter().cloned().map(|r|WorkspaceRun::project(r,false)).collect::<Vec<_>>(),"requests":captured})).unwrap()).unwrap();
+    }
     app.shutdown().await;
 }
 
 #[tokio::test]
-async fn p01_memory_secret_and_complete_context_limits_refuse_before_provider_attempt() {
+async fn conversational_memory_malformed_foreign_source_duplicate_secret_and_disabled_worker_calls_are_not_published()
+ {
     let root = tempfile::tempdir().unwrap();
     let local = private_local(&root);
     let fixture = Fixture::start().await;
     let app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
-    let worker = SyntheticWorker::start(&app).await;
-    let mut input = request(&app, worker.session.id);
-    for (revision, markdown, sources) in [
+    for (name, arguments) in [
         (
-            0,
-            KEY.to_owned(),
-            vec![SourceReference::External {
-                reference: "https://example.com/source".into(),
-            }],
+            "memory",
+            json!({"action":"create","scope":"individual","markdown":"x","bot":BotId::new()}),
         ),
         (
-            1,
-            "Benign body with a reflected source credential.".into(),
-            vec![SourceReference::External {
-                reference: format!("https://example.com/{KEY}"),
-            }],
+            "memory",
+            json!({"action":"create","scope":"individual","markdown":"x","source":{"type":"run","run":RunId::new()}}),
         ),
         (
-            2,
-            "\0".repeat(4096),
-            (0..8)
-                .map(|i| SourceReference::External {
-                    reference: format!("https://example.com/{i}{}", "x".repeat(490)),
-                })
-                .collect(),
+            "request_vault_entry",
+            json!({"purpose":"provider_key","value":"unknown-secret"}),
         ),
+        (
+            "memory",
+            json!({"action":"create","scope":"shared","markdown":KEY}),
+        ),
+        (
+            "memory",
+            json!({"action":"create","scope":"shared","markdown":serde_json::to_string(KEY).unwrap()}),
+        ),
+        (
+            "process",
+            json!({"executable":"/bin/true","args":[],"cwd":"/"}),
+        ),
+        ("computer", json!({"operations":[],"outputs":[]})),
     ] {
-        app.manager
-            .write_document(
-                app.session(),
-                WriteDocument {
-                    bot: app.bot,
-                    kind: DocumentKind::Memory,
-                    expected_revision: revision,
-                    sources,
-                    markdown,
-                },
-            )
-            .await
-            .unwrap();
-        input.id = RunId::new();
-        if revision == 2 {
-            input.prompt = "\"".repeat(4096);
-        }
-        app.call("POST", "/v1/runs", json!(input), 400).await;
-        app.call("GET", &format!("/v1/runs/{}", input.id), Value::Null, 404)
-            .await;
-        assert_eq!(fixture.chats(), 0);
+        fixture.state.script.lock().unwrap().clear();
+        fixture.reply(tool_reply(name, arguments));
+        let input = chat_request(&app);
+        app.call("POST", "/v1/runs", json!(input), 200).await;
+        let run = phase(&app, input.id, RunPhase::terminal).await;
+        assert!(run.turns[0].manager_result.is_none());
+        assert!(run.turns[0].intent.is_none());
     }
-    drop(worker);
+    let mut reply = tool_reply(
+        "memory",
+        json!(MemoryProposal::Create {
+            scope: MemoryScopeSelection::Shared,
+            markdown: "Do not save duplicated calls.".into()
+        }),
+    );
+    let mut body: Value = serde_json::from_str(&reply.body).unwrap();
+    let call = body["choices"][0]["message"]["tool_calls"][0].clone();
+    body["choices"][0]["message"]["tool_calls"]
+        .as_array_mut()
+        .unwrap()
+        .push(call);
+    reply.body = body.to_string();
+    fixture.reply(reply);
+    let input = chat_request(&app);
+    app.call("POST", "/v1/runs", json!(input), 200).await;
+    phase(&app, input.id, RunPhase::terminal).await;
+    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
+    assert_eq!(
+        db.query_row::<i64, _, _>("SELECT count(*) FROM memory_publications", [], |r| r.get(0))
+            .unwrap(),
+        0
+    );
+    for body in db
+        .prepare("SELECT view FROM run_turns")
+        .unwrap()
+        .query_map([], |r| r.get::<_, String>(0))
+        .unwrap()
+    {
+        assert!(!body.unwrap().contains(KEY));
+    }
+    drop(db);
     app.shutdown().await;
 }

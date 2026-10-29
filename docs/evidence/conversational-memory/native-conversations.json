@@ -1,0 +1,2314 @@
+{
+  "before": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 17,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 14,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "created": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 25,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 21,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "deleted": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 53,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 47,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+          "phase": "awaiting_attention",
+          "prompt": "List our shared memories.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
+              "manager_outcome": {
+                "outcome": {
+                  "entries": [
+                    {
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                      "markdown": "Keep morning meetings.",
+                      "revision": 1,
+                      "scope": {
+                        "type": "shared"
+                      },
+                      "source": {
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                        "type": "run"
+                      }
+                    }
+                  ],
+                  "scope": {
+                    "type": "shared"
+                  },
+                  "type": "listed"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+          "phase": "completed",
+          "prompt": "Forget my individual response preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
+              "manager_outcome": {
+                "outcome": {
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                  "revision": 3,
+                  "scope": {
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                    "type": "individual"
+                  },
+                  "type": "deleted"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "listed": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 46,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 40,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+          "phase": "awaiting_attention",
+          "prompt": "List our shared memories.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
+              "manager_outcome": {
+                "outcome": {
+                  "entries": [
+                    {
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                      "markdown": "Keep morning meetings.",
+                      "revision": 1,
+                      "scope": {
+                        "type": "shared"
+                      },
+                      "source": {
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                        "type": "run"
+                      }
+                    }
+                  ],
+                  "scope": {
+                    "type": "shared"
+                  },
+                  "type": "listed"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "restored": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "7fc62db7-0a78-4a42-b146-526b200c58d2",
+        "identity": "281be8f9-843e-48db-9acf-248ee40f993e",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 66,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 55,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+          "phase": "awaiting_attention",
+          "prompt": "List our shared memories.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
+              "manager_outcome": {
+                "outcome": {
+                  "entries": [
+                    {
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                      "markdown": "Keep morning meetings.",
+                      "revision": 1,
+                      "scope": {
+                        "type": "shared"
+                      },
+                      "source": {
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                        "type": "run"
+                      }
+                    }
+                  ],
+                  "scope": {
+                    "type": "shared"
+                  },
+                  "type": "listed"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+          "phase": "completed",
+          "prompt": "Forget my individual response preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
+              "manager_outcome": {
+                "outcome": {
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                  "revision": 3,
+                  "scope": {
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                    "type": "individual"
+                  },
+                  "type": "deleted"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
+          "phase": "completed",
+          "prompt": "Can you save a reusable login for me?",
+          "reason": null,
+          "turns": [
+            {
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
+              "manager_outcome": {
+                "outcome": {
+                  "type": "reusable_login_unsupported"
+                },
+                "type": "vault"
+              },
+              "ordinal": 1,
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 3,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "shared": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 32,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 28,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "stale": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Legacy memory edit remains uncertain. This obsolete write will not be replayed",
+        "id": "667a15a5-48ba-4697-a614-46e77b21942f",
+        "identity": "667a15a5-48ba-4697-a614-46e77b21942f",
+        "status": "attention"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 5,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 55,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+          "phase": "awaiting_attention",
+          "prompt": "List our shared memories.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
+              "manager_outcome": {
+                "outcome": {
+                  "entries": [
+                    {
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                      "markdown": "Keep morning meetings.",
+                      "revision": 1,
+                      "scope": {
+                        "type": "shared"
+                      },
+                      "source": {
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                        "type": "run"
+                      }
+                    }
+                  ],
+                  "scope": {
+                    "type": "shared"
+                  },
+                  "type": "listed"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+          "phase": "completed",
+          "prompt": "Forget my individual response preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
+              "manager_outcome": {
+                "outcome": {
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                  "revision": 3,
+                  "scope": {
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                    "type": "individual"
+                  },
+                  "type": "deleted"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
+          "phase": "completed",
+          "prompt": "Can you save a reusable login for me?",
+          "reason": null,
+          "turns": [
+            {
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
+              "manager_outcome": {
+                "outcome": {
+                  "type": "reusable_login_unsupported"
+                },
+                "type": "vault"
+              },
+              "ordinal": 1,
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 3,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "updated": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 39,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 35,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "vault": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [
+      {
+        "description": "Run submission",
+        "id": "3d6a8297-f95b-4a63-ad8f-19f6b4bd4404",
+        "identity": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "f48b95a2-b8ef-4e52-965d-92930bd0ece4",
+        "identity": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "a60799ea-d5c8-4f89-b953-06b65862a699",
+        "identity": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "78ceea6a-eb1b-4f03-b9a3-b1b0329f253f",
+        "identity": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "d05fdeb3-b2ce-4e60-bbe8-bf7435164208",
+        "identity": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+        "status": "confirmed"
+      },
+      {
+        "description": "Run submission",
+        "id": "7fc62db7-0a78-4a42-b146-526b200c58d2",
+        "identity": "281be8f9-843e-48db-9acf-248ee40f993e",
+        "status": "confirmed"
+      }
+    ],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 60,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793296372,
+          "id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 52,
+      "inbox": [],
+      "manager": "368537e0-55b2-4cce-ab43-03309d39c483",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+          "phase": "completed",
+          "prompt": "Remember that I prefer concise answers for this bot.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use concise answers.",
+                    "revision": 1,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "4b6c3108-ef95-4ea8-b6cd-7e629643daf7",
+                      "turn": "f9b14a5e-4c0d-4856-9032-13e63df1452c",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":1,\"markdown\":\"Use concise answers.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"4b6c3108-ef95-4ea8-b6cd-7e629643daf7\",\"turn\":\"f9b14a5e-4c0d-4856-9032-13e63df1452c\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d093fd2c-c0f4-457e-a730-eae41da5e592",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+          "phase": "completed",
+          "prompt": "Remember morning meetings for all bots.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                    "markdown": "Keep morning meetings.",
+                    "revision": 1,
+                    "scope": {
+                      "type": "shared"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                      "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                      "type": "run"
+                    }
+                  },
+                  "type": "created"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"created\",\"entry\":{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "05c4385e-0b40-4d5d-b74d-3965a97fedde",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296376,
+          "id": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+          "phase": "awaiting_attention",
+          "prompt": "Update my individual preference to short, complete sentences.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+              "manager_outcome": {
+                "outcome": {
+                  "entry": {
+                    "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                    "markdown": "Use short, complete sentences.",
+                    "revision": 2,
+                    "scope": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "type": "individual"
+                    },
+                    "source": {
+                      "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                      "run": "11c38362-f190-4f6a-8e63-0c413c7c0b84",
+                      "turn": "f95c53aa-e37f-4e7f-98db-482684ef4496",
+                      "type": "run"
+                    }
+                  },
+                  "type": "updated"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"updated\",\"entry\":{\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":2,\"markdown\":\"Use short, complete sentences.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"11c38362-f190-4f6a-8e63-0c413c7c0b84\",\"turn\":\"f95c53aa-e37f-4e7f-98db-482684ef4496\"}}}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "af2989cb-dc85-4035-8964-f3b99c6918d6",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "d4c7a33a-9a4c-4273-a559-d5a3889c155a",
+          "phase": "awaiting_attention",
+          "prompt": "List our shared memories.",
+          "reason": "Provider",
+          "turns": [
+            {
+              "id": "70e66669-c1b0-4231-9590-38a83c3a41a9",
+              "manager_outcome": {
+                "outcome": {
+                  "entries": [
+                    {
+                      "id": "f44fa172-41b3-484d-8999-2bd23a971ed1",
+                      "markdown": "Keep morning meetings.",
+                      "revision": 1,
+                      "scope": {
+                        "type": "shared"
+                      },
+                      "source": {
+                        "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                        "run": "ba5e845c-92ce-4ae4-950d-2b39e4d0c691",
+                        "turn": "6b7e9074-34c4-4c29-bf5c-295e58518da1",
+                        "type": "run"
+                      }
+                    }
+                  ],
+                  "scope": {
+                    "type": "shared"
+                  },
+                  "type": "listed"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"listed\",\"scope\":{\"type\":\"shared\"},\"entries\":[{\"id\":\"f44fa172-41b3-484d-8999-2bd23a971ed1\",\"scope\":{\"type\":\"shared\"},\"revision\":1,\"markdown\":\"Keep morning meetings.\",\"source\":{\"type\":\"run\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\",\"run\":\"ba5e845c-92ce-4ae4-950d-2b39e4d0c691\",\"turn\":\"6b7e9074-34c4-4c29-bf5c-295e58518da1\"}}]}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "d1c35c92-bec4-4a61-a835-e4a6632eb720",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": null,
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "83c36599-8b2a-4974-8bfa-c2c9da581408",
+          "phase": "completed",
+          "prompt": "Forget my individual response preference.",
+          "reason": null,
+          "turns": [
+            {
+              "id": "651516cf-1235-45a3-931b-449436fd09d7",
+              "manager_outcome": {
+                "outcome": {
+                  "id": "4a35e7f1-2c9e-457c-990b-cf0b0235dd72",
+                  "revision": 3,
+                  "scope": {
+                    "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+                    "type": "individual"
+                  },
+                  "type": "deleted"
+                },
+                "type": "memory"
+              },
+              "ordinal": 1,
+              "result": "{\"type\":\"deleted\",\"id\":\"4a35e7f1-2c9e-457c-990b-cf0b0235dd72\",\"scope\":{\"type\":\"individual\",\"bot\":\"2c0d6029-8d13-44c4-a9f1-dff4a0737193\"},\"revision\":3}",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "4a1408db-12ed-4df7-b711-c6dab5317a81",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        },
+        {
+          "bot": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "created_at": 1793296377,
+          "id": "281be8f9-843e-48db-9acf-248ee40f993e",
+          "phase": "completed",
+          "prompt": "Can you save a reusable login for me?",
+          "reason": null,
+          "turns": [
+            {
+              "id": "31299d65-0cc8-45b2-90b2-c2b1c032e05e",
+              "manager_outcome": {
+                "outcome": {
+                  "type": "reusable_login_unsupported"
+                },
+                "type": "vault"
+              },
+              "ordinal": 1,
+              "result": "Reusable login-item storage is not supported yet. Do not send login secrets in chat. No secret was saved.",
+              "task": null,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "id": "e2c1416a-99a9-4838-aad2-d7b98bc4a7b7",
+              "manager_outcome": null,
+              "ordinal": 2,
+              "result": null,
+              "task": null,
+              "text": "The fixture completed one text turn.",
+              "truncated": false
+            }
+          ]
+        }
+      ],
+      "sessions": [
+        {
+          "bot_id": "2c0d6029-8d13-44c4-a9f1-dff4a0737193",
+          "id": "8b7727e4-2b2e-4465-8282-24861c07f310",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "51c907e5-5ceb-43f6-a822-cbfa6de2e4d4",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  }
+}

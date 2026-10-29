@@ -49,7 +49,7 @@ fn fixture() -> Fixture {
         images: Vec::new(),
         id: RunId::new(),
         bot: inference.bot,
-        session: session.id,
+        session: Some(session.id),
         configuration_revision: 1,
         prompt: "Read a shared guest file and explain the result.".into(),
         limits: RunLimits {
@@ -180,7 +180,7 @@ impl Fixture {
         let task = self.state.grant_approval(token(), task, 1400).unwrap();
         let fence = self
             .state
-            .find_computer_session(self.input.session)
+            .find_computer_session(self.input.session.unwrap())
             .unwrap()
             .fence(self.lease.generation);
         self.state
@@ -306,14 +306,15 @@ fn run_intent_task_command_accounting_and_events_commit_together() {
     let view = f.state.load_run(f.input.id).unwrap();
     assert_eq!(view.summary.accounting.settled_cost_microusd, 28);
     assert_eq!(view.summary.accounting.held_tokens, 0);
-    f.state
-        .finish_run_call(
+    assert_eq!(
+        f.state.finish_run_call(
             f.input.id,
             permit.turn.id,
             permit.turn.attempt,
-            response(Some(process_call("replacement"))),
-        )
-        .unwrap();
+            response(Some(process_call("replacement")))
+        ),
+        Err(OperationError::Conflict)
+    );
     assert_eq!(f.state.load_run(f.input.id).unwrap(), view);
     assert!(
         f.state
@@ -441,7 +442,7 @@ fn child_claim_and_publication_recheck_parent_without_consuming_ineligible_appro
         f.drain();
         let fence = f
             .state
-            .find_computer_session(f.input.session)
+            .find_computer_session(f.input.session.unwrap())
             .unwrap()
             .fence(f.lease.generation);
         f.state.claim(f.lease, f.journal, fence, binding).unwrap();

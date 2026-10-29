@@ -75,18 +75,27 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     state
         .append_message(session(&grant), message.clone())
         .unwrap();
-    state
-        .write_document(
-            session(&grant),
-            WriteDocument {
-                bot,
-                kind: DocumentKind::Memory,
-                expected_revision: 0,
-                sources: vec![SourceReference::Message { id: message.id }],
-                markdown: "Remember the owner's recovery preference.".into(),
-            },
-        )
-        .unwrap();
+    let document = Document {
+        bot,
+        kind: DocumentKind::Memory,
+        revision: 3,
+        sources: vec![SourceReference::Message { id: message.id }],
+        markdown: "Remember the owner's recovery preference.".into(),
+    };
+    let mut metadata = document.clone();
+    metadata.markdown.clear();
+    let memory_path = source.join(format!("memory-{bot}.md"));
+    fs::write(
+        &memory_path,
+        format!(
+            "<!-- botstral-document {} -->\n{}",
+            serde_json::to_string(&metadata).unwrap(),
+            document.markdown
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(&memory_path, fs::Permissions::from_mode(0o600)).unwrap();
+    let entries = state.memory_context(bot).unwrap();
     let peer = crate::worker_http::VerifiedIdentity::for_test(b"recovery worker");
     let invitation = state
         .invite_worker(session(&grant), peer.fingerprint().clone(), 600)
@@ -228,11 +237,12 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
         panic!("owner snapshot required")
     };
     assert_eq!(snapshot.messages, vec![message]);
+    assert_eq!(recovered.memory_context(bot).unwrap(), entries);
     assert!(
-        snapshot
-            .documents
-            .iter()
-            .any(|document| document.markdown.contains("recovery preference"))
+        recovered
+            .directory
+            .join(format!("legacy-memory-{bot}.md"))
+            .exists()
     );
     let (mut file, _, length) = recovered
         .download_artifact(session(&grant), task.id, artifact)

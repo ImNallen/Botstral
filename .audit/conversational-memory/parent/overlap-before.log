@@ -1,0 +1,22 @@
+    Blocking waiting for file lock on artifact directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.77s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 1 test
+test manager::state::runs::tests::routine_tests::p03_waiting_memory_publication_prevents_overlapping_occurrences ... FAILED
+
+failures:
+
+---- manager::state::runs::tests::routine_tests::p03_waiting_memory_publication_prevents_overlapping_occurrences stdout ----
+
+thread 'manager::state::runs::tests::routine_tests::p03_waiting_memory_publication_prevents_overlapping_occurrences' (631059865) panicked at manager/src/manager/state/runs/routine_tests.rs:244:5:
+assertion failed: matches!(history(&f, id)[0].status, OccurrenceStatus::Skipped { .. })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::runs::tests::routine_tests::p03_waiting_memory_publication_prevents_overlapping_occurrences
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 140 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

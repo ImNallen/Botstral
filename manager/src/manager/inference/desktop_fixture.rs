@@ -6,7 +6,10 @@ async fn c02_desktop_fixture() {
     let root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").expect("fixture root"));
     let local = crate::LocalState::open(&root.join("manager-state")).unwrap();
     let fixture = Fixture::start().await;
-    fixture.state.desktop.store(true, Ordering::SeqCst);
+    fixture.state.desktop.store(
+        std::env::var_os("BOTSTRAL_MEMORY_PROOF").is_none(),
+        Ordering::SeqCst,
+    );
     let mut app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
     app.configure(1).await;
@@ -33,28 +36,28 @@ async fn c02_desktop_fixture() {
         std::fs::Permissions::from_mode(0o600),
     )
     .unwrap();
-    let mut details = json!({"local":app.address.trim_start_matches("http://"),"public":public,"password":PASSWORD,"bot":app.bot,"session":worker.session.id,"runtime":CertificateFingerprint::from_der(b"fixture runtime"),"synthetic_worker":true});
-    if std::env::var_os("BOTSTRAL_INITIAL_MEMORY_PROOF").is_some() {
-        let foreign = BotId::new();
-        app.call(
-            "PUT",
-            &format!("/v1/bots/{foreign}"),
-            json!({"name":"Other bot"}),
-            200,
-        )
-        .await;
-        details["memory_source"] =
-            json!(desktop_source(&app, app.bot, "Prefer concise answers.").await);
-        details["second_source"] = json!(desktop_source(&app, app.bot, &"🦀".repeat(300)).await);
-        details["foreign_source"] =
-            json!(desktop_source(&app, foreign, "Foreign preference.").await);
-    }
+    let details = json!({"local":app.address.trim_start_matches("http://"),"public":public,"password":PASSWORD,"bot":app.bot,"session":worker.session.id,"runtime":CertificateFingerprint::from_der(b"fixture runtime"),"synthetic_worker":true});
     std::fs::write(root.join("fixture.json"), details.to_string()).unwrap();
     let mut sequence = 0;
     let mut started = std::collections::HashMap::new();
     let mut finished = std::collections::HashSet::new();
     while !root.join("stop").exists() {
-        if std::env::var_os("BOTSTRAL_INITIAL_MEMORY_PROOF").is_some() {
+        if std::env::var_os("BOTSTRAL_MEMORY_PROOF").is_some() {
+            if root.join("provider-script.json").exists() {
+                let bodies: Vec<String> = serde_json::from_slice(
+                    &std::fs::read(root.join("provider-script.json")).unwrap(),
+                )
+                .unwrap();
+                *fixture.state.script.lock().unwrap() = bodies
+                    .into_iter()
+                    .map(|body| Reply {
+                        body,
+                        ..Reply::default()
+                    })
+                    .collect();
+                std::fs::remove_file(root.join("provider-script.json")).unwrap();
+                std::fs::write(root.join("provider-script-loaded"), b"ready").unwrap();
+            }
             std::fs::write(
                 root.join("provider-requests.json"),
                 serde_json::to_vec_pretty(&*fixture.state.requests.lock().unwrap()).unwrap(),
@@ -261,29 +264,13 @@ async fn desktop_listener(
 
 fn desktop_memory_snapshots(
     directory: &std::path::Path,
-) -> std::collections::BTreeMap<String, Option<String>> {
+) -> std::collections::BTreeMap<String, (Option<String>, Option<String>)> {
     let connection = rusqlite::Connection::open(directory.join("manager.sqlite3")).unwrap();
     connection
-        .prepare("SELECT id,memory_snapshot FROM runs ORDER BY id")
+        .prepare("SELECT id,memory_snapshot,memory_entries_snapshot FROM runs ORDER BY id")
         .unwrap()
-        .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))
+        .query_map([], |row| Ok((row.get(0)?, (row.get(1)?, row.get(2)?))))
         .unwrap()
         .map(Result::unwrap)
         .collect()
-}
-
-async fn desktop_source(app: &App, bot: BotId, text: &str) -> MessageId {
-    let conversation = Conversation {
-        id: ConversationId::new(),
-        bot,
-    };
-    app.call("POST", "/v1/conversations", json!(conversation), 200)
-        .await;
-    let message = ConversationMessage {
-        id: MessageId::new(),
-        conversation: conversation.id,
-        text: text.into(),
-    };
-    app.call("POST", "/v1/messages", json!(message), 200).await;
-    message.id
 }

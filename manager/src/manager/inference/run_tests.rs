@@ -230,10 +230,23 @@ impl SyntheticWorker {
     }
 }
 fn request(app: &App, session: ComputerSessionId) -> SubmitRun {
-    SubmitRun { images: Vec::new(),id:RunId::new(),bot:app.bot,session,configuration_revision:1,prompt:"Read the example page, write and read /srv/shared/m04-note.txt, and explain the result.".into(),limits:RunLimits {deadline:now()+90,max_turns:4,max_total_tokens:200_000,max_cost_microusd:200_000,max_output_tokens:64,max_operations:12,max_concurrent_operations:1},execution_policy:RunExecutionPolicy { connectors: None, vision: None, vibe: None,
+    SubmitRun { images: Vec::new(),id:RunId::new(),bot:app.bot,session: Some(session),configuration_revision:1,prompt:"Read the example page, write and read /srv/shared/m04-note.txt, and explain the result.".into(),limits:RunLimits {deadline:now()+90,max_turns:4,max_total_tokens:200_000,max_cost_microusd:200_000,max_output_tokens:64,max_operations:12,max_concurrent_operations:1},execution_policy:RunExecutionPolicy { connectors: None, vision: None, vibe: None,
         computer:Some(ComputerToolPolicy {profile:ComputerProfile::LinuxPlaywrightV1,account:ProcessAccount {uid:1000,gid:1000},runtime:ComputerRuntime {sha256:CertificateFingerprint::from_der(b"fixture runtime")},limits:ProcessLimits {runtime_seconds:30,output_bytes:1024,processes:64,memory_bytes:512*1024*1024},viewport:Viewport {width:800,height:600},outputs:[("page","page.txt"),("file","shared.txt")].into_iter().map(|(slot,name)|OutputDeclaration {slot:slot.into(),name:name.into(),media_type:MediaType::TextPlain,max_bytes:8192}).collect()}),
         process:Some(ProcessToolPolicy {profile:ProcessProfile::LinuxSystemdV1,account:ProcessAccount {uid:1000,gid:1000},environment:BTreeMap::new(),limits:ProcessLimits {runtime_seconds:30,output_bytes:1024,processes:8,memory_bytes:64*1024*1024}}),
     }}
+}
+async fn unlock_run_history(app: &App, id: RunId) {
+    let refused = app
+        .call("GET", &format!("/v1/runs/{id}"), Value::Null, 409)
+        .await;
+    assert_eq!(refused["error"], "vault_locked");
+    app.call(
+        "POST",
+        "/v1/vault/unlock",
+        json!({"passphrase": PASSPHRASE}),
+        204,
+    )
+    .await;
 }
 async fn view(app: &App, id: RunId) -> RunView {
     serde_json::from_value(
@@ -345,13 +358,13 @@ async fn m04_run_recorded_browser_file_approval_result_artifact_and_followup() {
     drop(db);
     let requests = fixture.state.requests.lock().unwrap().clone();
     assert_eq!(
-        requests[1]["messages"][1]["tool_calls"][0]["id"],
+        requests[1]["messages"][2]["tool_calls"][0]["id"],
         "tool00001"
     );
-    assert_eq!(requests[1]["messages"][2]["role"], "tool");
-    assert_eq!(requests[1]["messages"][2]["tool_call_id"], "tool00001");
+    assert_eq!(requests[1]["messages"][3]["role"], "tool");
+    assert_eq!(requests[1]["messages"][3]["tool_call_id"], "tool00001");
     assert!(
-        requests[1]["messages"][2]["content"]
+        requests[1]["messages"][3]["content"]
             .as_str()
             .unwrap()
             .contains("durable shared guest file")
@@ -384,6 +397,7 @@ async fn m04_run_recorded_browser_file_approval_result_artifact_and_followup() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     assert_eq!(view(&app, input.id).await, completed);
     assert_eq!(fixture.chats(), 2);
     app.shutdown().await;
@@ -424,6 +438,7 @@ async fn m04_run_truncated_final_is_stopped_and_persisted() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     assert_eq!(view(&app, input.id).await, stopped);
     assert_eq!(fixture.chats(), 1);
     app.shutdown().await;
@@ -571,6 +586,7 @@ async fn m04_run_late_usage_cancellation_and_crash() {
     drop(worker);
     app.crash().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     let recovered = view(&app, input.id).await;
     assert_eq!(
         recovered.summary.phase,
@@ -719,6 +735,7 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     let stopped = view(&app, input.id).await;
     assert_eq!(
         stopped.summary.phase,
@@ -887,7 +904,7 @@ async fn p03_manager_loop_executes_without_owner_clients_and_recovers_inbox() {
                             catchup_seconds: 60,
                             wakeups: None,
                             template: RunTemplate {
-                                session: request.session,
+                                session: request.session.unwrap(),
                                 session_revision,
                                 configuration_revision: 1,
                                 permission_revision: 1,

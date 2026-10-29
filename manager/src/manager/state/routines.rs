@@ -135,7 +135,7 @@ fn materialize(template: &RunTemplate, bot: BotId, now: i64, prompt: Option<&str
         images: vec![],
         id: RunId::new(),
         bot,
-        session: template.session,
+        session: Some(template.session),
         configuration_revision: template.configuration_revision,
         prompt: prompt.unwrap_or(&template.prompt).into(),
         execution_policy: policy,

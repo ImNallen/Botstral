@@ -91,7 +91,14 @@ pub(super) fn start(
                     let result = match job {
                         RunJob::Call(permit) => {
                             let unknown = || ModelOutcome::Unknown { reason: InferenceAttentionReason::Shutdown, request_id: None };
-                            let outcome = if *stopped.borrow() { unknown() } else {
+                            let authorized = queue.call_wait({
+                                let run = permit.run;
+                                let turn = permit.turn.id;
+                                let body = permit.prepared.body.clone();
+                                move |s| s.authorize_run_dispatch(run, turn, &body)
+                            }).await;
+                            let authorized = match authorized { Ok(authorized) => authorized, Err(error) => return (run, Err(error)) };
+                            let outcome = if !authorized { ModelOutcome::NotSent { reason: InferenceNotSentReason::ConfigurationChanged } } else if *stopped.borrow() { unknown() } else {
                                 tokio::select! {
                                     biased;
                                     outcome = provider.chat(ModelRequest { policy: &permit.configuration.policy, deadline: permit.request.limits.deadline, max_output_tokens: permit.request.limits.max_output_tokens, max_total_tokens: permit.turn.reservation.total_tokens, prepared: &permit.prepared }, &permit.secret, capacity) => outcome,

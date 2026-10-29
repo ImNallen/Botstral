@@ -26,7 +26,7 @@ impl State {
                 return Err(OperationError::Conflict);
             }
             self.check_binding(routine)?;
-            let overlap:bool=self.connection.query_row("SELECT EXISTS(SELECT 1 FROM routine_occurrences o JOIN runs r ON r.id=o.run WHERE o.routine=?1 AND o.status IN ('running','decision') AND json_extract(r.summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','cancelling','awaiting_attention'))",[routine.id.to_string()],|r|r.get(0))?;
+            let overlap:bool=self.connection.query_row("SELECT EXISTS(SELECT 1 FROM routine_occurrences o JOIN runs r ON r.id=o.run WHERE o.routine=?1 AND o.status IN ('running','decision') AND json_extract(r.summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','waiting_for_memory','cancelling','awaiting_attention'))",[routine.id.to_string()],|r|r.get(0))?;
             if overlap {
                 occurrence.status = OccurrenceStatus::Skipped {
                     reason: "Previous work is unresolved; overlap policy is skip.".into(),
@@ -161,6 +161,7 @@ impl State {
         for (run, body, request) in rows {
             let turn: RunTurn = parse(body)?;
             let receipt = ArchivedRunTurn {
+                manager_outcome: turn.manager_result.as_ref().and_then(|r| r.outcome.clone()),
                 id: turn.id,
                 ordinal: turn.ordinal,
                 attempt: turn.attempt,

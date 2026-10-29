@@ -1,0 +1,34 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.00s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 1 test
+test manager::state::runs::tests::memory_tests::acceptance::protected_run_configuration_is_withheld_after_secret_rotation ... FAILED
+
+failures:
+
+---- manager::state::runs::tests::memory_tests::acceptance::protected_run_configuration_is_withheld_after_secret_rotation stdout ----
+
+thread 'manager::state::runs::tests::memory_tests::acceptance::protected_run_configuration_is_withheld_after_secret_rotation' (631109243) panicked at manager/src/manager/state/runs/memory_tests/acceptance.rs:66:5:
+assertion `left == right` failed
+  left: None
+ right: Some(InvalidInput)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::runs::tests::memory_tests::acceptance::protected_run_configuration_is_withheld_after_secret_rotation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 141 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

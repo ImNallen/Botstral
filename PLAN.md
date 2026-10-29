@@ -15,6 +15,7 @@ The parity baseline is the personal Grok Bot documentation reviewed on October 2
 ## Agreed design
 
 - Each installation serves one owner and their paired devices.
+- The bot is the primary gateway for most everyday interactions. Follow the [interaction model](DESIGN.md#interaction-model), including conversational memory management and protected Vault entry.
 - One Rust manager coordinates bots, conversations, tasks, permissions, and connections using tokio, axum, and SQLite through rusqlite.
 - The manager and Computer VM run in two separate virtual machines from the first deployment. There is no combined installation mode.
 - The Rust `botstral-agent` daemon runs on the persistent Linux Computer VM. Both services belong to one Rust workspace and remain independently deployable.
@@ -226,19 +227,22 @@ Depends on M03 and M04.
 
 Recorded provider checks verify that a new run receives corrected per-bot Memory after a manager restart. See [memory snapshot scope and proof](docs/p01-memory.md). The remaining P01 checklist stays open.
 
-Paired desktop controls create initial Memory from an explicitly selected same-bot message, then inspect, correct, and clear the current document with revision checks and preserved sources. See [initial Memory scope and proof](docs/p01-initial-memory.md) and [desktop editing scope and proof](docs/p01-desktop-memory.md). Historical deletion and the full inspect, correct, and delete checklist remain open.
+The bot now lists, creates, updates, and deletes individual and shared memory through conversation. Committed notices show saved text and scope. Manager-only chat needs no worker or computer permission. The dedicated desktop memory viewer and editor were removed. See the [conversational memory contract and evidence](docs/conversational-memory.md). The [initial authoring proof](docs/p01-initial-memory.md) and [desktop editing proof](docs/p01-desktop-memory.md) describe the preceding implementation. Historical deletion remains open.
 
-- [ ] Store durable preferences, decisions, task summaries, and source references separately for each bot.
+- [x] Store durable preferences, decisions, task summaries, and source references in individual bot memory and shared memory available across the owner's bots. Keep sharing explicit.
+- [x] Let the owner ask the bot to list, create, update, and delete memories in either scope.
+- [x] Tell the owner when the bot creates a memory, including what it saved and its scope. Confirm success only after persistence and disclose failed or uncertain changes.
+- [x] Replace the dedicated desktop memory viewer and editor after conversational management works. Do not add memory management screens to later clients.
+- [ ] Keep secret values out of both memory scopes. Direct secret-storage requests to protected Vault entry.
 - [ ] Build local FTS5 search from the Markdown source and verify that deleting and rebuilding the index preserves retrievable memory.
-- [ ] Retrieve relevant memory in later conversations without sending every historical message to the model.
+- [ ] Retrieve relevant memory in later conversations without sending every historical message to the model. New runs receive the bounded individual and shared entry collection. Selective retrieval remains open.
 - [ ] Add semantic retrieval with Mistral Embed in v1.x after selecting and verifying a local vector index. Verify its endpoint independently of the main model.
-- [ ] Let the owner inspect, correct, and delete saved memory.
 - [ ] Add bot names, avatars, descriptions, pinning, organization, hiding, and duplication.
 - [ ] Copy profile settings and avatars when duplicating a bot. Exclude conversation history, learned memory, attachments, and credential values.
 - [ ] Add bot deletion with cancellation of active tasks and an explicit policy for retained or deleted data.
 - [ ] Export and import bot templates with explicit choices about included configuration. Exclude credentials and private conversation history by default.
 
-Complete when a bot applies a corrected preference in a new conversation after a manager restart. Verify that duplication and template import preserve the intended configuration without copying excluded private state. Verify that deleting a bot stops its active tasks. P02 and P03 extend duplication and deletion to skills and routines when those capabilities exist.
+Complete when the owner manages both memory scopes through conversation without a dedicated memory screen. Verify that a bot applies a corrected preference in a new conversation after a manager restart. Verify individual memory isolation, shared memory across two bots, deletion from future context, and truthful save notices. Preserve snapshots already admitted and document historical deletion separately. Verify that duplication and template import preserve the intended configuration without copying excluded private state. Verify that deleting a bot stops its active tasks. P02 and P03 extend duplication and deletion to skills and routines when those capabilities exist.
 
 ### P02. Save skills and teach workflows
 

@@ -1,0 +1,25 @@
+    Blocking waiting for file lock on artifact directory
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-60d9ca0b/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.96s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-cb1b3769c88e967d)
+
+running 1 test
+test manager::state::runs::tests::memory_tests::acceptance::protected_run_requests_refuse_access_before_and_after_vault_lock ... FAILED
+
+failures:
+
+---- manager::state::runs::tests::memory_tests::acceptance::protected_run_requests_refuse_access_before_and_after_vault_lock stdout ----
+
+thread 'manager::state::runs::tests::memory_tests::acceptance::protected_run_requests_refuse_access_before_and_after_vault_lock' (631061828) panicked at manager/src/manager/state/runs/memory_tests/acceptance.rs:28:33:
+assertion `left == right` failed: Protected run content was exposed; locked=true, environment=false
+  left: true
+ right: false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::runs::tests::memory_tests::acceptance::protected_run_requests_refuse_access_before_and_after_vault_lock
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 140 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

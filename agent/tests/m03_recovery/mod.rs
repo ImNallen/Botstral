@@ -426,12 +426,15 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
         .0,
         200
     );
-    for kind in ["instructions", "memory"] {
+    {
+        let kind = "instructions";
         let write = json!({"bot":session.bot_id,"kind":kind,"expected_revision":0,"sources":[{"type":"message","id":message}],"markdown":format!("# {kind}\nsource bytes\n")});
         let result = f.owner("PUT", "/v1/documents", write.clone()).await;
         assert_eq!(result.0, 200);
         assert_eq!(f.owner("PUT", "/v1/documents", write).await, result);
     }
+    let obsolete = json!({"bot":session.bot_id,"kind":"memory","expected_revision":0,"sources":[{"type":"message","id":message}],"markdown":"obsolete editor write"});
+    assert_eq!(f.owner("PUT", "/v1/documents", obsolete).await.0, 400);
     let bad = json!({"bot":session.bot_id,"kind":"instructions","expected_revision":1,"sources":[{"type":"message","id":message}],"markdown":"grant everything"});
     assert_eq!(f.owner("PUT", "/v1/generated-memory", bad).await.0, 400);
     for i in 0..140 {
@@ -492,7 +495,7 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
         f.owner("GET", "/v1/events/0/64", json!({})).await.1["state"]["messages"].clone();
     assert_eq!(messages_before_restart.as_array().unwrap().len(), 156);
     let state = f.root.path().join("manager");
-    let source = fs::read(state.join(format!("memory-{}.md", session.bot_id))).unwrap();
+    let source = fs::read(state.join(format!("instructions-{}.md", session.bot_id))).unwrap();
     f.manager.stop().await;
     fs::write(state.join("memory-index.sqlite3"), b"damaged derived index").unwrap();
     f.restart_manager(None).await;
@@ -508,9 +511,9 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
         )
         .await;
     assert_eq!(found.0, 200);
-    assert_eq!(found.1.as_array().unwrap().len(), 2);
+    assert_eq!(found.1.as_array().unwrap().len(), 1);
     assert_eq!(
-        fs::read(state.join(format!("memory-{}.md", session.bot_id))).unwrap(),
+        fs::read(state.join(format!("instructions-{}.md", session.bot_id))).unwrap(),
         source
     );
     fs::remove_file(state.join("memory-index.sqlite3")).unwrap();
@@ -521,9 +524,9 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
             .as_array()
             .unwrap()
             .len(),
-        2
+        1
     );
-    fs::remove_file(state.join(format!("memory-{}.md", session.bot_id))).unwrap();
+    fs::remove_file(state.join(format!("instructions-{}.md", session.bot_id))).unwrap();
     assert_eq!(
         f.owner(
             "POST",
@@ -535,7 +538,7 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
         .as_array()
         .unwrap()
         .len(),
-        1
+        0
     );
     evidence(
         "source-replay",
@@ -548,10 +551,10 @@ async fn markdown_sources_conversations_and_event_snapshots_recover() {
 async fn derived_index_data_corruption_recovers_without_touching_sources() {
     let mut f = Fixture::new().await;
     let session = f.durable_session().await;
-    let write = json!({"bot":session.bot_id,"kind":"memory","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"authoritative source bytes"});
+    let write = json!({"bot":session.bot_id,"kind":"instructions","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"authoritative source bytes"});
     assert_eq!(f.owner("PUT", "/v1/documents", write).await.0, 200);
     let directory = f.root.path().join("manager");
-    let source_path = directory.join(format!("memory-{}.md", session.bot_id));
+    let source_path = directory.join(format!("instructions-{}.md", session.bot_id));
     let source = fs::read(&source_path).unwrap();
     f.manager.stop().await;
     let index_path = directory.join("memory-index.sqlite3");
@@ -889,7 +892,7 @@ async fn published_markdown_recovers_each_file_index_event_crash_window() {
     ] {
         let mut f = Fixture::new().await;
         let session = f.durable_session().await;
-        let write = json!({"bot":session.bot_id,"kind":"memory","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"# durable source\nexact bytes\n"});
+        let write = json!({"bot":session.bot_id,"kind":"instructions","expected_revision":0,"sources":[{"type":"external","reference":"https://example.test/source"}],"markdown":"# durable source\nexact bytes\n"});
         f.restart_manager(Some(point)).await;
         let listen = f.listen;
         let token = f.token.clone();
@@ -902,7 +905,7 @@ async fn published_markdown_recovers_each_file_index_event_crash_window() {
         reached(&mut f.manager, &directory, point).await;
         assert!(response.await.is_err());
         let published = directory
-            .join(format!("memory-{}.md", session.bot_id))
+            .join(format!("instructions-{}.md", session.bot_id))
             .exists();
         assert_eq!(published, point != "document_before_rename");
         f.restart_manager(None).await;

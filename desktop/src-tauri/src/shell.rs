@@ -243,40 +243,6 @@ async fn routine_command(
     service.command(IntentCommand::Routine(input)).await
 }
 #[tauri::command]
-async fn create_memory(
-    window: WebviewWindow,
-    service: tauri::State<'_, RemoteService>,
-    bot: botstral_link::BotId,
-    source_message: botstral_link::MessageId,
-    markdown: String,
-) -> Result<RemoteSnapshot, String> {
-    authorize(&window).map_err(|_| "unauthorized")?;
-    service
-        .command(IntentCommand::CreateMemory {
-            bot,
-            source_message,
-            markdown,
-        })
-        .await
-}
-#[tauri::command]
-async fn write_memory(
-    window: WebviewWindow,
-    service: tauri::State<'_, RemoteService>,
-    bot: botstral_link::BotId,
-    expected_revision: u64,
-    markdown: String,
-) -> Result<RemoteSnapshot, String> {
-    authorize(&window).map_err(|_| "unauthorized")?;
-    service
-        .command(IntentCommand::WriteMemory {
-            bot,
-            expected_revision,
-            markdown,
-        })
-        .await
-}
-#[tauri::command]
 async fn save_routine(
     window: WebviewWindow,
     service: tauri::State<'_, RemoteService>,
@@ -607,8 +573,6 @@ pub fn run() {
             routine_command,
             routine_text,
             save_routine,
-            write_memory,
-            create_memory,
             routine_history,
             routine_preview,
             open_session,
