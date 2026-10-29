@@ -75,29 +75,32 @@ pub(in crate::manager) fn decode(name: &str, arguments: &str) -> Result<ToolProp
     }
 }
 
-pub(in crate::manager) fn function(proposal: &ToolProposal) -> Value {
-    match proposal {
-        ToolProposal::Memory(args) => {
-            json!({"name":"memory","arguments":serde_json::to_string(args).expect("proposal serializes")})
-        }
-        ToolProposal::RequestVaultEntry(args) => {
-            json!({"name":"request_vault_entry","arguments":serde_json::to_string(args).expect("proposal serializes")})
-        }
+#[derive(serde::Serialize, schemars::JsonSchema)]
+pub(in crate::manager) struct ModelFunction {
+    pub name: String,
+    pub arguments: String,
+}
+pub(in crate::manager) fn function(proposal: &ToolProposal) -> ModelFunction {
+    let (name, arguments) = match proposal {
+        ToolProposal::Memory(args) => ("memory".to_owned(), serde_json::to_string(args)),
+        ToolProposal::RequestVaultEntry(args) => (
+            "request_vault_entry".to_owned(),
+            serde_json::to_string(args),
+        ),
         ToolProposal::RequestWakeup(args) => {
-            json!({"name":"request_wakeup","arguments":serde_json::to_string(args).expect("proposal serializes")})
+            ("request_wakeup".to_owned(), serde_json::to_string(args))
         }
-        ToolProposal::Connector(args) => {
-            json!({"name":args.tool.public_name(),"arguments":serde_json::to_string(&args.arguments).expect("arguments serialize")})
-        }
-        ToolProposal::Vibe(args) => {
-            json!({"name":"vibe","arguments":serde_json::to_string(args).expect("proposal serializes")})
-        }
-        ToolProposal::Computer(args) => {
-            json!({"name":"computer","arguments":serde_json::to_string(args).expect("proposal serializes")})
-        }
-        ToolProposal::Process(args) => {
-            json!({"name":"process","arguments":serde_json::to_string(args).expect("proposal serializes")})
-        }
+        ToolProposal::Connector(args) => (
+            args.tool.public_name(),
+            serde_json::to_string(&args.arguments),
+        ),
+        ToolProposal::Vibe(args) => ("vibe".to_owned(), serde_json::to_string(args)),
+        ToolProposal::Computer(args) => ("computer".to_owned(), serde_json::to_string(args)),
+        ToolProposal::Process(args) => ("process".to_owned(), serde_json::to_string(args)),
+    };
+    ModelFunction {
+        name,
+        arguments: arguments.expect("proposal serializes"),
     }
 }
 

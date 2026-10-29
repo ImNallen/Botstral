@@ -1,4 +1,6 @@
-# Independent manager findings and coordinator corrections
+# Historical independent findings and initial coordinator corrections
+
+This record describes the initial corrections through `8fc5904`. Its accepted-identifier scope decision was subsequently rejected by independent review. [The current acceptance record](../final-acceptance.md) tracks later code and evidence. Original logs remain unchanged.
 
 The initial manager review found four defects at `3527f3c`. The coordinator reproduced all four against `b95fb2c` before changing the source. [The original report](initial-manager-review.txt) records that review's scope, exact commands and limits. [The browser lane](initial-browser-review.md) passed at the same original source with synthetic private callbacks. Neither report establishes acceptance of the later corrections.
 
@@ -10,6 +12,6 @@ The coordinator promoted the review probes into permanent tests. `cargo test -p 
 
 `python3 desktop/fixtures/p06-manager-switch.py` passed [the two-manager regression](receipt-after.log). Manager B refuses reconciliation and replacement of manager A's unresolved receipt without changing its bytes. Reconnecting to A recovers its committed result. Fault injection preserves the manager identity written by production code. Both owned managers stopped with exit zero.
 
-[The additional identifier probe](identifier-collision-probe.log) confirmed a conservative usability refusal. A stored synthetic `admin` username prevents a later benign conversation because its literal value occurs in public scaffolding. A synthetic `owner` identifier also collides with serialized metadata. The implementation retains that fail-closed policy and documents the limitation. The committed regression asserts refusal before publication. It does not claim those identifiers became supported. Final independent review must assess this scope decision.
+[The additional identifier probe](identifier-collision-probe.log) confirmed a conservative usability refusal. A stored synthetic `admin` username prevents a later benign conversation because its literal value occurs in public scaffolding. A synthetic `owner` identifier also collides with serialized metadata. Root initially retained that refusal policy and changed a regression to expect it. Independent review rejected this decision because accepted entries permanently broke otherwise benign conversation. Later corrections require final refusal before storage, preserve benign conversation and completion, and retain the original failure evidence.
 
 The full default-path driver and fresh Linux run at the corrected source are recorded separately. This record does not claim a combined packaged native-to-Linux session or cross-build keychain continuity. No P06 milestone checkbox is completed here.

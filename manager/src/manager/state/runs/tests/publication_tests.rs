@@ -101,6 +101,9 @@ fn p06_public_collision_intake_is_final_and_preserves_conversation() {
         "assistant",
         "earlier-private-login",
         "current request takes precedence",
+        "tool_calls",
+        "authorized_images",
+        "image_url",
     ] {
         let mut f = fixture();
         if username == "earlier-private-login" {
@@ -378,12 +381,23 @@ fn public_request_and_message_tokens_cannot_poison_a_complete_conversation() {
         .policy;
     let assistant = RunMessage::Assistant {
         content: "Recorded response".into(),
-        tool_call: None,
+        tool_call: Some(RunToolCall {
+            id: "fixture-call".into(),
+            proposal: ToolProposal::Memory(MemoryProposal::List {
+                scope: MemoryScopeSelection::Individual,
+            }),
+        }),
     };
     let prepared = crate::manager::provider::PreparedChat::new(
         &policy,
         64,
-        std::slice::from_ref(&assistant),
+        &[
+            assistant.clone(),
+            RunMessage::UserMultimodal {
+                content: "Fixture image context".into(),
+                images: vec![],
+            },
+        ],
         Some(&baseline.input.execution_policy),
     );
     let mut candidates = std::collections::BTreeSet::new();
