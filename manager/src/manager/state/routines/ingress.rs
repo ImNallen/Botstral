@@ -57,8 +57,7 @@ impl State {
                 };
             }
             let owner = self.principal()?;
-            let tx = self.connection.unchecked_transaction()?;
-            let mut matched = 0;
+            let mut prepared = Vec::new();
             for r in self
                 .routine_views()?
                 .into_iter()
@@ -91,8 +90,26 @@ impl State {
                     json(&context)?
                 );
                 let (o, run) = self.prepare_occurrence(&r, key, now, 0, Some(&prompt), None)?;
+                prepared.push((r, o, run));
+            }
+            let matched = prepared.len() as u32;
+            let tx = self.connection.unchecked_transaction()?;
+            for (r, mut o, mut run) in prepared {
+                if run.is_some()
+                    && let Err(error) = self
+                        .budget_available(&r.definition.template, None)
+                        .and_then(|()| self.check_run_capacity())
+                {
+                    if error == OperationError::Internal {
+                        return Err(error);
+                    }
+                    o.status = OccurrenceStatus::Blocked {
+                        reason: format!("{error:?}"),
+                    };
+                    o.run = None;
+                    run = None;
+                }
                 Self::commit_occurrence(&tx, owner, &r, &o, run.as_ref())?;
-                matched += 1;
             }
             let receipt = EventReceipt {
                 publisher,

@@ -1003,3 +1003,194 @@ fn p03_each_exact_approval_has_a_new_durable_inbox_decision() {
     assert_ne!(decisions[0], decisions[1]);
     assert!(f.state.inbox().unwrap().is_empty());
 }
+
+#[test]
+fn p01_routine_rollback_and_wakeup_due_time_capture_keep_admitted_memory_frozen() {
+    let mut f = fixture();
+    let a = memory_tests::remember(&mut f, 0, "Routine memory A.");
+    let id = create(&mut f, RoutineTrigger::Once { at: 1060 });
+    let mut def = f.state.routine_views().unwrap()[0].definition.clone();
+    def.wakeups = Some(WakeupGrant {
+        horizon_seconds: 3600,
+        minimum_spacing_seconds: 60,
+        max_pending: 2,
+        max_total: 2,
+    });
+    command(
+        &mut f.state,
+        RoutineAction::Replace {
+            id,
+            expected_revision: 1,
+            definition: Box::new(def),
+        },
+    )
+    .unwrap();
+    f.state.test_time = Some(1060);
+    f.state.connection.execute_batch("CREATE TRIGGER fail_occurrence BEFORE INSERT ON routine_occurrences BEGIN SELECT RAISE(ABORT,'admission rollback'); END;").unwrap();
+    assert_eq!(f.state.reconcile_routines(), Err(OperationError::Internal));
+    assert!(history(&f, id).is_empty());
+    for table in ["runs", "routine_reservations"] {
+        assert_eq!(
+            f.state
+                .connection
+                .query_row::<i64, _, _>(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap(),
+            0
+        );
+    }
+    assert_eq!(
+        f.state
+            .connection
+            .query_row::<i64, _, _>("SELECT admitted_runs FROM routine_budget", [], |r| r.get(0))
+            .unwrap(),
+        0
+    );
+    f.state
+        .connection
+        .execute_batch("DROP TRIGGER fail_occurrence")
+        .unwrap();
+    f.state.reconcile_routines().unwrap();
+    let parent = history(&f, id)[0].run.unwrap();
+    memory_tests::remember(&mut f, 1, "Planning memory B.");
+    restart_tests::reopen(&mut f);
+    f.state.test_time = Some(1060);
+    let p = claim(&mut f.state);
+    assert_eq!(p.run, parent);
+    let body = serde_json::to_string(&p.turn.messages).unwrap();
+    assert!(body.contains(&a.markdown));
+    assert!(!body.contains("Planning memory B."));
+    f.state
+        .finish_run_call(
+            parent,
+            p.turn.id,
+            p.turn.attempt,
+            response(Some(RunToolCall {
+                id: "plan-followup".into(),
+                proposal: ToolProposal::RequestWakeup(RequestWakeup {
+                    at: 1120,
+                    prompt: "Follow up with current memory.".into(),
+                }),
+            })),
+        )
+        .unwrap();
+    assert!(
+        history(&f, id)
+            .iter()
+            .any(|o| o.status == OccurrenceStatus::Pending && o.run.is_none())
+    );
+    let c = memory_tests::remember(&mut f, 2, "Due memory C.");
+    let p = claim(&mut f.state);
+    assert_eq!(p.run, parent);
+    let body = serde_json::to_string(&p.turn.messages).unwrap();
+    assert!(body.contains(&a.markdown));
+    assert!(!body.contains(&c.markdown));
+    f.state
+        .finish_run_call(parent, p.turn.id, p.turn.attempt, response(None))
+        .unwrap();
+    f.state.test_time = Some(1120);
+    f.state.reconcile_routines().unwrap();
+    let child = history(&f, id)[0].run.unwrap();
+    let p = claim(&mut f.state);
+    assert_eq!(p.run, child);
+    let RunMessage::User { content } = &p.turn.messages[0] else {
+        panic!()
+    };
+    assert_eq!(
+        serde_json::from_str::<Document>(content.split_once('\n').unwrap().1).unwrap(),
+        c
+    );
+    assert_eq!(
+        p.turn.messages[1],
+        RunMessage::User {
+            content: "Follow up with current memory.".into()
+        }
+    );
+    assert!(!p.prepared.encoded().contains("Planning memory B."));
+}
+
+#[test]
+fn p01_event_batch_keeps_budget_and_receipt_atomic_with_prepared_memory() {
+    let mut f = fixture();
+    memory_tests::remember(&mut f, 0, "Event memory.");
+    let publisher = PublisherId::new();
+    let credential = "e".repeat(48);
+    command(
+        &mut f.state,
+        RoutineAction::InstallPublisher {
+            id: publisher,
+            bot: f.input.bot,
+            name: "Builds".into(),
+            topics: vec!["build.completed".into()],
+            credential_sha256: format!("{:x}", sha2::Sha256::digest(credential.as_bytes())),
+        },
+    )
+    .unwrap();
+    let trigger = RoutineTrigger::Event {
+        publisher,
+        topic: "build.completed".into(),
+        equals: BTreeMap::new(),
+    };
+    let first = create(&mut f, trigger.clone());
+    let second = create(&mut f, trigger);
+    command(
+        &mut f.state,
+        RoutineAction::SetBudget {
+            budget: RoutineBudget {
+                max_runs: 1,
+                max_tokens: 200_000,
+                max_cost_microusd: 200_000,
+            },
+        },
+    )
+    .unwrap();
+    let bytes = serde_json::to_vec(&PublisherEvent {
+        id: "build-memory".into(),
+        timestamp: 1000,
+        topic: "build.completed".into(),
+        fields: BTreeMap::new(),
+    })
+    .unwrap();
+    f.state.connection.execute_batch("CREATE TRIGGER fail_receipt BEFORE INSERT ON routine_event_receipts BEGIN SELECT RAISE(ABORT,'event rollback'); END;").unwrap();
+    assert_eq!(
+        f.state
+            .ingest_routine_event(publisher, credential.clone(), bytes.clone()),
+        Err(OperationError::Internal)
+    );
+    assert!(f.state.run_summaries().unwrap().is_empty());
+    assert_eq!(
+        f.state
+            .connection
+            .query_row::<i64, _, _>("SELECT count(*) FROM routine_reservations", [], |r| r
+                .get(0))
+            .unwrap(),
+        0
+    );
+    f.state
+        .connection
+        .execute_batch("DROP TRIGGER fail_receipt")
+        .unwrap();
+    let receipt = f
+        .state
+        .ingest_routine_event(publisher, credential.clone(), bytes.clone())
+        .unwrap();
+    assert_eq!(receipt.matched, 2);
+    assert_eq!(f.state.run_summaries().unwrap().len(), 1);
+    let occurrences: Vec<_> = [first, second]
+        .into_iter()
+        .flat_map(|id| history(&f, id))
+        .collect();
+    assert_eq!(occurrences.iter().filter(|o| o.run.is_some()).count(), 1);
+    assert!(
+        occurrences
+            .iter()
+            .any(|o| matches!(o.status, OccurrenceStatus::Blocked { .. }))
+    );
+    assert_eq!(
+        f.state
+            .ingest_routine_event(publisher, credential, bytes)
+            .unwrap(),
+        receipt
+    );
+    let p = claim(&mut f.state);
+    assert!(p.prepared.encoded().contains("Event memory."));
+}

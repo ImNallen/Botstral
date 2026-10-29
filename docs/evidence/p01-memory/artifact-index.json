@@ -1,0 +1,245 @@
+{
+  "aliases": {
+    ".audit/p01-memory/grounding.md": {
+      "published": "docs/evidence/p01-memory/design-grounding.md",
+      "sha256": "b0f86789808792e47e9fb02c59f32de95af27ca2768af76e9ec6c408de2d02cd",
+      "identical_copy": true
+    },
+    "grounding.md": {
+      "published": "docs/evidence/p01-memory/design-grounding.md",
+      "sha256": "b0f86789808792e47e9fb02c59f32de95af27ca2768af76e9ec6c408de2d02cd",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/design/astra.md": {
+      "published": "docs/evidence/p01-memory/design-base.md",
+      "sha256": "bba458aecaaf1c0904f940a31dad1511b87319401b34cbc514fec46f65141ffc",
+      "identical_copy": true
+    },
+    "design/astra.md": {
+      "published": "docs/evidence/p01-memory/design-base.md",
+      "sha256": "bba458aecaaf1c0904f940a31dad1511b87319401b34cbc514fec46f65141ffc",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/design/judge.md": {
+      "published": "docs/evidence/p01-memory/design-judge.md",
+      "sha256": "426232c1cba378e46113270fd10252f47c126403b5feabfc0aaff8c3d7f84ccc",
+      "identical_copy": true
+    },
+    "design/judge.md": {
+      "published": "docs/evidence/p01-memory/design-judge.md",
+      "sha256": "426232c1cba378e46113270fd10252f47c126403b5feabfc0aaff8c3d7f84ccc",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/design/selected.md": {
+      "published": "docs/evidence/p01-memory/design-selected.md",
+      "sha256": "b282d8f140093a731a0d053e5dbb0c3da9e5133e4c6a9de6e5e77ba0b2982815",
+      "identical_copy": true
+    },
+    "design/selected.md": {
+      "published": "docs/evidence/p01-memory/design-selected.md",
+      "sha256": "b282d8f140093a731a0d053e5dbb0c3da9e5133e4c6a9de6e5e77ba0b2982815",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/root-focused.log": {
+      "published": "docs/evidence/p01-memory/root-focused.log",
+      "sha256": "fcbe63fcd1ea43e0fa3c053327ee8dc692c1de09fb0767b2d89bfeb8193ef925",
+      "identical_copy": true
+    },
+    "root-focused.log": {
+      "published": "docs/evidence/p01-memory/root-focused.log",
+      "sha256": "fcbe63fcd1ea43e0fa3c053327ee8dc692c1de09fb0767b2d89bfeb8193ef925",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/root-recovery.log": {
+      "published": "docs/evidence/p01-memory/root-recovery.log",
+      "sha256": "8258de6040bb62b316b4d73464baa6282a1b694419d1c400de234296da282efe",
+      "identical_copy": true
+    },
+    "root-recovery.log": {
+      "published": "docs/evidence/p01-memory/root-recovery.log",
+      "sha256": "8258de6040bb62b316b4d73464baa6282a1b694419d1c400de234296da282efe",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/independent-review.md": {
+      "published": "docs/evidence/p01-memory/independent-review.md",
+      "sha256": "1a2cc1cfd6e7d806d31420f1c449d7e11aa2dfbc9a5a99bbeb5dc2c195ac819f",
+      "identical_copy": true
+    },
+    "independent-review.md": {
+      "published": "docs/evidence/p01-memory/independent-review.md",
+      "sha256": "1a2cc1cfd6e7d806d31420f1c449d7e11aa2dfbc9a5a99bbeb5dc2c195ac819f",
+      "identical_copy": true
+    },
+    ".audit/p01-memory/credential-cleanup.json": {
+      "published": "docs/evidence/p01-memory/credential-cleanup.json",
+      "sha256": "9a91ffc11a124eff1942651ee99890022f0d8115a7ed0b044a1d30b3b0271327",
+      "identical_copy": true
+    },
+    "credential-cleanup.json": {
+      "published": "docs/evidence/p01-memory/credential-cleanup.json",
+      "sha256": "9a91ffc11a124eff1942651ee99890022f0d8115a7ed0b044a1d30b3b0271327",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/check.log": {
+      "published": "docs/evidence/p01-memory/owner-check.log",
+      "sha256": "a6ba21e6e72aa8e3437f0e67926b71a08a753235e24a621f9bcd44c5df8aed99",
+      "identical_copy": true
+    },
+    "check.log": {
+      "published": "docs/evidence/p01-memory/owner-check.log",
+      "sha256": "a6ba21e6e72aa8e3437f0e67926b71a08a753235e24a621f9bcd44c5df8aed99",
+      "identical_copy": true
+    },
+    "owner check.log": {
+      "published": "docs/evidence/p01-memory/owner-check.log",
+      "sha256": "a6ba21e6e72aa8e3437f0e67926b71a08a753235e24a621f9bcd44c5df8aed99",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/p01-focused.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-focused.log",
+      "sha256": "d2b4f8993490b93635b5a03679bb0e0a829cf74049a640c95b0f6d77b6a47162",
+      "identical_copy": true
+    },
+    "p01-focused.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-focused.log",
+      "sha256": "d2b4f8993490b93635b5a03679bb0e0a829cf74049a640c95b0f6d77b6a47162",
+      "identical_copy": true
+    },
+    "owner p01-focused.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-focused.log",
+      "sha256": "d2b4f8993490b93635b5a03679bb0e0a829cf74049a640c95b0f6d77b6a47162",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/p01-final.log": {
+      "published": "docs/evidence/p01-memory/owner-final-focused.log",
+      "sha256": "8e72d568d740d5f74e1c24cc373f231641a962a2ae72e58eaa085d78dc76c074",
+      "identical_copy": true
+    },
+    "p01-final.log": {
+      "published": "docs/evidence/p01-memory/owner-final-focused.log",
+      "sha256": "8e72d568d740d5f74e1c24cc373f231641a962a2ae72e58eaa085d78dc76c074",
+      "identical_copy": true
+    },
+    "owner p01-final.log": {
+      "published": "docs/evidence/p01-memory/owner-final-focused.log",
+      "sha256": "8e72d568d740d5f74e1c24cc373f231641a962a2ae72e58eaa085d78dc76c074",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/manager-lib.log": {
+      "published": "docs/evidence/p01-memory/owner-library-before-final-guard.log",
+      "sha256": "ce4bd08155f4aea7177d03bfcbf2a7000f19f3043c1f7351ca99e7576407ec4e",
+      "identical_copy": true
+    },
+    "manager-lib.log": {
+      "published": "docs/evidence/p01-memory/owner-library-before-final-guard.log",
+      "sha256": "ce4bd08155f4aea7177d03bfcbf2a7000f19f3043c1f7351ca99e7576407ec4e",
+      "identical_copy": true
+    },
+    "owner manager-lib.log": {
+      "published": "docs/evidence/p01-memory/owner-library-before-final-guard.log",
+      "sha256": "ce4bd08155f4aea7177d03bfcbf2a7000f19f3043c1f7351ca99e7576407ec4e",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/verify.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification-failure.log",
+      "sha256": "d52c12e8e7b7ed84cbfcc9265575d7b1a3bd84c066ed9d75b7d142ef6b280b14",
+      "identical_copy": true
+    },
+    "verify.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification-failure.log",
+      "sha256": "d52c12e8e7b7ed84cbfcc9265575d7b1a3bd84c066ed9d75b7d142ef6b280b14",
+      "identical_copy": true
+    },
+    "owner verify.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification-failure.log",
+      "sha256": "d52c12e8e7b7ed84cbfcc9265575d7b1a3bd84c066ed9d75b7d142ef6b280b14",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/verify-isolated.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification.log",
+      "sha256": "0874792c229809562d2ea08a1bca868c76456a15b54aa2deaa4e1a43ac17ac17",
+      "identical_copy": true
+    },
+    "verify-isolated.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification.log",
+      "sha256": "0874792c229809562d2ea08a1bca868c76456a15b54aa2deaa4e1a43ac17ac17",
+      "identical_copy": true
+    },
+    "owner verify-isolated.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-verification.log",
+      "sha256": "0874792c229809562d2ea08a1bca868c76456a15b54aa2deaa4e1a43ac17ac17",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/verify-final.log": {
+      "published": "docs/evidence/p01-memory/repository-verification.log",
+      "sha256": "720ac8cb43bde0dbb2f7bbaaa17f1e15b769f5dd4949932d3d7c845d1d3b5bc2",
+      "identical_copy": true
+    },
+    "verify-final.log": {
+      "published": "docs/evidence/p01-memory/repository-verification.log",
+      "sha256": "720ac8cb43bde0dbb2f7bbaaa17f1e15b769f5dd4949932d3d7c845d1d3b5bc2",
+      "identical_copy": true
+    },
+    "owner verify-final.log": {
+      "published": "docs/evidence/p01-memory/repository-verification.log",
+      "sha256": "720ac8cb43bde0dbb2f7bbaaa17f1e15b769f5dd4949932d3d7c845d1d3b5bc2",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/p01-state.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-state-test.log",
+      "sha256": "6fe6bd1a7b62063ee73768c979a632c2eb8a7a58ce7eaaeff37a1117999614b6",
+      "identical_copy": true
+    },
+    "p01-state.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-state-test.log",
+      "sha256": "6fe6bd1a7b62063ee73768c979a632c2eb8a7a58ce7eaaeff37a1117999614b6",
+      "identical_copy": true
+    },
+    "owner p01-state.log": {
+      "published": "docs/evidence/p01-memory/owner-initial-state-test.log",
+      "sha256": "6fe6bd1a7b62063ee73768c979a632c2eb8a7a58ce7eaaeff37a1117999614b6",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/escaped-secret-before.log": {
+      "published": "docs/evidence/p01-memory/escaped-secret-before.log",
+      "sha256": "5a4bee0572be10718c31ba120a20f4f7cc07bb9bac9aefee166286e92a959e51",
+      "identical_copy": true
+    },
+    "escaped-secret-before.log": {
+      "published": "docs/evidence/p01-memory/escaped-secret-before.log",
+      "sha256": "5a4bee0572be10718c31ba120a20f4f7cc07bb9bac9aefee166286e92a959e51",
+      "identical_copy": true
+    },
+    "owner escaped-secret-before.log": {
+      "published": "docs/evidence/p01-memory/escaped-secret-before.log",
+      "sha256": "5a4bee0572be10718c31ba120a20f4f7cc07bb9bac9aefee166286e92a959e51",
+      "identical_copy": true
+    },
+    "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/.audit/p01-memory/rotated-secret-before.log": {
+      "published": "docs/evidence/p01-memory/rotated-secret-before.log",
+      "sha256": "2369d317321699f687758b75f29d614e6e3e5d35d9471cf5e0be42a816beee1b",
+      "identical_copy": true
+    },
+    "rotated-secret-before.log": {
+      "published": "docs/evidence/p01-memory/rotated-secret-before.log",
+      "sha256": "2369d317321699f687758b75f29d614e6e3e5d35d9471cf5e0be42a816beee1b",
+      "identical_copy": true
+    },
+    "owner rotated-secret-before.log": {
+      "published": "docs/evidence/p01-memory/rotated-secret-before.log",
+      "sha256": "2369d317321699f687758b75f29d614e6e3e5d35d9471cf5e0be42a816beee1b",
+      "identical_copy": true
+    },
+    "parent design/selected.md": {
+      "published": "docs/evidence/p01-memory/design-selected.md",
+      "sha256": "b282d8f140093a731a0d053e5dbb0c3da9e5133e4c6a9de6e5e77ba0b2982815",
+      "identical_copy": true
+    },
+    "astra.md": {
+      "published": "docs/evidence/p01-memory/design-base.md",
+      "sha256": "bba458aecaaf1c0904f940a31dad1511b87319401b34cbc514fec46f65141ffc",
+      "identical_copy": true
+    }
+  },
+  "note": "Historical pointer text is preserved. Aliases resolve to byte-identical published copies."
+}

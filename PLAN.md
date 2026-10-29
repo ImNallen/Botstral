@@ -224,6 +224,8 @@ These are product outcomes. Split implementation into smaller changes as needed.
 
 Depends on M03 and M04.
 
+Recorded provider checks verify that a new run receives corrected per-bot Memory after a manager restart. See [memory snapshot scope and proof](docs/p01-memory.md). The remaining P01 checklist stays open.
+
 - [ ] Store durable preferences, decisions, task summaries, and source references separately for each bot.
 - [ ] Build local FTS5 search from the Markdown source and verify that deleting and rebuilding the index preserves retrievable memory.
 - [ ] Retrieve relevant memory in later conversations without sending every historical message to the model.

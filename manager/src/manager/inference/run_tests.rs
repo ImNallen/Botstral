@@ -930,3 +930,6 @@ async fn p03_manager_loop_executes_without_owner_clients_and_recovers_inbox() {
     assert_eq!(inbox[0].run, result.run);
     app.shutdown().await;
 }
+
+#[path = "memory_tests.rs"]
+mod memory_tests;

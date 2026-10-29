@@ -24,7 +24,7 @@ impl State {
         Ok(r.state == RoutineState::Enabled && r.definition.wakeups.is_some())
     }
     pub(in crate::manager::state) fn prepare_wakeup(
-        &self,
+        &mut self,
         parent: RunId,
         turn: RunTurnId,
         call: &str,

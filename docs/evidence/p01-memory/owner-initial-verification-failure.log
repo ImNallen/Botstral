@@ -1,0 +1,74 @@
+./scripts/verify.sh
+    Checking tokio v1.54.1
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/link)
+    Checking time-core v0.1.9
+    Checking deranged v0.5.9
+    Checking powerfmt v0.2.1
+    Checking num-conv v0.2.2
+    Checking pem v3.0.6
+    Checking time v0.3.55
+    Checking yasna v0.5.2
+    Checking rcgen v0.13.2
+    Checking tokio-rustls v0.26.6
+    Checking hyper v1.12.0
+    Checking tokio-tungstenite v0.28.0
+    Checking tower v0.5.3
+    Checking tokio-util v0.7.20
+    Checking tower-http v0.6.11
+    Checking hyper-util v0.1.21
+    Checking hyper-rustls v0.27.10
+    Checking axum v0.8.9
+    Checking reqwest v0.12.28
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/link/client)
+    Checking botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/agent)
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.29s
+   Compiling tokio v1.54.1
+   Compiling bitflags v2.13.2
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/link)
+   Compiling security-framework v3.7.0
+   Compiling rusqlite v0.38.0
+   Compiling rustls-native-certs v0.8.5
+   Compiling hyper v1.12.0
+   Compiling tokio-rustls v0.26.6
+   Compiling tokio-tungstenite v0.28.0
+   Compiling tower v0.5.3
+   Compiling tokio-util v0.7.20
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/link/client)
+   Compiling tower-http v0.6.11
+   Compiling hyper-util v0.1.21
+   Compiling hyper-rustls v0.27.10
+   Compiling axum v0.8.9
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/agent)
+   Compiling reqwest v0.12.28
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.47s
+test_connector_interpreter_is_verified_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_manager_and_worker_cannot_share_an_installation_root (test_install.InstallationTests) ... ok
+test_real_manager_uses_file_configuration_and_private_tls (test_install.InstallationTests) ... FAIL
+test_sealed_vibe_runtime_is_accepted_and_tampering_is_refused (test_install.InstallationTests) ... ok
+test_separate_install_layout_and_refusal (test_install.InstallationTests) ... ok
+test_staging_symlink_cannot_escape_install_root (test_install.InstallationTests) ... ok
+test_available_ledger_bytes_are_required (test_recovery.RecoveryTests) ... ok
+test_backup_links_and_extra_content_are_refused (test_recovery.RecoveryTests) ... ok
+test_flock_matches_service (test_recovery.RecoveryTests) ... ok
+test_future_database_schema_is_refused (test_recovery.RecoveryTests) ... ok
+test_link_and_source_change_refusals (test_recovery.RecoveryTests) ... ok
+test_malicious_manifest_refusals_before_destination (test_recovery.RecoveryTests) ... ok
+test_schema_11_restores_frozen_run_memory_and_immutable_guard (test_recovery.RecoveryTests) ... ok
+test_wal_restore_and_locked_state (test_recovery.RecoveryTests) ... ok
+test_selected_guest_roots_identity_evidence_and_no_clone (test_recovery.WorkerRecoveryTests) ... ok
+
+======================================================================
+FAIL: test_real_manager_uses_file_configuration_and_private_tls (test_install.InstallationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-dfacc57c/manager/packaging/test_install.py", line 105, in test_real_manager_uses_file_configuration_and_private_tls
+    self.assertTrue(manager.is_file(), 'build the manager before running installation tests')
+AssertionError: False is not true : build the manager before running installation tests
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.218s
+
+FAILED (failures=1)
+make: *** [verify] Error 1

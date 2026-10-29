@@ -27,6 +27,21 @@ impl State {
         }
         let now = self.now();
         let owner = self.principal()?;
+        let test = if let RoutineAction::Test {
+            id,
+            expected_revision,
+        } = &input.action
+        {
+            let r = self.load_routine(*id)?;
+            if r.revision != *expected_revision {
+                return Err(OperationError::Conflict);
+            }
+            let (o, run) =
+                self.prepare_occurrence(&r, format!("test:{}", input.id), now, 0, None, None)?;
+            Some((r, o, run))
+        } else {
+            None
+        };
         let tx = self.connection.unchecked_transaction()?;
         let message = match &input.action {
             RoutineAction::Create { id, definition } => {
@@ -114,16 +129,8 @@ impl State {
                 save_routine(&tx, &r)?;
                 "Routine deleted."
             }
-            RoutineAction::Test {
-                id,
-                expected_revision,
-            } => {
-                let r = self.load_routine(*id)?;
-                if r.revision != *expected_revision {
-                    return Err(OperationError::Conflict);
-                }
-                let (o, run) =
-                    self.prepare_occurrence(&r, format!("test:{}", input.id), now, 0, None, None)?;
+            RoutineAction::Test { .. } => {
+                let (r, o, run) = test.ok_or(OperationError::Internal)?;
                 Self::commit_occurrence(&tx, owner, &r, &o, run.as_ref())?;
                 "Live bounded test recorded."
             }

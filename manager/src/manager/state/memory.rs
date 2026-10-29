@@ -22,6 +22,33 @@ fn encode(document: &Document) -> Result<Vec<u8>, OperationError> {
     )
     .into_bytes())
 }
+pub(super) fn validate_document_shape(document: &Document) -> Result<(), OperationError> {
+    if document.revision == 0
+        || document.revision > MAX_COUNTER
+        || document.markdown.len() > 4096
+        || document.sources.is_empty()
+        || document.sources.len() > 8
+    {
+        return Err(OperationError::InvalidInput);
+    }
+    for source in &document.sources {
+        if let SourceReference::External { reference } = source
+            && !(reference.parse::<hyper::Uri>().ok().is_some_and(|uri| {
+                uri.scheme_str() == Some("https")
+                    && uri
+                        .authority()
+                        .is_some_and(|a| !a.host().is_empty() && !a.as_str().contains('@'))
+            }) && reference.len() <= 512
+                && !reference
+                    .chars()
+                    .any(|c| c.is_whitespace() || c.is_control())
+                && reference.len() > 8)
+        {
+            return Err(OperationError::InvalidInput);
+        }
+    }
+    Ok(())
+}
 impl State {
     fn read_document(&self, path: &std::path::Path) -> Result<Document, OperationError> {
         let bytes =
@@ -51,12 +78,7 @@ impl State {
     fn validate_document(&self, document: &Document) -> Result<(), OperationError> {
         self.find_bot(document.bot)?
             .ok_or(OperationError::NotFound)?;
-        if document.markdown.len() > 4096
-            || document.sources.is_empty()
-            || document.sources.len() > 8
-        {
-            return Err(OperationError::InvalidInput);
-        }
+        validate_document_shape(document)?;
         for source in &document.sources {
             let valid = match source {
                 SourceReference::Task { id } => self.load_task(*id)?.command.bot == document.bot,
@@ -64,18 +86,7 @@ impl State {
                     let bot: Option<String> = self.connection.query_row("SELECT conversations.bot FROM messages JOIN conversations ON conversations.id=messages.conversation WHERE messages.id=?1", [id.to_string()], |r| r.get(0)).optional()?;
                     bot == Some(document.bot.to_string())
                 }
-                SourceReference::External { reference } => {
-                    reference.parse::<hyper::Uri>().ok().is_some_and(|uri| {
-                        uri.scheme_str() == Some("https")
-                            && uri
-                                .authority()
-                                .is_some_and(|a| !a.host().is_empty() && !a.as_str().contains('@'))
-                    }) && reference.len() <= 512
-                        && !reference
-                            .chars()
-                            .any(|c| c.is_whitespace() || c.is_control())
-                        && reference.len() > 8
-                }
+                SourceReference::External { .. } => true,
             };
             if !valid {
                 return Err(OperationError::InvalidInput);
