@@ -43,6 +43,8 @@ node desktop/fixtures/p01-memory-proof.mjs /absolute/path/to/playwright/index.mj
 
 Playwright and Chromium must already be installed. Proof tooling adds no package dependency and starts no preview server. The fixture uses an isolated actual manager, a recorded local provider, and a synthetic worker. No paid or real external inference runs.
 
-## Implementation checkpoint
+## Independent review and integration
 
-Grounded design and the owner's baseline frontend checks were complete before implementation. One exclusive worktree owns the coupled frontend, native projection, journal, tests, and fixtures. These layers share a revision contract, so one implementation owner keeps their changes together. Root owns independent review and integration. There is no contract deviation. No pull request, push, merge, or watch is part of this handoff.
+Independent Astra review found no correctness defect and replayed the actual-manager native Memory fixture. Integration replay passed all 42 frontend tests and 15 manager P01 tests. Workspace and native all-target Clippy passed with warnings denied. The component video replay passed without page errors and reproduced byte-identical saved and conflict images. [Integration results](evidence/p01-desktop-memory/integration.json) record the checked implementation and limits.
+
+The inline editor keeps one temporary draft per selected bot and owner session. Native code owns sources and durable write recovery. This keeps the correction workflow small without a controller-wide draft store or a new protocol operation.
