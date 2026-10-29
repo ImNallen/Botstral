@@ -28,8 +28,12 @@ export async function verifyRuntime(root, profile, send, privateBody) {
   await new Promise(resolve => gateway.listen(path.join(execution, 'protected.sock'), resolve));
   const results = [];
   const initialHistory = await fs.readFile(path.join(root, 'automation-protection.json'), 'utf8');
+  const markerPath = path.join(profile, '.botstral-profile.json');
+  const initialMarker = await fs.readFile(markerPath, 'utf8');
   try {
-    for (const test of ['safe_text', 'echo_text', 'screenshot', 'profile_file', 'alias_export', 'missing_inventory', 'corrupt_provenance']) {
+    for (const test of ['safe_text', 'echo_text', 'screenshot', 'profile_file', 'alias_export', 'missing_inventory', 'corrupt_provenance', 'metadata_rollback', 'partial_publication', 'legacy_marker']) {
+      await fs.writeFile(path.join(root, 'automation-protection.json'), initialHistory);
+      await fs.writeFile(markerPath, initialMarker);
       const outputRoot = path.join(execution, test);
       await fs.mkdir(outputRoot);
       const output = { slot: 'result', name: 'result', media_type: test === 'screenshot' ? 'png' : 'text_plain', max_bytes: 8192 };
@@ -43,8 +47,20 @@ export async function verifyRuntime(root, profile, send, privateBody) {
       if (test === 'missing_inventory') {
         const history = JSON.parse(initialHistory); history.protection.releases.push(crypto.randomUUID());
         await fs.writeFile(path.join(root, 'automation-protection.json'), JSON.stringify(history));
+        await fs.writeFile(markerPath, JSON.stringify({ profile: history.protection.profile, releases: history.protection.releases }));
       }
       if (test === 'corrupt_provenance') await fs.writeFile(path.join(root, 'automation-protection.json'), '{}');
+      if (test === 'metadata_rollback') {
+        const history = JSON.parse(initialHistory); history.protection.releases = [];
+        await fs.writeFile(path.join(root, 'automation-protection.json'), JSON.stringify(history));
+        operation = { type: 'screenshot', output: 'result' };
+      }
+      if (test === 'partial_publication') {
+        const marker = JSON.parse(initialMarker); marker.releases.push(crypto.randomUUID());
+        await fs.writeFile(markerPath, JSON.stringify(marker));
+      }
+      if (test === 'legacy_marker') await fs.writeFile(markerPath, JSON.stringify(JSON.parse(initialMarker).profile));
+      if (operation.type === 'screenshot') output.media_type = 'png';
       const spec = path.join(execution, 'spec.json');
       await fs.writeFile(spec, JSON.stringify({ viewport: { width: 800, height: 600 }, operations: [{ type: 'navigate', url: origin }, operation], outputs: [output] }));
       const child = spawn(process.execPath, ['agent/runtime/run.mjs', 'run', spec, profile, outputRoot], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -71,6 +87,7 @@ export async function verifyRuntime(root, profile, send, privateBody) {
     return { results, scan: 'Actual runtime specifications and output files, raw and escaped synthetic inventory. Browser profile is the protected private state, not a public artifact.' };
   } finally {
     await fs.writeFile(path.join(root, 'automation-protection.json'), initialHistory);
+    await fs.writeFile(markerPath, initialMarker);
     await new Promise(resolve => gateway.close(resolve));
     await new Promise(resolve => server.close(resolve));
   }

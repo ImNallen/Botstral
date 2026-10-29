@@ -8,7 +8,10 @@ export async function protection(profile) {
     const history = JSON.parse(await fs.readFile(path.join(path.dirname(profile), 'automation-protection.json'), 'utf8'));
     const marker = JSON.parse(await fs.readFile(path.join(profile, '.botstral-profile.json'), 'utf8'));
     const p = history.protection;
-    if (p.type !== 'tracked' || p.profile !== marker || !Array.isArray(p.releases) || typeof p.complete !== 'boolean') return { type: 'unknown' };
+    if (p.type !== 'tracked' || p.profile !== marker.profile || !Array.isArray(p.releases)
+      || !Array.isArray(marker.releases) || p.releases.length !== marker.releases.length
+      || p.releases.some((release, index) => release !== marker.releases[index])
+      || typeof p.complete !== 'boolean') return { type: 'unknown' };
     return p;
   } catch { return { type: 'unknown' }; }
 }

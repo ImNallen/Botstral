@@ -35,7 +35,9 @@ def main():
     if not args.baseline:
         commands += [
             ('profile', ['cargo', 'test', '-p', 'botstral-agent', '--locked', '--lib', 'protected_browser::']),
+            ('profile-runtime', ['node', 'agent/tests/p06_profile_provenance.mjs']),
             ('native-storage', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_protected_entry_never_enters_native_journal']),
+            ('native-locked-unlock', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_locked_reads_preserve_the_paired_unlock_path']),
             ('browser', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'p06_controlled_browser_acceptance', '--', '--ignored', '--nocapture']),
             ('submission-boundary', ['node', 'agent/tests/p06_submission_boundary.mjs']),
             ('entry-component', ['node', 'desktop/fixtures/p06-entry.mjs']),

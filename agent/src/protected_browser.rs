@@ -29,6 +29,30 @@ struct History {
     protection: ProfileProtection,
     consumed: Vec<ReleaseId>,
 }
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ProfileMarker {
+    profile: ProfileEpoch,
+    releases: Vec<ReleaseId>,
+}
+fn publish_history(profile: &Path, history: &History) -> io::Result<()> {
+    let ProfileProtection::Tracked {
+        profile: epoch,
+        releases,
+        ..
+    } = &history.protection
+    else {
+        return Err(io::Error::other("unknown profile"));
+    };
+    process::write(&path(profile)?, history)?;
+    process::write(
+        &profile.join(".botstral-profile.json"),
+        &ProfileMarker {
+            profile: *epoch,
+            releases: releases.clone(),
+        },
+    )
+}
 fn path(profile: &Path) -> io::Result<PathBuf> {
     Ok(profile
         .parent()
@@ -44,9 +68,8 @@ pub(crate) fn initialize(profile: &Path, journal: JournalId) -> io::Result<()> {
     let epoch = ProfileEpoch::new();
     fs::create_dir_all(profile)?;
     fs::set_permissions(profile, fs::Permissions::from_mode(0o700))?;
-    process::write(&profile.join(".botstral-profile.json"), &epoch)?;
-    process::write(
-        &path(profile)?,
+    publish_history(
+        profile,
         &History {
             journal,
             protection: ProfileProtection::Tracked {
@@ -60,14 +83,16 @@ pub(crate) fn initialize(profile: &Path, journal: JournalId) -> io::Result<()> {
 }
 fn reconciled_history(profile: &Path, journal: JournalId) -> io::Result<History> {
     let mut history: History = process::read(&path(profile)?)?;
-    let marker: ProfileEpoch = process::read(&profile.join(".botstral-profile.json"))?;
+    let marker: ProfileMarker = process::read(&profile.join(".botstral-profile.json"))?;
     let ProfileProtection::Tracked {
-        profile, complete, ..
+        profile,
+        releases,
+        complete,
     } = &mut history.protection
     else {
         return Err(io::Error::other("unknown profile"));
     };
-    if *profile != marker || history.journal != journal {
+    if *profile != marker.profile || *releases != marker.releases || history.journal != journal {
         *complete = false;
     }
     Ok(history)
@@ -192,7 +217,7 @@ pub(crate) async fn handle(
                 releases.push(review.release);
             }
             history.consumed.push(review.release);
-            process::write(&path(&scope.profile)?, &history)?;
+            publish_history(&scope.profile, &history)?;
             *protection = history.protection;
         }
         ProtectedBrowserOperation::Screen { protection, .. } => *protection = history.protection,
@@ -215,6 +240,48 @@ pub(crate) async fn handle(
 mod tests {
     use super::*;
     #[test]
+    fn restored_or_incomplete_history_cannot_clear_a_newer_profile() {
+        for restore in ["history", "marker", "partial_publication"] {
+            let root = tempfile::tempdir().unwrap();
+            let profile = root.path().join("profile");
+            let journal = JournalId::new();
+            initialize(&profile, journal).unwrap();
+            let history_path = path(&profile).unwrap();
+            let marker_path = profile.join(".botstral-profile.json");
+            let old_history = fs::read(&history_path).unwrap();
+            let old_marker = fs::read(&marker_path).unwrap();
+            let mut current = reconciled_history(&profile, journal).unwrap();
+            let release = ReleaseId::new();
+            let ProfileProtection::Tracked { releases, .. } = &mut current.protection else {
+                panic!()
+            };
+            releases.push(release);
+            current.consumed.push(release);
+            fs::write(profile.join("Cookies"), b"newer synthetic browser state").unwrap();
+            if restore == "partial_publication" {
+                process::write(&history_path, &current).unwrap();
+            } else {
+                publish_history(&profile, &current).unwrap();
+                if restore == "history" {
+                    fs::write(&history_path, old_history).unwrap();
+                } else {
+                    fs::write(&marker_path, old_marker).unwrap();
+                }
+            }
+            initialize(&profile, journal).unwrap();
+            assert!(
+                matches!(
+                    reconciled_history(&profile, journal).unwrap().protection,
+                    ProfileProtection::Tracked {
+                        complete: false,
+                        ..
+                    }
+                ),
+                "{restore} must not reopen capture"
+            );
+        }
+    }
+    #[test]
     fn profile_provenance_survives_restart_and_journal_replacement_refuses_capture() {
         let root = tempfile::tempdir().unwrap();
         let profile = root.path().join("profile");
@@ -231,7 +298,7 @@ mod tests {
         assert!(*complete);
         releases.push(release);
         before.consumed.push(release);
-        process::write(&path(&profile).unwrap(), &before).unwrap();
+        publish_history(&profile, &before).unwrap();
         initialize(&profile, journal).unwrap();
         assert_eq!(
             reconciled_history(&profile, journal).unwrap().protection,

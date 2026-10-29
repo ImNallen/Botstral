@@ -77,7 +77,7 @@ try {
     await fs.mkdir(profile, { recursive: true, mode: 0o700 });
     const profileId = crypto.randomUUID();
     let history = { protection: { type: 'tracked', profile: profileId, releases: [], complete: true } };
-    await fs.writeFile(path.join(profile, '.botstral-profile.json'), JSON.stringify(profileId));
+    await fs.writeFile(path.join(profile, '.botstral-profile.json'), JSON.stringify({ profile: profileId, releases: [] }));
     await fs.writeFile(path.join(caseRoot, 'automation-protection.json'), JSON.stringify(history));
     context = await chromium.launchPersistentContext(profile, { executablePath: process.env.BOTSTRAL_CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true, ignoreHTTPSErrors: true, serviceWorkers: 'block', acceptDownloads: false });
     const page = context.pages()[0];
@@ -89,6 +89,7 @@ try {
       if (operation.type === 'release') {
         history.protection.releases.push(review.release);
         await fs.writeFile(path.join(caseRoot, 'automation-protection.json'), JSON.stringify(history));
+        await fs.writeFile(path.join(profile, '.botstral-profile.json'), JSON.stringify({ profile: profileId, releases: history.protection.releases }));
         operation.protection = history.protection;
       }
       let reply = await manager({ type: 'operation', operation });
