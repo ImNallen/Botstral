@@ -610,3 +610,6 @@ mod restart_tests;
 mod routine_tests;
 #[path = "vision_tests.rs"]
 mod vision_tests;
+
+#[path = "memory_tests.rs"]
+mod memory_tests;

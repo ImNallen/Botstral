@@ -2,14 +2,14 @@ use super::*;
 
 impl State {
     pub(super) fn prepare_occurrence(
-        &self,
+        &mut self,
         routine: &RoutineView,
         key: String,
         at: i64,
         skipped: u32,
         prompt: Option<&str>,
         pending: Option<OccurrenceId>,
-    ) -> Result<(RoutineOccurrence, Option<RunView>), OperationError> {
+    ) -> Result<(RoutineOccurrence, Option<super::runs::PreparedRun>), OperationError> {
         let mut occurrence = RoutineOccurrence {
             id: pending.unwrap_or_default(),
             routine: routine.id,
@@ -52,7 +52,7 @@ impl State {
                 None
             }
         };
-        occurrence.run = run.as_ref().map(|r| r.summary.id);
+        occurrence.run = run.as_ref().map(|r| r.view.summary.id);
         Ok((occurrence, run))
     }
     pub(super) fn commit_occurrence(
@@ -60,10 +60,11 @@ impl State {
         owner: OwnerId,
         routine: &RoutineView,
         occurrence: &RoutineOccurrence,
-        run: Option<&RunView>,
+        run: Option<&super::runs::PreparedRun>,
     ) -> Result<(), OperationError> {
         if let Some(run) = run {
             super::runs::insert_run(db, owner, run)?;
+            let run = &run.view;
             db.execute(
                 "INSERT INTO routine_reservations VALUES(?1,?2,?3,?4)",
                 params![

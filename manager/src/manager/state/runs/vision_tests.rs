@@ -268,3 +268,27 @@ fn old_text_request_still_decodes() {
         .remove("vibe");
     assert_eq!(serde_json::from_value::<SubmitRun>(value).unwrap(), f.input);
 }
+
+#[test]
+fn p01_memory_precedes_the_unchanged_multimodal_prompt_and_images() {
+    let mut f = fixture();
+    let (reference, _) = image(&mut f);
+    let memory = memory_tests::remember(&mut f, 0, "Describe images concisely.");
+    f.input.images = vec![reference.clone()];
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    let RunMessage::User { content } = &p.turn.messages[0] else {
+        panic!()
+    };
+    assert_eq!(
+        serde_json::from_str::<Document>(content.split_once('\n').unwrap().1).unwrap(),
+        memory
+    );
+    let RunMessage::UserMultimodal { content, images } = &p.turn.messages[1] else {
+        panic!()
+    };
+    assert_eq!(content, &f.input.prompt);
+    assert_eq!(images.len(), 1);
+    assert_eq!(images[0].reference, reference);
+    assert_eq!(p.request, f.input);
+}

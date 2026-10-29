@@ -50,6 +50,27 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'must be new'):
             r.restore('manager', self.backup, restored)
 
+    def test_schema_11_restores_frozen_run_memory_and_immutable_guard(self):
+        self.db.executescript("CREATE TABLE runs(id TEXT PRIMARY KEY,owner TEXT,request TEXT,configuration TEXT,summary TEXT); CREATE TRIGGER immutable_run BEFORE UPDATE OF id ON runs BEGIN SELECT RAISE(ABORT, 'immutable run'); END;")
+        migration = Path(__file__).resolve().parents[1] / 'migrations/0011.sql'
+        self.db.executescript(migration.read_text())
+        memory = json.dumps({'bot': str(uuid.uuid4()), 'kind': 'memory', 'revision': 2,
+                             'sources': [{'type': 'external', 'reference': 'https://example.com/preference'}],
+                             'markdown': 'Use the corrected preference.'})
+        self.db.execute("INSERT INTO runs(id,owner,request,configuration,summary,memory_snapshot) VALUES('frozen','owner','{}','{}','{}',?)", (memory,))
+        self.db.execute("INSERT INTO runs(id,owner,request,configuration,summary,memory_snapshot) VALUES('legacy','owner','{}','{}','{}',NULL)")
+        self.db.commit()
+        self.private()
+        self.create()
+        restored = self.root / 'restored'
+        r.restore('manager', self.backup, restored)
+        with sqlite3.connect(restored / 'manager.sqlite3') as db:
+            self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0], 11)
+            self.assertEqual(db.execute('SELECT id,memory_snapshot FROM runs ORDER BY id').fetchall(),
+                             [('frozen', memory), ('legacy', None)])
+            with self.assertRaisesRegex(sqlite3.IntegrityError, 'immutable run'):
+                db.execute("UPDATE runs SET memory_snapshot=NULL WHERE id='frozen'")
+
     def test_flock_matches_service(self):
         with open(self.state / 'manager.lock', 'rb') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
