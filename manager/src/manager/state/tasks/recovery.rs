@@ -131,7 +131,7 @@ impl State {
                         [task.id.to_string()],
                         |r| r.get(0),
                     )?;
-                    if delivered && !task.state.terminal() {
+                    if delivered && execution_pending(&task) {
                         remember_uncertainty(&mut task, "journal_replaced")?;
                         save(&tx, &task)?;
                         event(&tx, "journal_replaced", task.id)?;
@@ -209,7 +209,7 @@ impl State {
             }
             if task.approval.consumed
                 && matches!(entry.phase, JournalPhase::Prepared)
-                && !task.state.terminal()
+                && execution_pending(&task)
             {
                 remember_uncertainty(&mut task, "consumed_permit_missing")?;
                 uncertain.push(task);
@@ -253,7 +253,7 @@ impl State {
         for view in views {
             let mut task: TaskView = parse(view)?;
             if task.approval.consumed
-                && !task.state.terminal()
+                && execution_pending(&task)
                 && !self
                     .worker_connections
                     .get(&lease.worker)
@@ -388,7 +388,8 @@ impl State {
                 }
                 _ => {}
             }
-            let was_terminal = task.state.terminal();
+            let stopped_unknown = Self::connector_stop_requires_attention(&tx, &task)?;
+            let was_terminal = task.state.terminal() || stopped_unknown;
             if !was_terminal
                 && matches!(
                     report.event,
@@ -442,6 +443,9 @@ impl State {
                     };
                 }
                 tx.execute("UPDATE artifacts SET reserved=0,state='unavailable' WHERE execution=?1 AND offer IS NULL",[task.command.execution.to_string()])?;
+            }
+            if stopped_unknown || Self::connector_stop_requires_attention(&tx, &task)? {
+                task.state = TaskState::AwaitingAttention;
             }
             save(&tx, &task)?;
             tx.execute(
@@ -526,7 +530,7 @@ impl State {
             .query_map([], |r| r.get::<_, String>(0))?
             .map(|row| {
                 parse::<TaskView>(row?).map(|t| {
-                    t.command.work.supervised() && t.approval.consumed && !t.state.terminal()
+                    t.command.work.supervised() && t.approval.consumed && execution_pending(&t)
                 })
             })
             .collect::<Result<Vec<_>, OperationError>>()?
@@ -653,7 +657,7 @@ fn capable(capabilities: &[Capability], work: &WorkSpec) -> bool {
 }
 
 pub(super) fn missing_process_scope(task: &TaskView) -> bool {
-    !task.state.terminal()
+    execution_pending(task)
         && task.approval.consumed
         && task.command.work.supervised()
         && task.effect_evidence.iter().any(|event| {

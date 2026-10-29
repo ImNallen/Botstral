@@ -9,6 +9,10 @@ pub(in crate::manager) enum ProcessControlStatus {
     Unproved,
 }
 
+pub(super) fn execution_pending(task: &TaskView) -> bool {
+    !task.state.terminal() && !matches!(task.outcome, Some(ExecutionEvent::Stopped { .. }))
+}
+
 pub(super) fn json<T: serde::Serialize>(value: &T) -> Result<String, OperationError> {
     serde_json::to_string(value).map_err(|_| OperationError::Internal)
 }
@@ -90,7 +94,10 @@ impl State {
         let rows = statement.query_map([worker.to_string()], |row| row.get::<_, String>(0))?;
         for row in rows {
             let task: TaskView = parse(row?)?;
-            if task.state.terminal() || !task.approval.consumed || !task.command.work.supervised() {
+            if !execution_pending(&task)
+                || !task.approval.consumed
+                || !task.command.work.supervised()
+            {
                 continue;
             }
             if recovery::missing_process_scope(&task) {
@@ -307,7 +314,7 @@ impl State {
     ) -> Result<TaskView, OperationError> {
         self.authorize_owner(&token.into())?;
         let mut task = self.load_task(id)?;
-        if task.state.terminal() || task.state == TaskState::Cancelling {
+        if !execution_pending(&task) || task.state == TaskState::Cancelling {
             return Ok(task);
         }
         task.state = TaskState::Cancelling;
@@ -378,7 +385,7 @@ impl State {
         let mut task = self.load_task(id)?;
         task.approval.revoked = true;
         let stop =
-            task.approval.consumed && task.command.work.supervised() && !task.state.terminal();
+            task.approval.consumed && task.command.work.supervised() && execution_pending(&task);
         if stop {
             task.state = TaskState::Cancelling;
         }
@@ -437,7 +444,7 @@ impl State {
         let mut workers = std::collections::HashSet::new();
         for view in views {
             let mut task: TaskView = parse(view)?;
-            if task.state.terminal() {
+            if !execution_pending(&task) {
                 continue;
             }
             if task.command.work.supervised() {

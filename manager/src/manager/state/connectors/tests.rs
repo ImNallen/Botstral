@@ -356,6 +356,186 @@ fn restart_retains_possible_effects_and_late_results_do_not_reopen_authority() {
         TaskState::Cancelling
     );
 }
+
+fn stop_reports(f: &Fixture, task: &TaskView) -> Vec<DurableReport> {
+    let scope = ProcessScope {
+        journal: f.journal,
+        execution: task.command.execution,
+        host: CertificateFingerprint::from_der(b"fixture host"),
+        boot: RequestId::new().to_string(),
+        invocation: "1".repeat(32),
+        unit: format!("botstral-{}-{}.service", f.journal, task.command.execution),
+        cgroup: format!(
+            "/fixture/botstral-{}-{}.service",
+            f.journal, task.command.execution
+        ),
+    };
+    vec![
+        DurableReport {
+            sequence: 1,
+            command: task.command.id,
+            execution: task.command.execution,
+            event: ExecutionEvent::Uncertain {
+                reason: "process_interrupted".into(),
+            },
+        },
+        DurableReport {
+            sequence: 2,
+            command: task.command.id,
+            execution: task.command.execution,
+            event: ExecutionEvent::Stopped {
+                applied: 0,
+                evidence: StopEvidence::SystemdScopeEmpty { scope },
+            },
+        },
+    ]
+}
+
+fn assert_unknown_connector_stop(unknown_before_stop: bool) {
+    let mut f = fixture();
+    let c = f.ready(true);
+    let task = f.call(&c);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    assert!(f.state.dispatch_connector(id).unwrap().is_some());
+    if unknown_before_stop {
+        f.state.recover_connectors().unwrap();
+    } else {
+        f.state.cancel_task(token(), task.id).unwrap();
+    }
+    let reports = stop_reports(&f, &task);
+    f.state
+        .durable_reports(f.lease, f.journal, 1, vec![reports[0].clone()])
+        .unwrap();
+    assert_eq!(
+        f.state.load_task(task.id).unwrap().state,
+        TaskState::Cancelling
+    );
+    assert!(
+        std::iter::from_fn(|| f.outbound.try_recv().ok()).any(|message| {
+            matches!(message.message, ManagerMessage::Delivery(delivery)
+            if delivery.body.task == task.id && delivery.cancel)
+        })
+    );
+    f.state
+        .durable_reports(f.lease, f.journal, 2, vec![reports[1].clone()])
+        .unwrap();
+    if !unknown_before_stop {
+        assert_eq!(
+            f.state.load_task(task.id).unwrap().state,
+            TaskState::Cancelled
+        );
+        f.state.recover_connectors().unwrap();
+    }
+    let stopped = f.state.load_task(task.id).unwrap();
+    assert_eq!(stopped.state, TaskState::AwaitingAttention);
+    assert_eq!(stopped.outcome, Some(reports[1].event.clone()));
+    assert_eq!(stopped.effect_evidence, vec![reports[0].event.clone()]);
+    assert!(stopped.approval.consumed);
+    assert_eq!(stopped.approval, task.approval);
+    assert!(f.state.grant_approval(token(), task.id, 1400).is_err());
+    assert!(f.state.dispatch_connector(id).unwrap().is_none());
+    let late = f
+        .state
+        .settle_local_connector(peer(), task.id, task.command.execution, id, outcome())
+        .unwrap();
+    assert!(gateway::unknown(&late));
+    assert!(late.late_result.is_some());
+    f.state
+        .durable_reports(f.lease, f.journal, 2, reports.clone())
+        .unwrap();
+    assert_eq!(f.state.load_task(task.id).unwrap(), stopped);
+    let mut repeated = reports;
+    for report in &mut repeated {
+        report.sequence += 2;
+        f.state
+            .durable_reports(f.lease, f.journal, report.sequence, vec![report.clone()])
+            .unwrap();
+        assert_eq!(f.state.load_task(task.id).unwrap(), stopped);
+    }
+}
+
+#[test]
+fn unknown_connector_before_stop_requires_attention() {
+    assert_unknown_connector_stop(true);
+}
+
+#[test]
+fn unknown_connector_after_stop_requires_attention() {
+    assert_unknown_connector_stop(false);
+}
+
+#[test]
+fn reopening_cancelled_unknown_connector_requires_attention() {
+    use std::{fs, os::unix::fs::PermissionsExt};
+    let mut f = fixture();
+    let c = f.ready(true);
+    let task = f.call(&c);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    assert!(f.state.dispatch_connector(id).unwrap().is_some());
+    f.state.recover_connectors().unwrap();
+    let reports = stop_reports(&f, &task);
+    f.state
+        .durable_reports(f.lease, f.journal, 2, reports)
+        .unwrap();
+    let mut legacy = f.state.load_task(task.id).unwrap();
+    legacy.state = TaskState::Cancelled;
+    tasks::save(&f.state.connection, &legacy).unwrap();
+    let path = f.state.directory.join("manager.sqlite3");
+    f.state
+        .connection
+        .execute("VACUUM INTO ?1", [path.to_str().unwrap()])
+        .unwrap();
+    fs::set_permissions(
+        f.state.directory.join("memory-index.sqlite3"),
+        fs::Permissions::from_mode(0o600),
+    )
+    .unwrap();
+    let (configured, _) = watch::channel(false);
+    let mut reopened = State::open(f.state.directory.clone(), configured).unwrap();
+    let repaired = reopened.load_task(task.id).unwrap();
+    assert_eq!(repaired.state, TaskState::AwaitingAttention);
+    legacy.state = TaskState::AwaitingAttention;
+    assert_eq!(repaired, legacy);
+    assert!(gateway::unknown(&reopened.load_connector_call(id).unwrap()));
+    assert!(reopened.dispatch_connector(id).unwrap().is_none());
+    assert!(reopened.grant_approval(token(), task.id, 1400).is_err());
+    let sequence = reopened.change_sequence();
+    reopened.recover_connectors().unwrap();
+    assert_eq!(reopened.change_sequence(), sequence);
+    assert_eq!(reopened.load_task(task.id).unwrap(), repaired);
+}
+
+#[test]
+fn confirmed_connector_cancellation_remains_cancelled() {
+    for dispatched in [false, true] {
+        let mut f = fixture();
+        let c = f.ready(true);
+        let task = f.call(&c);
+        let id = ConnectorCallId::new();
+        f.reserve(&task, id);
+        if dispatched {
+            assert!(f.state.dispatch_connector(id).unwrap().is_some());
+            f.state.finish_connector(id, outcome()).unwrap();
+        } else {
+            f.state.recover_connectors().unwrap();
+        }
+        f.state.cancel_task(token(), task.id).unwrap();
+        let reports = stop_reports(&f, &task);
+        f.state
+            .durable_reports(f.lease, f.journal, 2, reports.clone())
+            .unwrap();
+        let stopped = f.state.load_task(task.id).unwrap();
+        assert_eq!(stopped.state, TaskState::Cancelled);
+        assert_eq!(stopped.outcome, Some(reports[1].event.clone()));
+        assert_eq!(stopped.effect_evidence, vec![reports[0].event.clone()]);
+        assert!(stopped.approval.consumed);
+        assert!(!gateway::unknown(&f.state.load_connector_call(id).unwrap()));
+        assert!(f.state.dispatch_connector(id).unwrap().is_none());
+    }
+}
+
 #[test]
 fn in_flight_revoke_keeps_unknown_and_audits_late_evidence() {
     let mut f = fixture();
@@ -874,4 +1054,131 @@ fn credential_words_cannot_corrupt_discovery_or_tool_settlement_envelopes() {
     };
     assert_eq!(value["content"][0]["text"], "[redacted]");
     assert_eq!(value["[redacted]"], "[redacted]");
+}
+
+fn stopped_unknown() -> (Fixture, TaskView) {
+    let mut f = fixture();
+    let c = f.ready(true);
+    let task = f.call(&c);
+    let id = ConnectorCallId::new();
+    f.reserve(&task, id);
+    assert!(f.state.dispatch_connector(id).unwrap().is_some());
+    f.state.recover_connectors().unwrap();
+    let reports = stop_reports(&f, &task);
+    f.state
+        .durable_reports(f.lease, f.journal, 2, reports)
+        .unwrap();
+    let stopped = f.state.load_task(task.id).unwrap();
+    assert_eq!(stopped.state, TaskState::AwaitingAttention);
+    (f, stopped)
+}
+#[test]
+fn journal_replacement_preserves_stopped_proof() {
+    let (mut f, stopped) = stopped_unknown();
+    f.state
+        .recovery_hello(f.lease, JournalId::new(), 0)
+        .unwrap();
+    assert_eq!(
+        f.state.load_task(stopped.id).unwrap().outcome,
+        stopped.outcome
+    );
+}
+#[test]
+fn missing_inventory_preserves_stopped_proof() {
+    let (mut f, stopped) = stopped_unknown();
+    f.state
+        .worker_connections
+        .get_mut(&f.lease.worker)
+        .unwrap()
+        .inventory
+        .clear();
+    f.state
+        .reconcile_inventory(f.lease, f.journal, 0, 0, vec![])
+        .unwrap();
+    assert_eq!(
+        f.state.load_task(stopped.id).unwrap().outcome,
+        stopped.outcome
+    );
+}
+#[test]
+fn cancel_stopped_unknown_is_idempotent() {
+    let (mut f, stopped) = stopped_unknown();
+    assert_eq!(f.state.cancel_task(token(), stopped.id).unwrap(), stopped);
+}
+#[test]
+fn revocation_preserves_attention() {
+    let (mut f, stopped) = stopped_unknown();
+    f.state.revoke_approval(token(), stopped.id).unwrap();
+    let receipt: String = f
+        .state
+        .connection
+        .query_row(
+            "SELECT body FROM report_receipts WHERE sequence=2",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let duplicate: DurableReport = parse(receipt).unwrap();
+    f.state
+        .durable_reports(f.lease, f.journal, 2, vec![duplicate])
+        .unwrap();
+    assert_eq!(
+        f.state.load_task(stopped.id).unwrap().state,
+        TaskState::AwaitingAttention
+    );
+}
+
+#[test]
+fn stopped_unknown_does_not_occupy_supervised_execution() {
+    let (mut f, stopped) = stopped_unknown();
+    assert!(
+        f.state
+            .process_control_status(f.lease.worker)
+            .unwrap()
+            .is_empty()
+    );
+    let connection = f.ready(true);
+    let next = f.call(&connection);
+    assert!(next.approval.consumed);
+    assert_eq!(f.state.load_task(stopped.id).unwrap(), stopped);
+}
+#[test]
+fn permission_revocation_preserves_stopped_unknown_attention() {
+    let (mut f, stopped) = stopped_unknown();
+    let policy = f.state.permission(f.bot).unwrap();
+    f.state
+        .set_permission(token(), f.bot, policy.revision, false)
+        .unwrap();
+    let current = f.state.load_task(stopped.id).unwrap();
+    assert_eq!(current.state, TaskState::AwaitingAttention);
+    assert_eq!(current.outcome, stopped.outcome);
+}
+
+#[test]
+fn bot_deletion_preserves_stopped_unknown_attention() {
+    let (mut f, stopped) = stopped_unknown();
+    f.state
+        .routine_command(
+            token(),
+            RoutineCommand {
+                id: RequestId::new(),
+                action: RoutineAction::DeleteBot { bot: f.bot },
+            },
+        )
+        .unwrap();
+    let receipt: String = f
+        .state
+        .connection
+        .query_row(
+            "SELECT body FROM report_receipts WHERE sequence=2",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    f.state
+        .durable_reports(f.lease, f.journal, 2, vec![parse(receipt).unwrap()])
+        .unwrap();
+    let after = f.state.load_task(stopped.id).unwrap();
+    assert_eq!(after.outcome, stopped.outcome);
+    assert_eq!(after.state, TaskState::AwaitingAttention);
 }

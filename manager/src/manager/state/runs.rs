@@ -367,7 +367,7 @@ impl State {
         };
         let child_changes = children
             .iter()
-            .any(|task| !task.state.terminal() && task.state != TaskState::Cancelling);
+            .any(|task| tasks::execution_pending(task) && task.state != TaskState::Cancelling);
         if previous == view.summary && !child_changes {
             return Ok(());
         }
@@ -376,7 +376,7 @@ impl State {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         for task in &mut children {
-            if !task.state.terminal() && task.state != TaskState::Cancelling {
+            if tasks::execution_pending(task) && task.state != TaskState::Cancelling {
                 task.state = TaskState::Cancelling;
                 tx.execute(
                     "INSERT OR IGNORE INTO cancellations VALUES(?1,?2)",
