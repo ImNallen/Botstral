@@ -1,0 +1,22 @@
+× user-runtime-dir@10001.service - User Runtime Directory /run/user/10001
+     Loaded: loaded (/usr/lib/systemd/system/user-runtime-dir@.service; static)
+     Active: failed (Result: exit-code) since Thu 2026-10-29 21:38:26 UTC; 17s ago
+       Docs: man:user@.service(5)
+    Process: 56 ExecStart=/usr/lib/systemd/systemd-user-runtime-dir start 10001 (code=exited, status=255/EXCEPTION)
+   Main PID: 56 (code=exited, status=255/EXCEPTION)
+        CPU: 0
+
+× systemd-journald.service - Journal Service
+     Loaded: loaded (/usr/lib/systemd/system/systemd-journald.service; static)
+    Drop-In: /usr/lib/systemd/system/systemd-journald.service.d
+             └─nice.conf
+     Active: failed (Result: exit-code) since Thu 2026-10-29 21:38:26 UTC; 17s ago
+TriggeredBy: × systemd-journald-dev-log.socket
+             ○ systemd-journald-audit.socket
+             × systemd-journald.socket
+       Docs: man:systemd-journald.service(8)
+             man:journald.conf(5)
+    Process: 40 ExecStart=/usr/lib/systemd/systemd-journald (code=exited, status=255/EXCEPTION)
+   Main PID: 40 (code=exited, status=255/EXCEPTION)
+   FD Store: 0 (limit: 4224)
+        CPU: 0

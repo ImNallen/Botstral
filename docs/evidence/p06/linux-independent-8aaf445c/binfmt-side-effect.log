@@ -1,0 +1,12 @@
+● systemd-binfmt.service - Set Up Additional Binary Formats
+     Loaded: loaded (/usr/lib/systemd/system/systemd-binfmt.service; static)
+     Active: active (exited) since Thu 2026-10-29 21:33:38 UTC; 45s ago
+       Docs: man:systemd-binfmt.service(8)
+             man:binfmt.d(5)
+             https://docs.kernel.org/admin-guide/binfmt-misc.html
+             https://www.freedesktop.org/wiki/Software/systemd/APIFileSystems
+    Process: 43 ExecStart=/usr/lib/systemd/systemd-binfmt (code=exited, status=0/SUCCESS)
+   Main PID: 43 (code=exited, status=0/SUCCESS)
+        CPU: 3ms
+
+Oct 29 21:33:38 9d82066e7a77 systemd[1]: Finished systemd-binfmt.service - Set Up Additional Binary Formats.

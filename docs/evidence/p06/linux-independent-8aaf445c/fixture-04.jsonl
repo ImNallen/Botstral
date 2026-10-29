@@ -1,0 +1,19 @@
+{"check": "command", "argv": ["systemd", "--version"], "exit": 0}
+{"check": "environment", "machine": "aarch64", "cgroup": "0::/init.scope", "systemd": "systemd 255 (255.4-1ubuntu8.18)"}
+{"check": "production_supervisor", "exit": 0, "stdout": "production systemd backend launch and empty-scope stop proved", "stderr": ""}
+{"check": "command", "argv": ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", "ca.key", "-out", "ca.pem", "-days", "1", "-subj", "/CN=P06 isolated fixture CA", "-addext", "basicConstraints=critical,CA:TRUE"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "manager.key", "-out", "manager.csr", "-subj", "/CN=manager"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "manager.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "manager.pem", "-days", "1", "-extfile", "manager.ext"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "worker.key", "-out", "worker.csr", "-subj", "/CN=worker"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "worker.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "worker.pem", "-days", "1", "-extfile", "worker.ext"], "exit": 0}
+{"check": "fixture_processes_stopped", "exits": [1], "root": "/home/p06/run-04"}
+Traceback (most recent call last):
+  File "/home/p06/fixture.py", line 291, in <module>
+    raise SystemExit(exercise(args.root))
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/home/p06/fixture.py", line 126, in exercise
+    listeners = poll(lambda: json.loads(listener_path.read_text()) if listener_path.exists() else None,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/p06/fixture.py", line 41, in poll
+    time.sleep(0.2)
+KeyboardInterrupt
