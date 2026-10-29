@@ -1,0 +1,289 @@
+{
+  "head": "7ac6c61d571fe18ecba27cc1d823c2882ea916cd",
+  "tree": "5db2436ffb637b2c85219c14579458cacc4522bf",
+  "base": "af162c3d0547294fcd357b173869dba875a9d490",
+  "base_branch": "main",
+  "destination": "ImNallen/Botstral:main",
+  "checkout": "/Users/nallen/.t3/worktrees/Botstral/t3-8dc33a2b",
+  "patch_id": "3f3e25f04aef28a4edee78db16d3657cdca99d4c",
+  "principle": "Prove It Works. Execute the real aggregator, verifier, and rejection controls.",
+  "source_sha256": {
+    "manager/tests/first_acceptance.py": "ceafc1aa4be23fddf6bead524815f10700620f48a11c84a566b169097c5d522d",
+    "manager/tests/first_acceptance_remote.py": "4040e234fa6e4b88e58b719870dec9cc25b63d4500c60ec480fadfff1d811d45",
+    "manager/tests/first_acceptance_compaction.py": "5fe28af84d5964c6d4dfd679ddc85a0e4baf9e75ad974ff3864013f90f5e8380",
+    "manager/tests/fixtures/first-acceptance/compact.py": "7129ec5f914c685af5ba55eb7050c7bc6bbd909fe732237e79ea22e207f236d3",
+    "manager/tests/fixtures/first-acceptance/pinned.json": "014191dddfea75337e3addc06d42d990db6887726dd8966b9ec7c4f4bf2327d9",
+    "manager/src/manager/provider.rs": "313dd8daed1037262254365d032bb6a7b8b612a31d18a1adbc8f8cfea5ed0fc5",
+    "agent/vibe/runtime.py": "04d049b83ae4c91287b0e7cc9b345db95b178cd10813007e9e79a1a854e9ea72",
+    "manager/src/manager/inference.rs": "7c81312be2f67109809031a4e84526802363aa093877df8ce9d3939c2595c41a",
+    "manager/src/manager/inference/tests.rs": "5304f4a2e747000ad9fddb67ee9c86c44d58efa2fcc43019232ef5f2f8e17d28",
+    "manager/src/manager/inference/integrated_fixture.rs": "cc4939e82d7da54a38f2f708c3edf016450011416681b8bfbb4afe7bc38f503d"
+  },
+  "evidence_sha256": {
+    "baseline": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+    "live.json": "5a5d7accd11a1217a7f7b8f12ee1986bdb6c2e60ac5d852249725291c2afc99c",
+    "recorded.json": "2c2b327748991ba5aa5af54545c0ffe942d691991295f9c1e4cf0615d4543b17",
+    "live-attempt-1.json": "72d7542a4d8ca2fcff34b199484466586ecc4ac1cc149c7f234c40521eb268ad",
+    "aggregate.json": "5b82f4cbea28b86ff8160ed568f55271a5731977b75caff33135a505eefa0889"
+  },
+  "manifest_entries_validated": 18,
+  "helper_results": {
+    "live": "VERIFIED",
+    "recorded": "RECORDED",
+    "recorded_as_live": "NOT VERIFIED",
+    "failed_attempt": "ValueError saved native history required",
+    "failed_attempt_native_now_valid": true,
+    "retained_checks": 21,
+    "aggregate_verdict_and_proof_reproduced_exactly": true,
+    "new_documentation_paths_since_archived_aggregation": [
+      "docs/evidence/helper-acceptance/aggregate.json",
+      "docs/evidence/helper-acceptance/final-review.md",
+      "docs/evidence/helper-acceptance/fixture-removal.json",
+      "docs/evidence/helper-acceptance/live-attempt-1-budget-snapshot.json",
+      "docs/evidence/helper-acceptance/live-attempt-1.json",
+      "docs/evidence/helper-acceptance/live-budget-snapshot.json",
+      "docs/evidence/helper-acceptance/live.json",
+      "docs/evidence/helper-acceptance/multiline-after.log",
+      "docs/evidence/helper-acceptance/multiline-before.log",
+      "docs/evidence/helper-acceptance/recorded-budget-snapshot.json",
+      "docs/evidence/helper-acceptance/repository-verification.log",
+      "docs/evidence/helper-acceptance/trail-audit.md",
+      "docs/helper-acceptance-decisions.tsv"
+    ],
+    "automatic_cli_trigger": false
+  },
+  "binary_sha256": {
+    "manager": "e3128606efbbe1edae020daed2ceb2870feb8f012cb9888ffb25d186c0cf0913",
+    "worker": "0061ac8317720ee5c12f8f5bbe14aee01b484797d107c34bbdc4d6b1c7ed6a6f",
+    "native": "2d2fc38a82c90bc12ccbfcee0b07361fece00382f3f42a1902c8471b6d0ff6b7"
+  },
+  "runtime_joins": {
+    "computer": "1e3b96245240d969ab380e4ce843f6ac68d27444d425cf211f75e4d2b6859061",
+    "connector": "678b2357efbbb26cb47acdb272788e289e35766fdce140eb4d90d93c0b336092",
+    "vibe": "a10ef32797625d779e2b1279a9d5c61648dea18db25414fb720de85f72e6f416",
+    "compiled_manifest_files": 166
+  },
+  "budget_snapshots": [
+    {
+      "name": "recorded",
+      "snapshot_sha256": "c7957cc3ea1558f584bdffb9d9b10e2a012e8be43458b0a1cd5aecf4a99ae92a",
+      "run": "9a39c55c-9d82-4d8b-8bee-cacb86317707",
+      "retained_microusd": 22122,
+      "ledger_reserved_microusd": 22122
+    },
+    {
+      "name": "failed",
+      "snapshot_sha256": "2087e4dc6b8d4610db3f1a057996722cf1fe66e2b76370cfa0276ccc7164feeb",
+      "run": "41d6a36b-b862-4548-ad3b-f52ca6f59572",
+      "retained_microusd": 159747,
+      "ledger_reserved_microusd": 159747
+    },
+    {
+      "name": "live",
+      "snapshot_sha256": "162585f5ebe1d186aa5141db3c3446a888c4f2b1a5885064a7ceb43a2500c51e",
+      "run": "8fb849b5-009c-41f9-be1d-69624db6ab11",
+      "retained_microusd": 159747,
+      "ledger_reserved_microusd": 319494
+    }
+  ],
+  "rejection_controls": [
+    {
+      "control": "recorded provenance relabeled live",
+      "rejected": true,
+      "reason": "captured running manager must match the executed binary"
+    },
+    {
+      "control": "binary mismatch",
+      "rejected": true,
+      "reason": "product binaries differ; retained gates require scoped reruns"
+    },
+    {
+      "control": "context model mismatch",
+      "rejected": true,
+      "reason": "retained configuration differs"
+    },
+    {
+      "control": "computer runtime mismatch",
+      "rejected": true,
+      "reason": "retained runtime identities differ"
+    },
+    {
+      "control": "durable helper config mismatch",
+      "rejected": true,
+      "reason": "parent configuration mismatch"
+    }
+  ],
+  "cli_negative_control": {
+    "exit_code": 1,
+    "stderr_last_line": "ValueError: retained configuration differs",
+    "output_created": false
+  },
+  "parent_head": {
+    "method": "Execute actual finalizer AST with immutable reports. Skip remote collection.",
+    "parent_source_sha256": "995f7edcd1808cc817c722ff088dd4d53943dbcf945eff42cbdc55cbcafbae2d",
+    "parent_baseline": {
+      "exit_code": 1,
+      "stdout": {
+        "passed": false,
+        "p03_passed": true,
+        "clean": true,
+        "missing": [
+          "configured_helper_model_endpoint_and_privacy_blockers"
+        ]
+      },
+      "helper_routing": {
+        "verdict": "NOT VERIFIED",
+        "reason": "This run exercised primary inference. No helper inference path was configured or invoked."
+      }
+    },
+    "head_without_supplement": {
+      "exit_code": 1,
+      "stdout": {
+        "passed": false,
+        "p03_passed": true,
+        "clean": true,
+        "missing": [
+          "configured_helper_model_endpoint_and_privacy_blockers"
+        ]
+      },
+      "helper_routing": {
+        "verdict": "NOT VERIFIED",
+        "reason": "No complete helper evidence was supplied."
+      }
+    },
+    "head_with_supplement": {
+      "exit_code": 0,
+      "stdout": {
+        "passed": true,
+        "p03_passed": true,
+        "clean": true,
+        "missing": []
+      },
+      "helper_routing": {
+        "verdict": "VERIFIED",
+        "claim": "Explicit pinned AgentLoop.compact through a production worker coding lease.",
+        "automatic_cli_trigger": false,
+        "evidence_sha256": "7d1d9ff877f190e181a894eeca48cabd675852b859b597d63d4bfeaf00350163",
+        "coding_calls": [
+          "867bcd86-526e-44ed-aab9-bc39111c2647"
+        ]
+      }
+    }
+  },
+  "bot_thread_reproduction": {
+    "reproduced": true,
+    "exception": "JSONDecodeError",
+    "message": "Expecting value: line 1 column 1 (char 0)",
+    "incomplete_bytes": 0,
+    "method": "Force a valid scheduler pause after actual Path.write_text opens/truncates, before it writes. Run actual dispatch and poll."
+  },
+  "scope": {
+    "production_rust_changes": false,
+    "p01_or_migration_product_changes": false,
+    "rust_changes": "Only inference/tests.rs and its integrated_fixture.rs child. The parent tests module is cfg(test).",
+    "no_full_rebuild": "No production source changes. Existing broad run read as retained evidence. Six current CI jobs pass.",
+    "limits": "No remote calls, provider calls, credential access, binary reexecution, or automatic CLI threshold verification."
+  },
+  "verdict": "FAIL",
+  "finding": {
+    "severity": "P2",
+    "path": "manager/tests/fixtures/first-acceptance/compact.py",
+    "line": 74,
+    "related_path": "manager/tests/first_acceptance_remote.py",
+    "related_line": 60,
+    "reason": "The evidence file is visible before complete publication. A concurrent real poll propagates JSONDecodeError after paid compaction has run.",
+    "remedy": "Publish complete evidence atomically or retry incomplete reads. Add a local regression and recheck immutable evidence compatibility.",
+    "existing_evidence_invalidated": false
+  },
+  "github": {
+    "state": "OPEN",
+    "mergeable": "MERGEABLE",
+    "merge_state": "CLEAN",
+    "successful_checks": 6,
+    "review_decision": "",
+    "unresolved_threads": 1,
+    "auto_merge": null,
+    "merge_queue": null
+  },
+  "local_tests": {
+    "focused": "18 passed",
+    "worker_budget": "5 passed, 1 skipped",
+    "log_sha256": {
+      "focused-tests.log": "ed9daa04f1be2df54b3616bf2017b88845c3604bd060ef281245d35ad16c4676",
+      "worker-tests.log": "b9bffdd0ed274efa43cb28e4871bb2e0e5d1d0a5f7e5811eb35be5a105dc3f90"
+    }
+  },
+  "comment_url": "https://github.com/ImNallen/Botstral/pull/42#issuecomment-6494547070",
+  "final_remote_revision": {
+    "baseRefName": "main",
+    "baseRefOid": "af162c3d0547294fcd357b173869dba875a9d490",
+    "headRefOid": "7ac6c61d571fe18ecba27cc1d823c2882ea916cd",
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:28:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848245412/job/123360961416",
+        "name": "desktop (ubuntu-latest)",
+        "startedAt": "2026-10-29T09:15:44Z",
+        "status": "COMPLETED",
+        "workflowName": "Desktop"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:24:14Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848198191/job/123360809388",
+        "name": "desktop (ubuntu-latest)",
+        "startedAt": "2026-10-29T09:15:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Desktop"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:27:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848245481/job/123360961562",
+        "name": "manager",
+        "startedAt": "2026-10-29T09:15:44Z",
+        "status": "COMPLETED",
+        "workflowName": "Verify"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:26:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848198189/job/123360810406",
+        "name": "manager",
+        "startedAt": "2026-10-29T09:15:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Verify"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:27:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848245412/job/123360961818",
+        "name": "desktop (macos-latest)",
+        "startedAt": "2026-10-29T09:15:46Z",
+        "status": "COMPLETED",
+        "workflowName": "Desktop"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-29T09:24:56Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/ImNallen/Botstral/actions/runs/40848198191/job/123360808847",
+        "name": "desktop (macos-latest)",
+        "startedAt": "2026-10-29T09:15:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Desktop"
+      }
+    ]
+  },
+  "verification_script_sha256": "12bb264163729b8f453d717c6c9737cee88891bcfb0c2d5356be6d32f91b553d"
+}

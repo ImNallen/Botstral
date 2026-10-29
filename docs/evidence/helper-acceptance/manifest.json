@@ -10,11 +10,14 @@
   "live.json": "5a5d7accd11a1217a7f7b8f12ee1986bdb6c2e60ac5d852249725291c2afc99c",
   "multiline-after.log": "ed9daa04f1be2df54b3616bf2017b88845c3604bd060ef281245d35ad16c4676",
   "multiline-before.log": "ca233aa161e3dedb4e423d1ed7f1f4ea9ecdd3db1502797751a7623d5b718b62",
+  "publication-after.log": "f93d7f81bfa1c6fdc682bbf9edf378ad6c8c1d5ab192cfd9f82a8868a9a5ce72",
+  "publication-before.log": "64f6db0ad846b3f021aa7b8eb090c4853e5f022ee7a7ee34e2a1613df1086142",
   "recorded-budget-snapshot.json": "c7957cc3ea1558f584bdffb9d9b10e2a012e8be43458b0a1cd5aecf4a99ae92a",
   "recorded-relabel-refusal.json": "e81df38d0261f0ce27ce2a3b0316ce7f868c38b3bdf36e9fda12e7e9e3956dcc",
   "recorded.json": "2c2b327748991ba5aa5af54545c0ffe942d691991295f9c1e4cf0615d4543b17",
   "regressions-after.log": "ae13c08ac8da90b75ba9364ced5ed8395fa36900b5594507e009b2f91b0dd9b1",
   "regressions-before.log": "ea5fc30b59f2b7a9674cbaab78206ae9698b791ac913af32c79e2acce4a40b50",
   "repository-verification.log": "437219c7d94170f940a56761f491cfa7086671ce06356e6be657936807807738",
+  "shipping-initial-review.json": "ce33d4bda7a036d337cdcc40e225cb5adc552fcec2dabb3091874d2c91d1e1a1",
   "trail-audit.md": "63ab9efbc89198790d75f39f9d3aaff3e6ba0424d8e3cabff8bef453958b0dfb"
 }

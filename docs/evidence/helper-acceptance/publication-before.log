@@ -1,0 +1,74 @@
+test_budget_evidence_remains_immutable_after_report_update (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_missing_comparison_key_does_not_claim_a_secret_scan (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_native_timeout_preserves_remote_shutdown_key_deletion_and_report (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_reconciliation_failure_is_retained_as_a_cleanup_failure (test_first_acceptance.AcceptanceCleanupTests) ... ok
+test_mismatched_binaries_and_product_changes_block_retention (test_first_acceptance_compaction.AggregationTests) ... ok
+test_boundary_without_provider_summary_and_tool_free_primary_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_certificate_and_task_identifiers_without_worker_lease_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_complete_correlated_evidence_passes (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_failed_policy_control_is_saved_before_its_assertion (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_join_reader_does_not_fall_back_to_run_turns (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_matching_boundary_cannot_substitute_a_different_provider_summary (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_missing_proof_never_passes (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_missing_refusals_and_added_attempts_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_model_endpoint_response_and_accounting_joins_fail_closed (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_multiline_provider_summary_matches_saved_json_history (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_recorded_transport_cannot_verify_live_acceptance (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_relabeling_recorded_transport_cannot_replace_running_manager_proof (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_unreconciled_budget_and_incomplete_cleanup_fail (test_first_acceptance_compaction.CompactionEvidenceTests) ... ok
+test_permanently_malformed_evidence_never_becomes_ready (test_first_acceptance_compaction.CompactionPublicationTests) ... ERROR
+test_poll_waits_for_empty_and_partially_written_evidence (test_first_acceptance_compaction.CompactionPublicationTests) ... 
+======================================================================
+ERROR: test_permanently_malformed_evidence_never_becomes_ready (test_first_acceptance_compaction.CompactionPublicationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 326, in test_permanently_malformed_evidence_never_becomes_ready
+    poll(lambda: dispatch(root, {'op': 'compaction_native', 'workspace': workspace}),
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/m05_two_vm.py", line 49, in poll
+    value=read()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 326, in <lambda>
+    poll(lambda: dispatch(root, {'op': 'compaction_native', 'workspace': workspace}),
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/first_acceptance_remote.py", line 61, in dispatch
+    return json.loads(path.read_text())
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+======================================================================
+FAIL: test_poll_waits_for_empty_and_partially_written_evidence (test_first_acceptance_compaction.CompactionPublicationTests) (prefix_bytes=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 307, in test_poll_waits_for_empty_and_partially_written_evidence
+    value = poll(read, lambda value: value is not None, 'complete compaction evidence', seconds=5)
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 309, in test_poll_waits_for_empty_and_partially_written_evidence
+    self.fail(f'Poll exposed unfinished evidence: {error}')
+AssertionError: Poll exposed unfinished evidence: Expecting value: line 1 column 1 (char 0)
+
+======================================================================
+FAIL: test_poll_waits_for_empty_and_partially_written_evidence (test_first_acceptance_compaction.CompactionPublicationTests) (prefix_bytes=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 307, in test_poll_waits_for_empty_and_partially_written_evidence
+    value = poll(read, lambda value: value is not None, 'complete compaction evidence', seconds=5)
+json.decoder.JSONDecodeError: Unterminated string starting at: line 1 column 2 (char 1)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-13d9df0d/manager/tests/test_first_acceptance_compaction.py", line 309, in test_poll_waits_for_empty_and_partially_written_evidence
+    self.fail(f'Poll exposed unfinished evidence: {error}')
+AssertionError: Poll exposed unfinished evidence: Unterminated string starting at: line 1 column 2 (char 1)
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.086s
+
+FAILED (failures=2, errors=1)

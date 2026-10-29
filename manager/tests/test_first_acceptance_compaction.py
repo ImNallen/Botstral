@@ -3,12 +3,14 @@ from dataclasses import FrozenInstanceError, asdict, replace
 import json
 from pathlib import Path
 import tempfile
+import threading
 import unittest
 from unittest.mock import Mock, patch
 
 from first_acceptance_compaction import (CompactionEvidence, FIRST_ACCEPTANCE_CHECKS, HELPER_GATE, combine_acceptance, encoded,
     helper_verdict, probe_compaction, sha, verify_helper)
-from first_acceptance_remote import coding_evidence
+from first_acceptance_remote import coding_evidence, dispatch
+from m05_two_vm import poll
 
 FIXTURES = Path(__file__).with_name('fixtures') / 'first-acceptance'
 SOURCE = Path(__file__).resolve().parents[2]
@@ -266,6 +268,64 @@ class CompactionEvidenceTests(unittest.TestCase):
             self.assertEqual(joined[0]['response'], call['response'])
             self.assertEqual(joined[0]['lease'], {'generation': 2, 'closed': False})
 
+
+
+class CompactionPublicationTests(unittest.TestCase):
+    def test_poll_waits_for_empty_and_partially_written_evidence(self):
+        expected = {'native_session': 'complete-session', 'summary': 'Complete evidence.'}
+        serialized = json.dumps(expected)
+        for prefix_bytes in (0, 12):
+            with self.subTest(prefix_bytes=prefix_bytes), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                workspace = '00000000-0000-4000-8000-000000000042'
+                home = root / 'agent/coding' / workspace
+                home.mkdir(parents=True)
+                opened, release = threading.Event(), threading.Event()
+                failures = []
+                def write():
+                    try:
+                        with (home / 'compaction-evidence.json').open('w') as stream:
+                            stream.write(serialized[:prefix_bytes])
+                            stream.flush()
+                            opened.set()
+                            if not release.wait(5):
+                                raise TimeoutError('reader did not observe unfinished publication')
+                            stream.write(serialized[prefix_bytes:])
+                    except Exception as error:
+                        failures.append(error)
+                writer = threading.Thread(target=write)
+                writer.start()
+                try:
+                    self.assertTrue(opened.wait(5))
+                    observed = []
+                    def read():
+                        value = dispatch(root, {'op': 'compaction_native', 'workspace': workspace})
+                        observed.append(value)
+                        release.set()
+                        return value
+                    try:
+                        value = poll(read, lambda value: value is not None, 'complete compaction evidence', seconds=5)
+                    except json.JSONDecodeError as error:
+                        self.fail(f'Poll exposed unfinished evidence: {error}')
+                    self.assertEqual(observed[0], None)
+                    self.assertEqual(value, expected)
+                finally:
+                    release.set()
+                    writer.join(5)
+                self.assertFalse(writer.is_alive())
+                self.assertEqual(failures, [])
+
+    def test_permanently_malformed_evidence_never_becomes_ready(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            workspace = '00000000-0000-4000-8000-000000000042'
+            home = root / 'agent/coding' / workspace
+            home.mkdir(parents=True)
+            (home / 'compaction-evidence.json').write_text('{')
+            self.assertIsNone(dispatch(root, {'op': 'compaction_native', 'workspace': workspace}))
+            with self.assertRaises(TimeoutError):
+                poll(lambda: dispatch(root, {'op': 'compaction_native', 'workspace': workspace}),
+                     lambda value: value is not None, 'malformed compaction evidence', seconds=.01)
 
 
 class AggregationTests(unittest.TestCase):

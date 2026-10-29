@@ -14,6 +14,8 @@ The second live attempt passed with one helper call and two parent turns. The se
 
 The [decision trail](helper-acceptance-decisions.tsv) preserves the corrections and later credential-handoff clarification. The [transcript audit](evidence/helper-acceptance/trail-audit.md) had the original cross-judge result and complete root activity record. Its two trail findings are superseded by appended corrections. All 17 owned fixture roots were [removed from both guests](evidence/helper-acceptance/fixture-removal.json) after checking quiescence and available state locks. Shared services and build caches remain.
 
+Shipping review reproduced a [concurrent-publication race](evidence/helper-acceptance/shipping-initial-review.json), tracked in [issue 44](https://github.com/ImNallen/Botstral/issues/44). The reader now treats incomplete JSON as not yet ready within the existing bounded poll. A permanently malformed file times out and cannot pass acceptance. The deterministic [before](evidence/helper-acceptance/publication-before.log) and [after](evidence/helper-acceptance/publication-after.log) regressions pause a real writer after opening an empty or partial file. All 20 focused checks pass. The sealed fixture and archived recorded/live evidence remain unchanged; strict verification and aggregation still pass.
+
 ## Prepare a current build
 
 Use the two SSH aliases, systemd user managers, installed Vibe 2.24.2, and browser runtime required by [first acceptance](first-acceptance.md). Freeze the checkout before deployment. The driver checks every source digest in `source-files.json` before it uses the build.

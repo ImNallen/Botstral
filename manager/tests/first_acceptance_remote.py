@@ -58,7 +58,10 @@ def dispatch(root, request):
         if not path.exists():
             return None
         assert path.is_file() and not path.is_symlink() and path.stat().st_size <= 4194304
-        return json.loads(path.read_text())
+        try:
+            return json.loads(path.read_text())
+        except json.JSONDecodeError:
+            return None
     if operation == 'coding_evidence':
         return coding_evidence(root, request['task'])
     if operation == 'attempt_inventory':
