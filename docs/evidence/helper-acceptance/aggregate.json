@@ -1,0 +1,226 @@
+{
+  "format": 1,
+  "passed": true,
+  "claim": "Retained first acceptance checks plus explicit Vibe helper integration.",
+  "baseline_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+  "supplement_sha256": "5a5d7accd11a1217a7f7b8f12ee1986bdb6c2e60ac5d852249725291c2afc99c",
+  "binary_sha256": {
+    "manager": "e3128606efbbe1edae020daed2ceb2870feb8f012cb9888ffb25d186c0cf0913",
+    "worker": "0061ac8317720ee5c12f8f5bbe14aee01b484797d107c34bbdc4d6b1c7ed6a6f",
+    "native": "2d2fc38a82c90bc12ccbfcee0b07361fece00382f3f42a1902c8471b6d0ff6b7"
+  },
+  "harness_only_delta": [
+    ".gitattributes",
+    "PLAN.md",
+    "docs/assets/first-acceptance-uncertain-after.png",
+    "docs/assets/first-acceptance-uncertain-before.png",
+    "docs/connector-unknown-recovery.md",
+    "docs/evidence/first-acceptance/attempts.json",
+    "docs/evidence/first-acceptance/budget-snapshots/index.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-04.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-05.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-07.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-08.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-09.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-11.json",
+    "docs/evidence/first-acceptance/budget-snapshots/run-12.json",
+    "docs/evidence/first-acceptance/budget.json",
+    "docs/evidence/first-acceptance/computer-cleanup.json",
+    "docs/evidence/first-acceptance/desktop-cleanup.json",
+    "docs/evidence/first-acceptance/evidence-audit.md",
+    "docs/evidence/first-acceptance/evidence.json",
+    "docs/evidence/first-acceptance/final-verify.log",
+    "docs/evidence/first-acceptance/harness-final-review.md",
+    "docs/evidence/first-acceptance/harness-regressions-before.log",
+    "docs/evidence/first-acceptance/harness-regressions.log",
+    "docs/evidence/first-acceptance/issue39-connectors-after.log",
+    "docs/evidence/first-acceptance/issue39-regressions-before.log",
+    "docs/evidence/first-acceptance/issue39-review.md",
+    "docs/evidence/first-acceptance/manager-cleanup.json",
+    "docs/evidence/first-acceptance/manifest.json",
+    "docs/evidence/first-acceptance/secret-cleanup.json",
+    "docs/evidence/first-acceptance/transcript-excerpts.json",
+    "docs/evidence/first-acceptance/workspace-relocation.json",
+    "docs/evidence/helper-acceptance/code-review.md",
+    "docs/evidence/helper-acceptance/initial-review.md",
+    "docs/evidence/helper-acceptance/manifest.json",
+    "docs/evidence/helper-acceptance/recorded-relabel-refusal.json",
+    "docs/evidence/helper-acceptance/recorded.json",
+    "docs/evidence/helper-acceptance/regressions-after.log",
+    "docs/evidence/helper-acceptance/regressions-before.log",
+    "docs/first-acceptance-decisions.tsv",
+    "docs/first-acceptance.md",
+    "docs/helper-acceptance.md",
+    "manager/src/manager/inference/integrated_fixture.rs",
+    "manager/src/manager/inference/tests.rs",
+    "manager/tests/first_acceptance.py",
+    "manager/tests/first_acceptance_compaction.py",
+    "manager/tests/first_acceptance_remote.py",
+    "manager/tests/fixtures/first-acceptance/compact.py",
+    "manager/tests/fixtures/first-acceptance/pinned.json",
+    "manager/tests/fixtures/first-acceptance/recorded-wire.json",
+    "manager/tests/fixtures/m06-integrated/acceptance-server.mjs",
+    "manager/tests/test_first_acceptance.py",
+    "manager/tests/test_first_acceptance_compaction.py",
+    "scripts/verify.sh"
+  ],
+  "retained_checks": [
+    {
+      "name": "same_source_production_binaries_on_distinct_linux_guests",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "c8993511a7c907f7374d45389142e61ff0fd5056fd3bf474e6d2596354a28ada"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "65cae247a196d2834ea9ac504ed034b5f6e102e84cb1f1e050ec9b0198de438c"
+    },
+    {
+      "name": "worker_credentials_cannot_approve_enroll_owner_or_read_credentials",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "0ad8f83d555b30713e46468d807dc5733ea374a673f244241b35de5e1a0ac532"
+    },
+    {
+      "name": "verified_live_eu_model_and_capped_acceptance_reservation",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "415c38a087bbae68cc731dd09499212994d2c28f341e4cb7b687e44682044c8a"
+    },
+    {
+      "name": "authenticated_real_sdk_https_connector_discovery_with_exact_approval",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "926617a76a0d3814cdc9cd80ebb61d156c5bff1b2e70993b5247d7ef17dde913"
+    },
+    {
+      "name": "p03_closed_client_live_inference_exact_approval_and_one_effect",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "69e4dd2cb49a9ad081bfada4082fbdec4c13228a16381a3989aa8437bc43b66e"
+    },
+    {
+      "name": "manager_restart_preserves_original_routine_and_duplicate_trigger",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "bdb343d93847edbd708281815e0f6941a7113a151e5d8ef677d5fd68a8759b27"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "994d79e05a40a0116872085375b08847667e8112217093d0274fb6b0ad39806d"
+    },
+    {
+      "name": "native_desktop_browser_file_exact_approval_and_verified_export",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "ee2f121e908b612bfcbf249e7d1f424ad1b688dc62f6dbbfb1ca8b79dd873d23"
+    },
+    {
+      "name": "native_desktop_cancellation_confirms_empty_scope",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "2bdf75bd8941879503ec930ce655d03511bf0fb10992cabc382badac5d9a7652"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "4c9a133e2a7d28bc73f8d6d12da9753124d66a707d5b743f40bd126c4d3b8b9a"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "ed75d455ac9d9e562571da5157323e699c20db14d9b8455397ff38c5607f463d"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "33f3c47232bcddc910cfad1662016c7c0ada2a13ba8377521ff57e4edcbe9e65"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "9789ac65ed2abf7dde80c5e14f40c9b76820fb1458a1e37020b728c76c5f713c"
+    },
+    {
+      "name": "worker_disconnect_after_effect_reconciles_without_reexecution",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "1c94e3f620afd7ecf61cc839a83ae6e5c4d3ee269ffa0b45499e6b7ce183e1eb"
+    },
+    {
+      "name": "native_desktop_snapshot_after_actual_event_retention_gap",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "576931d673b4a3fdc5753785591b24b7c390098cc699dbc8537a3e182af816d3"
+    },
+    {
+      "name": "denied_altered_expired_consumed_and_revoked_authority_cannot_execute_stale_work",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "d216b2147f025f484dc9568025f10f06cb08816fb80b8f66b70eff16dc932b45"
+    },
+    {
+      "name": "actual_eu_model_requests_and_preview_latest_configuration_blockers",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "245d499563e875d4e99d221ca22a48b70ead14afea0e1e137416b8d794481b93"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "15418105e5bdf5d60deb780c4a6cb9dc6aa6af312363ec634644063348c155cc"
+    },
+    {
+      "name": "native_desktop_service_pairing_and_os_keychain",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "ac7af38a666436e2f34f5949937364f0e424d974c5037ad83a2eac6e0eb16b9a"
+    },
+    {
+      "name": "offline_backup_restores_history_memory_credentials_artifacts_and_computer_state",
+      "source": "b89321e75149f35d9b0a664b532e1f8e4f2ea944",
+      "compatible_product_source": "0383c96a65a64c3b9cd959713321eb4b4f83b4dc",
+      "source_report_sha256": "bd6ff6231d4a88e558d7170235b91dac2c917744c49f3a19a9444cfb4921923f",
+      "check_sha256": "8c54612f2116ea89a497d50eac0731d9d25835f38f526bad7ff256cebc46e7b0"
+    }
+  ],
+  "helper_routing": {
+    "verdict": "VERIFIED",
+    "claim": "Explicit pinned AgentLoop.compact through a production worker coding lease.",
+    "automatic_cli_trigger": false,
+    "evidence_sha256": "7d1d9ff877f190e181a894eeca48cabd675852b859b597d63d4bfeaf00350163",
+    "coding_calls": [
+      "867bcd86-526e-44ed-aab9-bc39111c2647"
+    ]
+  },
+  "automatic_cli_trigger": false
+}

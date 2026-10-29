@@ -1,6 +1,6 @@
 # Verify the Vibe helper gate
 
-Helper acceptance remains unverified. Run this focused supplement before the final paid campaign. Keep the existing eight-check evidence unchanged.
+Helper acceptance passed on October 29, 2026. The [live supplement](evidence/helper-acceptance/live.json) and [strict aggregate](evidence/helper-acceptance/aggregate.json) close the remaining first-acceptance gate. The existing eight-check evidence stays unchanged.
 
 ## Recorded verification
 
@@ -8,7 +8,11 @@ The October 29 recorded run passed with a production worker coding lease, the in
 
 The [initial independent review](evidence/helper-acceptance/initial-review.md) reproduced two false-positive verdicts. The corrected verifier binds transport claims to the running manager executable and joins aggregate configuration to durable helper configuration. Both [regressions fail before correction](evidence/helper-acceptance/regressions-before.log). All 17 [acceptance regressions pass afterward](evidence/helper-acceptance/regressions-after.log). The [independent code recheck](evidence/helper-acceptance/code-review.md) approved the correction. Relabeling the real recorded report is [refused](evidence/helper-acceptance/recorded-relabel-refusal.json).
 
-The private provider-key entry timed out. The live helper run and aggregate verdict remain open. P01 has not started. [Artifact hashes](evidence/helper-acceptance/manifest.json) preserve the recorded proof and reviews.
+The first live attempt exposed a raw-JSON comparison that rejected valid multiline summaries. Its [failure remains recorded](evidence/helper-acceptance/live-attempt-1.json). The correction preserves exact parsed history equality and provider-summary joins. The [multiline regression reproduces the refusal before correction](evidence/helper-acceptance/multiline-before.log), and all 18 [focused checks pass afterward](evidence/helper-acceptance/multiline-after.log). [Repository verification](evidence/helper-acceptance/repository-verification.log) passed before this final Python-only correction; the later focused checks cover that correction.
+
+The second live attempt passed with one helper call and two parent turns. The separate helper ledger retains both attempts at US$0.319494 in conservative ceilings under its unchanged US$1 cap. This is reserved exposure, not invoiced spending. The [final independent review](evidence/helper-acceptance/final-review.md) approved the helper gate and strict aggregate. It does not establish automatic CLI threshold triggering or P01. [Artifact hashes](evidence/helper-acceptance/manifest.json) preserve the proof and reviews.
+
+The [decision trail](helper-acceptance-decisions.tsv) preserves the corrections and later credential-handoff clarification. The [transcript audit](evidence/helper-acceptance/trail-audit.md) had the original cross-judge result and complete root activity record. Its two trail findings are superseded by appended corrections. All 17 owned fixture roots were [removed from both guests](evidence/helper-acceptance/fixture-removal.json) after checking quiescence and available state locks. Shared services and build caches remain.
 
 ## Prepare a current build
 
