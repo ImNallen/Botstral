@@ -1108,15 +1108,15 @@ impl Actor {
                 .map_err(error_code);
         }
         let manager = self.protected_manager()?;
-        if let Some(previous) = self.protected_record()? {
-            if matches!(previous.status, CredentialWriteStatus::Unresolved { .. }) {
-                return Err(if previous.manager == manager {
-                    "reconcile_previous_entry"
-                } else {
-                    "receipt_manager_mismatch"
-                }
-                .into());
+        if let Some(previous) = self.protected_record()?
+            && matches!(previous.status, CredentialWriteStatus::Unresolved { .. })
+        {
+            return Err(if previous.manager == manager {
+                "reconcile_previous_entry"
+            } else {
+                "receipt_manager_mismatch"
             }
+            .into());
         }
         let id = request.id;
         storage(
