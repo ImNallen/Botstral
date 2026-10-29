@@ -1,0 +1,36 @@
+
+> desktop
+> npm run tauri --workspace @botstral/desktop -- build --debug --bundles app
+
+
+> @botstral/desktop@0.1.0 tauri
+> tauri build --debug --bundles app
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 135 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
+dist/assets/index-CGeM93Lv.js   393.13 kB │ gzip: 116.91 kB
+
+✓ built in 83ms
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.28s
+       Built application at: /Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/botstral-desktop
+    Bundling Botstral.app (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/bundle/macos/Botstral.app)
+    Finished 1 bundle at:
+        /Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/bundle/macos/Botstral.app (61.83 MiB)

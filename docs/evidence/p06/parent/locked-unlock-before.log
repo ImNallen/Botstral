@@ -1,0 +1,44 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-toixf121
+Local manager: 127.0.0.1:50538
+Paired WSS route: wss://127.0.0.1:50563/owner/v1/connect
+Manager identity: ba5ca5a4-d8fd-44f0-87dc-d2ccf4d5b8d5
+Manager leaf: 9a006814de91e18737ae52a27e2c5e8a8c4b9b85177919995d40fd216ef5ef34
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-toixf121/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-toixf121/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling rustls-webpki v0.103.16
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.96s
+     Running tests/journal.rs (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+
+thread 'p06_locked_reads_preserve_the_paired_unlock_path' (634535047) panicked at tests/journal.rs:79:5:
+assertion `left == right` failed: A locked Vault must preserve the paired owner connection needed to unlock it.
+  left: "blocked"
+ right: "online"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test p06_locked_reads_preserve_the_paired_unlock_path ... FAILED
+
+failures:
+
+failures:
+    p06_locked_reads_preserve_the_paired_unlock_path
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 1.59s
+
+error: test failed, to rerun pass `--test journal`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/fixtures/paired_manager.py", line 113, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/fixtures/paired_manager.py", line 93, in main
+    raise RuntimeError('The native journal contract failed.')
+RuntimeError: The native journal contract failed.

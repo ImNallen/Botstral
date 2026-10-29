@@ -1,0 +1,4 @@
+Sample of the owned rebuilt native test process. The cause was not established.
+    +                                                                                                                   832 botstral_desktop::remote::Actor::restore::h1b04933015d2b911  (in botstral-desktop) + 440  [0x104c03c50]
+    +                                                                                                                     832 _$LT$botstral_desktop..keychain..NativeSecrets$u20$as$u20$botstral_owner_client..SecretStore$GT$::read::he36ec262fecb01af  (in botstral-desktop) + 36  [0x1050dda3c]
+    +                                                                                                                           832 security_framework::os::macos::passwords::find_generic_password::h7624145c70605b56  (in botstral-desktop) + 352  [0x10525e954]

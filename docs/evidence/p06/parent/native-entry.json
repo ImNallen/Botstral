@@ -1,0 +1,12 @@
+{
+  "source": "3527f3cfc2a3e3486df1d7e166141de19c96c70b",
+  "packaged_entry_saved": true,
+  "reopened_private_fields_empty": true,
+  "public_listing_contains_metadata_only": true,
+  "credential_items": 1,
+  "credential_epochs": 1,
+  "files_scanned": 27,
+  "private_value_matches": [],
+  "locked_unlock_before": "paired workspace blocked; native dialog unavailable",
+  "locked_unlock_after": "regression passed; packaged recheck pending"
+}

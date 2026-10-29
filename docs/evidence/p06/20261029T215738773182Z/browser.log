@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/deps/botstral_manager-796b8ad5691d66dd)
+
+running 1 test
+P06 controlled browser acceptance passed 22 cases.
+test manager::state::credentials::tests::live::browser::p06_controlled_browser_acceptance ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 155 filtered out; finished in 21.38s
