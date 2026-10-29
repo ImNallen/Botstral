@@ -23,6 +23,14 @@ The project is free and open source. Choose MIT or Apache 2.0 before publishing.
 - Prefer European infrastructure and explicitly configured European inference. Report the actual processing locations and service limitations.
 - Preserve Grok Bot's personal capabilities as the product target. A working foundation does not establish feature parity.
 
+### Interaction model
+
+The bot is the primary gateway for most everyday interactions. The owner asks the bot to inspect and manage memory, skills, routines, and other supported capabilities through conversation.
+
+Use dedicated controls where they help the owner review or perform an action, including approvals, protected secret entry, pairing, files, and computer takeover. Conversational requests follow the same Manager-enforced permissions and approval rules as other controls.
+
+Memory has no dedicated viewer or editor in the product target. The owner asks the bot what it remembers and requests changes directly. Secret values belong in the Vault through protected entry, never in memory or ordinary chat.
+
 ## 2. Architecture overview
 
 ```mermaid
@@ -79,7 +87,7 @@ The diagram shows service dependencies. The voice media path remains to be selec
 - One Manager VM and one Computer VM belong to that owner. Two separate VMs are required for the initial deployment. There is no combined installation mode.
 - The split isolates browser and code execution from the credential store and approval authority. It also separates resource use and recovery procedures.
 - Multiple bots per owner are part of the product target. Active work is limited by configured concurrency, memory, deadlines, and spending budgets.
-- Each bot has its own conversation, instructions, memory, and computer session. Bots share files, installed tools, and deliberately shared browser logins under the configured guest account. This does not isolate bots from one another.
+- Each bot has its own conversation, instructions, individual memory, and computer session. Shared memory is available across the owner's bots. Bots also share files, installed tools, and deliberately shared browser logins under the configured guest account. This does not isolate bots from one another.
 - Independent screens, correctly routed input, and manual takeover remain product requirements. Headless browser automation is an initial execution tool. It does not prove the complete shared-computer experience.
 - Initial allocations are 8 gigabytes of memory for the Manager VM and 32 gigabytes for the Computer VM. These are planning budgets, not measured requirements.
 - The reference deployment is Adam's 96-gigabyte Proxmox server. Both services must also support other compatible Linux hosts. The owner can use their own hardware or provision compatible European VMs.
@@ -118,6 +126,14 @@ SQLite is the source of truth for tasks, events, approvals, devices, and routine
 The Manager serializes memory writes and records their source tasks. Model-generated memory is data, not permission to change security policy. Owner instructions and approval rules cannot be rewritten by retrieved content.
 
 Backups must cover Manager state, memory, credentials, and durable artifacts consistently. Document which Computer VM files, browser sessions, and installed tools a backup preserves. Keep important deliverables in Manager storage. Test restoration before claiming recovery support.
+
+### Memory behavior
+
+Individual memory belongs to one bot. Shared memory is available to all bots in the installation. Keep the scope explicit when saving or reporting memories. Do not silently copy individual memory into shared memory.
+
+The owner can ask the bot to list, create, update, or delete memories in either scope. When the bot creates a memory, it tells the owner what it saved and whether it is individual or shared. Report a completed change only after the Manager confirms persistence. Explain failed or uncertain changes without claiming success.
+
+Later runs use the applicable individual and shared memory. Changes affect future runs without rewriting snapshots already admitted. Memory never contains secret values. A request to save a secret opens protected Vault entry instead.
 
 ## 3. Model routing
 
