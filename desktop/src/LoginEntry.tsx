@@ -27,6 +27,11 @@ export function LoginEntry({ bot }: { bot: string }) {
   }
   function receipt(status: CredentialWriteStatus) {
     switch (status.type) {
+      case 'rejected':
+        setMessage(
+          'Entry refused. A private value overlaps public application text. No login was saved. Use a different private value or sign-in account.',
+        );
+        break;
       case 'committed':
         setMessage(`Saved ${status.item.metadata.label}. Revision ${status.item.revision}.`);
         break;

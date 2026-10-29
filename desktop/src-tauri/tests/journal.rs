@@ -771,3 +771,57 @@ async fn p06_native_receipt_manager_binding() {
     );
     original_manager.sign_out().await.unwrap();
 }
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_collision_receipt_is_final_and_value_free() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, _, _) = paired(&root).await;
+    let request = RequestId::new();
+    let password = uuid::Uuid::new_v4().to_string();
+    let make = |id, username: String| protected::ProtectedOwnerRequest {
+        id,
+        operation: protected::ProtectedOwnerOperation::Write {
+            target: CredentialWriteTarget::Create {
+                metadata: LoginMetadata {
+                    label: "Native collision refusal".into(),
+                    bots: BotAccess::AllOwnerBots,
+                    allowed_origins: vec!["https://example.test".into()],
+                    password_policy: PasswordPolicy::EveryFill,
+                },
+            },
+            values: protected::LoginValues {
+                username,
+                password: password.clone(),
+                totp_seed: String::new(),
+            },
+        },
+    };
+    let refused = service
+        .protected(service.inspect().generation, make(request, "admin".into()))
+        .await
+        .unwrap();
+    assert_eq!(
+        refused,
+        CredentialWriteStatus::Rejected {
+            request,
+            reason: CredentialWriteRejection::PublicValueCollision
+        }
+    );
+    assert_eq!(service.protected_status().await.unwrap(), Some(refused));
+    assert!(service.login_items().await.unwrap().is_empty());
+    let receipt = std::fs::read_to_string(root.join("protected-status.json")).unwrap();
+    assert!(!receipt.contains("admin") && !receipt.contains(&password));
+    assert!(matches!(
+        service
+            .protected(
+                service.inspect().generation,
+                make(RequestId::new(), uuid::Uuid::new_v4().to_string())
+            )
+            .await
+            .unwrap(),
+        CredentialWriteStatus::Committed { .. }
+    ));
+    service.sign_out().await.unwrap();
+}

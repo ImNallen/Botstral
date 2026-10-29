@@ -20,6 +20,11 @@ export const itemSchema = z.strictObject({
   has_totp: z.boolean(),
 }) satisfies z.ZodType<LoginItemView>;
 export const statusSchema = z.discriminatedUnion('type', [
+  z.strictObject({
+    type: z.literal('rejected'),
+    request: z.uuid(),
+    reason: z.literal('public_value_collision'),
+  }),
   z.strictObject({ type: z.literal('committed'), request: z.uuid(), item: itemSchema }),
   z.strictObject({ type: z.literal('closed_without_commit'), request: z.uuid() }),
   z.strictObject({ type: z.literal('unresolved'), request: z.uuid() }),

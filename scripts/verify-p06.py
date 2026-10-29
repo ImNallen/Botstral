@@ -38,6 +38,7 @@ def main():
             ('profile-runtime', ['node', 'agent/tests/p06_profile_provenance.mjs']),
             ('native-storage', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_protected_entry_never_enters_native_journal']),
             ('native-locked-unlock', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_locked_reads_preserve_the_paired_unlock_path']),
+            ('native-collision', ['python3', 'desktop/fixtures/paired_manager.py', '--verify-journal', '--journal-case', 'p06_collision_receipt_is_final_and_value_free']),
             ('native-manager-switch', ['python3', 'desktop/fixtures/p06-manager-switch.py']),
             ('publication', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'review_probe_numeric_secret_publication']),
             ('browser', ['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'p06_controlled_browser_acceptance', '--', '--ignored', '--nocapture']),

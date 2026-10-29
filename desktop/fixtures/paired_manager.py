@@ -46,6 +46,9 @@ def main():
                 command += ['--root', str(args.root/case)]
             subprocess.run(command, cwd=ROOT, check=True)
         return
+    if args.verify_journal and args.journal_case == 'p06_native_receipt_manager_binding':
+        subprocess.run([sys.executable, str(ROOT / 'desktop/fixtures/p06-manager-switch.py')], cwd=ROOT, check=True)
+        return
     os.umask(0o077)
     temporary = tempfile.TemporaryDirectory(prefix='botstral-c02-native-') if args.root is None else None
     root = Path(temporary.name) if temporary else args.root.resolve()

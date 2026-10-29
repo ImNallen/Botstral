@@ -75,6 +75,10 @@ pub enum CredentialWriteTarget {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum CredentialWriteStatus {
+    Rejected {
+        request: RequestId,
+        reason: CredentialWriteRejection,
+    },
     Committed {
         request: RequestId,
         item: LoginItemView,
@@ -85,6 +89,12 @@ pub enum CredentialWriteStatus {
     Unresolved {
         request: RequestId,
     },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CredentialWriteRejection {
+    PublicValueCollision,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

@@ -56,40 +56,197 @@ fn review_probe_numeric_secret_publication() {
     );
 }
 
+fn login_metadata() -> LoginMetadata {
+    LoginMetadata {
+        label: "Isolated credential".into(),
+        bots: BotAccess::AllOwnerBots,
+        allowed_origins: vec!["https://example.test".into()],
+        password_policy: PasswordPolicy::EveryFill,
+    }
+}
+fn private_values(username: &str) -> botstral_link::protected::LoginValues {
+    botstral_link::protected::LoginValues {
+        username: username.into(),
+        password: RequestId::new().to_string(),
+        totp_seed: String::new(),
+    }
+}
+fn plain_request(f: &Fixture) -> SubmitRun {
+    let mut plain = f.input.clone();
+    plain.id = RunId::new();
+    plain.session = None;
+    plain.execution_policy.computer = None;
+    plain.execution_policy.process = None;
+    plain.prompt = "Hello.".into();
+    plain
+}
+
 #[test]
-fn p06_private_identifiers_colliding_with_public_scaffolding_fail_closed() {
-    for username in ["admin", "owner"] {
+fn p06_public_collision_intake_is_final_and_preserves_conversation() {
+    for username in ["admin", "owner", "memory", "object"] {
         let mut f = fixture();
-        let written = f.state.write_login(
+        let request = RequestId::new();
+        let refused = f
+            .state
+            .write_login(
+                token(),
+                request,
+                CredentialWriteTarget::Create {
+                    metadata: login_metadata(),
+                },
+                private_values(username),
+            )
+            .unwrap();
+        assert_eq!(
+            refused,
+            CredentialWriteStatus::Rejected {
+                request,
+                reason: CredentialWriteRejection::PublicValueCollision
+            }
+        );
+        assert_eq!(
+            f.state
+                .credential_write_status(token(), request, true)
+                .unwrap(),
+            refused
+        );
+        assert_eq!(
+            f.state
+                .write_login(
+                    token(),
+                    request,
+                    CredentialWriteTarget::Create {
+                        metadata: login_metadata()
+                    },
+                    private_values(&RequestId::new().to_string())
+                )
+                .unwrap(),
+            refused
+        );
+        let epochs: u32 = f
+            .state
+            .connection
+            .query_row("SELECT COUNT(*) FROM credential_epochs", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(epochs, 0);
+        assert!(f.state.login_items(token()).unwrap().is_empty());
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        f.state.submit_run(token(), plain_request(&f)).unwrap();
+    }
+}
+
+#[test]
+fn p06_public_collision_rotation_preserves_item_and_conversation() {
+    let mut f = fixture();
+    let CredentialWriteStatus::Committed { item, .. } = f
+        .state
+        .write_login(
             token(),
             RequestId::new(),
             CredentialWriteTarget::Create {
-                metadata: LoginMetadata {
-                    label: "Private identifier probe".into(),
-                    bots: BotAccess::AllOwnerBots,
-                    allowed_origins: vec!["https://example.test".into()],
-                    password_policy: PasswordPolicy::EveryFill,
+                metadata: login_metadata(),
+            },
+            private_values(&RequestId::new().to_string()),
+        )
+        .unwrap()
+    else {
+        panic!("expected initial commit")
+    };
+    let request = RequestId::new();
+    let mut values = private_values(&RequestId::new().to_string());
+    values.password = "admin".into();
+    assert_eq!(
+        f.state
+            .write_login(
+                token(),
+                request,
+                CredentialWriteTarget::Rotate {
+                    id: item.id,
+                    expected_revision: item.revision
                 },
-            },
-            botstral_link::protected::LoginValues {
-                username: username.into(),
-                password: RequestId::new().to_string(),
-                totp_seed: String::new(),
-            },
-        );
-        if written.is_err() {
-            assert_eq!(written, Err(OperationError::InvalidInput));
-            continue;
+                values
+            )
+            .unwrap(),
+        CredentialWriteStatus::Rejected {
+            request,
+            reason: CredentialWriteRejection::PublicValueCollision
         }
-        assert_eq!(
-            f.state.submit_run(token(), f.input.clone()),
-            Err(OperationError::InvalidInput)
-        );
-        let persisted: u32 = f
-            .state
-            .connection
-            .query_row("SELECT COUNT(*) FROM runs", [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(persisted, 0);
-    }
+    );
+    assert_eq!(f.state.load_login(item.id).unwrap(), item);
+    let epochs: u32 = f
+        .state
+        .connection
+        .query_row("SELECT COUNT(*) FROM credential_epochs", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(epochs, 1);
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    f.state
+        .update_login(token(), item.id, item.revision, None)
+        .unwrap();
+    f.state.submit_run(token(), plain_request(&f)).unwrap();
+}
+
+#[test]
+fn p06_explicit_pre_entry_snapshot_restore_repairs_legacy_collision_without_discarding_history() {
+    let mut f = fixture();
+    let snapshot = f._root.path().join("before-entry.sqlite3");
+    f.state
+        .connection
+        .execute("VACUUM INTO ?1", [snapshot.to_str().unwrap()])
+        .unwrap();
+    let CredentialWriteStatus::Committed { item, .. } = f
+        .state
+        .write_login(
+            token(),
+            RequestId::new(),
+            CredentialWriteTarget::Create {
+                metadata: login_metadata(),
+            },
+            private_values(&RequestId::new().to_string()),
+        )
+        .unwrap()
+    else {
+        panic!("expected initial commit")
+    };
+    let payload = zeroize::Zeroizing::new(serde_json::to_vec(&private_values("admin")).unwrap());
+    let Installation::Configured {
+        vault: VaultState::Unlocked { identity },
+    } = &f.state.installation
+    else {
+        panic!("expected unlocked fixture")
+    };
+    let context = format!(
+        "{}\0{}\0{}\0login",
+        f.state.manager_identity().unwrap(),
+        item.id,
+        item.epoch.get()
+    );
+    let ciphertext = crypto::encrypt_credential(identity, &context, &payload).unwrap();
+    f.state
+        .connection
+        .execute_batch("DROP TRIGGER immutable_credential_epoch")
+        .unwrap();
+    f.state
+        .connection
+        .execute(
+            "UPDATE credential_epochs SET ciphertext=?1 WHERE item=?2",
+            params![ciphertext, item.id.to_string()],
+        )
+        .unwrap();
+    f.state.connection.execute_batch("CREATE TRIGGER immutable_credential_epoch BEFORE UPDATE ON credential_epochs BEGIN SELECT RAISE(ABORT,'immutable credential epoch'); END;").unwrap();
+    assert_eq!(
+        f.state.submit_run(token(), plain_request(&f)),
+        Err(OperationError::InvalidInput)
+    );
+    f.state
+        .update_login(token(), item.id, item.revision, None)
+        .unwrap();
+    assert_eq!(
+        f.state.submit_run(token(), plain_request(&f)),
+        Err(OperationError::InvalidInput)
+    );
+    f.state.connection = Connection::open(&snapshot).unwrap();
+    migrate(&mut f.state.connection).unwrap();
+    f.state.submit_run(token(), plain_request(&f)).unwrap();
+    assert!(f.state.login_items(token()).unwrap().is_empty());
 }

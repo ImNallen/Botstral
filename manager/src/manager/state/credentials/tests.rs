@@ -340,7 +340,7 @@ fn metadata_cannot_publish_private_values_or_ambiguous_origins() {
     }
     let mut metadata = metadata();
     metadata.label = values(1).username.clone();
-    assert!(
+    assert!(matches!(
         f.state
             .write_login(
                 f.lease,
@@ -348,8 +348,12 @@ fn metadata_cannot_publish_private_values_or_ambiguous_origins() {
                 CredentialWriteTarget::Create { metadata },
                 values(1)
             )
-            .is_err()
-    );
+            .unwrap(),
+        CredentialWriteStatus::Rejected {
+            reason: CredentialWriteRejection::PublicValueCollision,
+            ..
+        }
+    ));
 }
 
 mod live;

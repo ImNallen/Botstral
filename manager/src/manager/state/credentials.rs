@@ -233,10 +233,18 @@ impl State {
                 view
             }
         };
-        let public = serde_json::to_value(&view).map_err(|_| OperationError::Internal)?;
+        let public = serde_json::json!({ "item": view, "scaffold": crate::manager::provider::credential_public_scaffold() });
         for secret in [&values.username, &values.password, &values.totp_seed] {
             if !secret.is_empty() && crate::manager::provider::reflects_secret(&public, secret) {
-                return Err(OperationError::InvalidInput);
+                let status = CredentialWriteStatus::Rejected {
+                    request,
+                    reason: CredentialWriteRejection::PublicValueCollision,
+                };
+                self.connection.execute(
+                    "INSERT INTO credential_writes VALUES(?1,?2)",
+                    params![request.to_string(), json(&status)?],
+                )?;
+                return Ok(status);
             }
         }
         let payload =

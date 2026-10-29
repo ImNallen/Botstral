@@ -2043,8 +2043,35 @@
         "state"
       ]
     },
+    "CredentialWriteRejection": {
+      "type": "string",
+      "enum": [
+        "public_value_collision"
+      ]
+    },
     "CredentialWriteStatus": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/CredentialWriteRejection"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "rejected"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request",
+            "reason"
+          ]
+        },
         {
           "type": "object",
           "properties": {

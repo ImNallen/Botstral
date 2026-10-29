@@ -1073,6 +1073,11 @@ export type OwnerReply =
     };
 export type CredentialWriteStatus =
   | {
+      reason: CredentialWriteRejection;
+      request: RequestId;
+      type: 'rejected';
+    }
+  | {
       item: LoginItemView;
       request: RequestId;
       type: 'committed';
@@ -1085,6 +1090,7 @@ export type CredentialWriteStatus =
       request: RequestId;
       type: 'unresolved';
     };
+export type CredentialWriteRejection = 'public_value_collision';
 export type ConnectorCallId = string;
 export type ConnectorResult =
   | {

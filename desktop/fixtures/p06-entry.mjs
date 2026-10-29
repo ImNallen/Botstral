@@ -30,6 +30,9 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => {
+    window.__TAURI_INTERNALS__ = { invoke: async () => ({ type: 'rejected', request: 'a62382d5-dfda-4a65-804e-1353d6564e21', reason: 'public_value_collision' }) };
+  });
   await page.goto(pathToFileURL(filename).href);
   await page.getByRole('article', { name: 'Vault handoff' }).waitFor();
   await page.getByRole('button', { name: 'Protected login entry', exact: true }).click();
@@ -39,11 +42,15 @@ try {
   assert.equal(await page.locator('input[type=password]').count(), 0);
   assert.equal(await page.getByRole('button', { name: 'Enter private login' }).isEnabled(), true);
   await page.screenshot({ path: path.join(evidence, 'handoff.png') });
+  await page.getByRole('button', { name: 'Enter private login', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Entry refused.' }).waitFor();
+  assert.match(await page.getByRole('status').textContent(), /No login was saved/);
+  await page.screenshot({ path: path.join(evidence, 'refused-entry.png') });
   const video = page.video();
   await context.close();
   await video.saveAs(path.join(evidence, 'handoff.webm'));
   assert.deepEqual(errors, []);
-  await fs.writeFile(path.join(evidence, 'component.json'), JSON.stringify({ source: 'Real MemoryNotice component. Synthetic value-free handoff. Component replay, not packaged native execution.', browser: await browser.version(), errors }, null, 2) + '\n');
+  await fs.writeFile(path.join(evidence, 'component.json'), JSON.stringify({ source: 'Real MemoryNotice component. Synthetic value-free handoff. Mocked native collision receipt with the real MemoryNotice and LoginEntry components. Component replay, not packaged native execution.', browser: await browser.version(), errors }, null, 2) + '\n');
 } finally {
   await browser?.close();
   await fs.rm(temporary, { recursive: true, force: true });
