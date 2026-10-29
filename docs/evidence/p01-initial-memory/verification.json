@@ -126,10 +126,10 @@
     }
   ],
   "limits": [
-    "Independent review, no-comments review and integration remain with the parent. No push, PR, merge or watch was performed.",
+    "This implementation-stage record predates independent review and parent integration. See independent-review.md and integration/results.json. The implementation owner performed no push, PR, merge or watch.",
     "The recording is labeled snapshot replay. It does not prove interaction in a packaged Tauri window.",
     "Native tests use an in-memory SecretStore, a local recorded provider and a synthetic worker. No operating-system keychain, paid inference or external execution is claimed.",
-    "Sources must already exist as conversation messages. This feature does not create messages from paired run history. The preview list is bounded to 100 entries and 240 Unicode characters each.",
+    "Sources must already exist as conversation messages. This feature does not create messages from paired run history. Integration expands the preview bound to the manager's full 256-entry limit and preserves the 240 Unicode character preview bound.",
     "Concurrent owner transfers can be definitively refused Busy before document admission. Tests deliberately submit new requests after refusal; journal recovery never replays writes.",
     "Playwright browser and encoder versions initially differed from the installed module. Evidence uses installed Chrome and the matching Playwright video encoder."
   ],

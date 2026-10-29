@@ -1759,7 +1759,7 @@ fn serialize_workspace<S: serde::Serializer>(
                         text: message.text.chars().take(240).collect(),
                     })
                 })
-                .take(100)
+                .take(MAX_RECORDS)
                 .collect(),
             bots: &w.bots,
             workers: &w.workers,

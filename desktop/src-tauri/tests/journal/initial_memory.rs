@@ -110,6 +110,32 @@ pub(super) async fn verify() {
             .count(),
         240
     );
+    let mut crowded = absent.clone();
+    let state = &mut crowded.workspace.as_mut().unwrap().state;
+    let foreign_conversation = state
+        .messages
+        .iter()
+        .find(|message| message.id == foreign)
+        .unwrap()
+        .conversation;
+    while state.messages.len() < MAX_RECORDS {
+        state.messages.push(ConversationMessage {
+            id: MessageId::new(),
+            conversation: foreign_conversation,
+            text: "A later message for another bot".into(),
+        });
+    }
+    let crowded_projection = serde_json::to_value(&crowded).unwrap();
+    let crowded_sources = crowded_projection["workspace"]["memory_sources"]
+        .as_array()
+        .unwrap();
+    assert!(
+        crowded_sources
+            .iter()
+            .any(|preview| preview["id"] == source.to_string()),
+        "Later messages from another bot must not hide an existing Memory source"
+    );
+    assert_eq!(crowded_sources.len(), MAX_RECORDS);
     for selected in [MessageId::new(), foreign] {
         assert_eq!(
             service

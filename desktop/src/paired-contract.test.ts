@@ -50,11 +50,20 @@ it('defaults to no sources and strictly validates bounded message previews', () 
   };
   expect(remoteSnapshotSchema.parse(value).workspace?.memory_sources).toEqual([]);
   const preview = { id: value.workspace.manager, bot: value.workspace.manager, text: 'Preference' };
+  expect(
+    remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        memory_sources: Array.from({ length: 256 }, () => preview),
+      },
+    }).workspace?.memory_sources,
+  ).toHaveLength(256);
   for (const memory_sources of [
     [{ ...preview, id: 'invalid' }],
     [{ ...preview, text: 'a'.repeat(481) }],
     [{ ...preview, conversation: preview.id }],
-    Array.from({ length: 101 }, () => preview),
+    Array.from({ length: 257 }, () => preview),
   ]) {
     expect(
       remoteSnapshotSchema.safeParse({

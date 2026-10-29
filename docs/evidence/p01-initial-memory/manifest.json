@@ -27,6 +27,12 @@
     "renderer-contract.log": "c45e8fdfe28513e01ac5f3d6d46f02c3ddb7247d37671196fb3342bb04de8304",
     "rust-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "selected-source.png": "b4ae618ba3842b26b25942a53909963b5dffd03a5bdf2a90f3b2774cb50df086",
-    "verification.json": "57dc27771886a29a3828a701f8d223dd978dffe5aa2b9f09b2a0c4c92d34b33c"
+    "verification.json": "f5ccdfd23f60bcee0c1ed26d89330908cc429c9a949ba005956963fcd9f42b3a",
+    "independent-review.md": "acd25a9a5d736b1779ab8a2426ecd9832f860a62f9de13fa30fab6cfc1ff1311",
+    "integration/frontend.log": "48a3a6626a9fc779e43973a2b953c7246e74bddaad37c47b1cbeac5c9aa1561e",
+    "integration/native-clippy.log": "8122297c31f2f8f5953f44d3fd594ed639b9cfca70216a94ba43bfb6d2ee9429",
+    "integration/results.json": "d5d0b8448c8e77ea87e0f0f841fc5c4ec482c547a5bdd9eb81efbf8a706fa557",
+    "integration/source-limit-after.log": "eb48bf5fef537b6ad4eba55dd167b15749d83c42bf3cdf185193f7a643fdee7e",
+    "integration/source-limit-before.log": "0950c46074e3e664bb5afbed26889fe81c4c8bb4e37553c6af7529f5a7aa5a90"
   }
 }

@@ -68,7 +68,7 @@ const workspace = z.strictObject({
         text: z.string().max(480),
       }),
     )
-    .max(100)
+    .max(256)
     .default([]),
   routines: z.array(routineViewSchema).default([]),
   routine_occurrences: z.array(occurrenceSchema).default([]),

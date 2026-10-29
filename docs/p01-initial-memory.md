@@ -6,7 +6,7 @@ The owner can create the selected bot's first Memory from one existing conversat
 
 **Create memory** opens a draft without selecting a source. Only existing same-bot messages appear. **Save memory** requires an explicit selection and a nonempty draft within 4096 UTF-8 bytes. An empty source list explains why creation is unavailable. This feature does not add conversation messages or turn run history into provenance.
 
-The native workspace projection joins existing messages to their conversations. It includes at most 100 message previews, taking entries from the end of the workspace list. Each preview contains only its message identifier, bot identifier, and first 240 Unicode characters. Older projections default to no sources. The strict renderer schema brands message identifiers and rejects extra fields or oversized previews.
+The native workspace projection joins existing messages to their conversations. It includes the manager's bounded set of at most 256 message previews, taking entries from the end of the workspace list. Later messages from another bot cannot hide an existing source. Each preview contains only its message identifier, bot identifier, and first 240 Unicode characters. Older projections default to no sources. The strict renderer schema brands message identifiers and rejects extra fields or oversized previews.
 
 `DraftBase` distinguishes a selected creation source from an existing authoritative document. Missing sources retain their selection and draft text. The editor never selects a replacement. A competing document becomes a conflict even if creation was already in progress. Only **Review draft against current** adopts that document's revision and sources for editing. Existing edit and clear commands still preserve authoritative source order.
 
@@ -26,7 +26,7 @@ The [provider proof](evidence/p01-initial-memory/provider-proof.json) contains t
 
 The [interaction video](evidence/p01-initial-memory/initial-memory.webm) drives the real components using those captured snapshots. The banner and [recording report](evidence/p01-initial-memory/component-proof.json) label the replay. The [before image](evidence/p01-initial-memory/before.png) uses the baseline Memory component at the commit recorded in [baseline details](evidence/p01-initial-memory/baseline-proof.json). The [selected source](evidence/p01-initial-memory/selected-source.png) and [saved Memory](evidence/p01-initial-memory/after.png) images were visually inspected.
 
-The video does not control a packaged Tauri window. Native tests use an in-memory secret store, a local recorded provider, and a synthetic worker. They prove no paid inference, external execution, or operating-system keychain behavior. Independent review and integration belong to the parent.
+The video does not control a packaged Tauri window. Native tests use an in-memory secret store, a local recorded provider, and a synthetic worker. They prove no paid inference, external execution, or operating-system keychain behavior. [Independent review and parent integration](evidence/p01-initial-memory/independent-review.md) record the corrected source-availability defect, final checks, and remaining limits.
 
 Reproduce the capture and video from the repository root:
 

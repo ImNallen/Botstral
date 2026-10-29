@@ -1,0 +1,46 @@
+{
+  "scope": "Parent integration after independent review and source-availability correction.",
+  "baseline": "7495f8c120c8cb8acb6f2f5c943fbedcb75d11f6",
+  "review": {
+    "model": "gpt-6-astra",
+    "initial": "One P2 source-availability finding; no other correctness or security findings.",
+    "focused": "Approved corrected full bounded source projection and regression.",
+    "comments": "No findings.",
+    "trail": "Original evidence hashes and provider consistency verified; new regression evidence agrees with trail."
+  },
+  "checks": [
+    {
+      "command": "python3 desktop/fixtures/paired_manager.py --verify-initial-memory",
+      "stage": "before source-availability fix",
+      "result": "expected failure",
+      "evidence": "source-limit-before.log",
+      "failure": "Later messages from another bot must not hide an existing Memory source"
+    },
+    {
+      "command": "BOTSTRAL_INITIAL_MEMORY_VIEWS=\"$PWD/.audit/p01-initial-memory-integration/native-controls.json\" python3 desktop/fixtures/paired_manager.py --verify-initial-memory",
+      "stage": "after fix",
+      "result": "passed",
+      "evidence": "source-limit-after.log"
+    },
+    {
+      "command": "npm run check && BOTSTRAL_INITIAL_MEMORY_VIEWS=\"$PWD/.audit/p01-initial-memory-integration/native-controls.json\" npm test && npm run build && npm run format:check",
+      "result": "passed",
+      "tests": {
+        "passed": 65,
+        "skipped": 1
+      },
+      "evidence": "frontend.log"
+    },
+    {
+      "command": "cargo clippy --manifest-path desktop/src-tauri/Cargo.toml --all-targets --locked -- -D warnings",
+      "result": "passed",
+      "evidence": "native-clippy.log"
+    }
+  ],
+  "limits": [
+    "Existing saved conversation messages are required.",
+    "The video is a component replay of captured native snapshots.",
+    "Packaged window and operating-system keychain behavior remain unverified.",
+    "Full P01 remains open."
+  ]
+}
