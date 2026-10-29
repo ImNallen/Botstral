@@ -54,6 +54,26 @@ fn protected_run_requests_refuse_access_before_and_after_vault_lock() {
 }
 
 #[test]
+fn protected_run_configuration_is_withheld_after_secret_rotation() {
+    let mut f = fixture();
+    manager_only(&mut f);
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    f.state
+        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
+        .unwrap();
+    let configuration = f.state.load_run(f.input.id).unwrap().configuration;
+    let secret = configuration.policy.acknowledgment.model_developer;
+    f.state
+        .replace_provider_key(token(), ProviderSecret::new(secret).unwrap())
+        .unwrap();
+    assert_eq!(
+        f.state.run(token(), f.input.id).err(),
+        Some(OperationError::InvalidInput)
+    );
+}
+
+#[test]
 fn secret_bearing_response_identifiers_are_not_saved_in_success_or_error_journals() {
     for billed in [false, true] {
         let mut f = fixture();
@@ -136,14 +156,13 @@ fn rotation_guards_dispatch_list_and_every_public_run_response() {
         f.state.memory_context(f.input.bot),
         Err(OperationError::InvalidInput)
     );
-    for view in [
-        f.state.run(token(), committed.id).unwrap(),
-        f.state.submit_run(token(), committed.clone()).unwrap(),
-        f.state.cancel_run(token(), committed.id).unwrap(),
-        f.state.cancel_run(token(), p.run).unwrap(),
+    for result in [
+        f.state.run(token(), committed.id),
+        f.state.submit_run(token(), committed.clone()),
+        f.state.cancel_run(token(), committed.id),
+        f.state.cancel_run(token(), p.run),
     ] {
-        assert!(!json(&view).unwrap().contains(secret));
-        assert!(view.turns.iter().all(|turn| turn.manager_result.is_none()));
+        assert_eq!(result.err(), Some(OperationError::InvalidInput));
     }
 }
 
@@ -306,7 +325,7 @@ fn followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome() {
             p.turn.id,
             p.turn.attempt,
             response(Some(RunToolCall {
-                id: "update-context".into(),
+                id: "future-archived-tool-call-secret".into(),
                 proposal: ToolProposal::Memory(MemoryProposal::Update {
                     scope: MemoryScopeSelection::Individual,
                     id: original.id,
@@ -373,4 +392,14 @@ fn followup_uses_frozen_context_and_archived_notices_keep_the_exact_outcome() {
     );
     f.state.recover_memory_publications().unwrap();
     assert_eq!(f.state.memory_context(f.input.bot).unwrap()[0].revision, 2);
+    f.state
+        .replace_provider_key(
+            token(),
+            ProviderSecret::new("future-archived-tool-call-secret".into()).unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        f.state.run(token(), first).err(),
+        Some(OperationError::InvalidInput)
+    );
 }

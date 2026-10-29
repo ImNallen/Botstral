@@ -208,24 +208,8 @@ impl State {
         self.authorize_owner(&token.into())?;
         self.public_run(self.load_run(id)?)
     }
-    fn public_run(&self, mut view: RunView) -> Result<RunView, OperationError> {
-        self.reject_known_secrets(&view.request)?;
-        for turn in &mut view.turns {
-            if self.reject_known_secrets(turn).is_err() {
-                turn.messages.clear();
-                turn.response = Some(RunMessage::Assistant { content: "Protected content withheld. Unlock the Vault to inspect safe conversation content.".into(), tool_call: None });
-                turn.manager_result = None;
-                turn.intent = None;
-                turn.provider_request_id = None;
-            }
-        }
-        for turn in &mut view.archived_turns {
-            if self.reject_known_secrets(turn).is_err() {
-                turn.text = Some("Protected content withheld.".into());
-                turn.manager_outcome = None;
-                turn.provider_request_id = None;
-            }
-        }
+    fn public_run(&self, view: RunView) -> Result<RunView, OperationError> {
+        self.reject_known_secrets(&view)?;
         Ok(view)
     }
     pub(super) fn workspace_run(&self, id: RunId) -> Result<WorkspaceRun, OperationError> {
@@ -290,7 +274,7 @@ impl State {
         insert_run(&tx, owner, &prepared)?;
         tx.commit()?;
         self.fault("run_committed");
-        Ok(prepared.view)
+        self.public_run(prepared.view)
     }
     pub(super) fn validate_run_admission(
         &mut self,
@@ -335,6 +319,7 @@ impl State {
         }
         let config =
             self.load_inference_configuration(request.bot, request.configuration_revision)?;
+        self.reject_known_secrets(&config)?;
         if !self.tools_authorized(&config)? || limits.deadline > config.policy.prices.expires_at {
             return Err(OperationError::InferenceUnverified);
         }

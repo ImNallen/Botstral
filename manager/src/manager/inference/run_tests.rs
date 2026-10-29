@@ -235,6 +235,19 @@ fn request(app: &App, session: ComputerSessionId) -> SubmitRun {
         process:Some(ProcessToolPolicy {profile:ProcessProfile::LinuxSystemdV1,account:ProcessAccount {uid:1000,gid:1000},environment:BTreeMap::new(),limits:ProcessLimits {runtime_seconds:30,output_bytes:1024,processes:8,memory_bytes:64*1024*1024}}),
     }}
 }
+async fn unlock_run_history(app: &App, id: RunId) {
+    let refused = app
+        .call("GET", &format!("/v1/runs/{id}"), Value::Null, 409)
+        .await;
+    assert_eq!(refused["error"], "vault_locked");
+    app.call(
+        "POST",
+        "/v1/vault/unlock",
+        json!({"passphrase": PASSPHRASE}),
+        204,
+    )
+    .await;
+}
 async fn view(app: &App, id: RunId) -> RunView {
     serde_json::from_value(
         app.call("GET", &format!("/v1/runs/{id}"), Value::Null, 200)
@@ -384,6 +397,7 @@ async fn m04_run_recorded_browser_file_approval_result_artifact_and_followup() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     assert_eq!(view(&app, input.id).await, completed);
     assert_eq!(fixture.chats(), 2);
     app.shutdown().await;
@@ -424,6 +438,7 @@ async fn m04_run_truncated_final_is_stopped_and_persisted() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     assert_eq!(view(&app, input.id).await, stopped);
     assert_eq!(fixture.chats(), 1);
     app.shutdown().await;
@@ -571,6 +586,7 @@ async fn m04_run_late_usage_cancellation_and_crash() {
     drop(worker);
     app.crash().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     let recovered = view(&app, input.id).await;
     assert_eq!(
         recovered.summary.phase,
@@ -719,6 +735,7 @@ async fn m04_run_capacity_backpressure_and_bounded_shutdown() {
     drop(worker);
     app.shutdown().await;
     let app = App::start(local.directory().into(), &fixture).await;
+    unlock_run_history(&app, input.id).await;
     let stopped = view(&app, input.id).await;
     assert_eq!(
         stopped.summary.phase,
