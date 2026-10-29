@@ -521,46 +521,73 @@ fn message(message: &RunMessage) -> serde_json::Value {
 pub(super) fn reflects_secret(value: &serde_json::Value, secret: &str) -> bool {
     use base64::{
         Engine,
-        engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
+        engine::general_purpose::{STANDARD, STANDARD_NO_PAD, URL_SAFE, URL_SAFE_NO_PAD},
     };
     let quoted = Zeroizing::new(serde_json::to_string(secret).expect("string serializes"));
-    let percent = Zeroizing::new(
-        secret
-            .bytes()
-            .map(|byte| {
-                if byte.is_ascii_alphanumeric() || b"-_.~".contains(&byte) {
-                    (byte as char).to_string()
-                } else {
-                    format!("%{byte:02X}")
-                }
-            })
-            .collect::<String>(),
-    );
     let base64 = Zeroizing::new(STANDARD.encode(secret));
+    let base64_no_pad = Zeroizing::new(STANDARD_NO_PAD.encode(secret));
+    let url_base64_padded = Zeroizing::new(URL_SAFE.encode(secret));
     let url_base64 = Zeroizing::new(URL_SAFE_NO_PAD.encode(secret));
     reflects_forms(
         value,
         &[
             secret,
             &quoted[1..quoted.len() - 1],
-            &percent,
             &base64,
+            &base64_no_pad,
+            &url_base64_padded,
             &url_base64,
         ],
     )
 }
 fn reflects_forms(value: &serde_json::Value, secrets: &[&str]) -> bool {
-    match value {
-        serde_json::Value::String(value) => {
-            secrets.iter().any(|secret| value.contains(secret))
-                || serde_json::from_str::<serde_json::Value>(value)
-                    .is_ok_and(|v| reflects_forms(&v, secrets))
+    reflects_forms_at(value, secrets, 0)
+}
+fn reflects_text(value: &str, secrets: &[&str], layers: u8) -> bool {
+    if secrets.iter().any(|secret| value.contains(secret)) {
+        return true;
+    }
+    if let Ok(decoded) = serde_json::from_str::<serde_json::Value>(value)
+        && (layers >= 16 || reflects_forms_at(&decoded, secrets, layers + 1))
+    {
+        return true;
+    }
+    let form = value
+        .contains('+')
+        .then(|| Zeroizing::new(value.replace('+', " ")));
+    for encoded in [Some(value), form.as_ref().map(|s| s.as_str())]
+        .into_iter()
+        .flatten()
+    {
+        let decoded = match percent_encoding::percent_decode_str(encoded).decode_utf8() {
+            Ok(decoded) => decoded,
+            Err(_) => return true,
+        };
+        if decoded.as_ref() != value {
+            if layers >= 16 {
+                return true;
+            }
+            let decoded = Zeroizing::new(decoded.into_owned());
+            if reflects_text(&decoded, secrets, layers + 1) {
+                return true;
+            }
         }
-        serde_json::Value::Array(values) => values.iter().any(|v| reflects_forms(v, secrets)),
+    }
+    false
+}
+fn reflects_forms_at(value: &serde_json::Value, secrets: &[&str], layers: u8) -> bool {
+    match value {
+        serde_json::Value::String(value) => reflects_text(value, secrets, layers),
+        serde_json::Value::Array(values) => {
+            values.iter().any(|v| reflects_forms_at(v, secrets, layers))
+        }
         serde_json::Value::Object(values) => values.iter().any(|(k, v)| {
-            secrets.iter().any(|secret| k.contains(secret)) || reflects_forms(v, secrets)
+            reflects_text(k, secrets, layers) || reflects_forms_at(v, secrets, layers)
         }),
-        _ => false,
+        serde_json::Value::Number(_) | serde_json::Value::Bool(_) | serde_json::Value::Null => {
+            let encoded = Zeroizing::new(value.to_string());
+            secrets.iter().any(|secret| encoded.contains(secret))
+        }
     }
 }
 
@@ -716,4 +743,43 @@ pub(super) enum EnvelopeOutcome {
         reason: InferenceAttentionReason,
         request_id: Option<String>,
     },
+}
+
+#[cfg(test)]
+mod screening_tests {
+    use super::reflects_secret;
+    use serde_json::json;
+
+    #[test]
+    fn ordinary_encodings_and_json_primitives_cannot_publish_private_values() {
+        for value in [
+            json!("private%2fvalue"),
+            json!("private%2Fvalue"),
+            json!("private%252fvalue"),
+            json!({"private%2fvalue": "public"}),
+            json!(r#""private\u002fvalue""#),
+            json!("cHJpdmF0ZS92YWx1ZQ=="),
+            json!("cHJpdmF0ZS92YWx1ZQ"),
+        ] {
+            assert!(reflects_secret(&value, "private/value"), "{value}");
+        }
+        assert!(reflects_secret(
+            &json!("private+value%2f"),
+            "private value/"
+        ));
+        assert!(reflects_secret(&json!(123456), "123456"));
+        assert!(reflects_secret(&json!(true), "true"));
+        assert!(reflects_secret(&json!(null), "null"));
+        assert!(!reflects_secret(
+            &json!({"public": [123457, "safe%2fvalue"]}),
+            "123456"
+        ));
+        assert!(!reflects_secret(&json!("Private%2fvalue"), "private/value"));
+        assert!(reflects_secret(&json!("%ff"), "private/value"));
+        let mut nested = "%2f".to_owned();
+        for _ in 0..17 {
+            nested = nested.replace('%', "%25");
+        }
+        assert!(reflects_secret(&json!(nested), "private/value"));
+    }
 }

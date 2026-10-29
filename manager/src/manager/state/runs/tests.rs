@@ -614,3 +614,6 @@ mod vision_tests;
 
 #[path = "memory_tests.rs"]
 mod memory_tests;
+
+#[path = "tests/publication_tests.rs"]
+mod publication_tests;
