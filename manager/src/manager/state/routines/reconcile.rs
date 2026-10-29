@@ -161,6 +161,7 @@ impl State {
         for (run, body, request) in rows {
             let turn: RunTurn = parse(body)?;
             let receipt = ArchivedRunTurn {
+                manager_outcome: turn.manager_result.as_ref().and_then(|r| r.outcome.clone()),
                 id: turn.id,
                 ordinal: turn.ordinal,
                 attempt: turn.attempt,

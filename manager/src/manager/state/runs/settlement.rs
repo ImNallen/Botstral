@@ -15,15 +15,28 @@ impl State {
             .position(|turn| turn.id == turn_id && turn.attempt == attempt)
             .ok_or(OperationError::Conflict)?;
         if view.turns[index].phase != RunTurnPhase::Sending {
+            if let ModelOutcome::Billed {
+                response: Ok(response),
+                ..
+            } = &outcome
+                && view.turns[index]
+                    .response
+                    .as_ref()
+                    .is_some_and(|prior| prior != response)
+            {
+                return Err(OperationError::Conflict);
+            }
             return Ok(());
         }
         let mut turn = view.turns[index].clone();
         let mut child = None;
         let mut wakeup = None;
+        let mut memory_publication = None;
         match outcome {
             ModelOutcome::Unknown { reason, request_id } => {
                 turn.phase = RunTurnPhase::AwaitingAttention { reason };
-                turn.provider_request_id = request_id;
+                turn.provider_request_id =
+                    request_id.filter(|id| self.reject_known_secrets(id).is_ok());
                 view.summary.phase = RunPhase::AwaitingAttention {
                     reason: RunAttentionReason::Provider,
                 };
@@ -61,7 +74,10 @@ impl State {
                 };
                 turn.usage = Some(usage);
                 turn.finish_reason = finish_reason;
-                turn.provider_request_id = Some(request_id);
+                turn.provider_request_id = self
+                    .reject_known_secrets(&request_id)
+                    .is_ok()
+                    .then_some(request_id);
                 turn.phase = RunTurnPhase::Responded;
                 view.summary.accounting.held_tokens -= turn.reservation.total_tokens;
                 view.summary.accounting.held_cost_microusd -= turn.reservation.cost_microusd;
@@ -72,6 +88,19 @@ impl State {
                         reason: RunStopReason::Deadline,
                     };
                 } else if let Ok(response) = response {
+                    if self.reject_known_secrets(&response).is_err() {
+                        view.summary.phase = RunPhase::Stopped {
+                            reason: RunStopReason::UnsupportedProposal,
+                        };
+                        view.summary.updated_at = self.now();
+                        let tx = self
+                            .connection
+                            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+                        save_turn(&tx, &turn)?;
+                        save_summary(&tx, &view.summary)?;
+                        tx.commit()?;
+                        return Ok(());
+                    }
                     turn.response = Some(response.clone());
                     match response {
                         RunMessage::Assistant { .. }
@@ -94,6 +123,8 @@ impl State {
                                 ToolProposal::Process(_)
                                 | ToolProposal::Vibe(_)
                                 | ToolProposal::Connector(_)
+                                | ToolProposal::Memory(_)
+                                | ToolProposal::RequestVaultEntry(_)
                                 | ToolProposal::RequestWakeup(_) => 1,
                             };
                             let connector_limit =
@@ -131,6 +162,81 @@ impl State {
                             };
                             if let Some(reason) = reason {
                                 view.summary.phase = RunPhase::Stopped { reason };
+                            } else if matches!(
+                                call.proposal,
+                                ToolProposal::Memory(_) | ToolProposal::RequestVaultEntry(_)
+                            ) {
+                                if !self.tools_authorized(&view.configuration)?
+                                    || self.run_admission_stopped()
+                                {
+                                    view.summary.phase = RunPhase::Stopped {
+                                        reason: RunStopReason::ConfigurationChanged,
+                                    };
+                                } else {
+                                    let outcome = match &call.proposal {
+                                        ToolProposal::Memory(proposal) => {
+                                            let outcome = match self.prepare_memory_change(
+                                                id,
+                                                view.request.bot,
+                                                turn.id,
+                                                proposal,
+                                            ) {
+                                                Ok((outcome, publication)) => {
+                                                    memory_publication = publication;
+                                                    outcome
+                                                }
+                                                Err(error) => MemoryOutcome::Refused {
+                                                    reason: match error {
+                                                        OperationError::NotFound => {
+                                                            MemoryRefusal::NotFound
+                                                        }
+                                                        OperationError::Conflict => {
+                                                            MemoryRefusal::RevisionConflict
+                                                        }
+                                                        OperationError::Busy => {
+                                                            MemoryRefusal::Capacity
+                                                        }
+                                                        OperationError::InvalidInput => {
+                                                            MemoryRefusal::InvalidInput
+                                                        }
+                                                        _ => MemoryRefusal::NeedsAttention,
+                                                    },
+                                                },
+                                            };
+                                            ManagerOutcome::Memory { outcome }
+                                        }
+                                        ToolProposal::RequestVaultEntry(request) => {
+                                            ManagerOutcome::Vault {
+                                                outcome: match request.purpose {
+                                                    VaultPurpose::ProviderKey => {
+                                                        VaultOutcome::ProviderKeySetup
+                                                    }
+                                                    VaultPurpose::ReusableLogin => {
+                                                        VaultOutcome::ReusableLoginUnsupported
+                                                    }
+                                                },
+                                            }
+                                        }
+                                        _ => unreachable!(),
+                                    };
+                                    let result = match &outcome {
+                                        ManagerOutcome::Memory { outcome } => json(outcome)?,
+                                        ManagerOutcome::Vault { outcome } => {
+                                            outcome.notice().into()
+                                        }
+                                    };
+                                    view.summary.accounting.admitted_operations += 1;
+                                    view.summary.phase = if memory_publication.is_some() {
+                                        RunPhase::WaitingForMemory { turn: turn.id }
+                                    } else {
+                                        RunPhase::Ready
+                                    };
+                                    turn.manager_result = Some(ManagerToolResult {
+                                        call,
+                                        result,
+                                        outcome: Some(outcome),
+                                    });
+                                }
                             } else if let ToolProposal::RequestWakeup(request) = &call.proposal {
                                 let result = match self
                                     .prepare_wakeup(id, turn.id, &call.id, request)
@@ -152,7 +258,11 @@ impl State {
                                 };
                                 view.summary.accounting.admitted_operations += 1;
                                 view.summary.phase = RunPhase::Ready;
-                                turn.manager_result = Some(ManagerToolResult { call, result });
+                                turn.manager_result = Some(ManagerToolResult {
+                                    call,
+                                    result,
+                                    outcome: None,
+                                });
                             } else if let Ok(work) = tools::translate(
                                 &view.request.execution_policy,
                                 &call.proposal,
@@ -160,7 +270,10 @@ impl State {
                             ) {
                                 let request = SubmitTask {
                                     id: TaskId::new(),
-                                    session_id: view.request.session,
+                                    session_id: view
+                                        .request
+                                        .session
+                                        .ok_or(OperationError::InvalidInput)?,
                                     conversation_id: None,
                                     settings: TaskSettings {
                                         model: view.configuration.policy.model_id.clone(),
@@ -221,6 +334,9 @@ impl State {
             view.summary.accounting.held_cost_microusd -= turn.reservation.cost_microusd;
         }
         view.summary.updated_at = self.now();
+        if memory_publication.is_some() {
+            self.fault("memory_before_intent");
+        }
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
@@ -239,9 +355,27 @@ impl State {
         if let Some(plan) = wakeup {
             Self::commit_wakeup(&tx, plan)?;
         }
+        if let Some(publication) = &memory_publication {
+            publication.commit(
+                &tx,
+                id,
+                &turn,
+                turn.manager_result
+                    .as_ref()
+                    .ok_or(OperationError::Internal)?,
+            )?;
+            turn.manager_result = None;
+        }
         save_turn(&tx, &turn)?;
         save_summary(&tx, &view.summary)?;
         tx.commit()?;
+        if memory_publication.is_some() {
+            self.fault("memory_intent_committed");
+            match self.recover_memory_publications() {
+                Ok(()) | Err(OperationError::Conflict | OperationError::Locked) => {}
+                Err(error) => return Err(error),
+            }
+        }
         self.fault("run_response_committed");
         if let Some(task) = child {
             self.pump_tasks(task.command.worker)?;

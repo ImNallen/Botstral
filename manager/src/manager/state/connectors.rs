@@ -81,6 +81,28 @@ fn valid_environment(values: impl Iterator<Item = (String, String)>) -> bool {
     })
 }
 impl State {
+    pub(super) fn known_connector_secrets(
+        &self,
+    ) -> Result<Vec<age::secrecy::SecretString>, OperationError> {
+        let views = self
+            .connection
+            .prepare("SELECT view FROM connection_versions")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|row| parse::<ConnectionView>(row?))
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut seen = std::collections::HashSet::new();
+        let mut secrets = Vec::new();
+        for view in views {
+            if seen.insert((view.id, view.version.credential_epoch)) {
+                secrets.extend(
+                    secret_values(&self.connection_secret(&view)?)
+                        .into_iter()
+                        .map(age::secrecy::SecretString::from),
+                );
+            }
+        }
+        Ok(secrets)
+    }
     fn connector_identity(&self) -> Result<&age::x25519::Identity, OperationError> {
         match &self.installation {
             Installation::Configured {

@@ -292,7 +292,7 @@ def exercise(output):
         owner('POST', '/v1/conversations', {'id': conversation, 'bot': bot})
         message = str(uuid.uuid4())
         owner('POST', '/v1/messages', {'id': message, 'conversation': conversation, 'text': 'M06 integrated history survives.'})
-        memory = owner('PUT', '/v1/documents', {'bot': bot, 'kind': 'memory', 'expected_revision': 0, 'sources': [{'type': 'message', 'id': message}], 'markdown': 'M06 retained memory.'})
+        instructions = owner('PUT', '/v1/documents', {'bot': bot, 'kind': 'instructions', 'expected_revision': 0, 'sources': [{'type': 'message', 'id': message}], 'markdown': 'M06 retained instructions.'})
         original_owner = owner('GET', '/v1/owner')
         manager_stop(manager_unit)
         stop(worker, worker_unit)
@@ -309,7 +309,7 @@ def exercise(output):
         assert owner('GET', '/v1/tasks/'+remote_task+'/connector-calls') == ledger
         after_artifact = artifact(remote_task)
         assert before_artifact == after_artifact
-        assert 'M06 retained memory.' in json.dumps(owner('POST', '/v1/documents/search/'+bot, {'query': 'retained'}))
+        assert 'M06 retained instructions.' in json.dumps(owner('POST', '/v1/documents/search/'+bot, {'query': 'retained'}))
         snapshot = owner('GET', '/v1/events/0/64')
         assert any(m['id'] == message and m['text'] == 'M06 integrated history survives.' for m in snapshot['state']['messages']), snapshot
         assert len(effects(manager)) == count
@@ -324,7 +324,7 @@ def exercise(output):
         assert manager.read('remote-after.txt') == 'Authenticated retained credential.'
         assert len(effects(manager)) == count+1
         check('offline_backup_restore_locked_unlock_retained_authenticated_credential', backup=backup, owner=original_owner, worker_before=current_worker, worker_after=retained,
-              history_message=message, memory=memory, artifact_sha256=after_artifact['sha256'], before_effects=count, after_effects=len(effects(manager)))
+              history_message=message, instructions=instructions, artifact_sha256=after_artifact['sha256'], before_effects=count, after_effects=len(effects(manager)))
         report['gates']['restore'] = 'VERIFIED'
         local = owner('POST', '/v1/connectors', {'id': str(uuid.uuid4()), 'label': 'Local SDK filesystem', 'transport': {'type': 'worker_stdio', 'worker': worker_id, 'account': runner['account'],
                     'executable': NODE, 'arguments': [root+'/sdk/server.mjs', 'stdio', root], 'cwd': root, 'environment': {}}})

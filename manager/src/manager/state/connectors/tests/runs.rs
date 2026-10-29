@@ -9,7 +9,7 @@ fn input(f: &Fixture, binding: ConnectorToolBinding) -> SubmitRun {
     SubmitRun {
         id: RunId::new(),
         bot: f.bot,
-        session: f.session,
+        session: Some(f.session),
         configuration_revision: 1,
         prompt: "Use the granted connector.".into(),
         images: vec![],
@@ -90,9 +90,9 @@ async fn dynamic_model_tool_schema_and_binding_reach_an_exact_approved_task() {
         let name = expected.clone(); let model = model.clone();
         async move {
             let tools = body["tools"].as_array().unwrap();
-            assert_eq!(tools.len(), 1);
-            assert_eq!(tools[0]["function"]["name"], name);
-            assert_eq!(tools[0]["function"]["parameters"], tool("read").input_schema);
+            assert_eq!(tools.len(), 3);
+            assert_eq!(tools[2]["function"]["name"], name);
+            assert_eq!(tools[2]["function"]["parameters"], tool("read").input_schema);
             axum::Json(json!({"id":"synthetic-connector-response","model":model,
                 "choices":[{"index":0,"message":{"role":"assistant","content":null,"tool_calls":[{"id":"call-connector","type":"function","function":{"name":name,"arguments":"{\"value\":\"input\"}"}}]},"finish_reason":"tool_calls"}],
                 "usage":{"prompt_tokens":12,"completion_tokens":8,"total_tokens":20}}))
@@ -530,4 +530,145 @@ fn parent_cancel_keeps_stopped_unknown_child() {
             .is_none()
     );
     assert!(f.state.dispatch_connector(id).unwrap().is_none());
+}
+
+#[test]
+fn conversational_memory_excludes_connector_bearer_environment_and_rotated_epochs() {
+    for local in [false, true] {
+        let mut f = fixture();
+        let mut connection = f.install(local);
+        let secret = "synthetic-connector-memory-secret";
+        let replace = |value: &str| {
+            if local {
+                ConnectionSecretInput::LocalEnvironment {
+                    values: std::collections::BTreeMap::from([(
+                        "ACCESS_TOKEN".into(),
+                        ConnectorSecretEntry(value.into()),
+                    )]),
+                }
+            } else {
+                ConnectionSecretInput::Bearer {
+                    value: ConnectorSecretEntry(value.into()),
+                }
+            }
+        };
+        let source = MemoryEntry {
+            id: MemoryId::new(),
+            scope: MemoryScope::Individual { bot: f.bot },
+            revision: 1,
+            markdown: secret.into(),
+            source: MemorySource::Run {
+                bot: f.bot,
+                run: RunId::new(),
+                turn: RunTurnId::new(),
+            },
+        };
+        let mut header = source.clone();
+        header.markdown.clear();
+        let path = f.state.directory.join(format!("entry-{}.md", source.id));
+        std::fs::write(
+            &path,
+            format!(
+                "<!-- botstral-memory-entry {} -->\n{secret}",
+                json!({"type":"live","entry":header})
+            ),
+        )
+        .unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let mut request = SubmitRun {
+            id: RunId::new(),
+            bot: f.bot,
+            session: None,
+            images: vec![],
+            configuration_revision: 1,
+            prompt: "A memory conversation.".into(),
+            execution_policy: RunExecutionPolicy {
+                computer: None,
+                process: None,
+                vibe: None,
+                vision: None,
+                connectors: None,
+            },
+            limits: RunLimits {
+                deadline: 1500,
+                max_turns: 4,
+                max_total_tokens: 200000,
+                max_cost_microusd: 200000,
+                max_output_tokens: 64,
+                max_operations: 4,
+                max_concurrent_operations: 1,
+            },
+        };
+        f.state.submit_run(token(), request.clone()).unwrap();
+        connection = f
+            .state
+            .replace_connection_secret(
+                token(),
+                connection.id,
+                ReplaceConnectionSecret {
+                    expected_revision: connection.version.revision,
+                    secret: replace(secret),
+                },
+            )
+            .unwrap();
+        assert!(
+            f.state
+                .claim_run_work(&HashSet::new(), true)
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(
+            f.state.load_run(request.id).unwrap().summary.phase,
+            RunPhase::AwaitingAttention {
+                reason: RunAttentionReason::ResultInvalid
+            }
+        );
+        assert_eq!(
+            f.state.memory_context(f.bot),
+            Err(OperationError::InvalidInput)
+        );
+        std::fs::remove_file(path).unwrap();
+        for text in [secret.to_owned(), serde_json::to_string(secret).unwrap()] {
+            request.id = RunId::new();
+            request.prompt = text.clone();
+            assert_eq!(
+                f.state.submit_run(token(), request.clone()),
+                Err(OperationError::InvalidInput)
+            );
+            assert_eq!(
+                f.state
+                    .prepare_memory_change(
+                        RunId::new(),
+                        f.bot,
+                        RunTurnId::new(),
+                        &MemoryProposal::Create {
+                            scope: MemoryScopeSelection::Shared,
+                            markdown: text
+                        }
+                    )
+                    .err(),
+                Some(OperationError::InvalidInput)
+            );
+        }
+        f.state
+            .replace_connection_secret(
+                token(),
+                connection.id,
+                ReplaceConnectionSecret {
+                    expected_revision: connection.version.revision,
+                    secret: replace("synthetic-new-connector-secret"),
+                },
+            )
+            .unwrap();
+        assert_eq!(
+            f.state.reject_known_secrets(&secret),
+            Err(OperationError::InvalidInput)
+        );
+        assert_eq!(
+            f.state
+                .reject_known_secrets(&"synthetic-new-connector-secret"),
+            Err(OperationError::InvalidInput)
+        );
+    }
 }

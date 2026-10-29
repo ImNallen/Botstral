@@ -133,12 +133,12 @@ async fn vision_sends_exact_authorized_png_bytes_and_retains_artifact_identity()
     let provider = Provider::fixture(format!("http://{}", listener.local_addr().unwrap()));
     let app=axum::Router::new().route("/v1/chat/completions",axum::routing::post(move |axum::Json(body):axum::Json<Value>| {
         let bytes=bytes.clone(); let model=model.clone(); async move {
-            let url=body["messages"][0]["content"][1]["image_url"]["url"].as_str().unwrap();
+            let url=body["messages"][1]["content"][1]["image_url"]["url"].as_str().unwrap();
             assert_eq!(STANDARD.decode(url.strip_prefix("data:image/png;base64,").unwrap()).unwrap(),bytes);
-            assert!(body["messages"][0].get("authorized_images").is_none());
+            assert!(body["messages"][1].get("authorized_images").is_none());
             assert_eq!(body["max_tokens"],64);
-            assert!(body.get("tools").is_none());
-            assert_eq!(body["tool_choice"], "none");
+            assert_eq!(body["tools"].as_array().unwrap().len(), 2);
+            assert_eq!(body["tool_choice"], "auto");
             axum::Json(json!({"id":"vision-fixture","model":model,"choices":[{"index":0,"message":{"role":"assistant","content":"red green blue white"},"finish_reason":"stop"}],"usage":{"prompt_tokens":40,"completion_tokens":4,"total_tokens":44}}))
         }
     }));
@@ -281,8 +281,8 @@ fn p01_memory_precedes_the_unchanged_multimodal_prompt_and_images() {
         panic!()
     };
     assert_eq!(
-        serde_json::from_str::<Document>(content.split_once('\n').unwrap().1).unwrap(),
-        memory
+        serde_json::from_str::<Vec<MemoryEntry>>(content.split_once('\n').unwrap().1).unwrap(),
+        vec![memory]
     );
     let RunMessage::UserMultimodal { content, images } = &p.turn.messages[1] else {
         panic!()

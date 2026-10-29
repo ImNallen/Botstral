@@ -472,7 +472,7 @@ def exercise(f, checks):
     for n in range(24):
         doc_bot = str(uuid.uuid4())
         f.owner('PUT', '/v1/bots/'+doc_bot, {'name':'Document '+str(n)})
-        f.owner('PUT', '/v1/documents', {'bot':doc_bot, 'kind':'memory', 'expected_revision':0, 'sources':[{'type':'external','reference':'https://fixture.invalid/source'}], 'markdown':'m'*4096})
+        f.owner('PUT', '/v1/documents', {'bot':doc_bot, 'kind':'instructions', 'expected_revision':0, 'sources':[{'type':'external','reference':'https://fixture.invalid/source'}], 'markdown':'m'*4096})
     reply = f.call(directory, {'method':'resume', 'cursor':1, 'limit':64})
     require(reply['value']['type'] == 'snapshot' and len(reply['value']['state']['messages']) == 256, 'retention rollover silently lost messages')
     require(len(json.dumps(reply)) > 65536, 'snapshot fixture is too small')

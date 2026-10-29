@@ -9,10 +9,10 @@ fn definition(f: &Fixture, trigger: RoutineTrigger) -> RoutineDefinition {
         catchup_seconds: 300,
         wakeups: None,
         template: RunTemplate {
-            session: f.input.session,
+            session: f.input.session.unwrap(),
             session_revision: f
                 .state
-                .find_computer_session(f.input.session)
+                .find_computer_session(f.input.session.unwrap())
                 .unwrap()
                 .revision,
             configuration_revision: 1,
@@ -386,7 +386,7 @@ fn p03_owner_commands_replay_tombstone_and_paused_copies() {
     assert_eq!(copied.state, RoutineState::Paused);
     assert_ne!(copied.id, id);
     assert!(copied.definition.wakeups.is_none());
-    assert_ne!(copied.definition.template.session, f.input.session);
+    assert_ne!(copied.definition.template.session, f.input.session.unwrap());
     let admitted = history(&f, id)[0].run.unwrap();
     let call = claim(&mut f.state);
     f.state
@@ -770,6 +770,7 @@ fn p03_compact_workspace_preview_keeps_full_text_available_and_fits_bound() {
         tool_call: None,
     });
     view.turns[0].manager_result = Some(ManagerToolResult {
+        outcome: None,
         call: RunToolCall {
             id: "local".into(),
             proposal: ToolProposal::RequestWakeup(RequestWakeup {
@@ -1096,8 +1097,8 @@ fn p01_routine_rollback_and_wakeup_due_time_capture_keep_admitted_memory_frozen(
         panic!()
     };
     assert_eq!(
-        serde_json::from_str::<Document>(content.split_once('\n').unwrap().1).unwrap(),
-        c
+        serde_json::from_str::<Vec<MemoryEntry>>(content.split_once('\n').unwrap().1).unwrap(),
+        vec![c]
     );
     assert_eq!(
         p.turn.messages[1],

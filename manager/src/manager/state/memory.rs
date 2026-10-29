@@ -2,6 +2,10 @@ use super::tasks::{event, json, parse};
 use super::*;
 use botstral_link::*;
 use std::{io::Write, os::unix::fs::OpenOptionsExt};
+mod entries;
+mod publication;
+pub(super) use entries::validate_snapshot;
+pub(super) use publication::PreparedMemoryPublication;
 
 fn filename(bot: BotId, kind: &DocumentKind) -> String {
     format!(
@@ -21,6 +25,24 @@ fn encode(document: &Document) -> Result<Vec<u8>, OperationError> {
         document.markdown
     )
     .into_bytes())
+}
+fn decode_document(bytes: &[u8]) -> Result<Document, OperationError> {
+    if bytes.len() > 16384 {
+        return Err(OperationError::InvalidInput);
+    }
+    let text = std::str::from_utf8(bytes).map_err(|_| OperationError::InvalidInput)?;
+    let (metadata, markdown) = text.split_once('\n').ok_or(OperationError::InvalidInput)?;
+    let header = metadata
+        .strip_prefix("<!-- botstral-document ")
+        .and_then(|s| s.strip_suffix(" -->"))
+        .ok_or(OperationError::InvalidInput)?;
+    let mut document: Document = parse(header.into())?;
+    if !document.markdown.is_empty() {
+        return Err(OperationError::InvalidInput);
+    }
+    document.markdown = markdown.into();
+    validate_document_shape(&document)?;
+    Ok(document)
 }
 pub(super) fn validate_document_shape(document: &Document) -> Result<(), OperationError> {
     if document.revision == 0
@@ -53,26 +75,18 @@ impl State {
     fn read_document(&self, path: &std::path::Path) -> Result<Document, OperationError> {
         let bytes =
             botstral_link::tls::private_bytes(path).map_err(|_| OperationError::Internal)?;
-        if bytes.len() > 16384 {
-            return Err(OperationError::InvalidInput);
-        }
-        let text = std::str::from_utf8(&bytes).map_err(|_| OperationError::InvalidInput)?;
-        let (metadata, markdown) = text.split_once('\n').ok_or(OperationError::InvalidInput)?;
-        let header = metadata
-            .strip_prefix("<!-- botstral-document ")
-            .and_then(|s| s.strip_suffix(" -->"))
-            .ok_or(OperationError::InvalidInput)?;
-        let mut document: Document = parse(header.into())?;
-        if !document.markdown.is_empty()
-            || document.revision == 0
-            || document.revision > MAX_COUNTER
-            || path.file_name().and_then(|n| n.to_str())
-                != Some(filename(document.bot, &document.kind).as_str())
+        let document = decode_document(&bytes)?;
+        if path.file_name().and_then(|n| n.to_str())
+            != Some(filename(document.bot, &document.kind).as_str())
         {
             return Err(OperationError::InvalidInput);
         }
-        document.markdown = markdown.into();
-        self.validate_document(&document)?;
+        if document.kind == DocumentKind::Instructions {
+            self.validate_document(&document)?;
+        } else {
+            self.find_bot(document.bot)?
+                .ok_or(OperationError::NotFound)?;
+        }
         Ok(document)
     }
     fn validate_document(&self, document: &Document) -> Result<(), OperationError> {
@@ -104,9 +118,7 @@ impl State {
                 .file_name()
                 .and_then(|n| n.to_str())
                 .ok_or(OperationError::InvalidInput)?;
-            if (name.starts_with("instructions-") || name.starts_with("memory-"))
-                && name.ends_with(".md")
-            {
+            if name.starts_with("instructions-") && name.ends_with(".md") {
                 if documents.len() >= MAX_RECORDS {
                     return Err(OperationError::Busy);
                 }
@@ -205,6 +217,9 @@ impl State {
         input: WriteDocument,
     ) -> Result<Document, OperationError> {
         self.authorize_owner(&token.into())?;
+        if input.kind == DocumentKind::Memory {
+            return Err(OperationError::InvalidInput);
+        }
         let documents = self.reconcile_documents()?;
         let previous = documents
             .iter()

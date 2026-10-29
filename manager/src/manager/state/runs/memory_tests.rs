@@ -1,88 +1,321 @@
 use super::*;
+use std::os::unix::fs::PermissionsExt;
 
-pub(super) fn remember(f: &mut Fixture, revision: u64, markdown: &str) -> Document {
-    f.state
-        .write_document(
-            token(),
-            WriteDocument {
-                bot: f.input.bot,
-                kind: DocumentKind::Memory,
-                expected_revision: revision,
-                sources: vec![SourceReference::External {
-                    reference: "https://example.com/preference".into(),
-                }],
-                markdown: markdown.into(),
-            },
-        )
-        .unwrap()
+fn write_entry(state: &State, entry: &MemoryEntry) {
+    let mut metadata = entry.clone();
+    metadata.markdown.clear();
+    let path = state.directory.join(format!("entry-{}.md", entry.id));
+    fs::write(
+        &path,
+        format!(
+            "<!-- botstral-memory-entry {} -->\n{}",
+            serde_json::json!({"type":"live","entry":metadata}),
+            entry.markdown
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
 }
-fn stored(f: &Fixture, run: RunId) -> Option<Document> {
+
+pub(super) fn remember(f: &mut Fixture, revision: u64, markdown: &str) -> MemoryEntry {
+    let entry = MemoryEntry {
+        id: MemoryId(f.input.bot.0),
+        scope: MemoryScope::Individual { bot: f.input.bot },
+        revision: revision + 1,
+        markdown: markdown.into(),
+        source: MemorySource::Imported {
+            sources: vec![SourceReference::External {
+                reference: "https://example.com/preference".into(),
+            }],
+        },
+    };
+    write_entry(&f.state, &entry);
+    entry
+}
+fn legacy(f: &Fixture, markdown: &str) -> Document {
+    let document = Document {
+        bot: f.input.bot,
+        kind: DocumentKind::Memory,
+        revision: 7,
+        sources: vec![SourceReference::External {
+            reference: "https://example.com/original".into(),
+        }],
+        markdown: markdown.into(),
+    };
+    let mut metadata = document.clone();
+    metadata.markdown.clear();
+    let path = f
+        .state
+        .directory
+        .join(format!("memory-{}.md", document.bot));
+    fs::write(
+        &path,
+        format!(
+            "<!-- botstral-document {} -->\n{}",
+            json(&metadata).unwrap(),
+            markdown
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
+    document
+}
+fn stored(f: &Fixture, run: RunId) -> Option<Vec<MemoryEntry>> {
     let value: Option<String> = f
         .state
         .connection
         .query_row(
-            "SELECT memory_snapshot FROM runs WHERE id=?1",
+            "SELECT memory_entries_snapshot FROM runs WHERE id=?1",
             [run.to_string()],
             |r| r.get(0),
         )
         .unwrap();
     value.map(|body| serde_json::from_str(&body).unwrap())
 }
-fn assert_context(p: &RunCallPermit, document: &Document, prompt: &str) {
+fn context(p: &RunCallPermit) -> Vec<MemoryEntry> {
     let RunMessage::User { content } = &p.turn.messages[0] else {
         panic!()
     };
-    let (_, body) = content.split_once('\n').unwrap();
-    assert_eq!(serde_json::from_str::<Document>(body).unwrap(), *document);
-    assert_eq!(
-        p.turn.messages[1],
-        RunMessage::User {
-            content: prompt.into()
-        }
-    );
-    let request: serde_json::Value = serde_json::from_str(&p.prepared.encoded()).unwrap();
-    assert_eq!(request["messages"][0]["role"], "user");
-    assert_eq!(request["messages"][0]["content"], *content);
-    assert_eq!(request["messages"][1]["content"], prompt);
+    serde_json::from_str(content.split_once('\n').unwrap().1).unwrap()
+}
+fn manager_only(f: &mut Fixture) {
+    f.input.session = None;
+    f.input.execution_policy = RunExecutionPolicy {
+        computer: None,
+        process: None,
+        connectors: None,
+        vision: None,
+        vibe: None,
+    };
+}
+fn call(f: &mut Fixture, proposal: MemoryProposal) -> MemoryOutcome {
+    f.input.id = RunId::new();
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let p = claim(&mut f.state);
+    let proposal = RunToolCall {
+        id: "memory-call".into(),
+        proposal: ToolProposal::Memory(proposal),
+    };
+    f.state
+        .finish_run_call(
+            p.run,
+            p.turn.id,
+            p.turn.attempt,
+            response(Some(proposal.clone())),
+        )
+        .unwrap();
+    let view = f.state.load_run(p.run).unwrap();
+    let result = view.turns[0].manager_result.as_ref().unwrap();
+    let Some(ManagerOutcome::Memory { outcome }) = &result.outcome else {
+        panic!()
+    };
+    let outcome = outcome.clone();
+    f.state
+        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(Some(proposal)))
+        .unwrap();
+    assert_eq!(view, f.state.load_run(p.run).unwrap());
+    f.state.cancel_run(token(), p.run).unwrap();
+    outcome
+}
+fn create(f: &mut Fixture, scope: MemoryScopeSelection, text: &str) -> MemoryEntry {
+    let MemoryOutcome::Created { entry } = call(
+        f,
+        MemoryProposal::Create {
+            scope,
+            markdown: text.into(),
+        },
+    ) else {
+        panic!()
+    };
+    entry
 }
 
 #[test]
-fn p01_admitted_memory_is_immutable_through_correction_restart_retry_and_clear() {
+fn both_scopes_crud_preserve_one_fact_and_derive_source_from_the_actual_run() {
     let mut f = fixture();
-    let a = remember(&mut f, 0, "Preference A: use amber.");
-    f.state.submit_run(token(), f.input.clone()).unwrap();
-    let b = remember(&mut f, 1, "Preference B: use birch.");
+    manager_only(&mut f);
+    for scope in [
+        MemoryScopeSelection::Individual,
+        MemoryScopeSelection::Shared,
+    ] {
+        let first = create(&mut f, scope, "Use concise answers.");
+        let second = create(&mut f, scope, "Prefer morning meetings.");
+        let original = f.state.memory_context(f.input.bot).unwrap();
+        assert!(matches!(first.source, MemorySource::Run { bot, .. } if bot == f.input.bot));
+        assert_eq!(first.scope, scope.resolve(f.input.bot));
+        assert_eq!(
+            call(
+                &mut f,
+                MemoryProposal::Update {
+                    scope,
+                    id: first.id,
+                    expected_revision: 0,
+                    markdown: "wrong revision".into()
+                }
+            ),
+            MemoryOutcome::Refused {
+                reason: MemoryRefusal::RevisionConflict
+            }
+        );
+        assert_eq!(f.state.memory_context(f.input.bot).unwrap(), original);
+        let MemoryOutcome::Updated { entry } = call(
+            &mut f,
+            MemoryProposal::Update {
+                scope,
+                id: first.id,
+                expected_revision: 1,
+                markdown: "Use complete sentences.".into(),
+            },
+        ) else {
+            panic!()
+        };
+        assert_eq!(entry.revision, 2);
+        assert!(
+            f.state
+                .memory_context(f.input.bot)
+                .unwrap()
+                .contains(&second)
+        );
+        let MemoryOutcome::Listed {
+            entries,
+            scope: owner,
+        } = call(&mut f, MemoryProposal::List { scope })
+        else {
+            panic!()
+        };
+        assert_eq!(owner, scope.resolve(f.input.bot));
+        assert!(entries.contains(&entry) && entries.contains(&second));
+        assert_eq!(
+            call(
+                &mut f,
+                MemoryProposal::Delete {
+                    scope,
+                    id: first.id,
+                    expected_revision: 2
+                }
+            ),
+            MemoryOutcome::Deleted {
+                id: first.id,
+                scope: owner,
+                revision: 3
+            }
+        );
+        let bytes =
+            fs::read_to_string(f.state.directory.join(format!("entry-{}.md", first.id))).unwrap();
+        assert!(bytes.contains("tombstone") && !bytes.contains("Use complete sentences."));
+        assert_eq!(
+            call(
+                &mut f,
+                MemoryProposal::Update {
+                    scope,
+                    id: first.id,
+                    expected_revision: 3,
+                    markdown: "resurrect".into()
+                }
+            ),
+            MemoryOutcome::Refused {
+                reason: MemoryRefusal::NotFound
+            }
+        );
+    }
     assert_eq!(
-        f.state
-            .submit_run(token(), f.input.clone())
-            .unwrap()
-            .request,
-        f.input
-    );
-    assert_eq!(stored(&f, f.input.id), Some(a.clone()));
-    assert!(
         f.state
             .connection
-            .execute("UPDATE runs SET memory_snapshot=NULL", [])
-            .is_err()
+            .query_row::<i64, _, _>(
+                "SELECT count(*) FROM memory_publications WHERE state='applied'",
+                [],
+                |r| r.get(0)
+            )
+            .unwrap(),
+        8
+    );
+    assert_eq!(
+        f.state
+            .connection
+            .query_row::<i64, _, _>("SELECT count(*) FROM tasks", [], |r| r.get(0))
+            .unwrap(),
+        0
+    );
+}
+
+#[test]
+fn individual_identity_cannot_cross_bots_and_shared_entries_survive_restart() {
+    let mut f = fixture();
+    manager_only(&mut f);
+    let individual = create(&mut f, MemoryScopeSelection::Individual, "Only this bot.");
+    let shared = create(&mut f, MemoryScopeSelection::Shared, "All bots.");
+    let other = BotId::new();
+    assert_eq!(f.state.memory_context(other).unwrap(), vec![shared.clone()]);
+    assert_eq!(
+        f.state
+            .prepare_memory_change(
+                RunId::new(),
+                other,
+                RunTurnId::new(),
+                &MemoryProposal::Update {
+                    scope: MemoryScopeSelection::Individual,
+                    id: individual.id,
+                    expected_revision: 1,
+                    markdown: "foreign".into()
+                }
+            )
+            .err(),
+        Some(OperationError::NotFound)
+    );
+    assert_eq!(
+        call(
+            &mut f,
+            MemoryProposal::Delete {
+                scope: MemoryScopeSelection::Shared,
+                id: individual.id,
+                expected_revision: 1
+            }
+        ),
+        MemoryOutcome::Refused {
+            reason: MemoryRefusal::NotFound
+        }
     );
     restart_tests::reopen(&mut f);
+    assert_eq!(f.state.memory_context(other).unwrap(), vec![shared]);
+    assert!(
+        f.state
+            .memory_context(f.input.bot)
+            .unwrap()
+            .contains(&individual)
+    );
+}
+
+#[test]
+fn new_snapshots_are_explicit_and_immutable_through_correction_and_restart() {
+    let mut f = fixture();
+    let original = remember(&mut f, 0, "Preference A.");
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    remember(&mut f, 1, "Preference B.");
+    assert_eq!(stored(&f, f.input.id), Some(vec![original.clone()]));
+    for column in ["memory_snapshot", "memory_entries_snapshot"] {
+        assert!(
+            f.state
+                .connection
+                .execute(&format!("UPDATE runs SET {column}=NULL"), [])
+                .is_err()
+        );
+    }
+    restart_tests::reopen(&mut f);
     let p = claim(&mut f.state);
-    assert_context(&p, &a, &f.input.prompt);
+    assert_eq!(context(&p), vec![original]);
     f.state
         .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
         .unwrap();
+    fs::remove_file(
+        f.state
+            .directory
+            .join(format!("entry-{}.md", MemoryId(f.input.bot.0))),
+    )
+    .unwrap();
     f.input.id = RunId::new();
     f.state.submit_run(token(), f.input.clone()).unwrap();
-    let cleared = remember(&mut f, 2, " \n\t");
-    let p = claim(&mut f.state);
-    assert_context(&p, &b, &f.input.prompt);
-    f.state
-        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
-        .unwrap();
-    f.input.id = RunId::new();
-    f.state.submit_run(token(), f.input.clone()).unwrap();
-    assert_eq!(stored(&f, f.input.id), Some(cleared));
+    assert_eq!(stored(&f, f.input.id), Some(vec![]));
+    remember(&mut f, 2, "Must not enter empty snapshot.");
     let p = claim(&mut f.state);
     assert_eq!(
         p.turn.messages,
@@ -93,56 +326,88 @@ fn p01_admitted_memory_is_immutable_through_correction_restart_retry_and_clear()
 }
 
 #[test]
-fn p01_legacy_ready_run_migration_never_acquires_current_memory() {
-    let mut f = fixture();
-    f.state.submit_run(token(), f.input.clone()).unwrap();
-    f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_snapshot; CREATE TRIGGER immutable_run BEFORE UPDATE OF id,owner,request,configuration ON runs BEGIN SELECT RAISE(ABORT,'immutable run'); END; PRAGMA user_version=10;").unwrap();
-    migrate(&mut f.state.connection).unwrap();
-    let current = remember(&mut f, 0, "Current memory must not enter legacy runs.");
-    let p = claim(&mut f.state);
-    assert_eq!(
-        p.turn.messages,
-        vec![RunMessage::User {
-            content: f.input.prompt.clone()
-        }]
-    );
-    assert_eq!(stored(&f, p.run), None);
-    f.state
-        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
-        .unwrap();
-    f.input.id = RunId::new();
-    f.state.submit_run(token(), f.input.clone()).unwrap();
-    let p = claim(&mut f.state);
-    assert_context(&p, &current, &f.input.prompt);
+fn migration_preserves_old_frozen_document_and_null_no_context() {
+    for old in [None, Some("Frozen legacy preference.")] {
+        let mut f = fixture();
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        let doc = legacy(&f, "Present-day memory.");
+        f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_entries_snapshot; DROP TABLE memory_publications; DROP TABLE memory_imports; PRAGMA user_version=11;").unwrap();
+        if let Some(markdown) = old {
+            let mut frozen = doc.clone();
+            frozen.markdown = markdown.into();
+            f.state
+                .connection
+                .execute(
+                    "UPDATE runs SET memory_snapshot=?1",
+                    [json(&frozen).unwrap()],
+                )
+                .unwrap();
+        }
+        f.state.connection.execute_batch("CREATE TRIGGER immutable_run BEFORE UPDATE OF id,owner,request,configuration,memory_snapshot ON runs BEGIN SELECT RAISE(ABORT,'immutable run'); END;").unwrap();
+        migrate(&mut f.state.connection).unwrap();
+        assert_eq!(stored(&f, f.input.id), None);
+        let p = claim(&mut f.state);
+        assert!(!p.prepared.encoded().contains("Present-day memory."));
+        assert_eq!(p.turn.messages.len(), if old.is_some() { 2 } else { 1 });
+        if let Some(markdown) = old {
+            assert!(p.prepared.encoded().contains(markdown));
+        }
+    }
 }
 
 #[test]
-fn p01_new_admission_reconciles_all_authoritative_documents_but_retry_does_not() {
-    use std::os::unix::fs::PermissionsExt;
-    let mut f = fixture();
-    let original = remember(&mut f, 0, "Frozen preference.");
-    f.state.submit_run(token(), f.input.clone()).unwrap();
-    let path = f
-        .state
-        .directory
-        .join(format!("memory-{}.md", BotId::new()));
-    fs::write(&path, "malformed authoritative document").unwrap();
-    fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
-    assert!(f.state.submit_run(token(), f.input.clone()).is_ok());
-    let mut new = f.input.clone();
-    new.id = RunId::new();
-    assert_eq!(
-        f.state.submit_run(token(), new.clone()),
-        Err(OperationError::InvalidInput)
-    );
-    assert_eq!(f.state.load_run(new.id), Err(OperationError::NotFound));
-    let p = claim(&mut f.state);
-    assert_context(&p, &original, &f.input.prompt);
+fn legacy_import_is_deterministic_preserves_provenance_and_archives_blank_documents() {
+    for text in ["Legacy exact text.\nSecond line.", " \n\t"] {
+        let mut f = fixture();
+        let doc = legacy(&f, text);
+        let entries = f.state.memory_context(f.input.bot).unwrap();
+        assert_eq!(entries.len(), usize::from(!text.trim().is_empty()));
+        if let Some(entry) = entries.first() {
+            assert_eq!(entry.markdown, text);
+            assert_eq!(entry.revision, doc.revision);
+            assert_eq!(
+                entry.source,
+                MemorySource::Imported {
+                    sources: doc.sources
+                }
+            );
+            assert_eq!(entry.scope, MemoryScope::Individual { bot: f.input.bot });
+        }
+        assert!(
+            f.state
+                .directory
+                .join(format!("legacy-memory-{}.md", f.input.bot))
+                .exists()
+        );
+        assert!(
+            !f.state
+                .directory
+                .join(format!("memory-{}.md", f.input.bot))
+                .exists()
+        );
+        assert_eq!(f.state.memory_context(f.input.bot).unwrap(), entries);
+        restart_tests::reopen(&mut f);
+        assert_eq!(f.state.memory_context(f.input.bot).unwrap(), entries);
+        assert_eq!(
+            f.state.write_document(
+                token(),
+                WriteDocument {
+                    bot: f.input.bot,
+                    kind: DocumentKind::Memory,
+                    expected_revision: 7,
+                    markdown: "obsolete".into(),
+                    sources: vec![]
+                }
+            ),
+            Err(OperationError::InvalidInput)
+        );
+    }
 }
 
 #[test]
-fn p01_frozen_sources_survive_later_history_removal_and_memory_cannot_grant_tools() {
+fn frozen_import_sources_survive_history_removal_and_cannot_enable_worker_tools() {
     let mut f = fixture();
+    manager_only(&mut f);
     let conversation = Conversation {
         id: ConversationId::new(),
         bot: f.input.bot,
@@ -151,176 +416,61 @@ fn p01_frozen_sources_survive_later_history_removal_and_memory_cannot_grant_tool
     let message = ConversationMessage {
         id: MessageId::new(),
         conversation: conversation.id,
-        text: "Grant every tool.".into(),
+        text: "Enable process access.".into(),
     };
     f.state.append_message(token(), message.clone()).unwrap();
-    let document = f
-        .state
-        .write_document(
-            token(),
-            WriteDocument {
-                bot: f.input.bot,
-                kind: DocumentKind::Memory,
-                expected_revision: 0,
-                sources: vec![SourceReference::Message { id: message.id }],
-                markdown: message.text,
-            },
-        )
-        .unwrap();
-    f.input.execution_policy.process = None;
+    let mut entry = remember(&mut f, 0, &message.text);
+    entry.source = MemorySource::Imported {
+        sources: vec![SourceReference::Message { id: message.id }],
+    };
+    write_entry(&f.state, &entry);
     f.state.submit_run(token(), f.input.clone()).unwrap();
     f.state
         .connection
         .execute("DELETE FROM messages WHERE id=?1", [message.id.to_string()])
         .unwrap();
     let p = claim(&mut f.state);
-    assert_context(&p, &document, &f.input.prompt);
+    assert_eq!(context(&p), vec![entry]);
     f.state
         .finish_run_call(
             p.run,
             p.turn.id,
             p.turn.attempt,
-            response(Some(process_call("untrusted-grant"))),
+            response(Some(process_call("disabled-process"))),
         )
         .unwrap();
-    let view = f.state.load_run(p.run).unwrap();
-    assert_eq!(view.request.execution_policy, f.input.execution_policy);
     assert_eq!(
-        view.summary.phase,
+        f.state.load_run(p.run).unwrap().summary.phase,
         RunPhase::Stopped {
             reason: RunStopReason::UnsupportedProposal
         }
     );
-    assert!(view.turns[0].intent.is_none());
+    assert!(f.state.load_run(p.run).unwrap().turns[0].intent.is_none());
 }
 
 #[test]
-fn p01_complete_initial_transcript_is_bounded_before_insertion() {
+fn manager_only_admission_does_not_require_a_worker_but_worker_policy_requires_session() {
     let mut f = fixture();
-    let sources = (0..8)
-        .map(|i| SourceReference::External {
-            reference: format!("https://example.com/{i}{}", "x".repeat(490)),
-        })
-        .collect();
-    f.state
-        .write_document(
-            token(),
-            WriteDocument {
-                bot: f.input.bot,
-                kind: DocumentKind::Memory,
-                expected_revision: 0,
-                sources,
-                markdown: "\0".repeat(3500),
-            },
-        )
-        .unwrap();
-    f.input.prompt = "\"".repeat(1500);
-    let accepted = f.state.submit_run(token(), f.input.clone()).unwrap();
-    assert_eq!(accepted.request.prompt, f.input.prompt);
-    f.state.cancel_run(token(), f.input.id).unwrap();
-    remember(&mut f, 1, &"\0".repeat(4096));
-    f.input.id = RunId::new();
-    f.input.prompt = "\"".repeat(4096);
+    f.input.session = None;
     assert_eq!(
         f.state.submit_run(token(), f.input.clone()),
         Err(OperationError::InvalidInput)
     );
-    assert_eq!(f.state.load_run(f.input.id), Err(OperationError::NotFound));
-    assert!(
-        f.state
-            .claim_run_work(&HashSet::new(), true)
-            .unwrap()
-            .is_none()
-    );
-}
-
-#[test]
-fn p01_new_runs_read_external_corrections_and_refuse_oversized_authority() {
-    let mut f = fixture();
-    let mut corrected = remember(&mut f, 0, "External preference A.");
-    corrected.revision = 2;
-    corrected.markdown = "External preference B.".into();
-    let path = f.state.directory.join(format!("memory-{}.md", f.input.bot));
-    let write = |document: &Document| {
-        let mut header = document.clone();
-        header.markdown.clear();
-        fs::write(
-            &path,
-            format!(
-                "<!-- botstral-document {} -->\n{}",
-                serde_json::to_string(&header).unwrap(),
-                document.markdown
-            ),
-        )
-        .unwrap();
-    };
-    write(&corrected);
+    manager_only(&mut f);
     f.state.submit_run(token(), f.input.clone()).unwrap();
     let p = claim(&mut f.state);
-    assert_context(&p, &corrected, &f.input.prompt);
-    f.state
-        .finish_run_call(p.run, p.turn.id, p.turn.attempt, response(None))
-        .unwrap();
-    corrected.revision = 3;
-    corrected.markdown = "x".repeat(4097);
-    write(&corrected);
-    f.input.id = RunId::new();
-    assert_eq!(
-        f.state.submit_run(token(), f.input.clone()),
-        Err(OperationError::InvalidInput)
-    );
-    assert_eq!(f.state.load_run(f.input.id), Err(OperationError::NotFound));
-    assert!(
-        f.state
-            .claim_run_work(&HashSet::new(), true)
-            .unwrap()
-            .is_none()
-    );
+    let body: serde_json::Value = serde_json::from_str(&p.prepared.encoded()).unwrap();
+    let tools = body["tools"].as_array().unwrap();
+    assert_eq!(tools.len(), 2);
+    assert_eq!(tools[0]["function"]["name"], "memory");
+    assert_eq!(tools[1]["function"]["name"], "request_vault_entry");
 }
 
 #[test]
-fn p01_tool_result_followup_keeps_original_snapshot_after_correction_and_restart() {
-    let mut f = fixture();
-    let a = remember(&mut f, 0, "Tool-run memory A.");
-    let task = f.propose();
-    remember(&mut f, 1, "New-run memory B.");
-    f.approve_and_claim(task.id);
-    f.finish(task.id);
-    let RunJob::Collect(collection) = f
-        .state
-        .claim_run_work(&HashSet::new(), true)
-        .unwrap()
-        .unwrap()
-    else {
-        panic!()
-    };
-    let turn = collection.turn;
-    let snapshot = collection.task.clone();
-    let result = crate::manager::runs::results::collect(*collection).unwrap();
-    f.state
-        .finish_run_result(f.input.id, turn, snapshot, Ok(result.clone()))
-        .unwrap();
-    restart_tests::reopen(&mut f);
-    let p = claim(&mut f.state);
-    assert_context(&p, &a, &f.input.prompt);
-    assert_eq!(
-        p.turn.messages[3],
-        RunMessage::Tool {
-            tool_call_id: "call00001".into(),
-            content: result
-        }
-    );
-    assert!(!p.prepared.encoded().contains("New-run memory B."));
-    assert_eq!(p.turn.ordinal, 2);
-}
-
-#[test]
-fn p01_json_escaping_cannot_hide_a_reflected_provider_secret_in_memory() {
-    for secret in [
-        r#"synthetic-"quoted"-provider-key"#,
-        r"synthetic-\backslash-provider-key",
-    ] {
+fn known_and_escaped_secrets_are_rejected_in_admission_publication_import_and_rotation() {
+    for secret in ["synthetic-provider-secret", r#"synthetic-"quoted"-secret"#] {
         let mut f = fixture();
+        manager_only(&mut f);
         f.state
             .replace_provider_key(token(), ProviderSecret::new(secret.into()).unwrap())
             .unwrap();
@@ -341,26 +491,60 @@ fn p01_json_escaping_cannot_hide_a_reflected_provider_secret_in_memory() {
                 Some((true, false)),
             )
             .unwrap();
-        remember(&mut f, 0, secret);
+        for text in [
+            secret.to_owned(),
+            serde_json::to_string(secret).unwrap(),
+            format!(
+                "\"{}\"",
+                secret
+                    .chars()
+                    .map(|c| format!("\\u{:04x}", c as u32))
+                    .collect::<String>()
+            ),
+        ] {
+            f.input.prompt = text.clone();
+            assert_eq!(
+                f.state.submit_run(token(), f.input.clone()),
+                Err(OperationError::InvalidInput)
+            );
+            f.input.prompt = "Remember a preference.".into();
+            f.state.submit_run(token(), f.input.clone()).unwrap();
+            let p = claim(&mut f.state);
+            f.state
+                .finish_run_call(
+                    p.run,
+                    p.turn.id,
+                    p.turn.attempt,
+                    response(Some(RunToolCall {
+                        id: "secret".into(),
+                        proposal: ToolProposal::Memory(MemoryProposal::Create {
+                            scope: MemoryScopeSelection::Individual,
+                            markdown: text,
+                        }),
+                    })),
+                )
+                .unwrap();
+            let run = f.state.load_run(p.run).unwrap();
+            assert!(run.turns[0].response.is_none());
+            assert_eq!(f.state.memory_context(f.input.bot).unwrap(), vec![]);
+            f.input.id = RunId::new();
+        }
+        legacy(&f, secret);
         assert_eq!(
-            f.state.submit_run(token(), f.input.clone()),
+            f.state.memory_context(f.input.bot),
             Err(OperationError::InvalidInput)
         );
-        assert_eq!(f.state.load_run(f.input.id), Err(OperationError::NotFound));
-        assert!(
+        assert_eq!(
             f.state
-                .claim_run_work(&HashSet::new(), true)
-                .unwrap()
-                .is_none()
+                .connection
+                .query_row::<i64, _, _>("SELECT count(*) FROM memory_imports", [], |r| r.get(0))
+                .unwrap(),
+            0
         );
     }
-}
-
-#[test]
-fn p01_frozen_memory_reflection_is_rechecked_after_key_rotation_and_verification() {
     let mut f = fixture();
-    let secret = r#"synthetic-"rotated"-provider-key"#;
-    let memory = remember(&mut f, 0, secret);
+    let secret = "future-rotated-secret";
+    let entry = remember(&mut f, 0, secret);
     f.state.submit_run(token(), f.input.clone()).unwrap();
     f.state
         .replace_provider_key(token(), ProviderSecret::new(secret.into()).unwrap())
@@ -388,14 +572,120 @@ fn p01_frozen_memory_reflection_is_rechecked_after_key_rotation_and_verification
             .unwrap()
             .is_none()
     );
-    assert_eq!(stored(&f, f.input.id), Some(memory));
-    let run = f.state.load_run(f.input.id).unwrap();
+    assert_eq!(stored(&f, f.input.id), Some(vec![entry]));
     assert_eq!(
-        run.summary.phase,
+        f.state.load_run(f.input.id).unwrap().summary.phase,
         RunPhase::AwaitingAttention {
             reason: RunAttentionReason::ResultInvalid
         }
     );
-    assert!(run.turns.is_empty());
-    assert_eq!(run.summary.accounting, RunAccounting::default());
 }
+
+#[test]
+fn limits_and_cancellation_precede_publication_and_vault_handoff_has_no_value() {
+    for stop in [
+        "cancel",
+        "deadline",
+        "operations",
+        "turns",
+        "tokens",
+        "cost",
+    ] {
+        let mut f = fixture();
+        manager_only(&mut f);
+        if stop == "turns" {
+            f.input.limits.max_turns = 1;
+        }
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        let p = claim(&mut f.state);
+        match stop {
+            "cancel" => {
+                f.state.cancel_run(token(), p.run).unwrap();
+            }
+            "deadline" => f.state.test_time = Some(1501),
+            "operations" | "tokens" | "cost" => {
+                let mut view = f.state.load_run(p.run).unwrap();
+                match stop {
+                    "operations" => {
+                        view.summary.accounting.admitted_operations = f.input.limits.max_operations
+                    }
+                    "tokens" => {
+                        view.summary.accounting.settled_tokens = f.input.limits.max_total_tokens
+                    }
+                    _ => {
+                        view.summary.accounting.settled_cost_microusd =
+                            f.input.limits.max_cost_microusd
+                    }
+                }
+                save_summary(&f.state.connection, &view.summary).unwrap();
+            }
+            _ => {}
+        }
+        f.state
+            .finish_run_call(
+                p.run,
+                p.turn.id,
+                p.turn.attempt,
+                response(Some(RunToolCall {
+                    id: "too-late".into(),
+                    proposal: ToolProposal::Memory(MemoryProposal::Create {
+                        scope: MemoryScopeSelection::Individual,
+                        markdown: "Must not be saved.".into(),
+                    }),
+                })),
+            )
+            .unwrap();
+        assert!(
+            f.state.memory_context(f.input.bot).unwrap().is_empty(),
+            "{stop}"
+        );
+    }
+    for purpose in [VaultPurpose::ProviderKey, VaultPurpose::ReusableLogin] {
+        let mut f = fixture();
+        manager_only(&mut f);
+        f.state.submit_run(token(), f.input.clone()).unwrap();
+        let p = claim(&mut f.state);
+        f.state
+            .finish_run_call(
+                p.run,
+                p.turn.id,
+                p.turn.attempt,
+                response(Some(RunToolCall {
+                    id: "handoff".into(),
+                    proposal: ToolProposal::RequestVaultEntry(RequestVaultEntry { purpose }),
+                })),
+            )
+            .unwrap();
+        let view = f.state.load_run(p.run).unwrap();
+        let result = view.turns[0].manager_result.as_ref().unwrap();
+        assert!(
+            result
+                .result
+                .contains(if purpose == VaultPurpose::ProviderKey {
+                    "PUT /v1/provider-keys/mistral"
+                } else {
+                    "not supported until P06"
+                })
+        );
+        assert!(f.state.memory_context(f.input.bot).unwrap().is_empty());
+    }
+    for invalid in [
+        r#"{"purpose":"provider_key","value":"secret"}"#,
+        r#"{"purpose":"store my secret"}"#,
+    ] {
+        assert!(tools::decode("request_vault_entry", invalid).is_err());
+    }
+    for invalid in [
+        r#"{"action":"create","scope":"individual","markdown":"x","bot":"foreign"}"#,
+        r#"{"action":"create","scope":"shared","markdown":"x","source":{}}"#,
+    ] {
+        assert!(tools::decode("memory", invalid).is_err());
+    }
+}
+
+#[cfg(feature = "nonproduction-test-worker")]
+#[path = "memory_tests/crash.rs"]
+mod crash;
+
+#[path = "memory_tests/acceptance.rs"]
+mod acceptance;

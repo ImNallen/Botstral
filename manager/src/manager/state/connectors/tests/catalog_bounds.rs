@@ -89,20 +89,31 @@ fn p01_complete_provider_request_includes_memory_in_admission_bound() {
     let p = claim(&mut f);
     assert!(p.prepared.encoded().len() < crate::manager::provider::MAX_PROVIDER_REQUEST);
     f.state.cancel_run(token(), request.id).unwrap();
-    f.state
-        .write_document(
-            token(),
-            WriteDocument {
-                bot: f.bot,
-                kind: DocumentKind::Memory,
-                expected_revision: 0,
-                sources: vec![SourceReference::External {
-                    reference: "https://example.com/provider-bound".into(),
-                }],
-                markdown: "\\".repeat(4096),
-            },
-        )
-        .unwrap();
+    let entry = MemoryEntry {
+        id: MemoryId::new(),
+        scope: MemoryScope::Individual { bot: f.bot },
+        revision: 1,
+        markdown: "\\".repeat(3600),
+        source: MemorySource::Imported {
+            sources: vec![SourceReference::External {
+                reference: "https://example.com/provider-bound".into(),
+            }],
+        },
+    };
+    let mut metadata = entry.clone();
+    metadata.markdown.clear();
+    let path = f.state.directory.join(format!("entry-{}.md", entry.id));
+    std::fs::write(
+        &path,
+        format!(
+            "<!-- botstral-memory-entry {} -->\n{}",
+            serde_json::json!({"type":"live","entry":metadata}),
+            entry.markdown
+        ),
+    )
+    .unwrap();
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).unwrap();
     request.id = RunId::new();
     assert_eq!(
         f.state.submit_run(token(), request.clone()),
