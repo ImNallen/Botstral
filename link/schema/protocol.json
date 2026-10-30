@@ -5803,6 +5803,23 @@
           "type": "object",
           "properties": {
             "input": {
+              "$ref": "#/$defs/StageRunFile"
+            },
+            "method": {
+              "type": "string",
+              "const": "stage_run_file"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "input"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "input": {
               "$ref": "#/$defs/SubmitRun"
             },
             "method": {
@@ -6544,6 +6561,19 @@
           "required": [
             "type",
             "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "run_file_staged"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
           ]
         },
         {
@@ -9031,6 +9061,30 @@
             "reference"
           ]
         }
+      ]
+    },
+    "StageRunFile": {
+      "type": "object",
+      "properties": {
+        "hex": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/RunId"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/CertificateFingerprint"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "sha256",
+        "hex"
       ]
     },
     "StopEvidence": {

@@ -11,6 +11,7 @@ pub const MAX_RUN_TRANSCRIPT_BYTES: usize = 32 * 1024;
 pub const MAX_RUN_RESULT_BYTES: usize = 8 * 1024;
 pub const MAX_RUN_TEXT_BYTES: usize = 4096;
 pub const MAX_RUN_VIEW_BYTES: usize = 1024 * 1024;
+pub const MAX_RUN_FILE_BYTES: usize = 16 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -61,6 +62,14 @@ pub struct RunLimits {
     pub max_output_tokens: u32,
     pub max_operations: u32,
     pub max_concurrent_operations: u32,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct StageRunFile {
+    pub id: RunId,
+    pub name: String,
+    pub sha256: CertificateFingerprint,
+    pub hex: String,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]

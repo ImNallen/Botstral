@@ -80,7 +80,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 16 {
+    if version > 17 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -165,6 +165,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     if version < 16 {
         let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
         tx.execute_batch(include_str!("../../migrations/0016.sql"))?;
+        tx.commit()?;
+    }
+    if version < 17 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0017.sql"))?;
         tx.commit()?;
     }
     Ok(())
@@ -672,12 +677,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 17).unwrap();
+        db.pragma_update(None, "user_version", 18).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            17
+            18
         );
     }
 
