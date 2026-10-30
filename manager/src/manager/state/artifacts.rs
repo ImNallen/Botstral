@@ -541,3 +541,120 @@ impl State {
         Ok((file, output.declaration.clone(), content.length))
     }
 }
+
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CatalogCursor {
+    bot: Option<BotId>,
+    name: String,
+    filename: String,
+    id: ArtifactId,
+}
+impl State {
+    pub(in crate::manager) fn artifact_page(
+        &self,
+        token: impl Into<OwnerAuthority>,
+        query: ArtifactQuery,
+    ) -> Result<ArtifactPage, OperationError> {
+        self.authorize_owner(&token.into())?;
+        if query.limit as usize != ARTIFACT_PAGE_SIZE
+            || query.name.len() > MAX_ARTIFACT_NAME_QUERY
+            || !query.name.bytes().all(|b| (b' '..=b'~').contains(&b))
+            || query
+                .after
+                .as_ref()
+                .is_some_and(|s| s.len() > MAX_ARTIFACT_CURSOR_BYTES)
+        {
+            return Err(OperationError::InvalidInput);
+        }
+        let name = query.name.to_ascii_lowercase();
+        let after = query
+            .after
+            .map(|s| {
+                serde_json::from_str::<CatalogCursor>(&s).map_err(|_| OperationError::InvalidInput)
+            })
+            .transpose()?;
+        if after.as_ref().is_some_and(|c| {
+            c.bot != query.bot
+                || c.name != name
+                || c.filename.len() > 80
+                || c.filename.is_empty()
+                || c.filename
+                    .bytes()
+                    .any(|b| !(b' '..=b'~').contains(&b) || matches!(b, b'/' | b'\\' | b'"'))
+                || c.filename != c.filename.to_ascii_lowercase()
+        }) {
+            return Err(OperationError::InvalidInput);
+        }
+        let principal = self.principal()?;
+        let mut statement = self.connection.prepare(
+            "SELECT id,task,slot,offer FROM artifacts WHERE offer IS NOT NULL ORDER BY id LIMIT ?1",
+        )?;
+        let rows = statement.query_map([MAX_ARTIFACT_RECORDS as i64], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, String>(2)?,
+                r.get::<_, String>(3)?,
+            ))
+        })?;
+        let mut entries = Vec::new();
+        for row in rows {
+            let (id, task, slot, offer) = row?;
+            let offer: ArtifactOffer = parse(offer)?;
+            let id: ArtifactId = id.parse().map_err(|_| OperationError::Internal)?;
+            let task: TaskView =
+                self.load_task(task.parse().map_err(|_| OperationError::Internal)?)?;
+            if offer.task != task.id || offer.slot != slot {
+                continue;
+            }
+            if task.command.owner != principal
+                || query.bot.is_some_and(|bot| bot != task.command.bot)
+            {
+                continue;
+            }
+            let Some(output) = task.outputs.iter().find(|o| o.declaration.slot == slot) else {
+                continue;
+            };
+            match &output.state {
+                ArtifactState::Available { id: other, .. }
+                | ArtifactState::Transferring { id: other, .. }
+                    if *other == id => {}
+                ArtifactState::Unavailable { .. } => {}
+                _ => continue,
+            }
+            let filename = output.declaration.name.to_ascii_lowercase();
+            if !filename.contains(&name)
+                || after
+                    .as_ref()
+                    .is_some_and(|c| (&filename, id.0) <= (&c.filename, c.id.0))
+            {
+                continue;
+            }
+            entries.push(SavedArtifact {
+                id,
+                task: task.id,
+                bot: task.command.bot,
+                output: output.clone(),
+            });
+        }
+        entries.sort_by(|a, b| {
+            (a.output.declaration.name.to_ascii_lowercase(), a.id.0)
+                .cmp(&(b.output.declaration.name.to_ascii_lowercase(), b.id.0))
+        });
+        let has_more = entries.len() > ARTIFACT_PAGE_SIZE;
+        entries.truncate(ARTIFACT_PAGE_SIZE);
+        let next = if has_more {
+            let last = entries.last().ok_or(OperationError::Internal)?;
+            Some(json(&CatalogCursor {
+                bot: query.bot,
+                name,
+                filename: last.output.declaration.name.to_ascii_lowercase(),
+                id: last.id,
+            })?)
+        } else {
+            None
+        };
+        Ok(ArtifactPage { entries, next })
+    }
+}

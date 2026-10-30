@@ -814,6 +814,10 @@ export type OwnerOperation =
   | {
       method: 'coding_calls';
       task: TaskId;
+    }
+  | {
+      method: 'artifacts';
+      query: ArtifactQuery;
     };
 export type UseDecision = 'allow_once' | 'deny' | 'remember_password';
 export type BrowserInstanceId = string;
@@ -1063,6 +1067,10 @@ export type OwnerReply =
   | {
       type: 'coding_calls';
       value: CodingCallView[];
+    }
+  | {
+      type: 'artifacts';
+      value: ArtifactPage;
     }
   | {
       type: 'artifact';
@@ -2132,6 +2140,12 @@ export interface ImageReference {
   slot: string;
   task: TaskId;
 }
+export interface ArtifactQuery {
+  after?: string | null;
+  bot?: BotId | null;
+  limit: number;
+  name: string;
+}
 export interface OwnerDevice {
   created_at: number;
   fingerprint: DeviceFingerprint;
@@ -2339,6 +2353,16 @@ export interface ArtifactReference {
   length: number;
   media_type: MediaType;
   sha256: CertificateFingerprint;
+}
+export interface ArtifactPage {
+  entries: SavedArtifact[];
+  next?: string | null;
+}
+export interface SavedArtifact {
+  bot: BotId;
+  id: ArtifactId;
+  output: OutputView;
+  task: TaskId;
 }
 export interface Envelope {
   message: WorkerMessage;

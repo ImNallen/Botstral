@@ -171,6 +171,29 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     let blob = source.join("artifacts").join(format!("{artifact}.blob"));
     fs::write(&blob, bytes).unwrap();
     fs::set_permissions(blob, fs::Permissions::from_mode(0o600)).unwrap();
+    for _ in 0..34 {
+        let mut newer = task.clone();
+        newer.id = TaskId::new();
+        newer.request.id = newer.id;
+        newer.command.id = CommandId::new();
+        newer.outputs.clear();
+        tasks::insert_task(&state.connection, &newer).unwrap();
+    }
+    let EventReplay::Snapshot { state: recent, .. } = state.resume(session(&grant), 0, 64).unwrap()
+    else {
+        panic!("Expected snapshot")
+    };
+    assert!(!recent.tasks.iter().any(|t| t.id == task.id));
+    let query = ArtifactQuery {
+        bot: None,
+        name: "RECOVER".into(),
+        after: None,
+        limit: ARTIFACT_PAGE_SIZE as u16,
+    };
+    let page = state.artifact_page(session(&grant), query.clone()).unwrap();
+    assert_eq!(page.entries.len(), 1);
+    assert_eq!(page.entries[0].task, task.id);
+    assert_eq!(state.task(session(&grant), task.id).unwrap().id, task.id);
     let backup = root.join("backup");
     let login_request = RequestId::new();
     let CredentialWriteStatus::Committed { item, .. } = state
@@ -286,6 +309,16 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
             .join(format!("legacy-memory-{bot}.md"))
             .exists()
     );
+    let page = recovered.artifact_page(session(&grant), query).unwrap();
+    assert_eq!(page.entries.len(), 1);
+    assert_eq!(page.entries[0].id, artifact);
+    assert_eq!(
+        recovered
+            .task(session(&grant), page.entries[0].task)
+            .unwrap()
+            .id,
+        task.id
+    );
     let (mut file, _, length) = recovered
         .download_artifact(session(&grant), task.id, artifact)
         .unwrap();
@@ -293,4 +326,167 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     file.read_to_end(&mut actual).unwrap();
     assert_eq!(actual, bytes);
     assert_eq!(length, bytes.len() as u64);
+
+    let other_bot = BotId::new();
+    recovered
+        .create_bot(
+            session(&grant),
+            NewBot {
+                id: other_bot,
+                name: BotName::new("Other saved results".into()).unwrap(),
+            },
+        )
+        .unwrap();
+    for i in 1..MAX_ARTIFACT_RECORDS {
+        let mut saved = task.clone();
+        saved.id = TaskId::new();
+        saved.request.id = saved.id;
+        saved.command.id = CommandId::new();
+        saved.command.bot = if i % 2 == 0 { bot } else { other_bot };
+        let id = ArtifactId::new();
+        let output = &mut saved.outputs[0];
+        output.declaration.name = if i == 1 {
+            "literal %_*.txt".into()
+        } else {
+            "Duplicate.txt".into()
+        };
+        output.state = if i == 2 {
+            ArtifactState::Unavailable {
+                reason: ArtifactUnavailable::Missing,
+            }
+        } else if i == 3 {
+            ArtifactState::Transferring {
+                id,
+                content: ArtifactContent {
+                    length: 1,
+                    sha256: CertificateFingerprint::from_der(b"x"),
+                },
+            }
+        } else {
+            ArtifactState::Available {
+                id,
+                content: ArtifactContent {
+                    length: 1,
+                    sha256: CertificateFingerprint::from_der(b"x"),
+                },
+            }
+        };
+        let slot = output.declaration.slot.clone();
+        tasks::insert_task(&recovered.connection, &saved).unwrap();
+        recovered
+            .connection
+            .execute(
+                "INSERT INTO artifacts VALUES(?1,?2,?3,?4,?5,?6,1,?7,1,'available')",
+                params![
+                    id.to_string(),
+                    saved.id.to_string(),
+                    worker.to_string(),
+                    JournalId::new().to_string(),
+                    ExecutionId::new().to_string(),
+                    slot,
+                    serde_json::to_string(&ArtifactOffer {
+                        task: saved.id,
+                        slot: slot.clone(),
+                        ..offer.clone()
+                    })
+                    .unwrap()
+                ],
+            )
+            .unwrap();
+    }
+    let all = ArtifactQuery {
+        bot: None,
+        name: String::new(),
+        after: None,
+        limit: ARTIFACT_PAGE_SIZE as u16,
+    };
+    let mut query = all.clone();
+    let mut entries = Vec::new();
+    loop {
+        let page = recovered
+            .artifact_page(session(&grant), query.clone())
+            .unwrap();
+        assert!(page.entries.len() <= ARTIFACT_PAGE_SIZE);
+        let envelope = OwnerReply::Artifacts(page.clone());
+        assert!(serde_json::to_vec(&envelope).unwrap().len() < ARTIFACT_PAGE_SERIALIZED_BOUND);
+        entries.extend(page.entries);
+        let Some(next) = page.next else { break };
+        assert!(next.len() <= MAX_ARTIFACT_CURSOR_BYTES);
+        query.after = Some(next);
+    }
+    assert_eq!(entries.len(), MAX_ARTIFACT_RECORDS);
+    assert!(entries.windows(2).all(|w| (
+        w[0].output.declaration.name.to_ascii_lowercase(),
+        w[0].id.0
+    ) < (
+        w[1].output.declaration.name.to_ascii_lowercase(),
+        w[1].id.0
+    )));
+    assert_eq!(entries.iter().filter(|e| e.bot == other_bot).count(), 256);
+    let literal = recovered
+        .artifact_page(
+            session(&grant),
+            ArtifactQuery {
+                name: "%_*".into(),
+                ..all.clone()
+            },
+        )
+        .unwrap();
+    assert_eq!(literal.entries.len(), 1);
+    let filtered = recovered
+        .artifact_page(
+            session(&grant),
+            ArtifactQuery {
+                bot: Some(other_bot),
+                ..all.clone()
+            },
+        )
+        .unwrap();
+    assert!(filtered.entries.iter().all(|e| e.bot == other_bot));
+    for invalid in [
+        ArtifactQuery {
+            limit: 0,
+            ..all.clone()
+        },
+        ArtifactQuery {
+            limit: 33,
+            ..all.clone()
+        },
+        ArtifactQuery {
+            name: "a".repeat(81),
+            ..all.clone()
+        },
+        ArtifactQuery {
+            name: "é".into(),
+            ..all.clone()
+        },
+        ArtifactQuery {
+            after: Some("x".repeat(1025)),
+            ..all.clone()
+        },
+        ArtifactQuery {
+            after: Some("{}".into()),
+            ..all.clone()
+        },
+        ArtifactQuery {
+            name: "changed".into(),
+            after: query.after.clone(),
+            ..all.clone()
+        },
+        ArtifactQuery {
+            bot: Some(other_bot),
+            after: query.after.clone(),
+            ..all.clone()
+        },
+    ] {
+        assert_eq!(
+            recovered.artifact_page(session(&grant), invalid),
+            Err(OperationError::InvalidInput)
+        );
+    }
+    let unauthorized = SessionToken::new("x".repeat(43)).unwrap();
+    assert_eq!(
+        recovered.artifact_page(unauthorized, ArtifactQuery { limit: 0, ..all }),
+        Err(OperationError::Unauthorized)
+    );
 }

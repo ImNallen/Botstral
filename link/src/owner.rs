@@ -313,6 +313,9 @@ pub enum OwnerOperation {
     CodingCalls {
         task: TaskId,
     },
+    Artifacts {
+        query: ArtifactQuery,
+    },
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -379,6 +382,7 @@ pub enum OwnerReply {
     ComputerSession(ComputerSession),
     Receipt(OwnerReceipt),
     CodingCalls(Vec<CodingCallView>),
+    Artifacts(ArtifactPage),
     Artifact {
         declaration: OutputDeclaration,
         base64: String,
