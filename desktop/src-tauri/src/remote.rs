@@ -107,6 +107,7 @@ pub struct RemoteService {
     control: Arc<Mutex<Option<Control>>>,
     signing_out: Arc<AtomicBool>,
     signout_gate: Arc<tokio::sync::Mutex<()>>,
+    pending_file: Arc<Mutex<Option<PathBuf>>>,
 }
 struct Control {
     tx: mpsc::Sender<Envelope>,
@@ -254,6 +255,7 @@ struct Actor {
     suspended: bool,
     revoked: bool,
     reconnect_attempt: u32,
+    pending_file: Arc<Mutex<Option<PathBuf>>>,
 }
 pub struct VerifiedArtifact {
     pub name: String,
@@ -350,6 +352,58 @@ fn check_journal_budget(intents: &[Intent]) -> Result<(), String> {
     }
     Ok(())
 }
+pub(crate) fn read_attached_file(path: &Path) -> Result<(String, Vec<u8>), String> {
+    let name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .filter(|name| attachment_name(name))
+        .ok_or("invalid_input")?
+        .to_string();
+    let meta = fs::symlink_metadata(path).map_err(|_| "invalid_input")?;
+    if !meta.file_type().is_file() || meta.nlink() != 1 {
+        return Err("invalid_input".into());
+    }
+    let len = meta.len();
+    if len == 0 || len > MAX_RUN_FILE_BYTES as u64 {
+        return Err("invalid_input".into());
+    }
+    let file = fs::OpenOptions::new()
+        .read(true)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+        .open(path)
+        .map_err(|_| "invalid_input")?;
+    let opened = file.metadata().map_err(|_| "invalid_input")?;
+    if !opened.is_file() || opened.nlink() != 1 || opened.len() != len {
+        return Err("invalid_input".into());
+    }
+    let mut bytes = Vec::new();
+    file.take(MAX_RUN_FILE_BYTES as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| "invalid_input")?;
+    if bytes.len() as u64 != len {
+        return Err("invalid_input".into());
+    }
+    Ok((name, bytes))
+}
+
+fn attachment_name(name: &str) -> bool {
+    (1..=120).contains(&name.len())
+        && !name.contains(['/', '\\', '\0'])
+        && name != "."
+        && name != ".."
+        && Path::new(name).file_name().and_then(|part| part.to_str()) == Some(name)
+}
+
+fn hex_encode(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut encoded = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        encoded.push(HEX[(byte >> 4) as usize] as char);
+        encoded.push(HEX[(byte & 0xf) as usize] as char);
+    }
+    encoded
+}
+
 fn error_code(error: ClientError) -> String {
     match error {
         ClientError::Trust => "trust",
@@ -402,7 +456,14 @@ impl RemoteService {
             control: Arc::new(Mutex::new(None)),
             signing_out: Arc::new(AtomicBool::new(false)),
             signout_gate: Arc::new(tokio::sync::Mutex::new(())),
+            pending_file: Arc::new(Mutex::new(None)),
         }
+    }
+    pub fn remember_pending_file(&self, path: PathBuf) {
+        *self.pending_file.lock().unwrap() = Some(path);
+    }
+    pub fn clear_pending_file(&self) {
+        *self.pending_file.lock().unwrap() = None;
     }
     pub fn inspect(&self) -> RemoteSnapshot {
         self.view.borrow().clone()
@@ -431,6 +492,7 @@ impl RemoteService {
             suspended: false,
             revoked: false,
             reconnect_attempt: 0,
+            pending_file: self.pending_file.clone(),
         };
         *control = Some(Control {
             tx,
@@ -1030,6 +1092,27 @@ impl Actor {
     fn save_intents(&self, intents: &[Intent]) -> Result<(), String> {
         check_journal_budget(intents)?;
         storage(&self.root, "intents.json", &intents)
+    }
+    async fn stage_attached(&mut self, id: RunId, path: &Path) -> Result<(), String> {
+        let (name, bytes) = read_attached_file(path)?;
+        let reply = self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .call(OwnerOperation::StageRunFile {
+                input: StageRunFile {
+                    id,
+                    name,
+                    sha256: CertificateFingerprint::from_der(&bytes),
+                    hex: hex_encode(&bytes),
+                },
+            })
+            .await
+            .map_err(error_code)?;
+        if !matches!(reply, OwnerReply::RunFileStaged) {
+            return Err("incompatible_manager".into());
+        }
+        Ok(())
     }
     async fn routine_text(&mut self, bot: BotId, text: String) -> Result<(), String> {
         self.recover().await?;
@@ -1727,6 +1810,7 @@ impl Actor {
                 self.mutate(OwnerOperation::RevokeApproval { id }).await
             }
             IntentCommand::Send(input) => {
+                let pending = self.pending_file.lock().unwrap().take();
                 self.recover().await?;
                 if input.text.starts_with("/routine ") {
                     return self.routine_text(input.bot, input.text).await;
@@ -1791,10 +1875,14 @@ impl Actor {
                         },
                     ],
                 });
+                let id = RunId::new();
+                if let Some(path) = pending {
+                    self.stage_attached(id, &path).await?;
+                }
                 self.mutate(OwnerOperation::SubmitRun {
                     input: Box::new(SubmitRun {
                         images: vec![],
-                        id: RunId::new(),
+                        id,
                         bot: input.bot,
                         session: input.session,
                         configuration_revision: config.revision,

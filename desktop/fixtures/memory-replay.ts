@@ -56,4 +56,6 @@ export const app: PairedApplication = {
   routineHistory: unavailable,
   routinePreview: unavailable,
   routineText: unavailable,
+  chooseFile: unavailable,
+  clearFile: unavailable,
 };

@@ -1027,6 +1027,18 @@ summary {
   font-size: 12px;
   color: var(--muted);
 }
+.composer-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+.composer-file span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .execution-settings {
   max-height: 240px;
   overflow: auto;

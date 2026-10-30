@@ -224,6 +224,10 @@ export type RemoteSnapshot = z.infer<typeof remoteSnapshotSchema>;
 export type Workspace = z.infer<typeof workspace>;
 export type Task = Workspace['tasks'][number];
 export type Device = z.infer<typeof deviceSchema>;
+export interface ChosenRunFile {
+  name: string;
+  byte_length: number;
+}
 export type SendInput = {
   bot: Workspace['bots'][number]['id'];
   session: Workspace['sessions'][number]['id'] | null;
@@ -261,6 +265,8 @@ export interface PairedApplication {
   ): Promise<RemoteSnapshot>;
   refresh(): Promise<RemoteSnapshot>;
   send(input: SendInput): Promise<RemoteSnapshot>;
+  chooseFile(): Promise<ChosenRunFile | null>;
+  clearFile(): Promise<void>;
   openSession(
     bot: SendInput['bot'],
     worker: Workspace['workers'][number]['id'],
