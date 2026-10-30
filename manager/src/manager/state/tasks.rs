@@ -129,7 +129,11 @@ impl State {
         id: TaskId,
     ) -> Result<TaskView, OperationError> {
         self.authorize_owner(&token.into())?;
-        self.load_task(id)
+        let task = self.load_task(id)?;
+        if task.command.owner != self.principal()? {
+            return Err(OperationError::Unauthorized);
+        }
+        Ok(task)
     }
     pub(super) fn principal(&self) -> Result<OwnerId, OperationError> {
         let id: String = self.connection.query_row(

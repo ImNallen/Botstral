@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "desktop/fixtures/paired_manager.py",
+    "--verify-journal",
+    "--journal-case",
+    "p05_export_reauthenticates_after_chooser"
+  ],
+  "exit_code": 0
+}

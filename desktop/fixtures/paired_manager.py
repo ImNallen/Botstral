@@ -49,6 +49,9 @@ def main():
     if args.verify_journal and args.journal_case == 'p06_native_receipt_manager_binding':
         subprocess.run([sys.executable, str(ROOT / 'desktop/fixtures/p06-manager-switch.py')], cwd=ROOT, check=True)
         return
+    if args.verify_journal and args.journal_case == 'p05_export_manager_switch':
+        subprocess.run([sys.executable, str(ROOT / 'desktop/fixtures/p05-manager-switch.py')], cwd=ROOT, check=True)
+        return
     os.umask(0o077)
     temporary = tempfile.TemporaryDirectory(prefix='botstral-c02-native-') if args.root is None else None
     root = Path(temporary.name) if temporary else args.root.resolve()
@@ -57,7 +60,9 @@ def main():
         raise RuntimeError('Choose a fresh fixture directory.')
     m.certificates(root)
     env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root), BOTSTRAL_C02_VIEW_OUTPUT=str(root/'desktop-view.json'))
-    if args.verify_memory:
+    if args.journal_case == 'p05_saved_results_restart_and_export':
+        env['BOTSTRAL_P05_PROOF'] = '1'
+    if args.verify_memory or args.journal_case == 'p05_saved_results_restart_and_export':
         env['BOTSTRAL_MEMORY_PROOF'] = '1'
     with (root/'manager.log').open('w') as log:
         process = subprocess.Popen(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'c02_desktop_fixture', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env, stdout=log, stderr=log, start_new_session=True)

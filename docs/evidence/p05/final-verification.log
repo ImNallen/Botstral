@@ -1,0 +1,15 @@
+Running catalog-bounds. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/catalog-bounds.log
+Running catalog-restore. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/catalog-restore.log
+Running catalog-authority. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/catalog-authority.log
+Running native-unit. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/native-unit.log
+Running revocation-after. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/revocation-after.log
+Running chooser-reauthorization. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/chooser-reauthorization.log
+Running manager-switch-runner. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/manager-switch-runner.log
+Running native-acceptance. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/native-acceptance.log
+Running desktop-tests. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/desktop-tests.log
+Running component-types. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/component-types.log
+Running component-video. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/component-video.log
+Running verify. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/verify.log
+Running verify-desktop. Log: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/docs/evidence/p05/verify-desktop.log
+
+EXIT_CODE=0

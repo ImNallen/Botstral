@@ -1,0 +1,180 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-4473noh4
+Local manager: 127.0.0.1:55952
+Paired WSS route: wss://127.0.0.1:55972/owner/v1/connect
+Manager identity: 93f17a5c-d40d-43fb-b86c-7e4daba54f0e
+Manager leaf: f27ad5638eb242e727a7e06541c62bf656d7845b5c0b1e8e2bec6bdb43cf1aa8
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-4473noh4/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-4473noh4/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling libc v0.2.191
+   Compiling cfg-if v1.0.5
+   Compiling serde_core v1.0.229
+   Compiling stable_deref_trait v1.2.1
+   Compiling bytes v1.12.1
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.34
+   Compiling serde v1.0.229
+   Compiling version_check v0.9.5
+   Compiling bitflags v2.13.2
+   Compiling shlex v2.0.1
+   Compiling typenum v1.20.1
+   Compiling zerocopy v0.8.63
+   Compiling find-msvc-tools v0.1.15
+   Compiling once_cell v1.21.4
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling getrandom v0.3.4
+   Compiling icu_properties_data v2.4.0
+   Compiling cc v1.10.0
+   Compiling generic-array v0.14.7
+   Compiling smallvec v1.16.4
+   Compiling icu_normalizer_data v2.4.0
+   Compiling utf8_iter v1.0.4
+   Compiling httparse v1.10.1
+   Compiling futures-sink v0.3.34
+   Compiling objc2 v0.6.5
+   Compiling futures-task v0.3.34
+   Compiling getrandom v0.4.3
+   Compiling zmij v1.0.23
+   Compiling slab v0.4.12
+   Compiling http v1.5.0
+   Compiling objc2-encode v4.1.0
+   Compiling serde_json v1.0.154
+   Compiling untrusted v0.9.0
+   Compiling rustls v0.23.46
+   Compiling ref-cast v1.0.27
+   Compiling memchr v2.8.3
+   Compiling thiserror v2.0.21
+   Compiling percent-encoding v2.3.2
+   Compiling log v0.4.34
+   Compiling tower-service v0.3.3
+   Compiling syn v3.0.9
+   Compiling mio v1.2.4
+   Compiling socket2 v0.6.5
+   Compiling getrandom v0.2.17
+   Compiling cpufeatures v0.2.17
+   Compiling http-body v1.1.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling rand_core v0.9.5
+   Compiling core-foundation-sys v0.8.7
+   Compiling try-lock v0.2.5
+   Compiling subtle v2.6.1
+   Compiling digest v0.10.7
+   Compiling rand_core v0.6.4
+   Compiling form_urlencoded v1.2.2
+   Compiling want v0.3.2
+   Compiling tracing-core v0.1.36
+   Compiling sync_wrapper v1.0.2
+   Compiling tower-layer v0.3.3
+   Compiling sha1 v0.10.7
+   Compiling atomic-waker v1.1.2
+   Compiling dyn-clone v1.0.20
+   Compiling data-encoding v2.11.1
+   Compiling utf-8 v0.7.6
+   Compiling sha2 v0.10.9
+   Compiling core-foundation v0.10.1
+   Compiling security-framework-sys v2.17.0
+   Compiling futures-channel v0.3.34
+   Compiling base64 v0.23.1
+   Compiling rustix v1.1.5
+   Compiling ipnet v2.12.2
+   Compiling tracing v0.1.44
+   Compiling http-body-util v0.1.5
+   Compiling errno v0.3.14
+   Compiling base64 v0.22.1
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/src-tauri)
+   Compiling fastrand v2.5.0
+   Compiling security-framework v3.7.0
+   Compiling ring v0.17.14
+   Compiling objc2-core-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling dispatch2 v0.3.1
+   Compiling keyring v3.6.3
+   Compiling uuid v1.29.0
+   Compiling objc2-foundation v0.3.2
+   Compiling tempfile v3.27.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.9.0
+   Compiling rand_chacha v0.3.1
+   Compiling synstructure v0.14.0
+   Compiling serde_derive_internals v0.30.0
+   Compiling rand v0.9.5
+   Compiling rand v0.8.8
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.4
+   Compiling zerovec-derive v0.11.7
+   Compiling displaydoc v0.2.7
+   Compiling serde_derive v1.0.229
+   Compiling tokio-macros v2.7.2
+   Compiling futures-macro v0.3.34
+   Compiling thiserror-impl v2.0.21
+   Compiling ref-cast-impl v1.0.27
+   Compiling schemars_derive v1.2.3
+   Compiling objc2-app-kit v0.3.2
+   Compiling futures-util v0.3.34
+   Compiling tokio v1.54.1
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.4
+   Compiling tungstenite v0.28.0
+   Compiling zerovec v0.11.9
+   Compiling zerotrie v0.2.5
+   Compiling tinystr v0.8.5
+   Compiling potential_utf v0.1.6
+   Compiling icu_collections v2.4.0
+   Compiling icu_locale_core v2.4.0
+   Compiling zeroize v1.9.1
+   Compiling schemars v1.2.3
+   Compiling rustls-pki-types v1.15.1
+   Compiling rustls-webpki v0.103.16
+   Compiling rustls-pemfile v2.2.0
+   Compiling icu_provider v2.4.0
+   Compiling icu_normalizer v2.4.0
+   Compiling icu_properties v2.4.0
+   Compiling hyper v1.12.0
+   Compiling tower v0.5.3
+   Compiling tokio-util v0.7.20
+   Compiling tokio-tungstenite v0.28.0
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling url v2.5.8
+   Compiling hyper-util v0.1.21
+   Compiling tower-http v0.6.11
+   Compiling reqwest v0.13.5
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.90s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-5f34711e90dd2e9a)
+
+running 1 test
+
+thread 'p05_chooser_rejects_acknowledged_same_generation_revocation' (640508503) panicked at tests/journal.rs:849:5:
+Acknowledged revocation during chooser must prevent export without a generation change
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test p05_chooser_rejects_acknowledged_same_generation_revocation ... FAILED
+
+failures:
+
+failures:
+    p05_chooser_rejects_acknowledged_same_generation_revocation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 13 filtered out; finished in 2.77s
+
+error: test failed, to rerun pass `--test journal`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 116, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 96, in main
+    raise RuntimeError('The native journal contract failed.')
+RuntimeError: The native journal contract failed.
+
+EXIT_CODE=1

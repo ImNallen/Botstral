@@ -359,6 +359,62 @@
         "output"
       ]
     },
+    "ArtifactPage": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SavedArtifact"
+          }
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "entries"
+      ]
+    },
+    "ArtifactQuery": {
+      "type": "object",
+      "properties": {
+        "after": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BotId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "limit"
+      ]
+    },
     "ArtifactReference": {
       "type": "object",
       "properties": {
@@ -5942,6 +5998,23 @@
             "method",
             "task"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "artifacts"
+            },
+            "query": {
+              "$ref": "#/$defs/ArtifactQuery"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "query"
+          ]
         }
       ]
     },
@@ -6519,6 +6592,23 @@
               "items": {
                 "$ref": "#/$defs/CodingCallView"
               }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "artifacts"
+            },
+            "value": {
+              "$ref": "#/$defs/ArtifactPage"
             }
           },
           "additionalProperties": false,
@@ -8793,6 +8883,30 @@
         "request",
         "configuration",
         "turns"
+      ]
+    },
+    "SavedArtifact": {
+      "type": "object",
+      "properties": {
+        "bot": {
+          "$ref": "#/$defs/BotId"
+        },
+        "id": {
+          "$ref": "#/$defs/ArtifactId"
+        },
+        "output": {
+          "$ref": "#/$defs/OutputView"
+        },
+        "task": {
+          "$ref": "#/$defs/TaskId"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "task",
+        "bot",
+        "output"
       ]
     },
     "SealedOutput": {

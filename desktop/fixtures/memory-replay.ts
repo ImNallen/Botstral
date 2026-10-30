@@ -42,6 +42,8 @@ export const app: PairedApplication = {
   cancelRun: unavailable,
   revokeApproval: unavailable,
   exportArtifact: unavailable,
+  savedResults: unavailable,
+  sourceTask: unavailable,
   acknowledgeUncertainty: unavailable,
   signOut: unavailable,
   lifecycle: unavailable,

@@ -124,6 +124,22 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
     assert_eq!(first.device, second.device);
     state.disconnect_owner(first);
     assert!(state.resume(second, 0, 64).is_ok());
+    let catalog = ArtifactQuery {
+        bot: None,
+        name: String::new(),
+        after: None,
+        limit: 32,
+    };
+    assert!(state.artifact_page(second, catalog.clone()).is_ok());
+    assert!(
+        state
+            .connection
+            .execute(
+                "UPDATE owner_devices SET role='worker' WHERE id=?1",
+                [second.device.to_string()]
+            )
+            .is_err()
+    );
     assert!(matches!(
         state.resume(first, 0, 64),
         Err(OperationError::Unauthorized)
@@ -133,6 +149,11 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
         .connect_owner(auth(manager, &secret), third_stop)
         .unwrap();
     state.revoke_device(token(&local), second.device).unwrap();
+    assert_eq!(
+        state.artifact_page(second, catalog),
+        Err(OperationError::Unauthorized)
+    );
+
     assert!(*second_stopped.borrow());
     assert!(*third_stopped.borrow());
     assert!(!*first_stopped.borrow());

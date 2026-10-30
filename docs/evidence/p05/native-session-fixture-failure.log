@@ -1,0 +1,45 @@
+Fixture root: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/.audit/p05/native-fixture-2
+Local manager: 127.0.0.1:56615
+Paired WSS route: wss://127.0.0.1:56632/owner/v1/connect
+Manager identity: e533eaaa-32df-465d-b531-b4983202c165
+Manager leaf: c759aafa8eded550e2aa66621f5b424112dba78500d3ee5ce3e1c9d906aaa877
+Synthetic password: synthetic M04 login password
+Trusted export: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/.audit/p05/native-fixture-2/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/.audit/p05/native-fixture-2/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.54s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-5f34711e90dd2e9a)
+
+running 1 test
+
+thread 'p05_saved_results_restart_and_export' (640567669) panicked at tests/journal/saved_results.rs:19:6:
+called `Result::unwrap()` on an `Err` value: Elapsed(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test p05_saved_results_restart_and_export ... FAILED
+
+failures:
+
+failures:
+    p05_saved_results_restart_and_export
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 25.41s
+
+error: test failed, to rerun pass `--test journal`
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 116, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 96, in main
+    raise RuntimeError('The native journal contract failed.')
+RuntimeError: The native journal contract failed.
+
+EXIT_CODE=1

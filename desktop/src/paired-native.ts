@@ -1,7 +1,14 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { z } from 'zod';
-import { remoteSnapshotSchema, deviceSchema, type PairedApplication } from './paired-domain';
+import {
+  remoteSnapshotSchema,
+  deviceSchema,
+  savedResultsSchema,
+  sourceTaskSchema,
+  artifactQuerySchema,
+  type PairedApplication,
+} from './paired-domain';
 async function call(command: string, args?: Record<string, unknown>): Promise<unknown> {
   try {
     return await invoke<unknown>(command, args);
@@ -13,6 +20,11 @@ async function snapshot(command: string, args?: Record<string, unknown>) {
   return remoteSnapshotSchema.parse(await call(command, args));
 }
 export const pairedApplication: PairedApplication = {
+  savedResults: async (query) =>
+    savedResultsSchema.parse(
+      await call('saved_results', { query: artifactQuerySchema.parse(query) }),
+    ),
+  sourceTask: async (id) => sourceTaskSchema.parse(await call('source_task', { id })),
   runDetails: (id) => snapshot('run_details', { id }),
   routineText: (bot, text) => snapshot('routine_text', { bot, text }),
   routine: (input) => snapshot('routine_command', { input }),

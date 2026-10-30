@@ -1,0 +1,30 @@
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 129 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-p05-proof-hbURj1/dist/fixtures/p05-proof.html          0.38 kB │ gzip:   0.28 kB
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-p05-proof-hbURj1/dist/assets/p05-proof-BFKO8k_P.css   17.19 kB │ gzip:   4.21 kB
+../../../../../../var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-p05-proof-hbURj1/dist/assets/p05-proof-DiQnxJ8G.js   428.17 kB │ gzip: 121.56 kB
+
+✓ built in 76ms
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Save completion must render inside the open Saved results dialog.
+
+0 !== 1
+
+    at file:///Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/reviewer-probes/save-feedback.mjs:76:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.12.1
+
+EXIT_CODE=1

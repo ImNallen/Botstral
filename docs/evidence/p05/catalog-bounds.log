@@ -1,0 +1,22 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/botstral_link-2ee739d46442ac8a)
+
+running 1 test
+test artifact::catalog_tests::complete_catalog_envelopes_fit_owner_admission ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.01s
+
+     Running unittests src/bin/export-schema.rs (target/debug/deps/export_schema-4570dd602f320555)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/computer.rs (target/debug/deps/computer-dc218a1771bec56c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+
+EXIT_CODE=0

@@ -391,6 +391,9 @@ impl State {
             OwnerOperation::ConnectorAudit { connection, after } => Ok(OwnerReply::ConnectorAudit(
                 self.connector_audit(lease, connection, after)?,
             )),
+            OwnerOperation::Artifacts { query } => {
+                Ok(OwnerReply::Artifacts(self.artifact_page(lease, query)?))
+            }
             OwnerOperation::Workspace => {
                 Ok(OwnerReply::Workspace(Box::new(self.workspace(lease)?)))
             }

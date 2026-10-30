@@ -1,0 +1,68 @@
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/desktop/src-tauri)
+   Compiling rustls-webpki v0.103.16
+   Compiling rustls v0.23.46
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.83s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-933e0ed9c27cbd2d)
+
+running 5 tests
+test remote::read_tests::authority_change_interrupts_a_read_ahead_of_background_polls ... ok
+test remote::read_tests::polling_backlog_is_bounded_without_delaying_authority_changes ... ok
+test remote::memory_tests::task_projection_keeps_exact_actions_and_protected_login_references ... ok
+test remote::memory_tests::journal_retains_obsolete_memory_writes_for_uncertainty_only ... ok
+test remote::read_tests::credential_polling_waits_for_the_active_read ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-622a93c7d345b7ef)
+
+running 17 tests
+test admitted_journal_must_remain_readable_after_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test conversational_memory_and_obsolete_journal ... ignored, Requires desktop/fixtures/paired_manager.py --verify-memory.
+test historical_approval_cannot_confirm_an_unknown_regrant ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test missing_journal_does_not_become_an_empty_paired_profile ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p03_routine_controls_and_crash_journal_recovery ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p05_chooser_rejects_acknowledged_same_generation_revocation ... ignored, Requires the isolated paired manager fixture.
+test p05_export_manager_switch ... ignored, Requires two owned local managers from p05-manager-switch.py.
+test p05_export_reauthenticates_after_chooser ... ignored, Requires the isolated paired manager fixture.
+test p05_saved_results_restart_and_export ... ignored, Requires the isolated paired manager fixture with restart support.
+test p06_collision_receipt_is_final_and_value_free ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p06_locked_reads_preserve_the_paired_unlock_path ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p06_native_receipt_manager_binding ... ignored, Requires two owned synthetic manager fixtures from p06-manager-switch.py.
+test p06_protected_entry_never_enters_native_journal ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test readable_unknown_journal_blocks_mutation_without_replay ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test trimmed_run_history_does_not_strand_unknown_intents ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+
+test result: ok. 0 passed; 0 failed; 17 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-1b15d7d095ba1ec4)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-633fdf00a9596e3a)
+
+running 8 tests
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ignored, Requires desktop/fixtures/paired_manager.py and the real unlocked OS keychain.
+test pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths ... ok
+test unavailable_native_storage_never_publishes_a_fingerprint ... ok
+test a_journal_larger_than_secret_file_limits_restores_without_credentials_on_disk ... ok
+test failed_secret_deletion_leaves_a_durable_signed_out_tombstone ... ok
+test sign_out_blocks_new_intents_while_an_admitted_native_call_is_finishing ... ok
+test sign_out_clears_native_authority_when_the_profile_directory_was_removed ... ok
+test concurrent_sign_out_callers_wait_until_native_deletion_finishes ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.16s
+

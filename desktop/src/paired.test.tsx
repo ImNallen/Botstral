@@ -1,9 +1,14 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PairedController } from './paired-application';
 import { PairedWorkspace } from './PairedWorkspace';
-import { remoteSnapshotSchema, type PairedApplication, type RemoteSnapshot } from './paired-domain';
+import {
+  remoteSnapshotSchema,
+  savedResultsSchema,
+  type PairedApplication,
+  type RemoteSnapshot,
+} from './paired-domain';
 import { deferred, application as localApplication, signedOut } from './fixtures.test-support';
 import { ApplicationController } from './application';
 import type { Snapshot } from './domain';
@@ -67,6 +72,14 @@ function snapshot(status: 'online' | 'offline' = 'online') {
 function application(initial = snapshot()) {
   const result = () => Promise.resolve(initial);
   return {
+    savedResults: async () => ({
+      generation: initial.generation,
+      manager: id,
+      page: { entries: [], next: null },
+    }),
+    sourceTask: async () => {
+      throw new Error('unavailable');
+    },
     runDetails: result,
     routine: result,
     routineText: result,
@@ -285,5 +298,201 @@ describe('paired presentation boundary', () => {
     await signingOut;
     expect(controller.getState().snapshot?.workspace).toBeNull();
     controller.dispose();
+  });
+});
+
+function controlled<T>() {
+  let resolve: (value: T) => void = () => {};
+  let reject: (reason: unknown) => void = () => {};
+  const promise = new Promise<T>((done, fail) => {
+    resolve = done;
+    reject = fail;
+  });
+  return { promise, resolve, reject };
+}
+describe('saved results authority and request ordering', () => {
+  const page = () => ({ generation: 2, manager: id, page: { entries: [], next: null } });
+  const query = { bot: null, name: '', after: null, limit: 32 } satisfies Parameters<
+    PairedApplication['savedResults']
+  >[0];
+  it.each([
+    { outcome: 'saved', message: 'The verified file was saved.' },
+    { outcome: 'cancelled', message: 'Export cancelled.' },
+    { outcome: 'failed', message: 'The native export could not be completed.' },
+  ])(
+    'shows saved-result export feedback inside the dialog when $outcome',
+    async ({ outcome, message }) => {
+      const results = savedResultsSchema.parse({
+        ...page(),
+        page: {
+          entries: [
+            {
+              id: task,
+              task,
+              bot: id,
+              output: {
+                declaration: {
+                  slot: 'result',
+                  name: 'Saved file.txt',
+                  media_type: 'text_plain',
+                  max_bytes: 1024,
+                },
+                state: {
+                  type: 'available',
+                  id: task,
+                  content: { length: 1, sha256: '0'.repeat(64) },
+                },
+              },
+            },
+          ],
+          next: null,
+        },
+      });
+      const app = {
+        ...application(),
+        savedResults: async () => results,
+        exportArtifact: async () => {
+          if (outcome === 'failed') throw new Error('save_failed');
+          return outcome === 'saved';
+        },
+      };
+      const controller = new PairedController(app);
+      controller.accept(snapshot());
+      render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: 'Saved results' }));
+      const dialog = screen.getByRole('dialog', { name: 'Saved results' });
+      await user.click(within(dialog).getByRole('button', { name: 'Save verified file' }));
+      expect(await within(dialog).findByText(message)).toBeTruthy();
+      expect(screen.getAllByText(message)).toHaveLength(1);
+      controller.dispose();
+    },
+  );
+  it.each(['success', 'failure'] as const)(
+    'ignores a superseded same-generation page %s',
+    async (outcome) => {
+      const app = application();
+      const first = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const second = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const reads = vi
+        .fn<PairedApplication['savedResults']>()
+        .mockReturnValueOnce(first.promise)
+        .mockReturnValueOnce(second.promise);
+      const controller = new PairedController({ ...app, savedResults: reads });
+      controller.accept(snapshot());
+      const a = controller.library(query);
+      const b = controller.library({ ...query, name: 'new' });
+      second.resolve(page());
+      await b;
+      if (outcome === 'failure') first.reject(new Error('late_failure'));
+      else first.resolve(page());
+      await a;
+      expect(controller.getState().library).toMatchObject({
+        kind: 'ready',
+        query: { name: 'new' },
+      });
+      expect(controller.getState().issue).toBeNull();
+      expect(controller.getState().snapshot?.workspace?.tasks).toHaveLength(1);
+    },
+  );
+  it.each(['offline', 'suspended', 'blocked', 'signed_out'] as const)(
+    'discards pages and notices on %s without a generation change',
+    async (status) => {
+      const pending = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const saved = controlled<boolean>();
+      const controller = new PairedController({
+        ...application(),
+        savedResults: () => pending.promise,
+      });
+      const initial = snapshot();
+      controller.accept(initial);
+      const read = controller.library(query);
+      const exporting = controller.export(() => saved.promise);
+      controller.accept({ ...initial, revision: 11, status });
+      pending.resolve(page());
+      saved.resolve(true);
+      await Promise.all([read, exporting]);
+      expect(controller.getState().library.kind).toBe('closed');
+      expect(controller.getState().source.kind).toBe('idle');
+      expect(controller.getState().notice).toBeNull();
+      expect(controller.getState().busy).toBe(false);
+    },
+  );
+  it('discards old source success and failure after source selection or filters change', async () => {
+    const initial = snapshot();
+    const source = initial.workspace?.tasks[0];
+    if (!source) throw new Error('Missing test source.');
+    const first = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    const second = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    const reads = vi
+      .fn<PairedApplication['sourceTask']>()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+    const controller = new PairedController({ ...application(), sourceTask: reads });
+    controller.accept(initial);
+    const a = controller.sourceTask(source.id);
+    const b = controller.sourceTask(source.id);
+    second.resolve({ generation: 2, manager: id, task: source });
+    await b;
+    first.reject(new Error('late_source_failure'));
+    await a;
+    expect(controller.getState().source.kind).toBe('ready');
+    const third = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    reads.mockReturnValueOnce(third.promise);
+    const c = controller.sourceTask(source.id);
+    await controller.library({ ...query, name: 'changed' });
+    third.resolve({ generation: 2, manager: id, task: source });
+    await c;
+    expect(controller.getState().source.kind).toBe('idle');
+  });
+  it.each(['manager', 'generation', 'dispose'] as const)(
+    'invalidates an outstanding read on %s change',
+    async (change) => {
+      const pending = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const controller = new PairedController({
+        ...application(),
+        savedResults: () => pending.promise,
+      });
+      const initial = snapshot();
+      controller.accept(initial);
+      const read = controller.library(query);
+      if (change === 'dispose') controller.dispose();
+      else
+        controller.accept(
+          remoteSnapshotSchema.parse({
+            ...initial,
+            revision: 11,
+            generation: change === 'generation' ? 3 : 2,
+            workspace: { ...initial.workspace, manager: change === 'manager' ? task : id },
+          }),
+        );
+      pending.reject(new Error('stale_read'));
+      await read;
+      expect(controller.getState().library.kind).toBe('closed');
+      expect(controller.getState().issue).toBeNull();
+    },
+  );
+  it('clears busy state and ignores a save notice after filters change', async () => {
+    const saved = controlled<boolean>();
+    const controller = new PairedController(application());
+    controller.accept(snapshot());
+    const saving = controller.export(() => saved.promise);
+    await controller.library({ ...query, name: 'changed' });
+    saved.resolve(true);
+    await saving;
+    expect(controller.getState().busy).toBe(false);
+    expect(controller.getState().notice).toBeNull();
+  });
+  it('keeps an unrelated operation busy while the library changes', async () => {
+    const pending = controlled<RemoteSnapshot>();
+    const controller = new PairedController(application());
+    controller.accept(snapshot());
+    const operation = controller.run(() => pending.promise);
+    await controller.library(query);
+    controller.closeLibrary();
+    expect(controller.getState().busy).toBe(true);
+    pending.resolve(snapshot());
+    await operation;
+    expect(controller.getState().busy).toBe(false);
   });
 });

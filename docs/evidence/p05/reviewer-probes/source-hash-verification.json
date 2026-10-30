@@ -1,0 +1,43 @@
+{
+  "recorded_head": "fbd60bd4e4ad5688178195be9561876a6c46c041",
+  "current_head": "aa34dab8070806bf8fc768dd8c5e9b67beb8933e",
+  "source_files": 420,
+  "matches": true,
+  "changed": [],
+  "missing": [],
+  "extra": [],
+  "source_unchanged": true,
+  "commands": 13,
+  "exits": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "video_digest_matches": true,
+  "native_views_digest_matches": true,
+  "logs_have_exit_zero": {
+    "docs/evidence/p05/catalog-bounds.log": true,
+    "docs/evidence/p05/catalog-restore.log": true,
+    "docs/evidence/p05/catalog-authority.log": true,
+    "docs/evidence/p05/native-unit.log": true,
+    "docs/evidence/p05/revocation-after.log": true,
+    "docs/evidence/p05/chooser-reauthorization.log": true,
+    "docs/evidence/p05/manager-switch-runner.log": true,
+    "docs/evidence/p05/native-acceptance.log": true,
+    "docs/evidence/p05/desktop-tests.log": true,
+    "docs/evidence/p05/component-types.log": true,
+    "docs/evidence/p05/component-video.log": true,
+    "docs/evidence/p05/verify.log": true,
+    "docs/evidence/p05/verify-desktop.log": true
+  }
+}

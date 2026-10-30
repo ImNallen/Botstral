@@ -70,6 +70,8 @@ const application: PairedApplication = {
   revokeApproval: unavailable,
   acknowledgeUncertainty: unavailable,
   exportArtifact: unavailable,
+  savedResults: unavailable,
+  sourceTask: unavailable,
   signOut: unavailable,
   lifecycle: unavailable,
   devices: unavailable,

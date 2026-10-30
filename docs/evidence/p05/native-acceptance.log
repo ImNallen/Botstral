@@ -1,0 +1,24 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-g6bvz1bc
+Local manager: 127.0.0.1:53128
+Paired WSS route: wss://127.0.0.1:53147/owner/v1/connect
+Manager identity: 22734d0d-057c-4fbb-8998-577bc1f46edd
+Manager leaf: dd997670d5b0d702e3d3cb626e12b0784de12ebde641c8f57d6db4f5b2d3b642
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-g6bvz1bc/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-g6bvz1bc/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-5f34711e90dd2e9a)
+
+running 1 test
+test p05_saved_results_restart_and_export has been running for over 60 seconds
+PASS P05: 35 sealed results, two bots, literal search, 32+3 pages, retained source absent from recent history, authoritative byte verification, manager and native restart, real private local saves, sign-out export refusal. Synthetic worker only.
+test p05_saved_results_restart_and_export ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 88.32s
+
+
+EXIT_CODE=0

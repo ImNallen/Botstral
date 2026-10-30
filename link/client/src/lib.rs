@@ -699,6 +699,7 @@ impl OwnerSession {
                 | OwnerOperation::RebuildDocuments
                 | OwnerOperation::Receipt { .. }
                 | OwnerOperation::Artifact { .. }
+                | OwnerOperation::Artifacts { .. }
                 | OwnerOperation::CodingCalls { .. }
         );
         let id = RequestId::new();

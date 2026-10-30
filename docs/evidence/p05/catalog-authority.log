@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+test manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 193 filtered out; finished in 4.04s
+
+
+EXIT_CODE=0

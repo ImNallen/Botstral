@@ -1,0 +1,13 @@
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.98s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-933e0ed9c27cbd2d)
+
+running 5 tests
+test remote::read_tests::authority_change_interrupts_a_read_ahead_of_background_polls ... ok
+test remote::read_tests::polling_backlog_is_bounded_without_delaying_authority_changes ... ok
+test remote::memory_tests::task_projection_keeps_exact_actions_and_protected_login_references ... ok
+test remote::memory_tests::journal_retains_obsolete_memory_writes_for_uncertainty_only ... ok
+test remote::read_tests::credential_polling_waits_for_the_active_read ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

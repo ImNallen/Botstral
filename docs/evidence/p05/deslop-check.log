@@ -1,0 +1,4 @@
+PASS shared TaskCard body preserves the original action, evidence, and output presentation.
+PASS private staging, synchronization, rename, and cleanup implementation is unchanged.
+PASS actual diff whitespace check.
+EXIT_CODE=0

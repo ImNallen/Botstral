@@ -51,4 +51,6 @@ Use local administration to sign in and manage bots and device grants. In the pa
 
 Each message starts a durable run with real assistant turns and linked tasks. Select the worker account and bounded execution settings, review exact actions before approval, cancel work, and save verified artifacts through a native chooser. Inference configuration, vault unlock, and an approved worker remain explicit prerequisites. Earlier runs stay in history without implying shared model context.
 
+Open **Saved results** to find generated files beyond recent activity. Filter by bot or file name, inspect the source task, and save verified bytes. See the [acceptance evidence and limits](docs/evidence/p05/acceptance.md).
+
 See the [C02 architecture](docs/c02-architecture.md), [native fixture workflow](docs/c02-native-workflow.md), and [acceptance record](docs/c02-acceptance.md). Run `make verify-desktop` for desktop checks. The packaged macOS workflow passed over the public relay with the production worker, including browser work, cancellation and recovery. See the acceptance record for independent review and platform limits.

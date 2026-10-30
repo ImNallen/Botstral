@@ -1,0 +1,18 @@
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 137 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-BZwEN_So.css   17.27 kB │ gzip:   4.23 kB
+dist/assets/index-Bpfu2vG7.js   399.83 kB │ gzip: 118.80 kB
+
+✓ built in 71ms
