@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-Current production source is `b589c7623296784e7a0b0d4442440a5ffe265947`. Earlier evidence remains tied to its recorded source. The rebuilt current-source Linux run passed. The final independent recheck and current-source broad checks are still pending. This record does not advance a PLAN checkbox or approve a merge.
+Current production source is `b589c7623296784e7a0b0d4442440a5ffe265947`. Earlier evidence remains tied to its recorded source. The rebuilt current-source Linux run passed. Current-source broad verification also passed. The final independent recheck remains pending. This record does not advance a PLAN checkbox or approve a merge.
 
 ## Private entry and exact submission
 
@@ -54,3 +54,9 @@ The first delegated privileged Linux fixture changed Docker's global emulation r
 ## Historical broad verification
 
 The complete driver [20261029T232712922562Z](20261029T232712922562Z/commands.json) passed every focused, repository and desktop phase at recorded source `8418b898920cf07de3442b62d0d68754f26aebfd`, whose production source was `007156d`. Later corrections supersede it. It is preserved as a historical pass and is not current-source acceptance.
+
+## Current-source broad verification
+
+`python3 scripts/verify-p06.py --full` exited zero at clean production source `b589c7623296784e7a0b0d4442440a5ffe265947`. [All 14 recorded phases](20261030T000502050449Z/commands.json) exited zero, including the default repository and desktop scripts. The driver records an empty starting diff. All later root commits during the run changed documentation and evidence only.
+
+The repository gate passed formatting, workspace Clippy, production and opt-in builds, packaging and recovery checks, workspace tests, the fresh release build and both nonproduction release refusals. Its manager suite passed 169 tests with six opt-in skips. The desktop gate passed binding generation, TypeScript, frontend and native tests, paired-service fixtures, native Clippy and the debug application build. Focused phases separately passed native secure controls, receipt recovery and manager switching, locked unlock, live browser submission and persistent capture protection. These green checks do not replace the still-required independent verdict.
