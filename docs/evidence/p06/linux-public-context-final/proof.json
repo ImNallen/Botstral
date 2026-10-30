@@ -1,0 +1,1001 @@
+{
+  "source": {
+    "reviewed_head": "b589c7623296784e7a0b0d4442440a5ffe265947",
+    "diff_sha256": "83d5888d79e26f2c40444a2e3d266a9c2cc490762cd54b326d81d0961130ab59",
+    "fixture_sha256": "25a657e7675fc04002f5b4f638d88d858432196ddad5b64efba9d6c11ed7b29c",
+    "binaries": {
+      "botstral-agent": "d5537c1a62ae94b371fbaec8e15bd65aabc4ad30a8ecd0dc1b60d551b0f9351b",
+      "botstral-agent-supervisor-check": "a5701657a1454591732ad83bb02cfe0b39576416768b53e73a0ff6aa974847ae",
+      "botstral-manager": "e3d395dadd740f1c7a5d5268bef2a9b014a0c38b5dde9e023ab227a5917010d2"
+    },
+    "headless_only": false,
+    "host_architecture": "aarch64"
+  },
+  "source_diff_note": "Recorded tracked changes are exactly the coordinator trail and final-acceptance documentation in commit068b771. Production is unchanged from b589c76.",
+  "password": {
+    "check": "sign_in_result",
+    "task": {
+      "id": "87c33162-828b-45a7-97eb-27acfe3ecba9",
+      "request": {
+        "id": "87c33162-828b-45a7-97eb-27acfe3ecba9",
+        "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+        "conversation_id": null,
+        "settings": {
+          "model": "unavailable",
+          "max_turns": 1,
+          "max_tokens": 1,
+          "deadline": 1793318919,
+          "max_cost_micros": 0
+        },
+        "work": {
+          "type": "computer",
+          "spec": {
+            "profile": "linux_playwright_v1",
+            "account": {
+              "uid": 10001,
+              "gid": 10001
+            },
+            "runtime": {
+              "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+            },
+            "deadline": 1793318919,
+            "limits": {
+              "runtime_seconds": 120,
+              "output_bytes": 1024,
+              "processes": 128,
+              "memory_bytes": 1073741824
+            },
+            "viewport": {
+              "width": 800,
+              "height": 600
+            },
+            "operations": [
+              {
+                "type": "protected_login",
+                "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                "revision": 1,
+                "purpose": "password",
+                "plan": {
+                  "version": 1,
+                  "origin": "https://127.0.0.1:39947",
+                  "route": "/login",
+                  "frame": null,
+                  "form": "#login",
+                  "username": "#username",
+                  "password": "#password",
+                  "totp": "#totp",
+                  "submitter": "#submit",
+                  "action": "/session"
+                }
+              }
+            ],
+            "outputs": []
+          }
+        }
+      },
+      "command": {
+        "id": "a12e9cf4-eab1-40a1-81b5-18928d0b7ea2",
+        "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+        "task": "87c33162-828b-45a7-97eb-27acfe3ecba9",
+        "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+        "worker": "b0b659b2-df97-4a66-accf-ca8e7d197606",
+        "session": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+        "operation": "244c3145-df3f-4aaa-9a45-209499808c03",
+        "execution": "50136fa8-770d-4f11-9ab0-816a9a9f051e",
+        "work": {
+          "type": "computer",
+          "spec": {
+            "profile": "linux_playwright_v1",
+            "account": {
+              "uid": 10001,
+              "gid": 10001
+            },
+            "runtime": {
+              "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+            },
+            "deadline": 1793318919,
+            "limits": {
+              "runtime_seconds": 120,
+              "output_bytes": 1024,
+              "processes": 128,
+              "memory_bytes": 1073741824
+            },
+            "viewport": {
+              "width": 800,
+              "height": 600
+            },
+            "operations": [
+              {
+                "type": "protected_login",
+                "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                "revision": 1,
+                "purpose": "password",
+                "plan": {
+                  "version": 1,
+                  "origin": "https://127.0.0.1:39947",
+                  "route": "/login",
+                  "frame": null,
+                  "form": "#login",
+                  "username": "#username",
+                  "password": "#password",
+                  "totp": "#totp",
+                  "submitter": "#submit",
+                  "action": "/session"
+                }
+              }
+            ],
+            "outputs": []
+          }
+        }
+      },
+      "state": "completed",
+      "progress": 0,
+      "outcome": {
+        "type": "process_finished",
+        "reason": "result",
+        "success": true,
+        "scope": {
+          "journal": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+          "execution": "50136fa8-770d-4f11-9ab0-816a9a9f051e",
+          "host": "be7861ae67a004f9213279a30c1abc92c7b2387160d7bc29927a4b75f481febb",
+          "boot": "55f7caed-619d-4287-a81f-8e8189b974db",
+          "invocation": "6f21c93be1d9404c9009618a50504a19",
+          "unit": "botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-50136fa8-770d-4f11-9ab0-816a9a9f051e.service",
+          "cgroup": "/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-50136fa8-770d-4f11-9ab0-816a9a9f051e.service"
+        }
+      },
+      "effect_evidence": [],
+      "process": {
+        "effect": "observed",
+        "result": {
+          "exit": {
+            "type": "exited",
+            "code": 0
+          },
+          "stdout": {
+            "hex": "",
+            "truncated": false,
+            "complete": true
+          },
+          "stderr": {
+            "hex": "",
+            "truncated": false,
+            "complete": true
+          }
+        }
+      },
+      "outputs": [],
+      "approval": {
+        "id": "00c15e53-890a-4a62-92d0-d1db6e565b92",
+        "binding": {
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "task": "87c33162-828b-45a7-97eb-27acfe3ecba9",
+          "operation": "244c3145-df3f-4aaa-9a45-209499808c03",
+          "arguments": "8b5dddd2d20cb554f0f2e63aee7656b6987474f2e547f778d4fb1c1e0bcdd91e",
+          "permission_revision": 2,
+          "approval": "00c15e53-890a-4a62-92d0-d1db6e565b92",
+          "execution": "50136fa8-770d-4f11-9ab0-816a9a9f051e",
+          "expires_at": 1793318899
+        },
+        "permission_revision": 2,
+        "revoked": false,
+        "consumed": true
+      }
+    },
+    "reviews": [
+      {
+        "id": "81328d5b-32ce-457a-bfb1-e8c4ee096719",
+        "release": "90943812-7d5b-413e-b54c-e57758959125",
+        "item": {
+          "id": "be207dbb-c831-4b17-af2a-a48349f83123",
+          "revision": 1,
+          "epoch": 1,
+          "state": "active",
+          "metadata": {
+            "label": "Linux synthetic sign-in",
+            "bots": {
+              "type": "selected",
+              "bots": [
+                "67ad740a-742a-41ed-927d-c2637cf9573a"
+              ]
+            },
+            "allowed_origins": [
+              "https://127.0.0.1:39947"
+            ],
+            "password_policy": "remembered_origins"
+          },
+          "has_totp": true
+        },
+        "purpose": "password",
+        "binding": {
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "task": "87c33162-828b-45a7-97eb-27acfe3ecba9",
+          "operation": "244c3145-df3f-4aaa-9a45-209499808c03",
+          "arguments": "8b5dddd2d20cb554f0f2e63aee7656b6987474f2e547f778d4fb1c1e0bcdd91e",
+          "permission_revision": 2,
+          "approval": "00c15e53-890a-4a62-92d0-d1db6e565b92",
+          "execution": "50136fa8-770d-4f11-9ab0-816a9a9f051e",
+          "expires_at": 1793318899
+        },
+        "fence": {
+          "generation": 1,
+          "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "revision": 1,
+          "owner": "bot"
+        },
+        "incarnation": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+        "destination": {
+          "profile": "2f8282ec-39fb-424a-a5f2-0074edd57844",
+          "browser": "51a4de16-0d03-4049-b476-b589d8dbe939",
+          "page": "92712122-7a08-456d-83eb-9d0811ded824",
+          "top_document": "b08d763a-e3de-47c1-b50c-66caa0ba04ab",
+          "frame": "38db5e7b-1399-47d8-811c-fa1c3c91fbb7",
+          "frame_document": "d60c3db9-092c-4c08-b048-d18f2a20f404",
+          "top_origin": "https://127.0.0.1:39947",
+          "frame_origin": "https://127.0.0.1:39947",
+          "plan": {
+            "version": 1,
+            "origin": "https://127.0.0.1:39947",
+            "route": "/login",
+            "frame": null,
+            "form": "#login",
+            "username": "#username",
+            "password": "#password",
+            "totp": "#totp",
+            "submitter": "#submit",
+            "action": "/session"
+          },
+          "form": "a6139787-95ca-46e5-a686-ec97edbba5f1",
+          "fields": [
+            {
+              "object": "8c8257a5-f830-486a-9219-8738449ec60d",
+              "role": "username",
+              "name": "username",
+              "input_type": "text"
+            },
+            {
+              "object": "16c49cb8-328b-48db-bd3c-41862caf178e",
+              "role": "password",
+              "name": "password",
+              "input_type": "password"
+            }
+          ],
+          "submitter": "5dfb32e2-74a8-4b29-b79b-bf7575f2991a",
+          "certain": true
+        },
+        "expires_at": 1793318836,
+        "state": "applied"
+      }
+    ],
+    "submissions": [
+      {
+        "valid": true,
+        "path": "/session",
+        "method": "POST"
+      }
+    ],
+    "provenance": {
+      "journal": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+      "protection": {
+        "type": "tracked",
+        "profile": "2f8282ec-39fb-424a-a5f2-0074edd57844",
+        "releases": [
+          "90943812-7d5b-413e-b54c-e57758959125"
+        ],
+        "complete": true
+      },
+      "consumed": [
+        "90943812-7d5b-413e-b54c-e57758959125"
+      ]
+    }
+  },
+  "totp": [
+    {
+      "check": "production_linux_totp_passed",
+      "attempt": 1,
+      "task": {
+        "id": "574652fe-1472-4ff9-bb74-b7e6436efff9",
+        "request": {
+          "id": "574652fe-1472-4ff9-bb74-b7e6436efff9",
+          "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "conversation_id": null,
+          "settings": {
+            "model": "unavailable",
+            "max_turns": 1,
+            "max_tokens": 1,
+            "deadline": 1793318927,
+            "max_cost_micros": 0
+          },
+          "work": {
+            "type": "computer",
+            "spec": {
+              "profile": "linux_playwright_v1",
+              "account": {
+                "uid": 10001,
+                "gid": 10001
+              },
+              "runtime": {
+                "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+              },
+              "deadline": 1793318927,
+              "limits": {
+                "runtime_seconds": 120,
+                "output_bytes": 1024,
+                "processes": 128,
+                "memory_bytes": 1073741824
+              },
+              "viewport": {
+                "width": 800,
+                "height": 600
+              },
+              "operations": [
+                {
+                  "type": "protected_login",
+                  "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                  "revision": 1,
+                  "purpose": "totp",
+                  "plan": {
+                    "version": 1,
+                    "origin": "https://127.0.0.1:39947",
+                    "route": "/totp",
+                    "frame": null,
+                    "form": "#login",
+                    "username": "#username",
+                    "password": "#password",
+                    "totp": "#totp",
+                    "submitter": "#submit",
+                    "action": "/factor"
+                  }
+                }
+              ],
+              "outputs": []
+            }
+          }
+        },
+        "command": {
+          "id": "129a6a9b-2b87-49df-a241-5797145c72a1",
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "task": "574652fe-1472-4ff9-bb74-b7e6436efff9",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "worker": "b0b659b2-df97-4a66-accf-ca8e7d197606",
+          "session": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "operation": "56e1fa04-0f6c-40d7-8252-408f0785768f",
+          "execution": "62340ad5-a2fc-4400-be8b-a36f475c77e2",
+          "work": {
+            "type": "computer",
+            "spec": {
+              "profile": "linux_playwright_v1",
+              "account": {
+                "uid": 10001,
+                "gid": 10001
+              },
+              "runtime": {
+                "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+              },
+              "deadline": 1793318927,
+              "limits": {
+                "runtime_seconds": 120,
+                "output_bytes": 1024,
+                "processes": 128,
+                "memory_bytes": 1073741824
+              },
+              "viewport": {
+                "width": 800,
+                "height": 600
+              },
+              "operations": [
+                {
+                  "type": "protected_login",
+                  "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                  "revision": 1,
+                  "purpose": "totp",
+                  "plan": {
+                    "version": 1,
+                    "origin": "https://127.0.0.1:39947",
+                    "route": "/totp",
+                    "frame": null,
+                    "form": "#login",
+                    "username": "#username",
+                    "password": "#password",
+                    "totp": "#totp",
+                    "submitter": "#submit",
+                    "action": "/factor"
+                  }
+                }
+              ],
+              "outputs": []
+            }
+          }
+        },
+        "state": "completed",
+        "progress": 0,
+        "outcome": {
+          "type": "process_finished",
+          "reason": "result",
+          "success": true,
+          "scope": {
+            "journal": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+            "execution": "62340ad5-a2fc-4400-be8b-a36f475c77e2",
+            "host": "be7861ae67a004f9213279a30c1abc92c7b2387160d7bc29927a4b75f481febb",
+            "boot": "55f7caed-619d-4287-a81f-8e8189b974db",
+            "invocation": "081e33134d5f4e06b859274b9a5374bb",
+            "unit": "botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-62340ad5-a2fc-4400-be8b-a36f475c77e2.service",
+            "cgroup": "/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-62340ad5-a2fc-4400-be8b-a36f475c77e2.service"
+          }
+        },
+        "effect_evidence": [],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "type": "exited",
+              "code": 0
+            },
+            "stdout": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            },
+            "stderr": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            }
+          }
+        },
+        "outputs": [],
+        "approval": {
+          "id": "01d43227-c6ab-4b07-ba39-8db70824f5c3",
+          "binding": {
+            "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+            "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+            "task": "574652fe-1472-4ff9-bb74-b7e6436efff9",
+            "operation": "56e1fa04-0f6c-40d7-8252-408f0785768f",
+            "arguments": "f6eea9ba42aec1d9057f736ea2a470d847ee2c512dff4f9f9b62410fa0b0ad5d",
+            "permission_revision": 2,
+            "approval": "01d43227-c6ab-4b07-ba39-8db70824f5c3",
+            "execution": "62340ad5-a2fc-4400-be8b-a36f475c77e2",
+            "expires_at": 1793318907
+          },
+          "permission_revision": 2,
+          "revoked": false,
+          "consumed": true
+        }
+      },
+      "review": {
+        "id": "c2e23373-081b-4c55-b2c3-731849246069",
+        "release": "3d41d3d4-9927-4dd9-8c6a-085dadce12ca",
+        "item": {
+          "id": "be207dbb-c831-4b17-af2a-a48349f83123",
+          "revision": 1,
+          "epoch": 1,
+          "state": "active",
+          "metadata": {
+            "label": "Linux synthetic sign-in",
+            "bots": {
+              "type": "selected",
+              "bots": [
+                "67ad740a-742a-41ed-927d-c2637cf9573a"
+              ]
+            },
+            "allowed_origins": [
+              "https://127.0.0.1:39947"
+            ],
+            "password_policy": "remembered_origins"
+          },
+          "has_totp": true
+        },
+        "purpose": "totp",
+        "binding": {
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "task": "574652fe-1472-4ff9-bb74-b7e6436efff9",
+          "operation": "56e1fa04-0f6c-40d7-8252-408f0785768f",
+          "arguments": "f6eea9ba42aec1d9057f736ea2a470d847ee2c512dff4f9f9b62410fa0b0ad5d",
+          "permission_revision": 2,
+          "approval": "01d43227-c6ab-4b07-ba39-8db70824f5c3",
+          "execution": "62340ad5-a2fc-4400-be8b-a36f475c77e2",
+          "expires_at": 1793318907
+        },
+        "fence": {
+          "generation": 1,
+          "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "revision": 1,
+          "owner": "bot"
+        },
+        "incarnation": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+        "destination": {
+          "profile": "2f8282ec-39fb-424a-a5f2-0074edd57844",
+          "browser": "82b6fd96-4b84-4202-b312-64dc77de054a",
+          "page": "7e970225-6e12-497d-ab1d-d4e2f46c0f63",
+          "top_document": "4a4eaeef-6359-4a4e-b2c3-40ed3cb273b4",
+          "frame": "76ee35d8-40b5-4cc0-8731-5301e346853d",
+          "frame_document": "394fa3a8-747f-496b-9874-d71911764833",
+          "top_origin": "https://127.0.0.1:39947",
+          "frame_origin": "https://127.0.0.1:39947",
+          "plan": {
+            "version": 1,
+            "origin": "https://127.0.0.1:39947",
+            "route": "/totp",
+            "frame": null,
+            "form": "#login",
+            "username": "#username",
+            "password": "#password",
+            "totp": "#totp",
+            "submitter": "#submit",
+            "action": "/factor"
+          },
+          "form": "93bcff38-51b5-4e20-b88d-934751bdffd1",
+          "fields": [
+            {
+              "object": "a52953d2-1142-45dd-9ea0-9194d2d68627",
+              "role": "totp",
+              "name": "code",
+              "input_type": "text"
+            }
+          ],
+          "submitter": "5a8fa5cf-4607-4d88-94cd-cb0691f897a7",
+          "certain": true
+        },
+        "expires_at": 1793318844,
+        "state": "applied"
+      },
+      "fresh_approval": true
+    },
+    {
+      "check": "production_linux_totp_passed",
+      "attempt": 2,
+      "task": {
+        "id": "d79dc59f-9075-4172-8416-3bd3d993c8fd",
+        "request": {
+          "id": "d79dc59f-9075-4172-8416-3bd3d993c8fd",
+          "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "conversation_id": null,
+          "settings": {
+            "model": "unavailable",
+            "max_turns": 1,
+            "max_tokens": 1,
+            "deadline": 1793318940,
+            "max_cost_micros": 0
+          },
+          "work": {
+            "type": "computer",
+            "spec": {
+              "profile": "linux_playwright_v1",
+              "account": {
+                "uid": 10001,
+                "gid": 10001
+              },
+              "runtime": {
+                "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+              },
+              "deadline": 1793318940,
+              "limits": {
+                "runtime_seconds": 120,
+                "output_bytes": 1024,
+                "processes": 128,
+                "memory_bytes": 1073741824
+              },
+              "viewport": {
+                "width": 800,
+                "height": 600
+              },
+              "operations": [
+                {
+                  "type": "protected_login",
+                  "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                  "revision": 1,
+                  "purpose": "totp",
+                  "plan": {
+                    "version": 1,
+                    "origin": "https://127.0.0.1:39947",
+                    "route": "/totp",
+                    "frame": null,
+                    "form": "#login",
+                    "username": "#username",
+                    "password": "#password",
+                    "totp": "#totp",
+                    "submitter": "#submit",
+                    "action": "/factor"
+                  }
+                }
+              ],
+              "outputs": []
+            }
+          }
+        },
+        "command": {
+          "id": "78247c84-110e-4339-8784-2dff8f9ad056",
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "task": "d79dc59f-9075-4172-8416-3bd3d993c8fd",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "worker": "b0b659b2-df97-4a66-accf-ca8e7d197606",
+          "session": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "operation": "3d08c2be-6d79-42b6-94f9-d7f0ff72df1a",
+          "execution": "caec196d-89a3-4656-9d1a-9ffc49c1789f",
+          "work": {
+            "type": "computer",
+            "spec": {
+              "profile": "linux_playwright_v1",
+              "account": {
+                "uid": 10001,
+                "gid": 10001
+              },
+              "runtime": {
+                "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"
+              },
+              "deadline": 1793318940,
+              "limits": {
+                "runtime_seconds": 120,
+                "output_bytes": 1024,
+                "processes": 128,
+                "memory_bytes": 1073741824
+              },
+              "viewport": {
+                "width": 800,
+                "height": 600
+              },
+              "operations": [
+                {
+                  "type": "protected_login",
+                  "item": "be207dbb-c831-4b17-af2a-a48349f83123",
+                  "revision": 1,
+                  "purpose": "totp",
+                  "plan": {
+                    "version": 1,
+                    "origin": "https://127.0.0.1:39947",
+                    "route": "/totp",
+                    "frame": null,
+                    "form": "#login",
+                    "username": "#username",
+                    "password": "#password",
+                    "totp": "#totp",
+                    "submitter": "#submit",
+                    "action": "/factor"
+                  }
+                }
+              ],
+              "outputs": []
+            }
+          }
+        },
+        "state": "completed",
+        "progress": 0,
+        "outcome": {
+          "type": "process_finished",
+          "reason": "result",
+          "success": true,
+          "scope": {
+            "journal": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+            "execution": "caec196d-89a3-4656-9d1a-9ffc49c1789f",
+            "host": "be7861ae67a004f9213279a30c1abc92c7b2387160d7bc29927a4b75f481febb",
+            "boot": "55f7caed-619d-4287-a81f-8e8189b974db",
+            "invocation": "9d78a1709f2442f58dc953bf1976a566",
+            "unit": "botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-caec196d-89a3-4656-9d1a-9ffc49c1789f.service",
+            "cgroup": "/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-f898bd7c-c133-4dc4-a0f1-ac66952625da-caec196d-89a3-4656-9d1a-9ffc49c1789f.service"
+          }
+        },
+        "effect_evidence": [],
+        "process": {
+          "effect": "observed",
+          "result": {
+            "exit": {
+              "type": "exited",
+              "code": 0
+            },
+            "stdout": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            },
+            "stderr": {
+              "hex": "",
+              "truncated": false,
+              "complete": true
+            }
+          }
+        },
+        "outputs": [],
+        "approval": {
+          "id": "f6187fd1-0acb-4012-84e4-33e13d850e15",
+          "binding": {
+            "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+            "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+            "task": "d79dc59f-9075-4172-8416-3bd3d993c8fd",
+            "operation": "3d08c2be-6d79-42b6-94f9-d7f0ff72df1a",
+            "arguments": "e3884924cce438e21c6cb683396eaeb27356bc83777f2766206e07cbf97ad4ab",
+            "permission_revision": 2,
+            "approval": "f6187fd1-0acb-4012-84e4-33e13d850e15",
+            "execution": "caec196d-89a3-4656-9d1a-9ffc49c1789f",
+            "expires_at": 1793318920
+          },
+          "permission_revision": 2,
+          "revoked": false,
+          "consumed": true
+        }
+      },
+      "review": {
+        "id": "fb97c374-df7c-49a7-ac2f-f0cbe441ef99",
+        "release": "5972575f-07fd-4efc-95bb-2e714ab5e2bc",
+        "item": {
+          "id": "be207dbb-c831-4b17-af2a-a48349f83123",
+          "revision": 1,
+          "epoch": 1,
+          "state": "active",
+          "metadata": {
+            "label": "Linux synthetic sign-in",
+            "bots": {
+              "type": "selected",
+              "bots": [
+                "67ad740a-742a-41ed-927d-c2637cf9573a"
+              ]
+            },
+            "allowed_origins": [
+              "https://127.0.0.1:39947"
+            ],
+            "password_policy": "remembered_origins"
+          },
+          "has_totp": true
+        },
+        "purpose": "totp",
+        "binding": {
+          "owner": "4ce1a76d-0e61-4096-8f59-a755c3b30100",
+          "bot": "67ad740a-742a-41ed-927d-c2637cf9573a",
+          "task": "d79dc59f-9075-4172-8416-3bd3d993c8fd",
+          "operation": "3d08c2be-6d79-42b6-94f9-d7f0ff72df1a",
+          "arguments": "e3884924cce438e21c6cb683396eaeb27356bc83777f2766206e07cbf97ad4ab",
+          "permission_revision": 2,
+          "approval": "f6187fd1-0acb-4012-84e4-33e13d850e15",
+          "execution": "caec196d-89a3-4656-9d1a-9ffc49c1789f",
+          "expires_at": 1793318920
+        },
+        "fence": {
+          "generation": 1,
+          "session_id": "31a14720-9e84-4454-89cf-7ea27d00f4f1",
+          "revision": 1,
+          "owner": "bot"
+        },
+        "incarnation": "f898bd7c-c133-4dc4-a0f1-ac66952625da",
+        "destination": {
+          "profile": "2f8282ec-39fb-424a-a5f2-0074edd57844",
+          "browser": "ce5bff34-f3c7-46d9-bbc7-957d550c52de",
+          "page": "841f06b1-b536-472e-9a5f-b8b5927b75ec",
+          "top_document": "bfac69e3-8821-4e46-ae92-0458790b1390",
+          "frame": "6f630d64-18b5-4ba1-9999-9c062953540f",
+          "frame_document": "3655c3f1-5808-4d88-ba31-a288c854b781",
+          "top_origin": "https://127.0.0.1:39947",
+          "frame_origin": "https://127.0.0.1:39947",
+          "plan": {
+            "version": 1,
+            "origin": "https://127.0.0.1:39947",
+            "route": "/totp",
+            "frame": null,
+            "form": "#login",
+            "username": "#username",
+            "password": "#password",
+            "totp": "#totp",
+            "submitter": "#submit",
+            "action": "/factor"
+          },
+          "form": "c03dba15-53c4-4117-bfbb-82a7b7afea63",
+          "fields": [
+            {
+              "object": "97dce0d2-bb25-4715-96d0-cce2c7434918",
+              "role": "totp",
+              "name": "code",
+              "input_type": "text"
+            }
+          ],
+          "submitter": "545fa36a-38da-4bb7-9814-47ed9df16c2f",
+          "certain": true
+        },
+        "expires_at": 1793318858,
+        "state": "applied"
+      },
+      "fresh_approval": true
+    }
+  ],
+  "code_validation": [
+    {
+      "check": "factor_validation",
+      "code_valid": true,
+      "session_valid": true
+    },
+    {
+      "check": "factor_validation",
+      "code_valid": true,
+      "session_valid": true
+    }
+  ],
+  "negative_probes": [
+    {
+      "check": "missing_client_certificate_refused",
+      "status": 403
+    },
+    {
+      "check": "changed_generation_refused",
+      "status": 403
+    },
+    {
+      "check": "same_uid_outside_scope_refused",
+      "response_bytes": 0,
+      "submissions": 0
+    },
+    {
+      "check": "repeated_tls_release_refused",
+      "status": 403
+    }
+  ],
+  "registration_snapshots_identical": true,
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "info",
+        "--format",
+        "{{json .Architecture}}"
+      ],
+      "exit": 0,
+      "log": "docker-architecture.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "botstral-p06-fcf5bf487438-binfmt-before",
+        "--privileged",
+        "node:26",
+        "sh",
+        "-ec",
+        "test -e /proc/sys/fs/binfmt_misc/register || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc; for f in /proc/sys/fs/binfmt_misc/*; do case $f in */register|*/status) ;; *) printf '%s\\n' \"$f\"; cat \"$f\";; esac; done"
+      ],
+      "exit": 0,
+      "log": "binfmt-before.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "botstral-p06-fcf5bf487438",
+        "--privileged",
+        "--cgroupns=private",
+        "--tmpfs",
+        "/run",
+        "--tmpfs",
+        "/run/lock",
+        "--mount",
+        "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-binfmt.service,readonly",
+        "--mount",
+        "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-sysctl.service,readonly",
+        "--mount",
+        "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-modules-load.service,readonly",
+        "botstral-p06-fae8ad814bf4-mixed"
+      ],
+      "exit": 0,
+      "log": "start-container.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-agent",
+        "botstral-p06-fcf5bf487438:/usr/local/bin/"
+      ],
+      "exit": 0,
+      "log": "copy-botstral-agent.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-agent-supervisor-check",
+        "botstral-p06-fcf5bf487438:/usr/local/bin/"
+      ],
+      "exit": 0,
+      "log": "copy-botstral-agent-supervisor-check.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-manager",
+        "botstral-p06-fcf5bf487438:/usr/local/bin/"
+      ],
+      "exit": 0,
+      "log": "copy-botstral-manager.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "agent/tests/p06_linux/fixture.py",
+        "botstral-p06-fcf5bf487438:/home/p06/fixture.py"
+      ],
+      "exit": 0,
+      "log": "copy-fixture.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "10001:10001",
+        "-e",
+        "XDG_RUNTIME_DIR=/run/user/10001",
+        "-e",
+        "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/10001/bus",
+        "botstral-p06-fcf5bf487438",
+        "systemctl",
+        "--user",
+        "is-system-running"
+      ],
+      "exit": 0,
+      "log": "user-systemd.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "10001:10001",
+        "-e",
+        "XDG_RUNTIME_DIR=/run/user/10001",
+        "-e",
+        "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/10001/bus",
+        "botstral-p06-fcf5bf487438",
+        "python3",
+        "/home/p06/fixture.py",
+        "--root",
+        "/home/p06/fixture",
+        "--runtime",
+        "/opt/p06-runtime"
+      ],
+      "exit": 0,
+      "log": "integration.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "botstral-p06-fcf5bf487438",
+        "sh",
+        "-c",
+        "cat /home/p06/fixture/worker.log /home/p06/fixture/manager.log"
+      ],
+      "exit": 0,
+      "log": "service-logs.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "botstral-p06-fcf5bf487438"
+      ],
+      "exit": 0,
+      "log": "remove-owned-container.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "botstral-p06-fcf5bf487438-binfmt-after",
+        "--privileged",
+        "node:26",
+        "sh",
+        "-ec",
+        "test -e /proc/sys/fs/binfmt_misc/register || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc; for f in /proc/sys/fs/binfmt_misc/*; do case $f in */register|*/status) ;; *) printf '%s\\n' \"$f\"; cat \"$f\";; esac; done"
+      ],
+      "exit": 0,
+      "log": "binfmt-after.log"
+    }
+  ]
+}

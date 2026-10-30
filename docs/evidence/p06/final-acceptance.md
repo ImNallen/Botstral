@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-Current production source is `b589c7623296784e7a0b0d4442440a5ffe265947`. Earlier evidence remains tied to its recorded source. The final independent recheck, current-source broad checks and rebuilt Linux run are still pending. This record does not advance a PLAN checkbox or approve a merge.
+Current production source is `b589c7623296784e7a0b0d4442440a5ffe265947`. Earlier evidence remains tied to its recorded source. The rebuilt current-source Linux run passed. The final independent recheck and current-source broad checks are still pending. This record does not advance a PLAN checkbox or approve a merge.
 
 ## Private entry and exact submission
 
@@ -17,6 +17,12 @@ The same packaged app also verified the new early-collision refusal against the 
 [The full automated Linux run](linux-final-password-totp/proof.json) passed at recorded head `e10c09e`, whose production source is `5d5da18`. One password submission and two current TOTP submissions passed independent receiving-site validation. Both TOTP uses waited for fresh paired approval, even though the item permitted remembered password rules. Seeds remained on the manager side of the private release boundary; the receiving site compared submitted codes to an independently generated code. The four negative transport and scope probes also passed. Docker emulation registrations matched before and after.
 
 Earlier TOTP attempts failed and remain recorded. `linux-password-totp` used a session-only cookie across separate browser processes and received an invalid factor submission. `linux-readiness-fixed` independently records a submitted factor that the site rejected. `linux-persistent-session` used a persistent cookie but approved too close to code expiry and did not submit a factor. `linux-factor-window` added an adequate current-code window before approval and passed two server-validated factor submissions. Those fixture changes preserve the production TOTP expiry and fresh-approval rules. They do not establish persistence of session-only cookies. The final run preserves that same explicit persistent-cookie condition.
+
+## Current-source Linux verification
+
+[The rebuilt Linux proof](linux-public-context-final/proof.json) passed at production source `b589c7623296784e7a0b0d4442440a5ffe265947`. Its recorded dirty hash is exactly the two documentation changes subsequently committed in `068b771`; production files were unchanged. The manager release digest is `e3d395dadd740f1c7a5d5268bef2a9b014a0c38b5dde9e023ab227a5917010d2`. The sealed runtime and worker binaries remain identical to their earlier recorded builds.
+
+One password submission and two separately approved current-code submissions completed with applied reviews and independent receiving-site validation. All four negative transport probes refused. Every recorded command exited zero. The owned container was removed and emulation snapshots match. This exercises the full retained runtime, systemd supervision, cgroup admission, private socket and worker mutual TLS. It does not rerun native AppKit controls or establish universal cold-start reliability.
 
 ## Corrected review findings
 

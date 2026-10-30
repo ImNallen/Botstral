@@ -1,5 +1,7 @@
 # P06 implementation acceptance
 
+This is the historical implementation report before independent review and coordinator corrections. Its pending claims describe that source only. [The current acceptance record](final-acceptance.md) records later failures, corrections and completed combined verification.
+
 The accepted base is `bf470fb00e98ed6e519b02f7a314fe48a808bdc1`. Its ancestry was verified before implementation in the assigned `t3/protected-login-autofill` checkout. No coordinator files, real credentials, paid inference, deployments, pushes or pull requests were used. No subagents were started.
 
 The storage/native-entry unit is commit `51d0177c1684bdb3a88c03670c66f94308b99387`. The second unit adds supervised one-shot fills, live approval controls, remembered rules, per-fill TOTP, retained profile protection and private screening. The implementation details and operational limits are in [Protected reusable logins](../../p06-protected-logins.md). Source file digests are recorded in [implementation-files.json](implementation-files.json).
