@@ -1,0 +1,17 @@
+   Compiling ring v0.17.14
+   Compiling rustls-webpki v0.103.16
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.55s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-e20dadc2751268e1)
+
+running 3 tests
+test protected_browser::tests::existing_profile_without_history_never_gains_complete_coverage ... ok
+test protected_browser::tests::profile_provenance_survives_restart_and_journal_replacement_refuses_capture ... ok
+test protected_browser::tests::restored_or_incomplete_history_cannot_clear_a_newer_profile ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.21s
+

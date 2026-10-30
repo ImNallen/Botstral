@@ -1,0 +1,19 @@
+{
+  "head": "13580e424dd83a568a88714593d74924440bc840",
+  "tracked_diff_sha256": "f6b17d1d0b37c74164efa61d1cde5b71356e0a5ac8fbda865b6526c1c9a1fdaf",
+  "source_manifest": {
+    "manager/src/manager/state/credentials/uses.rs": "caaa86dee33a21b0a31035cc3e3acc3f79379cce1973b1e18fadd6b73f59b897",
+    "manager/src/manager/state/credentials/uses/preparation.rs": "c78966dfb85b8fc9109cbdae1b02c5200d89cb6775d0c71cec4f97ac7c45370d",
+    "manager/src/manager/state/credentials/uses/profile.rs": "608791a2b5a4fa4098903c483ffb0224c17ad1e03ea218b1607eb52b9a3d9a38",
+    "manager/src/manager/state.rs": "bd5e0d462aab4e2c592b7e321708d9f2d94d61ff3d028202f6bf0df1c9e8835d",
+    "manager/migrations/0016.sql": "b463fd69b129a8688c307217c3682e0300fb056ca7b290d91dd7a3f41b65aa83",
+    "manager/packaging/recovery.py": "52574716660642603bf6ebc51cbc358bc26d5c559201dace45f4f45ab56e8733",
+    "manager/src/manager/state/credentials/tests/live.rs": "a8d5f6cdfb7182c961c9fbe30cab0156437b99dbb62245fb1fa0dcab183d9495",
+    "manager/src/manager/state/credentials/tests/live/authority.rs": "9148d27551b4dc5b80e525e397d185c2e0d8294c3fa52b07615525ca4467dcb1",
+    "manager/src/manager/state/credentials/tests/live/security.rs": "d0221cbcdebb67b585febd5c464db7f4c631c7605feb24f8e3062838db4cc625",
+    "manager/src/manager/state/runs/memory_tests.rs": "734a2a80c50a28f510923f27bc4c48d173fee459d2dbd7bfff6cac6b9bae5aa9",
+    "manager/src/manager/state/tasks.rs": "175ab96253ede181a15439c5d3c73562fa38f6f38f2baa09aa4ff7e61556b803",
+    "manager/tests/m01_local.rs": "12392c3f551ae6068042fff8200b2d6d18a972c122f5993b98056e1164d877ab"
+  },
+  "note": "Build starts from the frozen reviewed working tree. The later driver records the committed head and binary digests. Code content must match this manifest."
+}
