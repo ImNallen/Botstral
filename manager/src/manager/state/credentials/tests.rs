@@ -498,3 +498,129 @@ fn revoked_connector_history_survives_restore_and_unlock() {
         .unwrap();
     assert_eq!(retained, 3);
 }
+
+#[test]
+fn existing_login_public_records_cannot_be_poisoned_by_private_intake() {
+    for surface in ["item", "receipt", "removed"] {
+        let mut f = fixture();
+        let marker = format!("account-{}@example.test", RequestId::new());
+        let mut first_metadata = metadata();
+        first_metadata.label = marker.clone();
+        let first_request = RequestId::new();
+        let first_receipt = f
+            .state
+            .write_login(
+                f.lease,
+                first_request,
+                CredentialWriteTarget::Create {
+                    metadata: first_metadata.clone(),
+                },
+                values(61),
+            )
+            .unwrap();
+        let mut first = committed(first_receipt.clone());
+        if surface == "receipt" {
+            first_metadata.label = "Renamed public account".into();
+            first = f
+                .state
+                .update_login(f.lease, first.id, first.revision, Some(first_metadata))
+                .unwrap();
+        } else if surface == "removed" {
+            first = f
+                .state
+                .update_login(f.lease, first.id, first.revision, None)
+                .unwrap();
+        }
+        let request = RequestId::new();
+        let mut candidate = values(62);
+        candidate.username = marker.clone();
+        let status = f
+            .state
+            .write_login(
+                f.lease,
+                request,
+                CredentialWriteTarget::Create {
+                    metadata: metadata(),
+                },
+                candidate,
+            )
+            .unwrap();
+        let listing = f.state.login_items(f.lease);
+        let receipt = f
+            .state
+            .credential_write_status(f.lease, first_request, false);
+        println!(
+            "existing_public_surface={surface}; intake={status:?}; metadata_readable={}; original_receipt_readable={}",
+            listing.is_ok(),
+            receipt.is_ok()
+        );
+        assert_eq!(
+            status,
+            CredentialWriteStatus::Rejected {
+                request,
+                reason: CredentialWriteRejection::PublicValueCollision
+            }
+        );
+        assert_eq!(listing.unwrap(), vec![first.clone()]);
+        assert_eq!(receipt.unwrap(), first_receipt);
+        assert_eq!(
+            f.state
+                .credential_write_status(f.lease, request, false)
+                .unwrap(),
+            status
+        );
+        assert_eq!(
+            f.state
+                .write_login(
+                    f.lease,
+                    request,
+                    CredentialWriteTarget::Create {
+                        metadata: metadata()
+                    },
+                    values(63)
+                )
+                .unwrap(),
+            status
+        );
+        let control = committed(
+            f.state
+                .write_login(
+                    f.lease,
+                    RequestId::new(),
+                    CredentialWriteTarget::Create {
+                        metadata: metadata(),
+                    },
+                    values(63),
+                )
+                .unwrap(),
+        );
+        let mut rotation = values(64);
+        rotation.password = marker;
+        let request = RequestId::new();
+        assert_eq!(
+            f.state
+                .write_login(
+                    f.lease,
+                    request,
+                    CredentialWriteTarget::Rotate {
+                        id: control.id,
+                        expected_revision: control.revision
+                    },
+                    rotation
+                )
+                .unwrap(),
+            CredentialWriteStatus::Rejected {
+                request,
+                reason: CredentialWriteRejection::PublicValueCollision
+            }
+        );
+        assert_eq!(f.state.load_login(control.id).unwrap(), control);
+        let count: i64 = f
+            .state
+            .connection
+            .query_row("SELECT count(*) FROM credential_epochs", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 2);
+        assert_eq!(f.state.login_items(f.lease).unwrap().len(), 2);
+    }
+}

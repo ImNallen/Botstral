@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+retained_review_removed_item=false; intake=Committed { request: RequestId(1a6616b2-e4fe-4166-836d-e6c131515c71), item: LoginItemView { id: CredentialId(c964f263-bfa6-43fb-ae55-ec60eec3ddf7), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Fixture account", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: true } }; history_readable=false
+
+thread 'manager::state::credentials::tests::live::authority::retained_review_public_metadata_cannot_be_poisoned_by_private_intake' (638175142) panicked at manager/src/manager/state/credentials/tests/live/authority.rs:657:9:
+assertion `left == right` failed
+  left: Committed { request: RequestId(1a6616b2-e4fe-4166-836d-e6c131515c71), item: LoginItemView { id: CredentialId(c964f263-bfa6-43fb-ae55-ec60eec3ddf7), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Fixture account", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: true } }
+ right: Rejected { request: RequestId(1a6616b2-e4fe-4166-836d-e6c131515c71), reason: PublicValueCollision }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::authority::retained_review_public_metadata_cannot_be_poisoned_by_private_intake ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::retained_review_public_metadata_cannot_be_poisoned_by_private_intake
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

@@ -1,0 +1,12 @@
+    Checking ring v0.17.14
+    Checking libsqlite3-sys v0.36.0
+    Checking rusqlite v0.38.0
+    Checking rustls-webpki v0.103.16
+    Checking rustls v0.23.46
+    Checking tokio-rustls v0.26.6
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+    Checking hyper-rustls v0.27.10
+    Checking reqwest v0.12.28
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.72s

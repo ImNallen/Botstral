@@ -1,0 +1,23 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rusqlite v0.38.0
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+error[E0277]: `zeroize::Zeroizing<std::string::String>` doesn't implement `std::fmt::Display`
+   --> manager/src/manager/state/credentials/tests/live/authority.rs:682:65
+    |
+682 |                 public.label = format!("Existing public account {code}");
+    |                                                                 ^^^^^^ `zeroize::Zeroizing<std::string::String>` cannot be formatted with the default formatter
+    |
+    = help: the trait `std::fmt::Display` is not implemented for `zeroize::Zeroizing<std::string::String>`
+    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
+    = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the macro `format` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `botstral-manager` (lib test) due to 1 previous error

@@ -36,11 +36,24 @@ pub(super) fn canonical_origin(value: &str) -> Result<String, OperationError> {
 }
 
 impl State {
+    fn credential_public_rows<T: serde::de::DeserializeOwned>(
+        &self,
+        query: &str,
+    ) -> Result<Vec<T>, OperationError> {
+        self.connection
+            .prepare(query)?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .map(|row| parse(row?))
+            .collect()
+    }
     fn credential_public_context(&mut self) -> Result<serde_json::Value, OperationError> {
         Ok(serde_json::json!({
             "scaffold":crate::manager::provider::credential_public_scaffold(),
             "configurations":self.inference_configurations()?,
             "memory":self.all_memory_entries()?,
+            "login_items":self.credential_public_rows::<LoginItemView>("SELECT view FROM credential_items")?,
+            "login_receipts":self.credential_public_rows::<CredentialWriteStatus>("SELECT status FROM credential_writes")?,
+            "login_reviews":self.credential_public_rows::<CredentialUseReview>("SELECT view FROM credential_uses")?,
             "connectors":self.current_connector_catalogs()?.iter()
                 .map(|tool| serde_json::json!({
                     "definition":tool,

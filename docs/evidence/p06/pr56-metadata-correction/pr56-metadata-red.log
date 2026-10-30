@@ -1,0 +1,28 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.93s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+generated_public_receipt_only=false; released=true; retained_codes=1; metadata_readable=false; receipt_readable=false
+
+thread 'manager::state::credentials::tests::live::authority::generated_code_cannot_poison_existing_login_public_records' (638174838) panicked at manager/src/manager/state/credentials/tests/live/authority.rs:728:9:
+assertion failed: matches!(released, Err(OperationError::Conflict))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::authority::generated_code_cannot_poison_existing_login_public_records ... FAILED
+existing_public_surface=item; intake=Committed { request: RequestId(28ff6d4f-2581-4f22-98bb-bc5a157e0579), item: LoginItemView { id: CredentialId(01352bcc-c710-420b-93ac-ac1dc3d54659), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Fixture account", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: true } }; metadata_readable=false; original_receipt_readable=false
+
+thread 'manager::state::credentials::tests::existing_login_public_records_cannot_be_poisoned_by_private_intake' (638174837) panicked at manager/src/manager/state/credentials/tests.rs:557:9:
+assertion `left == right` failed
+  left: Committed { request: RequestId(28ff6d4f-2581-4f22-98bb-bc5a157e0579), item: LoginItemView { id: CredentialId(01352bcc-c710-420b-93ac-ac1dc3d54659), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Fixture account", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: true } }
+ right: Rejected { request: RequestId(28ff6d4f-2581-4f22-98bb-bc5a157e0579), reason: PublicValueCollision }
+test manager::state::credentials::tests::existing_login_public_records_cannot_be_poisoned_by_private_intake ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::existing_login_public_records_cannot_be_poisoned_by_private_intake
+    manager::state::credentials::tests::live::authority::generated_code_cannot_poison_existing_login_public_records
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 182 filtered out; finished in 5.12s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

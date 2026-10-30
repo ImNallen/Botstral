@@ -612,3 +612,126 @@ fn generated_code_current_catalog_collision_preserves_complete_conversations() {
         );
     }
 }
+
+#[test]
+fn retained_review_public_metadata_cannot_be_poisoned_by_private_intake() {
+    let marker = format!("review-account-{}", RequestId::new());
+    let mut site = plan("https://example.test");
+    site.route = format!("/login/{marker}");
+    let mut f = live(
+        site,
+        CredentialFields::Password,
+        PasswordPolicy::EveryFill,
+        1000,
+    );
+    let review = f.prepare(None);
+    f.state
+        .decide_credential_use(owner(), review.clone(), UseDecision::Deny)
+        .unwrap();
+    for removed in [false, true] {
+        if removed {
+            let current = f.state.load_login(f.item.id).unwrap();
+            f.state
+                .update_login(owner(), current.id, current.revision, None)
+                .unwrap();
+        }
+        let mut candidate = values(62);
+        candidate.username = marker.clone();
+        let request = RequestId::new();
+        let status = f
+            .state
+            .write_login(
+                owner(),
+                request,
+                CredentialWriteTarget::Create {
+                    metadata: metadata(),
+                },
+                candidate,
+            )
+            .unwrap();
+        let reviews = f.state.credential_uses(owner());
+        println!(
+            "retained_review_removed_item={removed}; intake={status:?}; history_readable={}",
+            reviews.is_ok()
+        );
+        assert_eq!(
+            status,
+            CredentialWriteStatus::Rejected {
+                request,
+                reason: CredentialWriteRejection::PublicValueCollision
+            }
+        );
+        assert_eq!(reviews.unwrap().len(), 1);
+        assert_eq!(f.state.login_items(owner()).unwrap().len(), 1);
+    }
+}
+
+#[test]
+fn generated_code_cannot_poison_existing_login_public_records() {
+    for receipt_only in [false, true] {
+        let mut login = live_values();
+        login.totp_seed = "AAAAAAAAAAAAAAAAAAAAAAAAAAAASBSQ".into();
+        let (code, _) = totp::current(&login.totp_seed, 1000).unwrap();
+        let (mut f, prior_request) = live_with_setup(
+            plan("https://example.test"),
+            CredentialFields::Totp,
+            PasswordPolicy::EveryFill,
+            1000,
+            login,
+            |state, _| {
+                let mut public = metadata();
+                public.label = format!("Existing public account {}", code.as_str());
+                let request = RequestId::new();
+                let item = committed(
+                    state
+                        .write_login(
+                            owner(),
+                            request,
+                            CredentialWriteTarget::Create {
+                                metadata: public.clone(),
+                            },
+                            values(63),
+                        )
+                        .unwrap(),
+                );
+                if receipt_only {
+                    public.label = "Renamed public account".into();
+                    state
+                        .update_login(owner(), item.id, item.revision, Some(public))
+                        .unwrap();
+                }
+                request
+            },
+        );
+        let bot = f.state.load_task(f.authority.task).unwrap().command.bot;
+        assert_eq!(f.state.accessible_login_items(bot).unwrap().len(), 2);
+        let review = f.prepare(None);
+        f.state
+            .decide_credential_use(owner(), review.clone(), UseDecision::AllowOnce)
+            .unwrap();
+        let released = f.release(&review);
+        let retained: i64 = f
+            .state
+            .connection
+            .query_row("SELECT count(*) FROM credential_codes", [], |r| r.get(0))
+            .unwrap();
+        let listing = f.state.login_items(owner());
+        let receipt = f
+            .state
+            .credential_write_status(owner(), prior_request, false);
+        println!(
+            "generated_public_receipt_only={receipt_only}; released={}; retained_codes={retained}; metadata_readable={}; receipt_readable={}",
+            released.is_ok(),
+            listing.is_ok(),
+            receipt.is_ok()
+        );
+        assert!(matches!(released, Err(OperationError::Conflict)));
+        assert_eq!(retained, 0);
+        assert_eq!(listing.unwrap().len(), 2);
+        assert!(matches!(
+            receipt.unwrap(),
+            CredentialWriteStatus::Committed { .. }
+        ));
+        assert_eq!(f.state.accessible_login_items(bot).unwrap().len(), 2);
+    }
+}

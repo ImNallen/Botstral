@@ -1,0 +1,14 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+generated_public_receipt_only=false; released=false; retained_codes=0; metadata_readable=true; receipt_readable=true
+generated_public_receipt_only=true; released=false; retained_codes=0; metadata_readable=true; receipt_readable=true
+test manager::state::credentials::tests::live::authority::generated_code_cannot_poison_existing_login_public_records ... ok
+existing_public_surface=item; intake=Rejected { request: RequestId(966e75da-27e3-4592-a6dd-3c810768ae1f), reason: PublicValueCollision }; metadata_readable=true; original_receipt_readable=true
+existing_public_surface=receipt; intake=Rejected { request: RequestId(5dfa8616-992d-447d-821d-fe4439ae9915), reason: PublicValueCollision }; metadata_readable=true; original_receipt_readable=true
+existing_public_surface=removed; intake=Rejected { request: RequestId(72120201-bb01-46c0-9696-63f1a67ce9ec), reason: PublicValueCollision }; metadata_readable=true; original_receipt_readable=true
+test manager::state::credentials::tests::existing_login_public_records_cannot_be_poisoned_by_private_intake ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 182 filtered out; finished in 15.50s
+

@@ -1,0 +1,7 @@
+# Existing credential metadata collision correction
+
+[The PR review](https://github.com/ImNallen/Botstral/pull/56#discussion_r4419493985) proves that a new private value can match an older public login label. Retained screening then withholds the login list, handoff and old receipt even after removal. Root reproduced that behavior and extended it to retained review metadata and generated current codes. The red logs fail actual expected-safe assertions. The first compilation log is a test-formatting error, corrected before the behavioral runs.
+
+The shared context now loads typed public LoginItemView, CredentialWriteStatus and CredentialUseReview records directly from their stores, including tombstones and old metadata snapshots. It does not read ciphertext through this helper or call the already-screened public listing methods. Both owner intake and current-code release use this context before retaining a new value. Existing retained private history is unchanged.
+
+Three new regression functions pass. They cover active and removed item metadata, old receipt-only metadata after a rename, denied review metadata before and after removal, final refusal replay, rejected rotation atomicity, readable listings/receipts, and generated code refusal without retention. The complete manager library passes178 tests with six opt-in skips; all-target manager Clippy passes. The prior exact-source full/native/Linux and independent acceptance records remain historical. New-head CI, broad verification and requested follow-up review are pending.
