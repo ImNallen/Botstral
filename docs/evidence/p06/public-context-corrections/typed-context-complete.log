@@ -1,0 +1,15 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.35s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 5 tests
+raw_string_secret_refused=true; numeric_secret_in_durable_run=false; numeric_secret_in_public_run=false
+test manager::state::runs::tests::publication_tests::review_probe_numeric_secret_publication ... ok
+test manager::state::runs::tests::publication_tests::p06_explicit_pre_entry_restore_preserves_a_separate_affected_snapshot ... ok
+test manager::state::runs::tests::publication_tests::p06_public_collision_rotation_preserves_item_and_conversation ... ok
+test manager::state::runs::tests::publication_tests::p06_public_collision_intake_is_final_and_preserves_conversation ... ok
+actual_request_and_message_tokens_checked=116; complete_conversations_usable=true
+test manager::state::runs::tests::publication_tests::public_request_and_message_tokens_cannot_poison_a_complete_conversation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 4.41s
+
