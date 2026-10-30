@@ -1,0 +1,16 @@
+test_health_requires_a_running_manager (test_p06_reboot.ManagerReadinessTests) ... ok
+test_cleanup_failure_fails_acceptance (test_p06_reboot.RebootEvidenceTests) ... ok
+test_complete_evidence_and_cleanup_pass (test_p06_reboot.RebootEvidenceTests) ... ok
+test_final_export_failure_fails_and_still_cleans_up (test_p06_reboot.RebootEvidenceTests) ... ok
+test_manager_readiness_deadline_refuses_and_cleans_up (test_p06_reboot.RebootEvidenceTests) ... ok
+test_missing_completed_verdict_fails (test_p06_reboot.RebootEvidenceTests) ... ok
+test_missing_post_reboot_record_fails (test_p06_reboot.RebootEvidenceTests) ... ok
+test_original_failure_survives_export_failure (test_p06_reboot.RebootEvidenceTests) ... ok
+test_original_failure_survives_finalization (test_p06_reboot.RebootEvidenceTests) ... ok
+test_slow_manager_is_ready_before_post_reboot_exercise (test_p06_reboot.RebootEvidenceTests) ... ok
+test_unchanged_boot_in_exported_evidence_fails (test_p06_reboot.RebootEvidenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.191s
+
+OK

@@ -3,7 +3,7 @@
 import argparse
 from datetime import datetime, timezone
 import hashlib
-from http.client import HTTPSConnection
+from http.client import HTTPConnection, HTTPException, HTTPSConnection
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -184,6 +184,22 @@ class Fixture:
         state["binary_sha256"] = digest(Path("/proc") / state["MainPID"] / "exe")
         state["boot_id"] = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         return state
+
+    def ready(self):
+        connection = None
+        try:
+            listeners = json.loads((self.root / "state/listeners.json").read_text())
+            host, port = listeners["listen"].rsplit(":", 1)
+            connection = HTTPConnection(host, int(port), timeout=1)
+            connection.request("GET", "/health")
+            response = connection.getresponse()
+            body = response.read(128)
+            return response.status == 200 and json.loads(body) == {"status": "ok"}
+        except (OSError, ValueError, HTTPException):
+            return False
+        finally:
+            if connection:
+                connection.close()
 
     def connect(self, before):
         self.listeners = json.loads((self.root / "state/listeners.json").read_text())
@@ -420,9 +436,9 @@ def orchestrate(args):
               "support_sha256": digest(Path(__file__).with_name("m05_acceptance.py")), "reconnection_timeout_seconds": args.timeout}
     save(evidence / "resources.json", ledger)
     ssh = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "-o", "ServerAliveInterval=5", "-o", "ServerAliveCountMax=2", args.guest]
-    def remote(operation):
+    def remote(operation, timeout=100):
         result = subprocess.run([*ssh, shlex.join(["python3", fixture_root + "/p06_reboot.py", operation, "--root", fixture_root])],
-                                capture_output=True, text=True, timeout=100)
+                                capture_output=True, text=True, timeout=timeout)
         if result.returncode:
             (evidence / (operation + ".stderr")).write_text(result.stderr)
         require(result.returncode == 0, "remote " + operation + " failed; inspect private stderr")
@@ -447,15 +463,28 @@ def orchestrate(args):
         until = time.monotonic() + args.timeout
         reconnected = False
         attempts = 0
+        readiness_attempts = 0
         while time.monotonic() < until:
             attempts += 1
-            probe = subprocess.run([*ssh, "cat /proc/sys/kernel/random/boot_id"], capture_output=True, text=True, timeout=15)
+            remaining = max(0.1, until - time.monotonic())
+            try:
+                probe = subprocess.run([*ssh, "cat /proc/sys/kernel/random/boot_id"], capture_output=True, text=True,
+                                       timeout=min(15, remaining))
+            except subprocess.TimeoutExpired:
+                continue
             if probe.returncode == 0 and probe.stdout.strip() != initial["boot_id"]:
-                reconnected = True
-                break
-            time.sleep(2)
-        require(reconnected, "real guest reboot did not reconnect with a changed boot ID")
+                readiness_attempts += 1
+                try:
+                    ready = remote("ready", timeout=min(5, max(0.1, until - time.monotonic())))
+                    if ready["ready"]:
+                        reconnected = True
+                        break
+                except subprocess.TimeoutExpired:
+                    pass
+            time.sleep(min(2, max(0, until - time.monotonic())))
+        require(reconnected, "real guest reboot and manager readiness deadline expired")
         ledger["reconnection_attempts"] = attempts
+        ledger["readiness_attempts"] = readiness_attempts
         remote("after")
         ledger["passed"] = True
     except Exception as error:
@@ -501,7 +530,7 @@ def main():
     controller.add_argument("--binary", type=Path, required=True, help="Production Linux manager built from the recorded current source.")
     controller.add_argument("--evidence", type=Path, required=True)
     controller.add_argument("--timeout", type=int, default=180)
-    for operation in ("inspect", "before", "after", "export", "cleanup"):
+    for operation in ("inspect", "before", "ready", "after", "export", "cleanup"):
         subcommand = commands.add_parser(operation, help=argparse.SUPPRESS)
         subcommand.add_argument("--root", type=Path, required=True)
     args = parser.parse_args()
@@ -514,6 +543,8 @@ def main():
     elif args.operation == "before":
         fixture.prepare()
         fixture.exercise(True)
+    elif args.operation == "ready":
+        print(json.dumps({"ready": fixture.ready()}))
     elif args.operation == "after":
         fixture.exercise(False)
     elif args.operation == "export":
