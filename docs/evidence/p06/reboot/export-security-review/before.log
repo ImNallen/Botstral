@@ -1,0 +1,52 @@
+test_initial_export_rejects_path_traversal (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_initial_export_rejects_absolute_path (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_final_export_rejects_path_traversal (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_export_rejects_local_destination_symlink (test_p06_reboot.RebootEvidenceTests) ... FAIL
+
+======================================================================
+FAIL: test_initial_export_rejects_path_traversal (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 133, in test_initial_export_rejects_path_traversal
+    error, ledger, calls = self.exercise("traversal_before")
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 107, in exercise
+    self.assertFalse(outside.exists(), "remote export wrote outside the evidence directory")
+AssertionError: True is not false : remote export wrote outside the evidence directory
+
+======================================================================
+FAIL: test_initial_export_rejects_absolute_path (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 139, in test_initial_export_rejects_absolute_path
+    error, ledger, calls = self.exercise("absolute_before")
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 107, in exercise
+    self.assertFalse(outside.exists(), "remote export wrote outside the evidence directory")
+AssertionError: True is not false : remote export wrote outside the evidence directory
+
+======================================================================
+FAIL: test_final_export_rejects_path_traversal (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 145, in test_final_export_rejects_path_traversal
+    error, ledger, calls = self.exercise("traversal_after")
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 107, in exercise
+    self.assertFalse(outside.exists(), "remote export wrote outside the evidence directory")
+AssertionError: True is not false : remote export wrote outside the evidence directory
+
+======================================================================
+FAIL: test_export_rejects_local_destination_symlink (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 151, in test_export_rejects_local_destination_symlink
+    error, ledger, calls = self.exercise("symlink")
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/export-security-before/test_p06_reboot.py", line 109, in exercise
+    self.assertEqual(outside.read_text(), "untouched", "remote export followed a local symlink")
+AssertionError: '{"boot_id": "old-boot", "binary_sha256": [63 chars]9f"}' != 'untouched'
+- {"boot_id": "old-boot", "binary_sha256": "e99b61cda13d6cc2f5265972c92b69a9407b6a27a470c4ed2209f4cd6b10ff9f"}
++ untouched
+ : remote export followed a local symlink
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.015s
+
+FAILED (failures=4)

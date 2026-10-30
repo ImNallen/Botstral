@@ -1,0 +1,21 @@
+{
+  "baseline_harness": "169173a39ec9b5a40d8a5da7bccffe82f1c10793",
+  "baseline_test_selection": [
+    "RebootEvidenceTests.test_slow_manager_is_ready_before_post_reboot_exercise",
+    "RebootEvidenceTests.test_manager_readiness_deadline_refuses_and_cleans_up"
+  ],
+  "baseline_exit_code": 1,
+  "corrected_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "manager/tests",
+    "-p",
+    "test_p06_reboot.py",
+    "-v"
+  ],
+  "corrected_exit_code": 0,
+  "surface": "Two local delayed-readiness regressions plus all harness tests and a real local production-manager health check. No guest reboot was repeated."
+}

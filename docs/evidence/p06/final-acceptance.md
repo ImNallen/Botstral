@@ -1,5 +1,7 @@
 # P06 corrected implementation acceptance
 
+The later [host reboot supplement](reboot/verification.md) closes manager locked-store verification at source `271f9cd`. It verifies protected secret release after explicit unlock, not browser filling or production agent supervision. The earlier source-specific record below remains unchanged. Manual takeover remains open.
+
 Independent review accepted production source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` within documented scope. PR monitoring subsequently corrected a missing existing-credential metadata collision check and completed its broad and Linux gates. Later security findings required scoped worker screening and idempotent preparation; their independent, broad and Linux gates now pass at committed source `379bfc8`. Fresh GitHub checks and reviews remain pending after publication. The current-catalog and inherited connector-revocation objections are repaired while retained history remains screened. The rebuilt exact-source Linux gate passed. All fourteen final broad phases passed at the same clean production source. The supported v1 code is accepted for pull-request review; host reboot verification and manual takeover remain open. Earlier evidence stays tied to its recorded source. No merge is authorized by this record.
 
 ## Private entry and exact submission

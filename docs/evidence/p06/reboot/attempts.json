@@ -1,0 +1,70 @@
+[
+  {
+    "attempt": 1,
+    "root": "/home/botstral/p06-reboot-4352942abc5c",
+    "unit": "botstral-p06-reboot-4352942abc5c.service",
+    "reboot_requested": false,
+    "result": "fixture failed",
+    "cause": "systemd created the append log as root, so evidence export failed; the certificate helper also chmodded sibling paths",
+    "cleanup": {
+      "unit": "botstral-p06-reboot-4352942abc5c.service",
+      "stopped": true,
+      "unit_removed": true,
+      "root_removed": true
+    },
+    "boot_ids": [
+      "587cbedf-d6c0-4e3b-8989-105dc6b860ac"
+    ]
+  },
+  {
+    "attempt": 2,
+    "root": "/home/botstral/p06-reboot-de77637a6531",
+    "unit": "botstral-p06-reboot-de77637a6531.service",
+    "reboot_requested": false,
+    "result": "fixture failed",
+    "cause": "the workload guard refused newly activated Ubuntu package and firmware daemons; no transaction locks were held",
+    "cleanup": {
+      "unit": "botstral-p06-reboot-de77637a6531.service",
+      "stopped": true,
+      "unit_removed": true,
+      "root_removed": true
+    },
+    "boot_ids": []
+  },
+  {
+    "attempt": 3,
+    "root": "/home/botstral/p06-reboot-bcb8617e6131",
+    "unit": "botstral-p06-reboot-bcb8617e6131.service",
+    "reboot_requested": true,
+    "result": "fixture failed",
+    "cause": "the fixture attempted a metadata read while locked; this read is intentionally refused",
+    "cleanup": {
+      "unit": "botstral-p06-reboot-bcb8617e6131.service",
+      "stopped": true,
+      "unit_removed": true,
+      "root_removed": true
+    },
+    "boot_ids": [
+      "587cbedf-d6c0-4e3b-8989-105dc6b860ac",
+      "825a7e97-f3b8-417c-b87a-aa8a637f4657"
+    ]
+  },
+  {
+    "attempt": 4,
+    "root": "/home/botstral/p06-reboot-af71dce62df5",
+    "unit": "botstral-p06-reboot-af71dce62df5.service",
+    "reboot_requested": true,
+    "result": "fixture failed",
+    "cause": "the fixture waited for a new session control message after the existing session was already confirmed",
+    "cleanup": {
+      "unit": "botstral-p06-reboot-af71dce62df5.service",
+      "stopped": true,
+      "unit_removed": true,
+      "root_removed": true
+    },
+    "boot_ids": [
+      "825a7e97-f3b8-417c-b87a-aa8a637f4657",
+      "96625ae4-32cf-40b5-b7e1-355c7866229d"
+    ]
+  }
+]

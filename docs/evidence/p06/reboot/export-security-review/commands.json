@@ -1,0 +1,23 @@
+{
+  "baseline_harness": "c7cab62e6440fe78c8a6d65290acbf4222fc9c88",
+  "baseline_test_selection": [
+    "RebootEvidenceTests.test_initial_export_rejects_path_traversal",
+    "RebootEvidenceTests.test_initial_export_rejects_absolute_path",
+    "RebootEvidenceTests.test_final_export_rejects_path_traversal",
+    "RebootEvidenceTests.test_export_rejects_local_destination_symlink"
+  ],
+  "baseline_exit_code": 1,
+  "corrected_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "manager/tests",
+    "-p",
+    "test_p06_reboot.py",
+    "-v"
+  ],
+  "corrected_exit_code": 0,
+  "surface": "Local controller export using owned temporary directories; no SSH or additional guest reboot."
+}

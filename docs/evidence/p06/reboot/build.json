@@ -1,0 +1,22 @@
+{
+  "source_commit": "271f9cd72dabd2d0749027b84d355ca046de5f7e",
+  "source_archive_sha256": "ecbf8ff59fd0bb80e3916c1bc785f49a3d93036fc6289cda747fd5de98270ff7",
+  "builder": "botstral-computer",
+  "build_root": "/home/botstral/p06-reboot-95a38271d648-build",
+  "builder_hostname": "botstral-computer",
+  "builder_machine": "x86_64",
+  "rustc": "rustc 1.93.0 (254b59607 2026-01-19)",
+  "cargo": "cargo 1.93.0 (083ac5135 2025-12-15)",
+  "open_root_references": [],
+  "binary_sha256": "57a671a63e904189510ac7c4d1a7f0f13e3df500cbff005d873b242464872fa3",
+  "build_root_removed": true,
+  "build_command": [
+    "cargo",
+    "build",
+    "--locked",
+    "--release",
+    "-p",
+    "botstral-manager"
+  ],
+  "build_exit": 0
+}

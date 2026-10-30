@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/botstral/p06-reboot-af71dce62df5/p06_reboot.py", line 507, in <module>
+    main()
+  File "/home/botstral/p06-reboot-af71dce62df5/p06_reboot.py", line 499, in main
+    fixture.exercise(False)
+  File "/home/botstral/p06-reboot-af71dce62df5/p06_reboot.py", line 303, in exercise
+    worker.until("control", lambda m: m["session"]["id"] == session["id"])
+  File "/home/botstral/p06-reboot-af71dce62df5/p06_reboot.py", line 96, in until
+    message = self.receive()["message"]
+              ^^^^^^^^^^^^^^
+  File "/home/botstral/p06-reboot-af71dce62df5/m05_acceptance.py", line 85, in receive
+    first, second = self.exact(2)
+                    ^^^^^^^^^^^^^
+  File "/home/botstral/p06-reboot-af71dce62df5/m05_acceptance.py", line 71, in exact
+    chunk = self.socket.recv(count - len(data))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1233, in recv
+    return self.read(buflen)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1106, in read
+    return self._sslobj.read(len)
+           ^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out

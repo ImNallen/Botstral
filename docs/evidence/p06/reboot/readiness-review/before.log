@@ -1,0 +1,23 @@
+test_slow_manager_is_ready_before_post_reboot_exercise (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_manager_readiness_deadline_refuses_and_cleans_up (test_p06_reboot.RebootEvidenceTests) ... FAIL
+
+======================================================================
+FAIL: test_slow_manager_is_ready_before_post_reboot_exercise (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/readiness-before/test_p06_reboot.py", line 105, in test_slow_manager_is_ready_before_post_reboot_exercise
+    self.assertIsNone(error, "SSH availability does not establish manager readiness")
+AssertionError: 'remote after failed; inspect private stderr' is not None : SSH availability does not establish manager readiness
+
+======================================================================
+FAIL: test_manager_readiness_deadline_refuses_and_cleans_up (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/.audit/p05/readiness-before/test_p06_reboot.py", line 112, in test_manager_readiness_deadline_refuses_and_cleans_up
+    self.assertIsNotNone(error, "manager readiness must share the reconnection deadline")
+AssertionError: unexpectedly None : manager readiness must share the reconnection deadline
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.007s
+
+FAILED (failures=2)

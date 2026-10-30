@@ -305,7 +305,7 @@ Complete when the owner finds an earlier result, inspects its source task, edits
 
 Depends on M03, M04, and C02. Connector-specific flows also require M06. Build protected Playwright fills for v1 on W01. Manual takeover extends those flows through W02 in v1.x.
 
-The supported v1 implementation is independently accepted at the source recorded in [Protected reusable logins](docs/p06-protected-logins.md). Exact-source repository, desktop and Linux checks passed. The complete packaged native-to-Linux flow passed on its earlier recorded loopback source. Native entry supports macOS; browser forms are limited to the documented adapter. Verified rows below cover that scope. Host reboot verification and manual takeover remain open.
+The supported v1 implementation is independently accepted at the source recorded in [Protected reusable logins](docs/p06-protected-logins.md). Exact-source repository, desktop and Linux checks passed. The complete packaged native-to-Linux flow passed on its earlier recorded loopback source. Native entry supports macOS; browser forms are limited to the documented adapter. Verified rows below cover that scope. [Host reboot verification](docs/evidence/p06/reboot/verification.md) passed for manager locking and protected secret release. Manual takeover remains open.
 
 - [x] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
 - [x] Support private website sign-in, saved credentials, rotation, and revocation within the supported form adapter.
@@ -316,7 +316,7 @@ The supported v1 implementation is independently accepted at the source recorded
 - [x] Keep TOTP seeds on the manager and send only the current approved code. Require approval for every TOTP fill in v1.
 - [x] Bind fill requests to the task, browser session, page, frame origin, and target fields. Revalidate the destination immediately before filling and reject changed destinations.
 - [x] Exclude secret values from prompts, screenshots, recordings, transcripts, logs, memory, and artifacts. Pause capture during protected entry and verify supported sites before unattended use.
-- [ ] Verify locked-store behavior after reboot. Automatic unlock requires an explicitly provisioned key and a documented protection, backup, and recovery policy.
+- [x] Verify locked-store behavior after reboot. [Production manager release verification](docs/evidence/p06/reboot/verification.md) passed after a real Linux guest reboot. Automatic unlock requires an explicitly provisioned key and a documented protection, backup, and recovery policy.
 - [x] Prevent clients from retrieving stored secret values. Expose only metadata and protected entry or approval controls.
 - [x] Block future fills when an item is removed. Treat existing website sessions, copied credentials, cookies, and remote grants as separate revocation or rotation work.
 - [x] Add allow-once, deny, and remembered approval rules with explicit precedence.
