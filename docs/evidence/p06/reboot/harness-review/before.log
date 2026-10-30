@@ -1,0 +1,43 @@
+test_cleanup_failure_fails_acceptance (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_complete_evidence_and_cleanup_pass (test_p06_reboot.RebootEvidenceTests) ... ok
+test_final_export_failure_fails_and_still_cleans_up (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_missing_completed_verdict_fails (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_missing_post_reboot_record_fails (test_p06_reboot.RebootEvidenceTests) ... FAIL
+test_original_failure_survives_finalization (test_p06_reboot.RebootEvidenceTests) ... ok
+
+======================================================================
+FAIL: test_cleanup_failure_fails_acceptance (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/manager/tests/test_p06_reboot.py", line 106, in test_cleanup_failure_fails_acceptance
+    self.assertFalse(ledger["passed"])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_final_export_failure_fails_and_still_cleans_up (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/manager/tests/test_p06_reboot.py", line 86, in test_final_export_failure_fails_and_still_cleans_up
+    self.assertIsNotNone(error, "final evidence export failure must fail acceptance")
+AssertionError: unexpectedly None : final evidence export failure must fail acceptance
+
+======================================================================
+FAIL: test_missing_completed_verdict_fails (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/manager/tests/test_p06_reboot.py", line 99, in test_missing_completed_verdict_fails
+    self.assertIsNotNone(error, "completed reboot verdict must be retained")
+AssertionError: unexpectedly None : completed reboot verdict must be retained
+
+======================================================================
+FAIL: test_missing_post_reboot_record_fails (test_p06_reboot.RebootEvidenceTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/manager/tests/test_p06_reboot.py", line 93, in test_missing_post_reboot_record_fails
+    self.assertIsNotNone(error, "post-reboot evidence must be retained")
+AssertionError: unexpectedly None : post-reboot evidence must be retained
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.020s
+
+FAILED (failures=4)

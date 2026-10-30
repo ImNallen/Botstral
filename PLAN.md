@@ -305,7 +305,7 @@ Complete when the owner finds an earlier result, inspects its source task, edits
 
 Depends on M03, M04, and C02. Connector-specific flows also require M06. Build protected Playwright fills for v1 on W01. Manual takeover extends those flows through W02 in v1.x.
 
-The supported v1 implementation is independently accepted at the source recorded in [Protected reusable logins](docs/p06-protected-logins.md). Exact-source repository, desktop and Linux checks passed. The complete packaged native-to-Linux flow passed on its earlier recorded loopback source. Native entry supports macOS; browser forms are limited to the documented adapter. Verified rows below cover that scope. Host reboot verification and manual takeover remain open.
+The supported v1 implementation is independently accepted at the source recorded in [Protected reusable logins](docs/p06-protected-logins.md). Exact-source repository, desktop and Linux checks passed. The complete packaged native-to-Linux flow passed on its earlier recorded loopback source. Native entry supports macOS; browser forms are limited to the documented adapter. Verified rows below cover that scope. [Host reboot verification](docs/evidence/p06/reboot/verification.md) passed for manager locking and protected secret release. Manual takeover remains open.
 
 - [x] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
 - [x] Support private website sign-in, saved credentials, rotation, and revocation within the supported form adapter.

@@ -46,3 +46,11 @@ The final unit was `botstral-p06-reboot-b78326ddd1e9.service`. Its private direc
 The owned build directory `/home/botstral/p06-reboot-95a38271d648-build` was removed after checking that no user process held its files, executable, or working directory. The computer guest was not rebooted. No Mac, hypervisor, Docker, runtime, or unrelated service configuration changed.
 
 [attempts.json](attempts.json) records four earlier fixture failures and their completed cleanup. The first exposed fixture log permissions. The second stopped at the workload guard. The third encountered the intentionally locked metadata read. The fourth waited for a redundant session-control message after reconnection. Attempts three and four included real guest reboots but did not pass the complete check. Their failure logs remain under [attempts](attempts/). The complete fifth attempt is the acceptance evidence above. No production defect was reproduced.
+
+## Harness review correction
+
+The [independent review](harness-review/independent-review.md) accepted the recorded reboot evidence and found [issue #57](https://github.com/ImNallen/Botstral/issues/57) in final evidence collection. A later invocation could retain `passed=true` and exit successfully after its final export failed. Cleanup failure also left an incorrect passing ledger.
+
+The harness now fails acceptance and records `passed=false` when export, required post-reboot records, the completed verdict, identity comparison, or cleanup fails. Cleanup still runs, and an earlier verification failure remains the raised error. The [baseline log](harness-review/before.log) records four expected assertion failures across six tests. The [corrected log](harness-review/after.log) records eight passing tests without SSH or reboot. [The command record](harness-review/commands.json) identifies that local verification. The regressions run in repository verification.
+
+This correction changes harness finalization, not production code or the recorded reboot assertions. The recorded source, binary, and original harness hashes remain unchanged evidence. The corrected harness has not performed another guest reboot. The review also notes that an initial script-copy failure can leave an owned partial directory before cleanup begins; its resource ledger records the directory, and no service or credential exists at that stage.

@@ -464,17 +464,30 @@ def orchestrate(args):
         raise
     finally:
         try:
-            for name, contents in remote("export").items():
+            artifacts = remote("export")
+            for name, contents in artifacts.items():
                 (evidence / name).write_text(contents)
+            if ledger.get("passed"):
+                required = {"before.json", "after.json", "events.jsonl", "inspection.json", "manager.log", ledger["unit"]}
+                require(required.issubset(artifacts), "incomplete post-reboot evidence")
+                after = json.loads(artifacts["after.json"])
+                require(after["boot_id"] != initial["boot_id"]
+                        and after["binary_sha256"] == ledger["binary_sha256"], "post-reboot identity mismatch")
+                events = [json.loads(line) for line in artifacts["events.jsonl"].splitlines()]
+                require(any(event.get("check") == "reboot_verification_passed" for event in events),
+                        "missing completed reboot verdict")
         except Exception as error:
             ledger["export_error"] = str(error)
+            ledger["passed"] = False
         try:
             ledger["cleanup"] = remote("cleanup")
             run([*ssh, shlex.join(["test", "!", "-e", fixture_root])])
         except Exception as error:
             ledger["cleanup_error"] = str(error)
+            ledger["passed"] = False
         ledger["finished_utc"] = datetime.now(timezone.utc).isoformat()
         save(evidence / "resources.json", ledger)
+    require("export_error" not in ledger, "evidence export incomplete; inspect resources.json")
     require("cleanup_error" not in ledger, "cleanup incomplete; inspect resources.json")
     print(json.dumps(ledger, indent=2))
 

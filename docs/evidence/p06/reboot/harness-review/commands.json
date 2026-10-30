@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "manager/tests",
+    "-p",
+    "test_p06_reboot.py",
+    "-v"
+  ],
+  "exit_code": 0,
+  "baseline_harness": "b0ed9256684742b66f13795b70a31aa76e96eb5a",
+  "before_result": "Six tests ran; four expected behavioral assertions failed before correction.",
+  "after_result": "Eight tests ran after correction."
+}
