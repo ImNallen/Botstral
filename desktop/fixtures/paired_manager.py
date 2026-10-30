@@ -62,7 +62,7 @@ def main():
     env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root), BOTSTRAL_C02_VIEW_OUTPUT=str(root/'desktop-view.json'))
     if args.journal_case == 'p05_saved_results_restart_and_export':
         env['BOTSTRAL_P05_PROOF'] = '1'
-    if args.verify_memory or args.journal_case == 'p05_saved_results_restart_and_export':
+    if args.verify_memory or args.journal_case in ('p05_saved_results_restart_and_export', 'p05_attachments_restart_and_export'):
         env['BOTSTRAL_MEMORY_PROOF'] = '1'
     with (root/'manager.log').open('w') as log:
         process = subprocess.Popen(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'c02_desktop_fixture', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env, stdout=log, stderr=log, start_new_session=True)

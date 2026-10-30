@@ -1,0 +1,77 @@
+{
+  "base_commit": "4c263ebb89d7ed2b906ecb2918ca437264664c11",
+  "bound_attachments": [
+    {
+      "length": 58,
+      "name": "launch-note.txt",
+      "run": "2ea3d518-3da8-4f2f-a189-9a3adaae3048",
+      "sha256": "fffe29c2097679eb370e876c5f49fecfd7e19e94a1c98929445430f281628726"
+    },
+    {
+      "length": 58,
+      "name": "launch-note.txt",
+      "run": "921d5354-07dc-4ba1-b499-b1d7702bcc86",
+      "sha256": "fffe29c2097679eb370e876c5f49fecfd7e19e94a1c98929445430f281628726"
+    }
+  ],
+  "date": "2026-10-30",
+  "export": {
+    "length": 65,
+    "mode": "0600",
+    "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906",
+    "synthetic": true
+  },
+  "graphical_observations": {
+    "app_exited": true,
+    "assistant_reply": true,
+    "attachment_chip": true,
+    "exact_action_approval": true,
+    "fixture_exited": true,
+    "manager_restart_reconnected": true,
+    "native_picker": true,
+    "native_save_chooser": true,
+    "oversize_16385_bytes_refused": true,
+    "remove_attachment": true,
+    "retained_source_task": true,
+    "same_binary_app_relaunch_reconnected": true,
+    "saved_result_catalog": true,
+    "signed_out": true,
+    "source": "Observed through native computer-use controls in the active task transcript."
+  },
+  "limits": [
+    "Recorded local provider responses. No live Mistral inference.",
+    "Synthetic worker output. No production Linux file or browser execution.",
+    "The automated native contract uses a memory credential store. The graphical app uses the real macOS Keychain.",
+    "Unsigned debug app. Signing, updates, Windows and Linux desktop integrations remain unverified."
+  ],
+  "offline_backup": {
+    "bound_bytes_equal": true,
+    "id": "31914277-f983-4564-ad98-6c9a1d583ce9",
+    "restored_turn_input_contains_attachment": true,
+    "restored_without_source_blobs": true,
+    "schema": 17,
+    "verified": true
+  },
+  "owner_prompt_unchanged": true,
+  "packaged_binary_sha256": "d4aa9aef0b61235527c614121f4cde2157ea9b43c1b0d625ea7974fe25216d20",
+  "platform": {
+    "architecture": "arm64",
+    "build": "26A434",
+    "macos": "27.0.1",
+    "node": "26.12.1",
+    "python": "3.9.6",
+    "rust": "1.93.0"
+  },
+  "provider_untrusted_attachment_verified": true,
+  "source_sha256": {
+    "desktop/fixtures/paired_manager.py": "86d9542e8ae00a26e2a4f56341fee351e2dc195e0652bc45384088cfe0d7ea8f",
+    "desktop/src-tauri/build.rs": "bdfcded18336cf90779d324c86bf40118f4a6f894f9a4adad597d189d87c64f4",
+    "desktop/src-tauri/capabilities/main.json": "da578f53e6d366f1a3971458c381969d8fb1fe4316e26f37d169f76f710f8913",
+    "desktop/src-tauri/tests/journal.rs": "8d31ad2062ec6c54be52e4545b99cb14d1cd32035015a3a7bc4a003e2901d77d",
+    "desktop/src-tauri/tests/journal/attachments.rs": "503ff0d2a2b40413a987be02c68bac7e9b83db68935526bc8cf3d009cec61c83",
+    "desktop/src-tauri/tests/permissions.rs": "bc28b3f8f0f2fedbe7ca03a06e95e6f9cb2ec28302ea8fe1cdbf5a98d783a254",
+    "manager/packaging/recovery.py": "98a099936696383f0190ecd8580067503a022b2d89469eb162f86b75bf1d7d27",
+    "manager/packaging/test_recovery.py": "fb3d9681385407409fbaa65b03a132e2715a4394787c0f60c47150279cb1ab52",
+    "manager/src/manager/state/runs/file_tests.rs": "cbb59736ec1d52e754c3ef96f8f94c73f15acabec7c484bf56d1932d4b56ee3f"
+  }
+}

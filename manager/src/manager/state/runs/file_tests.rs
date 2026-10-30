@@ -119,3 +119,115 @@ fn secret_file_is_retained_and_omitted_from_the_transcript() {
     assert!(contents.iter().all(|content| !content.contains(secret)));
     assert_eq!(fs::read(blob(&f, f.input.id)).unwrap(), bytes);
 }
+
+#[test]
+fn offline_restore_preserves_bound_context_and_pending_attachment_admission() {
+    use std::{os::unix::fs::PermissionsExt, process::Command};
+    let mut f = fixture();
+    let bound = b"Bound attachment survives restoration.";
+    let pending = b"Pending attachment survives restoration.";
+    f.state
+        .stage_run_file(token(), staged(f.input.id, "bound.txt", bound))
+        .unwrap();
+    f.state.submit_run(token(), f.input.clone()).unwrap();
+    let mut next = f.input.clone();
+    next.id = RunId::new();
+    f.state
+        .stage_run_file(token(), staged(next.id, "pending.txt", pending))
+        .unwrap();
+    let source = f.state.directory.canonicalize().unwrap();
+    fs::set_permissions(&source, fs::Permissions::from_mode(0o700)).unwrap();
+    f.state
+        .connection
+        .execute(
+            "VACUUM INTO ?1",
+            [source.join("manager.sqlite3").to_str().unwrap()],
+        )
+        .unwrap();
+    fs::write(source.join("manager.lock"), b"").unwrap();
+    for entry in fs::read_dir(&source).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_file() {
+            fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
+        }
+    }
+    let installation = std::mem::replace(
+        &mut f.state.installation,
+        Installation::Configured {
+            vault: VaultState::Locked,
+        },
+    );
+    drop(f.state);
+    let recovery = tempfile::tempdir().unwrap();
+    let recovery_root = recovery.path().canonicalize().unwrap();
+    fs::set_permissions(&recovery_root, fs::Permissions::from_mode(0o700)).unwrap();
+    let backup = recovery_root.join("backup");
+    let restored = recovery_root.join("restored");
+    let maintenance = |args: &[&std::ffi::OsStr]| {
+        let output = Command::new("python3")
+            .arg(concat!(env!("CARGO_MANIFEST_DIR"), "/packaging/backup.py"))
+            .args(args)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    };
+    maintenance(&[
+        "create".as_ref(),
+        "--state-dir".as_ref(),
+        source.as_os_str(),
+        "--destination".as_ref(),
+        backup.as_os_str(),
+    ]);
+    fs::remove_dir_all(source.join("run-files")).unwrap();
+    maintenance(&[
+        "restore".as_ref(),
+        "--backup".as_ref(),
+        backup.as_os_str(),
+        "--destination".as_ref(),
+        restored.as_os_str(),
+    ]);
+    let (configured, _) = watch::channel(false);
+    let mut state = State::open(restored.clone(), configured).unwrap();
+    state.test_time = Some(1000);
+    state.installation = installation;
+    state
+        .connection
+        .execute(
+            "INSERT INTO sessions VALUES(?1,?2,1,1,10000)",
+            params![
+                Uuid::new_v4().to_string(),
+                crypto::token_hash(&"x".repeat(43)).as_slice()
+            ],
+        )
+        .unwrap();
+    for (id, expected) in [
+        (f.input.id, bound.as_slice()),
+        (next.id, pending.as_slice()),
+    ] {
+        let path = restored.join("run-files").join(id.to_string());
+        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(
+            fs::metadata(path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+    }
+    assert!(
+        state
+            .run_user_contents(f.input.id)
+            .unwrap()
+            .iter()
+            .any(|text| text.contains(std::str::from_utf8(bound).unwrap()))
+    );
+    state.submit_run(token(), next.clone()).unwrap();
+    assert!(
+        state
+            .run_user_contents(next.id)
+            .unwrap()
+            .iter()
+            .any(|text| text.contains(std::str::from_utf8(pending).unwrap()))
+    );
+}

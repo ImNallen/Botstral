@@ -292,7 +292,7 @@ Complete when one bot delegates a task to another, both work independently, and 
 
 Depends on M03 and M04. External information sources use M06.
 
-The [saved-results slice](docs/evidence/p05/acceptance.md) finds retained generated files beyond recent task history, opens their source tasks, and exports verified bytes after restart or backup restoration. Full P05 remains open, including uploads, previews, editing, and the broader searchable library.
+The [saved-results slice](docs/evidence/p05/acceptance.md) finds retained generated files beyond recent task history, opens their source tasks, and exports verified bytes after restart or backup restoration. The [attachment slice](docs/evidence/p05/attachments.md) verifies the packaged macOS picker, one file up to 16 KiB per run, untrusted text input, native export, and attachment backup restoration with a recorded provider and synthetic worker. Full P05 remains open, including larger uploads, OCR, previews, editing, and the broader searchable library.
 
 - [ ] Add attachments, uploads, downloads, previews, and generated documents.
 - [ ] Add document ingestion through the verified Mistral OCR capability where required. Keep the selected endpoint and unsupported states visible.
@@ -419,6 +419,8 @@ Complete when the desktop app completes the first-acceptance workflow, pairs and
 ### C03. Verify the daily desktop experience
 
 Depends on C02, M04, P05 core file workflows, and P06's v1 protected-fill checks. Full desktop streams and manual takeover also require W02 in v1.x.
+
+The [scoped attachment acceptance](docs/evidence/p05/attachments.md) verifies import, exact approval, export, saved-result source access, manager restart, and app relaunch through the packaged macOS app with controlled fixtures. Tray restoration, delivered notifications, other platforms, signing, and the remaining daily desktop checks stay open.
 
 - [ ] Verify desktop conversations, approvals, files, and switching between bots.
 - [ ] Add client support for the parity milestones as each manager capability becomes available.
