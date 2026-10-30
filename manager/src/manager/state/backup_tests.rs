@@ -175,6 +175,7 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
         let mut newer = task.clone();
         newer.id = TaskId::new();
         newer.request.id = newer.id;
+        newer.command.task = newer.id;
         newer.command.id = CommandId::new();
         newer.outputs.clear();
         tasks::insert_task(&state.connection, &newer).unwrap();
@@ -341,6 +342,7 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
         let mut saved = task.clone();
         saved.id = TaskId::new();
         saved.request.id = saved.id;
+        saved.command.task = saved.id;
         saved.command.id = CommandId::new();
         saved.command.bot = if i % 2 == 0 { bot } else { other_bot };
         let id = ArtifactId::new();
@@ -489,4 +491,118 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
         recovered.artifact_page(unauthorized, ArtifactQuery { limit: 0, ..all }),
         Err(OperationError::Unauthorized)
     );
+
+    recovered
+        .routine_command(
+            session(&grant),
+            RoutineCommand {
+                id: RequestId::new(),
+                action: RoutineAction::DeleteBot { bot: other_bot },
+            },
+        )
+        .unwrap();
+    let deleted = recovered
+        .artifact_page(
+            session(&grant),
+            ArtifactQuery {
+                bot: Some(other_bot),
+                name: String::new(),
+                after: None,
+                limit: 32,
+            },
+        )
+        .unwrap();
+    assert_eq!(deleted.entries.len(), 32);
+    assert!(deleted.entries.iter().all(|e| e.bot == other_bot));
+    assert_eq!(
+        recovered
+            .task(session(&grant), deleted.entries[0].task)
+            .unwrap()
+            .command
+            .bot,
+        other_bot
+    );
+    let entry = &entries[0];
+    let mut changed = recovered.load_task(entry.task).unwrap();
+    changed.outputs[0].state = ArtifactState::Pending;
+    tasks::save(&recovered.connection, &changed).unwrap();
+    let pending = recovered
+        .artifact_page(
+            session(&grant),
+            ArtifactQuery {
+                name: "duplicate".into(),
+                after: None,
+                ..query.clone()
+            },
+        )
+        .unwrap();
+    assert!(!pending.entries.iter().any(|e| e.id == entry.id));
+    changed.outputs[0].state = ArtifactState::Available {
+        id: ArtifactId::new(),
+        content: ArtifactContent {
+            length: 1,
+            sha256: CertificateFingerprint::from_der(b"x"),
+        },
+    };
+    tasks::save(&recovered.connection, &changed).unwrap();
+    let mismatch = recovered
+        .artifact_page(
+            session(&grant),
+            ArtifactQuery {
+                name: String::new(),
+                after: None,
+                ..query.clone()
+            },
+        )
+        .unwrap();
+    assert!(!mismatch.entries.iter().any(|e| e.id == entry.id));
+    changed.command.owner = OwnerId::new();
+    tasks::save(&recovered.connection, &changed).unwrap();
+    assert_eq!(
+        recovered.task(session(&grant), changed.id),
+        Err(OperationError::Unauthorized)
+    );
+    let blob = recovered
+        .directory
+        .join("artifacts")
+        .join(format!("{artifact}.blob"));
+    for case in ["missing", "corrupt", "symlink"] {
+        task.outputs[0].state = ArtifactState::Available {
+            id: artifact,
+            content: ArtifactContent {
+                length: bytes.len() as u64,
+                sha256: CertificateFingerprint::from_der(bytes),
+            },
+        };
+        tasks::save(&recovered.connection, &task).unwrap();
+        let _ = fs::remove_file(&blob);
+        if case == "corrupt" {
+            fs::write(&blob, b"wrong bytes").unwrap();
+        }
+        if case == "symlink" {
+            std::os::unix::fs::symlink(root.join("source"), &blob).unwrap();
+        }
+        assert!(
+            recovered
+                .download_artifact(session(&grant), task.id, artifact)
+                .is_err(),
+            "{case}"
+        );
+        let page = recovered
+            .artifact_page(
+                session(&grant),
+                ArtifactQuery {
+                    name: "recovered".into(),
+                    after: None,
+                    ..query.clone()
+                },
+            )
+            .unwrap();
+        assert!(matches!(
+            page.entries[0].output.state,
+            ArtifactState::Unavailable {
+                reason: ArtifactUnavailable::Corrupt
+            }
+        ));
+    }
 }

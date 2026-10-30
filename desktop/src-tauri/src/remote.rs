@@ -115,7 +115,32 @@ struct Envelope {
     command: IntentCommand,
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
 }
+#[derive(Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct OwnerReadScope {
+    pub generation: u64,
+    pub manager: ManagerId,
+}
+#[derive(Serialize)]
+pub struct SavedResults {
+    pub generation: u64,
+    pub manager: ManagerId,
+    pub page: ArtifactPage,
+}
+#[derive(Serialize)]
+pub struct SourceTask {
+    pub generation: u64,
+    pub manager: ManagerId,
+    pub task: TaskViewModel,
+}
 pub enum IntentCommand {
+    Artifacts {
+        query: ArtifactQuery,
+        result: oneshot::Sender<Result<SavedResults, String>>,
+    },
+    SourceTask {
+        id: TaskId,
+        result: oneshot::Sender<Result<SourceTask, String>>,
+    },
     CredentialUses {
         result: oneshot::Sender<Result<Vec<CredentialUseReview>, String>>,
     },
@@ -436,6 +461,47 @@ impl RemoteService {
         self.command(IntentCommand::LoginItems { result }).await?;
         receiver.await.map_err(|_| "offline".to_string())?
     }
+    pub fn owner_scope(&self) -> Result<OwnerReadScope, String> {
+        let view = self.inspect();
+        if view.status != "online" || self.signing_out.load(Ordering::Acquire) {
+            return Err("stale".into());
+        }
+        Ok(OwnerReadScope {
+            generation: view.generation,
+            manager: view.workspace.ok_or("stale")?.manager,
+        })
+    }
+    pub async fn saved_results(&self, query: ArtifactQuery) -> Result<SavedResults, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::Artifacts { query, result })
+            .await?;
+        receiver.await.map_err(|_| "offline".to_string())?
+    }
+    pub async fn source_task(&self, id: TaskId) -> Result<SourceTask, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::SourceTask { id, result })
+            .await?;
+        receiver.await.map_err(|_| "offline".to_string())?
+    }
+    pub async fn save_export(
+        &self,
+        scope: OwnerReadScope,
+        task: TaskId,
+        destination: &Path,
+        artifact: VerifiedArtifact,
+    ) -> Result<(), String> {
+        if self.owner_scope()? != scope {
+            return Err("stale".into());
+        }
+        let authority = self.source_task(task).await?;
+        if authority.generation != scope.generation
+            || authority.manager != scope.manager
+            || self.owner_scope()? != scope
+        {
+            return Err("stale".into());
+        }
+        save_artifact(destination, artifact)
+    }
     pub async fn artifact(
         &self,
         task: TaskId,
@@ -548,7 +614,12 @@ impl Actor {
                 let _ = envelope.reply.send(Err("stale".into()));
                 continue;
             }
-            let result = if matches!(&envelope.command, IntentCommand::Fetch { .. }) {
+            let result = if matches!(
+                &envelope.command,
+                IntentCommand::Fetch { .. }
+                    | IntentCommand::Artifacts { .. }
+                    | IntentCommand::SourceTask { .. }
+            ) {
                 enum ReadResult {
                     Done(Result<(), String>),
                     Interrupted(Option<Envelope>),
@@ -1029,23 +1100,82 @@ impl Actor {
             .map_err(|_| "unknown_outcome")?;
         self.recover().await.map_err(|_| "unknown_outcome".into())
     }
+    fn read_scope(&self) -> Result<OwnerReadScope, String> {
+        let view = self.view.borrow();
+        if view.generation != self.generation
+            || view.status != "online"
+            || self.revoked
+            || self.suspended
+        {
+            return Err("stale".into());
+        }
+        Ok(OwnerReadScope {
+            generation: self.generation,
+            manager: view.workspace.as_ref().ok_or("offline")?.manager,
+        })
+    }
+    async fn retained_task(&mut self, id: TaskId) -> Result<TaskView, String> {
+        let OwnerReply::Task(task) = self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .call(OwnerOperation::Task { id })
+            .await
+            .map_err(error_code)?
+        else {
+            return Err("protocol".into());
+        };
+        if task.id != id {
+            return Err("protocol".into());
+        }
+        Ok(*task)
+    }
+    async fn read_artifacts(&mut self, query: ArtifactQuery) -> Result<SavedResults, String> {
+        self.recover().await?;
+        let scope = self.read_scope()?;
+        let OwnerReply::Artifacts(page) = self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .call(OwnerOperation::Artifacts { query })
+            .await
+            .map_err(error_code)?
+        else {
+            return Err("protocol".into());
+        };
+        if self.read_scope()? != scope {
+            return Err("stale".into());
+        }
+        Ok(SavedResults {
+            generation: scope.generation,
+            manager: scope.manager,
+            page,
+        })
+    }
+    async fn read_source(&mut self, id: TaskId) -> Result<SourceTask, String> {
+        self.recover().await?;
+        let scope = self.read_scope()?;
+        let task = self.retained_task(id).await?;
+        if self.read_scope()? != scope {
+            return Err("stale".into());
+        }
+        Ok(SourceTask {
+            generation: scope.generation,
+            manager: scope.manager,
+            task: TaskViewModel::from(&task),
+        })
+    }
     async fn fetch(
         &mut self,
         task: TaskId,
         artifact: ArtifactId,
     ) -> Result<VerifiedArtifact, String> {
         self.recover().await?;
-        let output = self
-            .view
-            .borrow()
-            .workspace
-            .as_ref()
-            .and_then(|w| w.state.tasks.iter().find(|t| t.id == task))
-            .and_then(|t| {
-                t.outputs.iter().find(
-                    |o| matches!(&o.state, ArtifactState::Available { id, .. } if *id == artifact),
-                )
-            })
+        let retained = self.retained_task(task).await?;
+        let output = retained
+            .outputs
+            .iter()
+            .find(|o| matches!(&o.state, ArtifactState::Available { id, .. } if *id == artifact))
             .cloned()
             .ok_or("artifact_unavailable")?;
         let ArtifactState::Available { content, .. } = output.state else {
@@ -1294,6 +1424,18 @@ impl Actor {
                     .await
                     .map_err(error_code)?;
                 Ok(())
+            }
+            IntentCommand::Artifacts { query, result } => {
+                let value = self.read_artifacts(query).await;
+                let status = value.as_ref().map(|_| ()).map_err(Clone::clone);
+                let _ = result.send(value);
+                status
+            }
+            IntentCommand::SourceTask { id, result } => {
+                let value = self.read_source(id).await;
+                let status = value.as_ref().map(|_| ()).map_err(Clone::clone);
+                let _ = result.send(value);
+                status
             }
             IntentCommand::Fetch {
                 task,
@@ -1765,7 +1907,7 @@ struct WorkspaceView<'a> {
     publishers: &'a [PublisherView],
     routine_budget: &'a Option<RoutineBudget>,
     runs: Vec<RunViewModel<'a>>,
-    tasks: Vec<TaskViewModel<'a>>,
+    tasks: Vec<TaskViewModel>,
 }
 #[derive(Serialize)]
 struct RoutineViewModel {
@@ -1807,7 +1949,7 @@ struct TurnView<'a> {
     manager_outcome: &'a Option<ManagerOutcome>,
 }
 #[derive(Serialize)]
-struct TaskViewModel<'a> {
+pub struct TaskViewModel {
     id: TaskId,
     bot: BotId,
     state: TaskState,
@@ -1815,8 +1957,24 @@ struct TaskViewModel<'a> {
     action: String,
     approval_revoked: bool,
     approval_consumed: bool,
-    outputs: &'a [OutputView],
+    outputs: Vec<OutputView>,
     evidence: String,
+}
+impl From<&TaskView> for TaskViewModel {
+    fn from(t: &TaskView) -> Self {
+        Self {
+            id: t.id,
+            bot: t.command.bot,
+            state: t.state,
+            progress: t.progress,
+            action: describe_action(&t.command),
+            approval_revoked: t.approval.revoked,
+            approval_consumed: t.approval.consumed,
+            outputs: t.outputs.clone(),
+            evidence: serde_json::to_string_pretty(&t.effect_evidence)
+                .expect("typed evidence serializes"),
+        }
+    }
 }
 #[derive(Serialize)]
 struct ReviewView {
@@ -1995,23 +2153,7 @@ fn serialize_workspace<S: serde::Serializer>(
                         .collect(),
                 })
                 .collect(),
-            tasks: w
-                .state
-                .tasks
-                .iter()
-                .map(|t| TaskViewModel {
-                    id: t.id,
-                    bot: t.command.bot,
-                    state: t.state,
-                    progress: t.progress,
-                    action: describe_action(&t.command),
-                    approval_revoked: t.approval.revoked,
-                    approval_consumed: t.approval.consumed,
-                    outputs: &t.outputs,
-                    evidence: serde_json::to_string_pretty(&t.effect_evidence)
-                        .expect("typed evidence serializes"),
-                })
-                .collect(),
+            tasks: w.state.tasks.iter().map(TaskViewModel::from).collect(),
         })
         .serialize(serializer)
 }
@@ -2020,6 +2162,130 @@ fn serialize_workspace<S: serde::Serializer>(
 mod memory_tests {
     use super::*;
 
+    #[test]
+    fn task_projection_keeps_exact_actions_and_protected_login_references() {
+        let mut command = CommandBody {
+            id: CommandId::new(),
+            owner: OwnerId::new(),
+            task: TaskId::new(),
+            bot: BotId::new(),
+            worker: WorkerId::new(),
+            session: ComputerSessionId::new(),
+            operation: OperationId::new(),
+            execution: ExecutionId::new(),
+            work: WorkSpec::Unavailable,
+        };
+        let mut spec = ComputerSpec {
+            profile: ComputerProfile::LinuxPlaywrightV1,
+            account: ProcessAccount {
+                uid: 1000,
+                gid: 1000,
+            },
+            runtime: ComputerRuntime {
+                sha256: CertificateFingerprint::from_der(b"runtime"),
+            },
+            deadline: 1,
+            limits: ProcessLimits {
+                runtime_seconds: 1,
+                output_bytes: 1024,
+                processes: 64,
+                memory_bytes: 512 * 1024 * 1024,
+            },
+            viewport: Viewport {
+                width: 800,
+                height: 600,
+            },
+            outputs: vec![],
+            operations: vec![ComputerOperation::Fill {
+                selector: "#ordinary-input".into(),
+                text: "exact ordinary user text".into(),
+            }],
+        };
+        command.work = WorkSpec::Computer {
+            spec: Box::new(spec.clone()),
+        };
+        assert!(describe_action(&command).contains("exact ordinary user text"));
+        let item = CredentialId::new();
+        spec.operations = vec![ComputerOperation::ProtectedLogin {
+            item,
+            revision: CredentialRevision::INITIAL,
+            purpose: CredentialFields::Password,
+            plan: Box::new(LoginSitePlan {
+                version: 1,
+                origin: "https://example.test".into(),
+                route: "/login".into(),
+                frame: None,
+                form: "#login".into(),
+                username: "#username".into(),
+                password: "#password".into(),
+                totp: "#totp".into(),
+                submitter: "#submit".into(),
+                action: "/session".into(),
+            }),
+        }];
+        command.work = WorkSpec::Computer {
+            spec: Box::new(spec),
+        };
+        let action = describe_action(&command);
+        assert!(action.contains(&item.to_string()));
+        assert!(action.contains("https://example.test"));
+        assert!(action.contains("#password"));
+        assert!(!action.contains("exact ordinary user text"));
+        let task = TaskView {
+            id: command.task,
+            request: SubmitTask {
+                id: command.task,
+                session_id: command.session,
+                conversation_id: None,
+                settings: TaskSettings {
+                    model: "projection fixture".into(),
+                    max_turns: 1,
+                    max_tokens: 64,
+                    deadline: 1,
+                    max_cost_micros: 0,
+                },
+                work: command.work.clone(),
+            },
+            command: command.clone(),
+            state: TaskState::AwaitingApproval,
+            progress: 0,
+            outcome: None,
+            effect_evidence: vec![],
+            process: None,
+            outputs: vec![],
+            approval: ApprovalView {
+                id: ApprovalId::new(),
+                binding: None,
+                permission_revision: 1,
+                revoked: false,
+                consumed: false,
+            },
+        };
+        let projected = serde_json::to_value(TaskViewModel::from(&task)).unwrap();
+        assert!(projected.get("command").is_none());
+        assert!(projected.get("request").is_none());
+        assert!(
+            projected["action"]
+                .as_str()
+                .unwrap()
+                .contains(&item.to_string())
+        );
+        let work = serde_json::to_value(&command.work).unwrap();
+        let protected = &work["spec"]["operations"][0];
+        assert_eq!(
+            protected
+                .as_object()
+                .unwrap()
+                .keys()
+                .map(String::as_str)
+                .collect::<Vec<_>>(),
+            vec!["item", "plan", "purpose", "revision", "type"]
+        );
+        let mut secret_field = work;
+        secret_field["spec"]["operations"][0]["password"] =
+            serde_json::json!("synthetic private password");
+        assert!(serde_json::from_value::<WorkSpec>(secret_field).is_err());
+    }
     #[test]
     fn journal_retains_obsolete_memory_writes_for_uncertainty_only() {
         let root = tempfile::tempdir().unwrap();

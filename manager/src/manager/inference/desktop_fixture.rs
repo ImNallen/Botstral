@@ -102,13 +102,30 @@ async fn c02_desktop_fixture() {
         }
         for message in worker.drain() {
             match message {
+                ManagerMessage::Control { session, .. }
+                    if std::env::var_os("BOTSTRAL_P05_PROOF").is_some() =>
+                {
+                    worker
+                        .report(WorkerMessage::ControlApplied {
+                            fence: session.fence(worker.lease.generation),
+                        })
+                        .await;
+                }
                 ManagerMessage::Delivery(delivery)
                     if !delivery.cancel && delivery.authority.is_some() =>
                 {
+                    let session = if std::env::var_os("BOTSTRAL_P05_PROOF").is_some() {
+                        app.manager
+                            .computer_session(app.session(), delivery.body.session)
+                            .await
+                            .unwrap()
+                    } else {
+                        worker.session.clone()
+                    };
                     worker
                         .report(WorkerMessage::Claim {
                             incarnation: worker.journal,
-                            fence: worker.session.fence(worker.lease.generation),
+                            fence: session.fence(worker.lease.generation),
                             binding: delivery.authority.unwrap(),
                         })
                         .await;

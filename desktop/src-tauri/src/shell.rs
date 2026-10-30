@@ -512,6 +512,24 @@ async fn remote_lifecycle(
         .await
 }
 #[tauri::command]
+async fn saved_results(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    query: botstral_link::ArtifactQuery,
+) -> Result<crate::remote::SavedResults, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.saved_results(query).await
+}
+#[tauri::command]
+async fn source_task(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+    id: botstral_link::TaskId,
+) -> Result<crate::remote::SourceTask, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.source_task(id).await
+}
+#[tauri::command]
 async fn export_artifact(
     window: WebviewWindow,
     app: tauri::AppHandle,
@@ -520,7 +538,7 @@ async fn export_artifact(
     artifact: botstral_link::ArtifactId,
 ) -> Result<bool, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
-    let generation = service.inspect().generation;
+    let scope = service.owner_scope()?;
     let verified = service.artifact(task, artifact).await?;
     let (tx, rx) = tokio::sync::oneshot::channel();
     app.dialog()
@@ -532,10 +550,14 @@ async fn export_artifact(
     let Some(path) = rx.await.map_err(|_| "dialog")? else {
         return Ok(false);
     };
-    if generation != service.inspect().generation {
-        return Err("stale".into());
-    }
-    crate::remote::save_artifact(&path.into_path().map_err(|_| "invalid_input")?, verified)?;
+    service
+        .save_export(
+            scope,
+            task,
+            &path.into_path().map_err(|_| "invalid_input")?,
+            verified,
+        )
+        .await?;
     Ok(true)
 }
 #[tauri::command]
@@ -689,6 +711,8 @@ pub fn run() {
             acknowledge_uncertainty,
             remote_lifecycle,
             export_artifact,
+            saved_results,
+            source_task,
             list_devices,
             revoke_device,
             issue_invitation

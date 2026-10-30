@@ -603,9 +603,13 @@ impl State {
             let (id, task, slot, offer) = row?;
             let offer: ArtifactOffer = parse(offer)?;
             let id: ArtifactId = id.parse().map_err(|_| OperationError::Internal)?;
-            let task: TaskView =
-                self.load_task(task.parse().map_err(|_| OperationError::Internal)?)?;
-            if offer.task != task.id || offer.slot != slot {
+            let task_id: TaskId = task.parse().map_err(|_| OperationError::Internal)?;
+            let task = self.load_task(task_id)?;
+            if task.id != task_id
+                || task.command.task != task_id
+                || offer.task != task_id
+                || offer.slot != slot
+            {
                 continue;
             }
             if task.command.owner != principal

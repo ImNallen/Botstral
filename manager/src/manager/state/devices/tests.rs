@@ -131,6 +131,15 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
         limit: 32,
     };
     assert!(state.artifact_page(second, catalog.clone()).is_ok());
+    assert!(
+        state
+            .connection
+            .execute(
+                "UPDATE owner_devices SET role='worker' WHERE id=?1",
+                [second.device.to_string()]
+            )
+            .is_err()
+    );
     assert!(matches!(
         state.resume(first, 0, 64),
         Err(OperationError::Unauthorized)

@@ -825,3 +825,168 @@ async fn p06_collision_receipt_is_final_and_value_free() {
     ));
     service.sign_out().await.unwrap();
 }
+
+#[tokio::test]
+#[ignore = "Requires the isolated paired manager fixture."]
+async fn p05_chooser_rejects_acknowledged_same_generation_revocation() {
+    use botstral_desktop::remote::VerifiedArtifact;
+    let directory = tempfile::tempdir().unwrap();
+    let (service, _, fixture) = paired(&directory.path().join("owner")).await;
+    let scope = service.owner_scope().unwrap();
+    let generation = scope.generation;
+    let local = LocalManager::new().unwrap();
+    local
+        .sign_in(
+            fixture["local"].as_str().unwrap().into(),
+            Zeroizing::new(fixture["password"].as_str().unwrap().into()),
+        )
+        .await
+        .unwrap();
+    let device = local
+        .devices()
+        .await
+        .unwrap()
+        .into_iter()
+        .find(|d| d.label == "Independent review")
+        .unwrap();
+    local.revoke_device(device.id).await.unwrap();
+    assert!(service.restore().await.is_err());
+    assert_eq!(service.inspect().issue.as_deref(), Some("revoked"));
+    assert_eq!(service.inspect().generation, generation);
+    let destination = directory.path().join("revoked.txt");
+    let saved = service
+        .save_export(
+            scope,
+            TaskId::new(),
+            &destination,
+            VerifiedArtifact {
+                name: "revoked.txt".into(),
+                bytes: b"must not save".to_vec(),
+            },
+        )
+        .await;
+    assert!(saved.is_err());
+    service.shutdown().await;
+    assert!(
+        !destination.exists(),
+        "Acknowledged revocation during chooser must prevent export without a generation change"
+    );
+}
+
+#[path = "journal/saved_results.rs"]
+mod saved_results;
+#[tokio::test]
+#[ignore = "Requires the isolated paired manager fixture with restart support."]
+async fn p05_saved_results_restart_and_export() {
+    saved_results::verify().await;
+}
+
+#[tokio::test]
+#[ignore = "Requires the isolated paired manager fixture."]
+async fn p05_export_reauthenticates_after_chooser() {
+    use botstral_desktop::remote::VerifiedArtifact;
+    let directory = tempfile::tempdir().unwrap();
+    let (service, _, fixture) = paired(&directory.path().join("owner")).await;
+    let scope = service.owner_scope().unwrap();
+    let local = LocalManager::new().unwrap();
+    local
+        .sign_in(
+            fixture["local"].as_str().unwrap().into(),
+            Zeroizing::new(fixture["password"].as_str().unwrap().into()),
+        )
+        .await
+        .unwrap();
+    let device = local
+        .devices()
+        .await
+        .unwrap()
+        .into_iter()
+        .find(|d| !d.revoked && d.label == "Independent review")
+        .unwrap();
+    local.revoke_device(device.id).await.unwrap();
+    let destination = directory.path().join("revoked-before-read.txt");
+    let saved = service
+        .save_export(
+            scope,
+            TaskId::new(),
+            &destination,
+            VerifiedArtifact {
+                name: "revoked.txt".into(),
+                bytes: b"must not save".to_vec(),
+            },
+        )
+        .await;
+    assert!(saved.is_err());
+    assert_eq!(service.inspect().generation, scope.generation);
+    assert_ne!(service.inspect().status, "online");
+    assert!(service.restore().await.is_err());
+    assert_eq!(service.inspect().issue.as_deref(), Some("revoked"));
+    assert!(!destination.exists());
+    service.shutdown().await;
+    local.sign_out();
+}
+
+#[tokio::test]
+#[ignore = "Requires two owned local managers from p05-manager-switch.py."]
+async fn p05_export_manager_switch() {
+    use botstral_desktop::remote::VerifiedArtifact;
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (first, _, _) = paired(&root).await;
+    let scope = first.owner_scope().unwrap();
+    first.sign_out().await.unwrap();
+    let other_root = PathBuf::from(std::env::var_os("BOTSTRAL_P05_OTHER_MANAGER").unwrap());
+    let (second, store, fixture) = paired_at(&root, &other_root).await;
+    let current = second.owner_scope().unwrap();
+    assert_eq!(current.generation, scope.generation);
+    assert_ne!(current.manager, scope.manager);
+    second.shutdown().await;
+    let mut client = OwnerClient::open_with(&root, store.clone()).unwrap();
+    let mut session = client.connect().await.unwrap();
+    let id = TaskId::new();
+    session
+        .call(OwnerOperation::SubmitTask {
+            input: SubmitTask {
+                id,
+                session_id: fixture["session"].as_str().unwrap().parse().unwrap(),
+                conversation_id: None,
+                settings: TaskSettings {
+                    model: "P05 authority fixture".into(),
+                    max_turns: 1,
+                    max_tokens: 64,
+                    deadline: std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs() as i64
+                        + 600,
+                    max_cost_micros: 0,
+                },
+                work: WorkSpec::Unavailable,
+            },
+        })
+        .await
+        .unwrap();
+    drop(session);
+    drop(client);
+    let second = RemoteService::new(root, store);
+    second.restore().await.unwrap();
+    second.source_task(id).await.unwrap();
+    let destination = directory.path().join("wrong-manager.txt");
+    let result = second
+        .save_export(
+            scope,
+            id,
+            &destination,
+            VerifiedArtifact {
+                name: "old-manager.txt".into(),
+                bytes: b"previously verified chooser bytes".to_vec(),
+            },
+        )
+        .await;
+    assert_eq!(result, Err("stale".into()));
+    assert!(!destination.exists());
+    second.sign_out().await.unwrap();
+    println!(
+        "PASS P05 native export refuses old-manager chooser bytes after actual re-pairing at the same local generation, even with a readable source task on the new manager."
+    );
+}
