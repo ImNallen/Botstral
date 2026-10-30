@@ -1,0 +1,32 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-933e0ed9c27cbd2d)
+
+running 3 tests
+
+thread 'remote::read_tests::authority_change_interrupts_a_read_ahead_of_background_polls' (641060734) panicked at src/remote/read_tests.rs:54:5:
+assertion failed: matches!(result,
+    ReadResult::Interrupted(Some(Envelope
+    { command: IntentCommand::Suspend, .. })))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'remote::read_tests::credential_polling_waits_for_the_active_read' (641060735) panicked at src/remote/read_tests.rs:34:5:
+Background polling must leave the active owner read running
+
+thread 'remote::read_tests::polling_backlog_is_bounded_without_delaying_authority_changes' (641060736) panicked at src/remote/read_tests.rs:66:5:
+assertion failed: matches!(result,
+    ReadResult::Interrupted(Some(Envelope
+    { command: IntentCommand::Suspend, .. })))
+test remote::read_tests::authority_change_interrupts_a_read_ahead_of_background_polls ... FAILED
+test remote::read_tests::credential_polling_waits_for_the_active_read ... FAILED
+test remote::read_tests::polling_backlog_is_bounded_without_delaying_authority_changes ... FAILED
+
+failures:
+
+failures:
+    remote::read_tests::authority_change_interrupts_a_read_ahead_of_background_polls
+    remote::read_tests::credential_polling_waits_for_the_active_read
+    remote::read_tests::polling_backlog_is_bounded_without_delaying_authority_changes
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

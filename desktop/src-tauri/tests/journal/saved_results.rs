@@ -209,7 +209,12 @@ pub(super) async fn verify() {
         after: None,
         limit: 32,
     };
-    let page = service.saved_results(query.clone()).await.unwrap();
+    let (page, reviews) = tokio::join!(
+        service.saved_results(query.clone()),
+        service.credential_uses()
+    );
+    let page = page.unwrap();
+    reviews.unwrap();
     assert_eq!(page.page.entries.len(), 32);
     assert_eq!(page.page.entries[0].task, old.id);
     record(&mut views, "page", &page);
@@ -240,7 +245,9 @@ pub(super) async fn verify() {
         .unwrap();
     assert_eq!(literal.page.entries.len(), 1);
     record(&mut views, "literal", &literal);
-    let source = service.source_task(old.id).await.unwrap();
+    let (source, reviews) = tokio::join!(service.source_task(old.id), service.credential_uses());
+    let source = source.unwrap();
+    reviews.unwrap();
     let public = serde_json::to_value(&source).unwrap();
     assert!(
         public["task"]["action"]
@@ -250,7 +257,12 @@ pub(super) async fn verify() {
     );
     record(&mut views, "source", &source);
     assert!(!recent(&service.inspect(), old.id));
-    let bytes = service.artifact(old.id, artifact).await.unwrap().bytes;
+    let (download, reviews) = tokio::join!(
+        service.artifact(old.id, artifact),
+        service.credential_uses()
+    );
+    let bytes = download.unwrap().bytes;
+    reviews.unwrap();
     assert_eq!(
         bytes,
         b"Synthetic C02 recorded worker output. No production process ran.\n"

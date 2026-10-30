@@ -1,0 +1,29 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-senk5tlj
+Local manager: 127.0.0.1:65165
+Paired WSS route: wss://127.0.0.1:65181/owner/v1/connect
+Manager identity: 7393f734-336f-4639-861d-5430c8f59f41
+Manager leaf: ffadb838d698216b221485885053416e8c8f76925161b67175426105cdb4756b
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-senk5tlj/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-senk5tlj/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling ring v0.17.14
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/desktop/src-tauri)
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link)
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link/client)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.64s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-622a93c7d345b7ef)
+
+running 1 test
+test p05_saved_results_restart_and_export has been running for over 60 seconds
+PASS P05: 35 sealed results, two bots, literal search, 32+3 pages, retained source absent from recent history, authoritative byte verification, manager and native restart, real private local saves, sign-out export refusal. Synthetic worker only.
+test p05_saved_results_restart_and_export ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 92.06s
+

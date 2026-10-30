@@ -4,6 +4,7 @@ use botstral_owner_client::{ClientError, OwnerClient, OwnerSession, SecretStore}
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
+    collections::VecDeque,
     fs,
     io::{Read, Write},
     os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
@@ -19,6 +20,7 @@ use uuid::Uuid;
 
 const MAX_JOURNAL_BYTES: usize = 1024 * 1024;
 const MAX_JOURNAL_RECORDS: usize = 128;
+const COMMAND_CAPACITY: usize = 16;
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -114,6 +116,32 @@ struct Envelope {
     generation: u64,
     command: IntentCommand,
     reply: oneshot::Sender<Result<RemoteSnapshot, String>>,
+}
+enum ReadResult {
+    Done(Result<(), String>),
+    Interrupted(Option<Envelope>),
+}
+async fn finish_read(
+    operation: impl std::future::Future<Output = Result<(), String>>,
+    rx: &mut mpsc::Receiver<Envelope>,
+    pending: &mut VecDeque<Envelope>,
+) -> ReadResult {
+    tokio::pin!(operation);
+    loop {
+        tokio::select! {
+            result = &mut operation => return ReadResult::Done(result),
+            next = rx.recv() => match next {
+                Some(next) if matches!(&next.command, IntentCommand::CredentialUses { .. } | IntentCommand::LoginItems { .. }) => {
+                    if pending.len() < COMMAND_CAPACITY {
+                        pending.push_back(next);
+                    } else {
+                        let _ = next.reply.send(Err("busy".into()));
+                    }
+                },
+                next => return ReadResult::Interrupted(next),
+            },
+        }
+    }
 }
 #[derive(Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct OwnerReadScope {
@@ -390,7 +418,7 @@ impl RemoteService {
         if control.is_some() {
             return Ok(());
         }
-        let (tx, rx) = mpsc::channel(16);
+        let (tx, rx) = mpsc::channel(COMMAND_CAPACITY);
         let actor = Actor {
             root: self.root.clone(),
             store: self.store.clone(),
@@ -578,10 +606,10 @@ impl Actor {
         {
             self.failed(error);
         }
-        let mut pending = None;
+        let mut pending = VecDeque::new();
         loop {
-            let envelope = if pending.is_some() {
-                pending.take()
+            let envelope = if !pending.is_empty() {
+                pending.pop_front()
             } else if let Some(session) = self.session.as_mut() {
                 tokio::select! {
                     message = rx.recv() => {
@@ -620,23 +648,15 @@ impl Actor {
                     | IntentCommand::Artifacts { .. }
                     | IntentCommand::SourceTask { .. }
             ) {
-                enum ReadResult {
-                    Done(Result<(), String>),
-                    Interrupted(Option<Envelope>),
-                }
-                let outcome = {
-                    let operation = self.execute(envelope.command);
-                    tokio::pin!(operation);
-                    tokio::select! {
-                        result = &mut operation => ReadResult::Done(result),
-                        next = rx.recv() => ReadResult::Interrupted(next),
-                    }
-                };
+                let outcome =
+                    finish_read(self.execute(envelope.command), &mut rx, &mut pending).await;
                 match outcome {
                     ReadResult::Done(result) => result,
                     ReadResult::Interrupted(next) => {
                         self.session = None;
-                        pending = next;
+                        if let Some(next) = next {
+                            pending.push_front(next);
+                        }
                         let _ = envelope.reply.send(Err("interrupted_read".into()));
                         continue;
                     }
@@ -2157,6 +2177,10 @@ fn serialize_workspace<S: serde::Serializer>(
         })
         .serialize(serializer)
 }
+
+#[cfg(test)]
+#[path = "remote/read_tests.rs"]
+mod read_tests;
 
 #[cfg(test)]
 mod memory_tests {
