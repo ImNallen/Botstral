@@ -1,0 +1,24 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+error[E0277]: `botstral_link::protected::ProtectedBrowserReply` doesn't implement `Debug`
+   --> manager/src/manager/state/credentials/tests/live/security.rs:255:71
+    |
+255 |     println!("rejected_prepare_attempts={count}; changed_guess_result={retry:?}");
+    |                                                                       ^^^^^^^^^ `botstral_link::protected::ProtectedBrowserReply` cannot be formatted using `{:?}` because it doesn't implement `Debug`
+    |
+    = help: the trait `Debug` is not implemented for `botstral_link::protected::ProtectedBrowserReply`
+help: the trait `Debug` is implemented for `std::result::Result<T, E>`
+   --> /rustc/254b59607d4417e9dffbc307138ae5c86280fe4c/library/core/src/result.rs:552:16
+    = note: required for `std::result::Result<botstral_link::protected::ProtectedBrowserReply, manager::OperationError>` to implement `Debug`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `botstral-manager` (lib test) due to 1 previous error

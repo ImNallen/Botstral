@@ -1,4 +1,7 @@
 use super::*;
+
+mod preparation;
+mod profile;
 use crate::worker_http::VerifiedIdentity;
 use botstral_link::protected::{
     BrowserAuthority, FillValues, ProtectedBrowserOperation, ProtectedBrowserReply,
@@ -296,143 +299,6 @@ impl State {
         tx.commit()?;
         Ok(review)
     }
-    fn prepare_credential_use(
-        &mut self,
-        authority: &BrowserAuthority,
-        destination: LiveDestination,
-        previous: Option<CredentialUseId>,
-    ) -> Result<CredentialUseReview, OperationError> {
-        let task = self.browser_parent(authority)?;
-        self.credential_identity()?;
-        self.reject_known_secrets(&destination)?;
-        destination
-            .plan
-            .validate()
-            .map_err(OperationError::Protocol)?;
-        if canonical_origin(&destination.top_origin)? != destination.plan.origin
-            || destination.frame_origin != destination.top_origin
-            || destination.fields.is_empty()
-            || destination.fields.len() > 2
-            || [&destination.form, &destination.submitter]
-                .into_iter()
-                .any(|id| id.parse::<RequestId>().is_err())
-            || destination.fields.iter().any(|field| {
-                field.name.is_empty()
-                    || field.name.len() > 128
-                    || field.name.chars().any(char::is_control)
-            })
-        {
-            return Err(OperationError::InvalidInput);
-        }
-        let WorkSpec::Computer { spec } = &task.command.work else {
-            return Err(OperationError::InvalidInput);
-        };
-        let [
-            ComputerOperation::ProtectedLogin {
-                item,
-                revision,
-                purpose,
-                plan,
-            },
-        ] = spec.operations.as_slice()
-        else {
-            return Err(OperationError::InvalidInput);
-        };
-        if **plan != destination.plan
-            || destination.fields.len()
-                != if *purpose == CredentialFields::Password {
-                    2
-                } else {
-                    1
-                }
-        {
-            return Err(OperationError::InvalidInput);
-        }
-        let item = self.load_login(*item)?;
-        let shape = match purpose {
-            CredentialFields::Password => {
-                destination.fields.len() == 2
-                    && destination.fields[0].role == LoginFieldRole::Username
-                    && matches!(
-                        destination.fields[0].input_type.as_str(),
-                        "text" | "email" | "tel"
-                    )
-                    && destination.fields[1].role == LoginFieldRole::Password
-                    && destination.fields[1].input_type == "password"
-            }
-            CredentialFields::Totp => {
-                destination.fields.len() == 1
-                    && destination.fields[0].role == LoginFieldRole::Totp
-                    && destination.fields[0].input_type == "text"
-            }
-        };
-        if !shape {
-            return Err(OperationError::InvalidInput);
-        }
-        let binding = task
-            .approval
-            .binding
-            .clone()
-            .ok_or(OperationError::Unauthorized)?;
-        let expires_at = (self.now() + 30).min(binding.expires_at).min(spec.deadline);
-        let mut review = CredentialUseReview {
-            id: CredentialUseId::new(),
-            release: ReleaseId::new(),
-            item,
-            purpose: *purpose,
-            binding,
-            fence: authority.fence,
-            incarnation: authority.journal,
-            destination,
-            expires_at,
-            state: UseState::AwaitingApproval,
-        };
-        if review.item.revision != *revision {
-            let prior = self.load_credential_use(previous.ok_or(OperationError::Conflict)?)?;
-            if prior.state != UseState::Revoked
-                || prior.destination != review.destination
-                || prior.binding != review.binding
-                || prior.fence != review.fence
-                || prior.incarnation != review.incarnation
-                || prior.purpose != review.purpose
-                || prior.item.id != review.item.id
-                || prior.item.epoch != review.item.epoch
-                || advance(prior.item.revision)? != review.item.revision
-                || self.rule(&review)? != Some(("allow".into(), prior.id.to_string()))
-            {
-                return Err(OperationError::Conflict);
-            }
-        }
-        self.use_authority(&review)?;
-        let source = if review.purpose == CredentialFields::Password
-            && review.item.metadata.password_policy == PasswordPolicy::RememberedOrigins
-            && review.destination.certain
-        {
-            match self.rule(&review)? {
-                Some((decision, cause)) if decision == "allow" => {
-                    load_authority(&self.connection, &cause)?
-                }
-                _ => None,
-            }
-        } else {
-            None
-        };
-        let source = match source {
-            Some(source) if source.valid(&self.connection)? => Some(source),
-            _ => None,
-        };
-        if source.is_some() {
-            review.state = UseState::Authorized;
-        }
-        self.credential_capacity("credential_uses", MAX_CREDENTIAL_USES)?;
-        let tx = self.connection.transaction()?;
-        save(&tx, &review)?;
-        if let Some(source) = source {
-            save_authority(&tx, review.id, &source)?;
-        }
-        tx.commit()?;
-        Ok(review)
-    }
     fn release_credential(
         &mut self,
         mut review: CredentialUseReview,
@@ -442,7 +308,8 @@ impl State {
         if review.state != UseState::Authorized || review.destination != destination {
             return Err(OperationError::Conflict);
         }
-        self.use_authority(&review)?;
+        let task = self.use_authority(&review)?;
+        let _ = self.profile_history(task.command.worker, review.destination.profile)?;
         let ProfileProtection::Tracked {
             profile, releases, ..
         } = protection
@@ -538,56 +405,6 @@ impl State {
             })
             .collect()
     }
-    fn screen_profile(
-        &self,
-        protection: ProfileProtection,
-        text: Zeroizing<String>,
-    ) -> Result<ProtectedBrowserReply, OperationError> {
-        let ProfileProtection::Tracked {
-            profile,
-            releases,
-            complete: true,
-        } = protection
-        else {
-            return Err(OperationError::Conflict);
-        };
-        if releases.len() > MAX_CREDENTIAL_USES || text.len() > 32768 {
-            return Err(OperationError::InvalidInput);
-        }
-        for release in releases {
-            let view: String = self
-                .connection
-                .query_row(
-                    "SELECT view FROM credential_uses WHERE release=?1",
-                    [release.to_string()],
-                    |r| r.get(0),
-                )
-                .optional()?
-                .ok_or(OperationError::Conflict)?;
-            let review: CredentialUseReview = parse(view)?;
-            if review.destination.profile != profile {
-                return Err(OperationError::Conflict);
-            }
-            let cipher: Vec<u8> = self.connection.query_row(
-                "SELECT ciphertext FROM credential_epochs WHERE item=?1 AND epoch=?2",
-                params![review.item.id.to_string(), review.item.epoch.get() as i64],
-                |r| r.get(0),
-            )?;
-            self.login_values(review.item.id, review.item.epoch, &cipher)?;
-            if review.purpose == CredentialFields::Totp {
-                let exists: bool = self.connection.query_row(
-                    "SELECT EXISTS(SELECT 1 FROM credential_codes WHERE release=?1)",
-                    [release.to_string()],
-                    |r| r.get(0),
-                )?;
-                if !exists {
-                    return Err(OperationError::Conflict);
-                }
-            }
-        }
-        self.reject_known_secrets(&*text)?;
-        Ok(ProtectedBrowserReply::Screened { text })
-    }
     pub(in crate::manager) fn protected_browser(
         &mut self,
         peer: VerifiedIdentity,
@@ -614,7 +431,7 @@ impl State {
                 )?),
             }),
             ProtectedBrowserOperation::Screen { protection, text } => {
-                self.screen_profile(protection, text)
+                self.screen_profile(task.command.worker, protection, text)
             }
             operation => {
                 let id = match &operation {

@@ -1,0 +1,62 @@
+    Checking ring v0.17.14
+    Checking libsqlite3-sys v0.36.0
+    Checking rusqlite v0.38.0
+    Checking rustls-webpki v0.103.16
+    Checking rustls v0.23.46
+    Checking tokio-rustls v0.26.6
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+    Checking hyper-rustls v0.27.10
+    Checking reqwest v0.12.28
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Checking botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+error: this `else { if .. }` block can be collapsed
+   --> manager/src/manager/state/credentials/uses/preparation.rs:163:16
+    |
+163 |           } else {
+    |  ________________^
+164 | |             if previous.is_some() || review.item.revision != *revision {
+165 | |                 return Err(OperationError::Conflict);
+166 | |             }
+167 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.93.0/index.html#collapsible_else_if
+    = note: `-D clippy::collapsible-else-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_else_if)]`
+help: collapse nested if block
+    |
+163 ~         } else if previous.is_some() || review.item.revision != *revision {
+164 +             return Err(OperationError::Conflict);
+165 +         }
+    |
+
+error: this `if` statement can be collapsed
+   --> manager/src/manager/state/credentials/uses/preparation.rs:120:13
+    |
+120 | /             if let Some(successor) = history.get(1) {
+121 | |                 if root.state != UseState::Revoked
+122 | |                     || root.purpose != CredentialFields::Password
+123 | |                     || !same_destination(root, successor)
+...   |
+129 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.93.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+120 ~             if let Some(successor) = history.get(1)
+121 ~                 && (root.state != UseState::Revoked
+122 |                     || root.purpose != CredentialFields::Password
+123 |                     || !same_destination(root, successor)
+124 |                     || successor.item.revision != advance(root.item.revision)?
+125 ~                     || successor.expires_at > root.expires_at)
+126 |                 {
+127 |                     return Err(OperationError::Conflict);
+128 ~                 }
+    |
+
+error: could not compile `botstral-manager` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `botstral-manager` (lib test) due to 2 previous errors

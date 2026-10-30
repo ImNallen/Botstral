@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-Independent review accepted production source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` within documented scope. PR monitoring subsequently reproduced and corrected a missing existing-credential metadata collision check; its new-head gates are pending. The current-catalog and inherited connector-revocation objections are repaired while retained history remains screened. The rebuilt exact-source Linux gate passed. All fourteen final broad phases passed at the same clean production source. The supported v1 code is accepted for pull-request review; host reboot verification and manual takeover remain open. Earlier evidence stays tied to its recorded source. No merge is authorized by this record.
+Independent review accepted production source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` within documented scope. PR monitoring subsequently corrected a missing existing-credential metadata collision check and completed its broad and Linux gates. Later security findings required scoped worker screening and idempotent preparation; their current-source gates remain pending. The current-catalog and inherited connector-revocation objections are repaired while retained history remains screened. The rebuilt exact-source Linux gate passed. All fourteen final broad phases passed at the same clean production source. The supported v1 code is accepted for pull-request review; host reboot verification and manual takeover remain open. Earlier evidence stays tied to its recorded source. No merge is authorized by this record.
 
 ## Private entry and exact submission
 
@@ -104,3 +104,17 @@ The current production snapshot and prior reviewed failing snapshots remain in o
 ## PR56 metadata review correction
 
 [The post-publication review finding](https://github.com/ImNallen/Botstral/pull/56#discussion_r4419493985) identified public metadata omitted from the context. A new private value or current code could poison an existing item label, historical receipt or retained review. [The correction record](pr56-metadata-correction/README.md) preserves actual failures and passing tests. The shared context now includes all stored typed public item, receipt and review records. No old private value or encrypted epoch is deleted. Three added regression functions pass; the manager library passes178 tests with six opt-in skips and all-target Clippy passes. The earlier independent/full/Linux acceptance remains tied to its earlier source. New-head verification and follow-up review are required before declaring this monitoring round merge-ready.
+
+
+## PR56 metadata-source verification
+
+The complete driver passed at clean source `13580e424dd83a568a88714593d74924440bc840`. [All fourteen phases](20261030T075143739378Z/commands.json) exited zero, including repository and desktop checks. The manager library passed 178 tests with six opt-in skips. [The rebuilt Linux proof](linux-pr56-metadata/proof.json) records one independently validated password POST, two valid current-code submissions with separate approval and four refused negative probes. All twelve command records exited zero, cleanup completed and emulation snapshots match. These results cover the metadata correction, before the later security changes.
+
+The automated code review reported no major issue at that source. The security review identified a worker-facing global-secret membership oracle in profile text screening and repeat preparation consuming global use capacity. Both findings were reproduced. Their correction and current-source gates are tracked separately below.
+
+
+## PR56 worker-facing security correction
+
+Both later security findings are corrected locally. [The correction record](pr56-security-correction/README.md) preserves actual expected-safe failures, the three-candidate design decision, exact source hashes and passing regressions. Worker text screening now verifies recorded profile ownership and complete emitted-release coverage, and consults only values actually delivered there. Preparation retries preserve the original identity and deadline before capacity checks. Each admitted parent permits one root and one exact remembered-password successor. Schema 16 durably closes a first rejected destination comparison, preventing repeated global-inventory guesses under that parent. Recovery from a claim without a review requires a new admitted task. No retained history is deleted.
+
+Ten focused security regressions and the complete manager library pass, with 188 tests and six opt-in skips. All-target Clippy passes. The packaging schema ceiling was corrected after the first manager run caught it; that failure remains preserved. [Independent review](pr56-security-correction/independent-review/report.md) passes the exact frozen correction, including five new production-method probes and a recovery-loader probe. Root read all artifacts and stopped the reviewer. Full repository/desktop verification and rebuilt Linux verification remain required before this correction is ready for a new review wave. Earlier packaged AppKit execution remains tied to its historical source.

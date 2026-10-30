@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.96s
+     Running unittests src/lib.rs (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 5 tests
+migration16_preserves_existing_root=true; legacy_multiplicity_refused_without_deletion=true
+test manager::state::credentials::tests::live::independent_probes::independent_review_migration16_preserves_legacy_review_and_denies_multiplicity ... ok
+reopened_rejected_attempt_closed=true; attempt_update_and_delete_refused=true; no_rescan_after_reopen=true
+test manager::state::credentials::tests::live::independent_probes::independent_review_rejected_attempt_is_durable_and_closed_after_reopen ... ok
+uncertain_history_retained=true; old_fill_authority_not_required=true; global_inventory_not_read=true; seed_not_screened=true
+test manager::state::credentials::tests::live::independent_probes::independent_review_uncertain_history_survives_recovery_without_old_authority ... ok
+old_applied_epoch_screened=true; newer_unemitted_password_accepted=true; corrupt_recorded_epoch_refused=true
+test manager::state::credentials::tests::live::independent_probes::independent_review_retained_epoch_after_rotation_and_corruption ... ok
+revoked_successor_cached_at_capacity=true; no_global_secret_scan_on_retry=true; no_release_reopened=true
+test manager::state::credentials::tests::live::independent_probes::independent_review_terminal_successor_cache_precedes_capacity_and_secret_inventory ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 194 filtered out; finished in 1.01s

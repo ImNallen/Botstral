@@ -936,7 +936,7 @@ fn m01_real_binary_over_tcp() {
     assert_eq!(
         db.query_row::<i64, _, _>("PRAGMA user_version", [], |row| row.get(0))
             .unwrap(),
-        15
+        16
     );
     assert_eq!(
         db.query_row::<i64, _, _>("SELECT count(*) FROM owner", [], |row| row.get(0))
@@ -1060,14 +1060,14 @@ fn m01_real_binary_over_tcp() {
     fs::set_permissions(&future, fs::Permissions::from_mode(0o700)).unwrap();
     private_file(&future.join("manager.sqlite3"));
     let db = Connection::open(future.join("manager.sqlite3")).unwrap();
-    db.pragma_update(None, "user_version", 16).unwrap();
+    db.pragma_update(None, "user_version", 17).unwrap();
     drop(db);
     refused(&mut command(&future, root, 7));
     let db = Connection::open(future.join("manager.sqlite3")).unwrap();
     assert_eq!(
         db.query_row::<i64, _, _>("PRAGMA user_version", [], |row| row.get(0))
             .unwrap(),
-        16
+        17
     );
     drop(db);
     fs::set_permissions(

@@ -1,0 +1,35 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.36s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 10 tests
+test manager::state::credentials::tests::live::security::pr56_security_unemitted_profile_does_not_screen_any_private_value ... ok
+altered_destination_prepares_accepted=[false, false, false, false, false]
+prepare_retry_records=1; same_identity=true
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry ... ok
+test manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses ... ok
+test manager::state::credentials::tests::live::security::pr56_security_remembered_successor_is_unique_and_keeps_root_deadline ... ok
+test manager::state::credentials::tests::live::security::pr56_security_profile_requires_all_emissions_and_correct_worker ... ok
+unrecorded_profile_benign_accepted=false; unrelated_guess_accepted=false
+test manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory ... ok
+rejected_prepare_attempts=1; changed_guess_error=Some(Conflict)
+test manager::state::credentials::tests::live::security::pr56_security_totp_profile_uses_only_issued_code_and_retains_integrity ... ok
+recorded_profile_acceptance=[false, false, true, true, true]
+rejected_attempt_persisted=true; changed_guess_not_rescanned=true; reviews_allocated=0
+test manager::state::credentials::tests::live::security::pr56_security_rejected_prepare_attempt_cannot_probe_again ... ok
+test manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values ... ok
+cached_prepare_at_capacity_returned=true
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 184 filtered out; finished in 0.76s
+

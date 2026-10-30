@@ -451,7 +451,10 @@ fn remembered_device_grant_revocation_requires_new_approval() {
     assert_eq!(automatic.state, UseState::Authorized);
     f.state.revoke_device(owner(), lease.device).unwrap();
     assert!(f.release(&automatic).is_err());
-    assert_eq!(f.prepare(Some(review.id)).state, UseState::AwaitingApproval);
+    assert_eq!(f.prepare(Some(review.id)).id, automatic.id);
+    assert_eq!(f.prepare(Some(review.id)).state, UseState::Revoked);
+    f.next_parent(false);
+    assert_eq!(f.prepare(None).state, UseState::AwaitingApproval);
 }
 
 #[test]

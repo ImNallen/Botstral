@@ -277,6 +277,67 @@ impl Live {
             },
         })
     }
+    fn next_parent(&mut self, capture_only: bool) {
+        let mut prior = self.state.load_task(self.authority.task).unwrap();
+        prior.state = TaskState::Completed;
+        tasks::save(&self.state.connection, &prior).unwrap();
+        self.item = self.state.load_login(self.item.id).unwrap();
+        let mut request = prior.request;
+        request.id = TaskId::new();
+        request.settings.deadline = self.state.now() + 120;
+        let WorkSpec::Computer { spec } = &mut request.work else {
+            panic!("computer fixture");
+        };
+        spec.deadline = request.settings.deadline;
+        if capture_only {
+            spec.operations = vec![ComputerOperation::Navigate {
+                url: "https://example.test/".into(),
+            }];
+        } else {
+            let [ComputerOperation::ProtectedLogin { revision, .. }] =
+                spec.operations.as_mut_slice()
+            else {
+                panic!("protected fixture");
+            };
+            *revision = self.item.revision;
+        }
+        let task = self.state.submit_task(owner(), request).unwrap();
+        while self._outbound.try_recv().is_ok() {}
+        let approved = self
+            .state
+            .grant_approval(owner(), task.id, self.state.now() + 90)
+            .unwrap();
+        let lease = ConnectionLease {
+            worker: task.command.worker,
+            generation: self.authority.fence.generation,
+        };
+        let fence = self
+            .state
+            .find_computer_session(task.command.session)
+            .unwrap()
+            .fence(lease.generation);
+        self.state
+            .claim(
+                lease,
+                self.authority.journal,
+                fence,
+                approved.approval.binding.unwrap(),
+            )
+            .unwrap();
+        let mut permit = None;
+        while let Ok(message) = self._outbound.try_recv() {
+            if matches!(message.message, ManagerMessage::Permit { .. }) {
+                permit = Some(message.message);
+            }
+        }
+        self.state
+            .admit_delivery(lease, &permit.expect("new parent permit"))
+            .unwrap();
+        self.authority.task = task.id;
+        self.authority.execution = task.command.execution;
+        self.authority.fence = fence;
+    }
+
     fn allow_rule(&mut self) {
         let review = self.prepare(None);
         self.state
@@ -303,6 +364,7 @@ impl Live {
                 ],
             )
             .unwrap();
+        self.next_parent(false);
     }
 }
 
@@ -396,6 +458,9 @@ fn p06_remembered_rule_precedence_and_totp_fresh_approval() {
             assert_eq!(code.len(), 6);
             assert_eq!(valid_until, 1020);
             assert!(f.state.reject_known_secrets(&*code).is_err());
+            assert_eq!(f.prepare(None).id, review.id);
+            assert_eq!(f.prepare(None).state, UseState::Released);
+            f.next_parent(false);
             assert_eq!(f.prepare(None).state, UseState::AwaitingApproval);
         }
     }
@@ -650,3 +715,5 @@ fn p06_metadata_edits_clear_rules_and_bot_inventory_never_includes_removed_items
 mod browser;
 
 mod authority;
+
+mod security;

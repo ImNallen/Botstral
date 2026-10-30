@@ -1,0 +1,19 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-vdk57wty
+Local manager: 127.0.0.1:59520
+Paired WSS route: wss://127.0.0.1:59536/owner/v1/connect
+Manager identity: e0db1cfd-ddc8-4620-8daf-812ab8f4c005
+Manager leaf: b6b33bcaae636f677b5b776d487b1e4c3e252f178f9b40e37560fdfb1f5ccc6f
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-vdk57wty/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-vdk57wty/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p06_collision_receipt_is_final_and_value_free ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 1.70s
+
