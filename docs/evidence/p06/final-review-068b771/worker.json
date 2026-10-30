@@ -1,0 +1,16 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "botstral-agent",
+    "--locked",
+    "protected_browser::tests",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:10:31.821237+00:00",
+  "end": "2026-10-30T00:10:49.031291+00:00"
+}

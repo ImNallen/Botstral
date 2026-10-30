@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-Current production source is `b589c7623296784e7a0b0d4442440a5ffe265947`. Earlier evidence remains tied to its recorded source. The rebuilt current-source Linux run passed. Current-source broad verification also passed. The final independent recheck remains pending. This record does not advance a PLAN checkbox or approve a merge.
+The last reviewed production source `b589c7623296784e7a0b0d4442440a5ffe265947` passed broad and Linux verification but was independently rejected for current-catalog collisions. The connector correction below is implemented and remains behind new verification and independent review gates. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
 
 ## Private entry and exact submission
 
@@ -60,3 +60,11 @@ The complete driver [20261029T232712922562Z](20261029T232712922562Z/commands.jso
 `python3 scripts/verify-p06.py --full` exited zero at clean production source `b589c7623296784e7a0b0d4442440a5ffe265947`. [All 14 recorded phases](20261030T000502050449Z/commands.json) exited zero, including the default repository and desktop scripts. The driver records an empty starting diff. All later root commits during the run changed documentation and evidence only.
 
 The repository gate passed formatting, workspace Clippy, production and opt-in builds, packaging and recovery checks, workspace tests, the fresh release build and both nonproduction release refusals. Its manager suite passed 169 tests with six opt-in skips. The desktop gate passed binding generation, TypeScript, frontend and native tests, paired-service fixtures, native Clippy and the debug application build. Focused phases separately passed native secure controls, receipt recovery and manager switching, locked unlock, live browser submission and persistent capture protection. These green checks do not replace the still-required independent verdict.
+
+## Current catalog correction
+
+[The third independent rejection](final-review-068b771/report.md) proved that already enabled connector catalogs can be poisoned by accepted credentials or generated codes. Plain chat remains usable, but rotation and removal cannot restore the existing connector-enabled conversation. Calling an existing enabled catalog hypothetical future text was incorrect. The original expected-safe failures are preserved.
+
+The shared prospective context now includes current authorized connector definitions across all live bots and their actual provider rendering. It uses the existing grant/binding validation and the same renderer as inference requests. Typed definitions cover policy bindings and original tool names; rendering covers generated provider names, descriptions and input schemas. Owner-created epochs and issued current codes share this context. No private values are removed from retained screening.
+
+Root reproduced the independent failures before correction. Permanent behavior checks cover username/password collisions with descriptions, schema properties, rendered names and raw binding names; final refusal/replay, unchanged rejected rotation and complete conversation after removal are verified. A deterministic current code colliding with an already enabled catalog refuses twice without retention or consumption and preserves complete conversation after expiry and removal. The tests configure the catalog on another bot and prepare it before live filling. [The correction record](catalog-corrections/README.md) preserves before/after runs, a further raw-binding counterexample and corrected test-setup failures. The manager library passes 171 tests with six opt-in skips, and all-target manager Clippy passes. New broad and real Linux verification plus fresh independent review remain required.

@@ -1,0 +1,31 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 4 tests
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+fresh_current_memory=false; baseline_and_after_complete=true; rejected_final=true; epochs=0
+fresh_current_memory=true; baseline_and_after_complete=true; rejected_final=true; epochs=0
+test manager::state::runs::tests::publication_tests::independent_fresh_configuration_and_memory_rejection_preserves_completion ... ok
+catalog_predates_code=true; baseline_complete=true; code_released=true; retained_codes=1; after=Err(InvalidInput); plain=Ok(())
+
+thread 'manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation' (637344257) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/generated-probes.rs:15:5:
+generated code poisoned an already enabled catalog
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation ... FAILED
+catalog_schema=false; baseline_complete=true; intake_committed=true; after=Err(InvalidInput); after_rotation=Err(InvalidInput); after_removal=Err(InvalidInput); plain=Ok(())
+catalog_schema=true; baseline_complete=true; intake_committed=true; after=Err(InvalidInput); after_rotation=Err(InvalidInput); after_removal=Err(InvalidInput); plain=Ok(())
+
+thread 'manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation' (637344258) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/publication-probes.rs:29:5:
+accepted value broke unchanged preexisting enabled connector conversation
+test manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation
+    manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 174 filtered out; finished in 0.54s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

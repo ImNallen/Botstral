@@ -1,0 +1,10 @@
+{
+  "head": "068b7717d93d1b4e7f9a45ad1df6fe4cc9c24897",
+  "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "git_status": "",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "code_verdict": "reject",
+  "root_evidence_cutoff": "2026-10-30T00:15:43.655401+00:00",
+  "recorded_at": "2026-10-30T00:16:30.321296+00:00"
+}

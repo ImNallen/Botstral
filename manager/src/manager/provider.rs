@@ -53,6 +53,9 @@ fn run_system_message() -> serde_json::Value {
 fn wakeup_definition() -> serde_json::Value {
     serde_json::json!({"type":"function","function":{"name":"request_wakeup","description":"Request one future wakeup within the explicit owner grant. Owner budgets, horizon, spacing, and cumulative limits remain enforced. This cannot edit routines or approve effects.","parameters":schemars::schema_for!(RequestWakeup)}})
 }
+pub(super) fn connector_definition(tool: &ConnectorToolDefinition) -> serde_json::Value {
+    serde_json::json!({"type":"function","function":{"name":tool.binding.public_name(),"description":tool.description,"parameters":tool.input_schema}})
+}
 fn chat_envelope(
     model: &str,
     max_tokens: u32,
@@ -495,7 +498,10 @@ impl PreparedChat {
                 self.body["tools"] = serde_json::json!([]);
             }
             for tool in &definitions {
-                self.body["tools"].as_array_mut().unwrap().push(serde_json::json!({"type":"function","function":{"name":tool.binding.public_name(),"description":tool.description,"parameters":tool.input_schema}}));
+                self.body["tools"]
+                    .as_array_mut()
+                    .unwrap()
+                    .push(connector_definition(tool));
             }
             self.tools = true;
             self.body["tool_choice"] = "auto".into();

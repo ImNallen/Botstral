@@ -10,6 +10,8 @@ mod memory;
 mod routines;
 mod runs;
 mod tasks;
+#[cfg(test)]
+mod test_catalog;
 mod vision;
 mod workers;
 

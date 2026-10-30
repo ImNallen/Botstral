@@ -1,0 +1,19 @@
+{
+  "sha256": "83d5888d79e26f2c40444a2e3d266a9c2cc490762cd54b326d81d0961130ab59",
+  "matches_recorded_diff": true,
+  "files": [
+    "docs/evidence/p06/coordinator-decisions.tsv",
+    "docs/evidence/p06/final-acceptance.md"
+  ],
+  "command": [
+    "git",
+    "diff",
+    "b589c76",
+    "068b771",
+    "--binary",
+    "--",
+    "docs/evidence/p06/coordinator-decisions.tsv",
+    "docs/evidence/p06/final-acceptance.md"
+  ],
+  "exit": 0
+}

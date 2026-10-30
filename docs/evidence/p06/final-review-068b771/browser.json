@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    ".audit/p06-public-context-review/browser-probe.mjs"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:11:35.432873+00:00",
+  "end": "2026-10-30T00:11:40.105193+00:00"
+}

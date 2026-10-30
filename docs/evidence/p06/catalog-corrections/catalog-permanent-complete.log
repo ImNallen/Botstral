@@ -1,0 +1,20 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.25s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+catalog_surface=description; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+generated_catalog_schema=false; release_refused=true; retained_codes=0; use_authorized=true; complete_after_expiry_and_removal=true
+catalog_surface=description; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+generated_catalog_schema=true; release_refused=true; retained_codes=0; use_authorized=true; complete_after_expiry_and_removal=true
+test manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations ... ok
+catalog_surface=schema; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=binding_name; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=binding_name; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+test manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 175 filtered out; finished in 1.82s
+

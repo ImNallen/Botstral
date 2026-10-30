@@ -1,0 +1,1 @@
+Historical independent rejection of source068b771, production b589c76. The runnable probes expect .audit/p06-public-context-review and the exact reviewed head. Copy them there to rerun. The report separates the reproduced current-catalog defect from prior passing boundaries, completed Linux/repository checks and its desktop cutoff. No raw transcript snapshot is published.

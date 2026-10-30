@@ -1,0 +1,17 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "desktop/src-tauri/Cargo.toml",
+    "--no-default-features",
+    "--locked",
+    "--test",
+    "journal",
+    "--no-run"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:10:32.982954+00:00",
+  "end": "2026-10-30T00:10:47.538796+00:00"
+}

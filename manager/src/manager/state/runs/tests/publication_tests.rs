@@ -455,3 +455,147 @@ fn public_request_and_message_tokens_cannot_poison_a_complete_conversation() {
         "actual_request_and_message_tokens_checked={checked}; complete_conversations_usable=true"
     );
 }
+
+#[test]
+fn current_connector_catalog_collision_preserves_complete_conversations() {
+    use crate::manager::state::test_catalog;
+    for surface in ["description", "schema", "rendered_name", "binding_name"] {
+        for password in [false, true] {
+            let mut f = fixture();
+            let marker = format!("preexisting-account-{}", RequestId::new());
+            let catalog =
+                test_catalog::prepare(&mut f.state, f.input.bot, &marker, surface == "schema");
+            let candidate = if surface == "rendered_name" {
+                catalog.policy.tools[0].public_name()
+            } else if surface == "binding_name" {
+                catalog.policy.tools[0].name.clone()
+            } else {
+                marker
+            };
+            test_catalog::complete(
+                &mut f.state,
+                catalog.bot,
+                catalog.session,
+                Some(catalog.policy.clone()),
+            )
+            .unwrap();
+            let mut login = private_values(&RequestId::new().to_string());
+            if password {
+                login.password = candidate.clone();
+            } else {
+                login.username = candidate.clone();
+            }
+            let request = RequestId::new();
+            let expected = CredentialWriteStatus::Rejected {
+                request,
+                reason: CredentialWriteRejection::PublicValueCollision,
+            };
+            let status = f
+                .state
+                .write_login(
+                    token(),
+                    request,
+                    CredentialWriteTarget::Create {
+                        metadata: login_metadata(),
+                    },
+                    login,
+                )
+                .unwrap();
+            if matches!(status, CredentialWriteStatus::Committed { .. }) {
+                test_catalog::complete(
+                    &mut f.state,
+                    catalog.bot,
+                    catalog.session,
+                    Some(catalog.policy.clone()),
+                )
+                .expect("accepted credentials must preserve the existing catalog conversation");
+            }
+            assert_eq!(status, expected);
+            assert_eq!(
+                f.state
+                    .write_login(
+                        token(),
+                        request,
+                        CredentialWriteTarget::Create {
+                            metadata: login_metadata()
+                        },
+                        private_values(&RequestId::new().to_string())
+                    )
+                    .unwrap(),
+                expected
+            );
+            let epochs: i64 = f
+                .state
+                .connection
+                .query_row("SELECT count(*) FROM credential_epochs", [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(epochs, 0);
+            let CredentialWriteStatus::Committed { item, .. } = f
+                .state
+                .write_login(
+                    token(),
+                    RequestId::new(),
+                    CredentialWriteTarget::Create {
+                        metadata: login_metadata(),
+                    },
+                    private_values(&RequestId::new().to_string()),
+                )
+                .unwrap()
+            else {
+                panic!("safe control must commit");
+            };
+            let mut rotation = private_values(&RequestId::new().to_string());
+            if password {
+                rotation.password = candidate;
+            } else {
+                rotation.username = candidate;
+            }
+            let request = RequestId::new();
+            assert_eq!(
+                f.state
+                    .write_login(
+                        token(),
+                        request,
+                        CredentialWriteTarget::Rotate {
+                            id: item.id,
+                            expected_revision: item.revision
+                        },
+                        rotation
+                    )
+                    .unwrap(),
+                CredentialWriteStatus::Rejected {
+                    request,
+                    reason: CredentialWriteRejection::PublicValueCollision
+                }
+            );
+            assert_eq!(f.state.load_login(item.id).unwrap(), item);
+            let epochs: i64 = f
+                .state
+                .connection
+                .query_row("SELECT count(*) FROM credential_epochs", [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(epochs, 1);
+            test_catalog::complete(
+                &mut f.state,
+                catalog.bot,
+                catalog.session,
+                Some(catalog.policy.clone()),
+            )
+            .unwrap();
+            f.state
+                .update_login(token(), item.id, item.revision, None)
+                .unwrap();
+            test_catalog::complete(
+                &mut f.state,
+                catalog.bot,
+                catalog.session,
+                Some(catalog.policy),
+            )
+            .unwrap();
+            test_catalog::complete(&mut f.state, catalog.bot, catalog.session, None).unwrap();
+            println!(
+                "catalog_surface={surface}; private_password={password}; final_refusal=true; rotation_unchanged=true; complete_conversations=true"
+            );
+        }
+    }
+}

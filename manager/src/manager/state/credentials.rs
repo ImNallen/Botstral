@@ -41,6 +41,11 @@ impl State {
             "scaffold":crate::manager::provider::credential_public_scaffold(),
             "configurations":self.inference_configurations()?,
             "memory":self.all_memory_entries()?,
+            "connectors":self.current_connector_catalogs()?.iter()
+                .map(|tool| serde_json::json!({
+                    "definition":tool,
+                    "provider":crate::manager::provider::connector_definition(tool),
+                })).collect::<Vec<_>>(),
             "memory_preface":runs::MEMORY_PREFACE,
             "screenshot_preface":runs::SCREENSHOT_PREFACE,
         }))

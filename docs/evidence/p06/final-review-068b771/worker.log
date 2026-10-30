@@ -1,0 +1,81 @@
+    Blocking waiting for file lock on artifact directory
+   Compiling serde_core v1.0.229
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling getrandom v0.2.17
+   Compiling serde_json v1.0.154
+   Compiling syn v3.0.9
+   Compiling once_cell v1.21.4
+   Compiling memchr v2.8.3
+   Compiling subtle v2.6.1
+   Compiling futures-sink v0.3.34
+   Compiling deranged v0.5.9
+   Compiling time-core v0.1.9
+   Compiling powerfmt v0.2.1
+   Compiling num-conv v0.2.2
+   Compiling base64 v0.22.1
+   Compiling ring v0.17.14
+   Compiling tempfile v3.27.0
+   Compiling pem v3.0.6
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling time v0.3.55
+   Compiling sha1 v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling yasna v0.5.2
+   Compiling serde_derive_internals v0.30.0
+   Compiling uuid v1.29.0
+   Compiling serde_derive v1.0.229
+   Compiling tokio-macros v2.7.2
+   Compiling thiserror-impl v2.0.21
+   Compiling ref-cast-impl v1.0.27
+   Compiling futures-macro v0.3.34
+   Compiling schemars_derive v1.2.3
+   Compiling ref-cast v1.0.27
+   Compiling tokio v1.54.1
+   Compiling futures-util v0.3.34
+   Compiling thiserror v2.0.21
+   Compiling tungstenite v0.28.0
+   Compiling serde v1.0.229
+   Compiling zeroize v1.9.1
+   Compiling schemars v1.2.3
+   Compiling rustls-pki-types v1.15.1
+   Compiling rustls-webpki v0.103.16
+   Compiling rustls-pemfile v2.2.0
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling hyper v1.12.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling hyper-util v0.1.21
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.17s
+     Running unittests src/lib.rs (target/debug/deps/botstral_agent-e20dadc2751268e1)
+
+running 3 tests
+test protected_browser::tests::existing_profile_without_history_never_gains_complete_coverage ... ok
+test protected_browser::tests::profile_provenance_survives_restart_and_journal_replacement_refuses_capture ... ok
+test protected_browser::tests::restored_or_incomplete_history_cannot_clear_a_newer_profile ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.19s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_agent-fd16f7f1808cfe6b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/botstral-agent-supervisor-check.rs (target/debug/deps/botstral_agent_supervisor_check-358124d69c0387eb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m02_transport.rs (target/debug/deps/m02_transport-5fb70bf5b59a8895)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+

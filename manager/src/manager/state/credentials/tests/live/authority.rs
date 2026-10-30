@@ -549,3 +549,66 @@ fn totp_collision_cannot_poison_existing_public_configuration() {
         "generated code permanently poisoned the existing public configuration"
     );
 }
+
+#[test]
+fn generated_code_current_catalog_collision_preserves_complete_conversations() {
+    use crate::manager::state::test_catalog;
+    for schema_marker in [false, true] {
+        let mut login = live_values();
+        login.totp_seed = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP".into();
+        let (code, _) = totp::current(&login.totp_seed, 1000).unwrap();
+        let (mut f, catalog) = live_with_setup(
+            plan("https://example.test"),
+            CredentialFields::Totp,
+            PasswordPolicy::EveryFill,
+            1000,
+            login,
+            |state, bot| test_catalog::prepare(state, bot, &code, schema_marker),
+        );
+        test_catalog::complete(
+            &mut f.state,
+            catalog.bot,
+            catalog.session,
+            Some(catalog.policy.clone()),
+        )
+        .unwrap();
+        let review = f.prepare(None);
+        f.state
+            .decide_credential_use(owner(), review.clone(), UseDecision::AllowOnce)
+            .unwrap();
+        assert!(matches!(f.release(&review), Err(OperationError::Conflict)));
+        assert!(matches!(f.release(&review), Err(OperationError::Conflict)));
+        let retained: i64 = f
+            .state
+            .connection
+            .query_row("SELECT count(*) FROM credential_codes", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(retained, 0);
+        assert_eq!(
+            f.state.credential_uses(owner()).unwrap()[0].state,
+            UseState::Authorized
+        );
+        test_catalog::complete(
+            &mut f.state,
+            catalog.bot,
+            catalog.session,
+            Some(catalog.policy.clone()),
+        )
+        .unwrap();
+        f.state
+            .update_login(owner(), f.item.id, f.item.revision, None)
+            .unwrap();
+        f.state.test_time = Some(1030);
+        test_catalog::complete(
+            &mut f.state,
+            catalog.bot,
+            catalog.session,
+            Some(catalog.policy),
+        )
+        .unwrap();
+        test_catalog::complete(&mut f.state, catalog.bot, catalog.session, None).unwrap();
+        println!(
+            "generated_catalog_schema={schema_marker}; release_refused=true; retained_codes=0; use_authorized=true; complete_after_expiry_and_removal=true"
+        );
+    }
+}

@@ -539,6 +539,22 @@ impl State {
         }
         Ok(tools)
     }
+    pub(super) fn current_connector_catalogs(
+        &self,
+    ) -> Result<Vec<ConnectorToolDefinition>, OperationError> {
+        let bots = self
+            .connection
+            .prepare("SELECT DISTINCT bot FROM connector_grants WHERE bot IN (SELECT id FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones)) ORDER BY bot")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut catalogs = Vec::new();
+        for bot in bots {
+            catalogs.extend(
+                self.current_connector_tools(bot.parse().map_err(|_| OperationError::Internal)?)?,
+            );
+        }
+        Ok(catalogs)
+    }
     pub(in crate::manager) fn permitted_connector_catalog(
         &self,
         bot: BotId,

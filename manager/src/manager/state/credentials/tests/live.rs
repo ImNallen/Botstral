@@ -45,12 +45,23 @@ fn live_with_values(
     now: i64,
     login: LoginValues,
 ) -> Live {
+    live_with_setup(site, purpose, policy, now, login, |_, _| ()).0
+}
+fn live_with_setup<T>(
+    site: LoginSitePlan,
+    purpose: CredentialFields,
+    policy: PasswordPolicy,
+    now: i64,
+    login: LoginValues,
+    setup: impl FnOnce(&mut State, BotId) -> T,
+) -> (Live, T) {
     let (root, mut state, input) = inference::tests::fixture();
     state
         .connection
         .execute("UPDATE sessions SET expires_at=?1", [now + 3600])
         .unwrap();
     state.test_time = Some(now);
+    let context = setup(&mut state, input.bot);
     let mut metadata = metadata();
     metadata.allowed_origins = vec![site.origin.clone()];
     metadata.password_policy = policy;
@@ -164,7 +175,7 @@ fn live_with_values(
     state
         .admit_delivery(lease, &permit.expect("admitted parent execution"))
         .unwrap();
-    Live {
+    let live = Live {
         _root: root,
         state,
         item,
@@ -219,7 +230,8 @@ fn live_with_values(
             submitter: RequestId::new().to_string(),
             certain: true,
         },
-    }
+    };
+    (live, context)
 }
 impl Live {
     fn call(
