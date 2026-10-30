@@ -1,0 +1,3 @@
+Independent code acceptance at exact b45c7ed. The original report, commands and probes are preserved before coordinator confirmation. The probe expects .audit/p06-revocation-recheck and a clean exact reviewed head; copy these files there to reproduce. The report separates code acceptance from still-pending broad root verification at its cutoff. No raw transcript snapshot is published.
+
+After the reviewer was explicitly stopped, root reran the unchanged final probe in its clean exact-source checkout. All ten selected tests passed, comprising nine review functions and one existing permanent test. The separate root-confirmation files preserve this later coordinator run without replacing the original independent command snapshot. The wrapper restored all temporary includes.

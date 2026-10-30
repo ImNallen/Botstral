@@ -1,0 +1,26 @@
+[
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2/docs/evidence/p06/packaged-native-linux-controlled",
+    "head": "5d5da1814ad120eb5895a12fed70afa5fdfa092d",
+    "password_posts": 1,
+    "fresh_totp": 0,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true
+  },
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2/docs/evidence/p06/linux-final-password-totp",
+    "head": "e10c09e3690bc5f5e8cad0e35d21945434df570c",
+    "password_posts": 1,
+    "fresh_totp": 2,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true
+  },
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/docs/evidence/p06/linux-revocation-final",
+    "head": "b45c7ed575d3009de8a7b3fcf8f64da76e5caa32",
+    "password_posts": 1,
+    "fresh_totp": 2,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true
+  }
+]

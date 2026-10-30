@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-The current-catalog correction at `086b1acb41226be3e5ace6055be6f765c070b8fa` passed broad and Linux verification and independent catalog review. Overall acceptance was rejected for a separate inherited connector-revocation defect. The scanner correction at `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` passed its rebuilt Linux gate. New broad verification and independent review remain open. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
+Independent review accepts production source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` within the documented scope. The current-catalog and inherited connector-revocation objections are repaired while retained history remains screened. The rebuilt exact-source Linux gate passed. All fourteen final broad phases passed at the same clean production source. The supported v1 code is accepted for pull-request review; host reboot verification and manual takeover remain open. Earlier evidence stays tied to its recorded source. No merge is authorized by this record.
 
 ## Private entry and exact submission
 
@@ -86,3 +86,17 @@ The scanner now skips an absent revoked terminal version before recording the ep
 ## Current revocation-source Linux verification
 
 [The rebuilt full Linux proof](linux-revocation-final/proof.json) passed at clean source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32`, with an empty starting diff. The manager release digest is `31ecfd7ae2c4b71718b67c5130ccd3ac62d2e038c4670b829ffadb22a59712f0`. One independently validated password POST and two valid current-code submissions with fresh approval completed and settled applied. All four negative transport probes refused. All twelve recorded commands exited zero. The owned container was removed and emulation snapshots match. The worker binaries and retained sealed runtime are unchanged. This exercises current manager release paths on Linux; it does not rerun packaged AppKit or establish universal cold-start reliability.
+
+## Final independent code acceptance
+
+[The gpt-6-astra review](final-review-b45c7ed/report.md) accepts exact source `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32` within documented scope. Four newly authored functions and all five preserved catalog functions pass. They exercise legitimate terminal absence, multiple restored revoked connections with real unlock/relock, historical/terminal corruption, duplicate and reversed inventory order, mandatory data sharing an absent terminal epoch and query failures. The full manager library passes175 tests with six opt-in skips. Prior unchanged browser/native sessions are explicitly reused with limits; completed current root fixture records were also inspected.
+
+Root read the full report and probes, stopped the delegate, then ran the unchanged final probe in its clean exact-source checkout. [All ten selected tests passed](final-review-b45c7ed/root-confirmation.log), comprising the nine review functions and one permanent test. Temporary includes were restored. The independent verdict remains distinct from pending root broad completion and historical packaged-source execution. The report's model-named Attention flags preserve all earlier failures, scope limits, the restored Docker incident, keychain uncertainty and fixture conditions.
+
+## Final root acceptance
+
+`python3 scripts/verify-p06.py --full` exited zero at clean `b45c7ed575d3009de8a7b3fcf8f64da76e5caa32`. [All fourteen phases](20261030T004930409369Z/commands.json) passed, including repository and desktop verification. Its starting diff is empty. Subsequent changes contain documentation and evidence only. The manager suite passes175 tests with six opt-in skips; generated bindings, frontend/native tests, native secure controls, paired fixtures, browser/runtime boundaries, production release builds and nonproduction release refusals also pass.
+
+The independent exact-source code verdict, coordinator probe confirmation and rebuilt exact-source Linux result satisfy the final code gates. Root accepts the documented narrow v1 adapter and marks only the verified PLAN rows. The explicit host reboot row and W02 manual takeover remain open. Historical failures, earlier source labels and all material Attention flags remain preserved. This is readiness for a reviewable pull request, not merge or deployment authorization.
+
+The current production snapshot and prior reviewed failing snapshots remain in ordered history so their probes can be reproduced at the stated revisions. The PR links component before/after videos and a controlled browser approval video. These are labeled by their actual fixture surface. Origin is absent in this environment, so the GitHub connector handles PR metadata and the GitHub CLI handles uncovered read/push operations.

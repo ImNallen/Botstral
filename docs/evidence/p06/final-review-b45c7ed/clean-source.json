@@ -1,0 +1,11 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--exit-code"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+  "exit": 0,
+  "start": "2026-10-30T00:52:34.913535+00:00",
+  "end": "2026-10-30T00:52:34.927829+00:00"
+}

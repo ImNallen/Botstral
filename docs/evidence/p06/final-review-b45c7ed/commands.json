@@ -1,0 +1,156 @@
+[
+  {
+    "label": "fresh-all",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "fresh_",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:51:48.993430+00:00",
+    "end": "2026-10-30T00:52:21.647723+00:00"
+  },
+  {
+    "label": "completed-evidence",
+    "command": [
+      "python3",
+      ".audit/p06-revocation-recheck/audit-evidence.py"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:21.723479+00:00",
+    "end": "2026-10-30T00:52:21.751691+00:00"
+  },
+  {
+    "label": "root-cutoff",
+    "command": [
+      "python3",
+      ".audit/p06-revocation-recheck/capture-cutoff.py"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:21.776619+00:00",
+    "end": "2026-10-30T00:52:21.804478+00:00"
+  },
+  {
+    "label": "manager-full",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.796335+00:00",
+    "end": "2026-10-30T00:53:21.889623+00:00"
+  },
+  {
+    "label": "profile-runtime",
+    "command": [
+      "node",
+      "agent/tests/p06_profile_provenance.mjs"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.796336+00:00",
+    "end": "2026-10-30T00:52:34.894169+00:00"
+  },
+  {
+    "label": "head",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.796370+00:00",
+    "end": "2026-10-30T00:52:34.805907+00:00"
+  },
+  {
+    "label": "ancestry",
+    "command": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "bf470fb00e98ed6e519b02f7a314fe48a808bdc1",
+      "HEAD"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.833904+00:00",
+    "end": "2026-10-30T00:52:34.844974+00:00"
+  },
+  {
+    "label": "unchanged-boundaries",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "086b1acb41226be3e5ace6055be6f765c070b8fa",
+      "HEAD",
+      "--",
+      "agent",
+      "link",
+      "desktop",
+      "mobile",
+      "manager/src/manager/state/credentials.rs",
+      "manager/src/manager/state/connectors/gateway.rs"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.872978+00:00",
+    "end": "2026-10-30T00:52:34.883497+00:00"
+  },
+  {
+    "label": "clean-source",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:52:34.913535+00:00",
+    "end": "2026-10-30T00:52:34.927829+00:00"
+  },
+  {
+    "label": "query-error",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "fresh_recheck_revoked_presence_query_failure_propagates",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:53:46.006356+00:00",
+    "end": "2026-10-30T00:53:50.482822+00:00"
+  },
+  {
+    "label": "final-source",
+    "command": [
+      "python3",
+      ".audit/p06-revocation-recheck/verify-source.py"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+    "exit": 0,
+    "start": "2026-10-30T00:54:08.657684+00:00",
+    "end": "2026-10-30T00:54:08.815913+00:00"
+  }
+]
