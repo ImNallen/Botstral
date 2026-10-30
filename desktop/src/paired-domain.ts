@@ -139,6 +139,33 @@ const workspace = z.strictObject({
     }),
   ),
 });
+export const artifactQuerySchema = z.strictObject({
+  bot: botIdSchema.nullable(),
+  name: z
+    .string()
+    .max(80)
+    .regex(/^[ -~]*$/),
+  after: z.string().max(1024).nullable(),
+  limit: z.literal(32),
+});
+export const savedResultsSchema = z.strictObject({
+  generation: integer,
+  manager: id,
+  page: z.strictObject({
+    entries: z
+      .array(z.strictObject({ id: artifactId, task: taskId, bot: botIdSchema, output }))
+      .max(32),
+    next: z.string().max(1024).nullable(),
+  }),
+});
+export const sourceTaskSchema = z.strictObject({
+  generation: integer,
+  manager: id,
+  task: workspace.shape.tasks.element,
+});
+export type ArtifactQuery = z.infer<typeof artifactQuerySchema>;
+export type SavedResults = z.infer<typeof savedResultsSchema>;
+export type SourceTask = z.infer<typeof sourceTaskSchema>;
 export const remoteSnapshotSchema = z.strictObject({
   routine_panel: routinePanelSchema.default({ message: null, history: [], preview: [] }),
   generation: integer,
@@ -211,6 +238,8 @@ export type SendInput = {
   output_tokens: number;
 };
 export interface PairedApplication {
+  savedResults(query: ArtifactQuery): Promise<SavedResults>;
+  sourceTask(id: Task['id']): Promise<SourceTask>;
   runDetails(id: Workspace['runs'][number]['id']): Promise<RemoteSnapshot>;
   routineText(bot: SendInput['bot'], text: string): Promise<RemoteSnapshot>;
   routine(input: RoutineCommand): Promise<RemoteSnapshot>;

@@ -1,0 +1,19 @@
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop
+
+
+ Test Files  6 passed | 1 skipped (7)
+      Tests  45 passed | 1 skipped (46)
+   Start at  12:18:20
+   Duration  1.63s (environment 56%, tests 26%, setup 11%, import 6%, transform 1%)
+
+
+EXIT_CODE=0

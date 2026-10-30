@@ -1,0 +1,23 @@
+{
+  "browser": "156.0.8078.4",
+  "native_views_sha256": "4c0d62fd3de35bb54278705c5ce327d2f0f41f79db9b1f967b8cc4222b4da16d",
+  "viewport": {
+    "width": 1440,
+    "height": 1080
+  },
+  "source": "Actual PairedWorkspace, SavedResults, TaskCard, and PairedController components using captured real manager/native reads.",
+  "limitations": "Replay only. Synthetic worker. Simulated save chooser and notices. Real byte verification, restart, restore, and private disk saves are separately tested. Packaged native UI was not exercised.",
+  "actions": [
+    "open library",
+    "32 plus 3 result paging",
+    "bot filter",
+    "literal wildcard fragment",
+    "retained source task",
+    "exact action",
+    "cancel simulated chooser",
+    "complete simulated chooser"
+  ],
+  "errors": [],
+  "video": "docs/evidence/p05/saved-results.webm",
+  "sha256": "3988796899dc5df6867f106426fe193aa75e2fdb01629bbbff596b94451da4d4"
+}

@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+test manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart ... FAILED
+
+failures:
+
+---- manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart stdout ----
+
+thread 'manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart' (640678507) panicked at manager/src/manager/state/devices/tests.rs:140:10:
+called `Result::unwrap()` on an `Err` value: SqliteFailure(Error { code: ConstraintViolation, extended_code: 275 }, Some("CHECK constraint failed: role = 'owner'"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    manager::state::devices::tests::enrollment_binding_atomicity_lost_response_and_revocation_survive_restart
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 193 filtered out; finished in 3.94s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`
+
+EXIT_CODE=101

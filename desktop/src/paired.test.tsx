@@ -67,6 +67,14 @@ function snapshot(status: 'online' | 'offline' = 'online') {
 function application(initial = snapshot()) {
   const result = () => Promise.resolve(initial);
   return {
+    savedResults: async () => ({
+      generation: initial.generation,
+      manager: id,
+      page: { entries: [], next: null },
+    }),
+    sourceTask: async () => {
+      throw new Error('unavailable');
+    },
     runDetails: result,
     routine: result,
     routineText: result,
@@ -285,5 +293,148 @@ describe('paired presentation boundary', () => {
     await signingOut;
     expect(controller.getState().snapshot?.workspace).toBeNull();
     controller.dispose();
+  });
+});
+
+function controlled<T>() {
+  let resolve: (value: T) => void = () => {};
+  let reject: (reason: unknown) => void = () => {};
+  const promise = new Promise<T>((done, fail) => {
+    resolve = done;
+    reject = fail;
+  });
+  return { promise, resolve, reject };
+}
+describe('saved results authority and request ordering', () => {
+  const page = () => ({ generation: 2, manager: id, page: { entries: [], next: null } });
+  const query = { bot: null, name: '', after: null, limit: 32 } satisfies Parameters<
+    PairedApplication['savedResults']
+  >[0];
+  it.each(['success', 'failure'] as const)(
+    'ignores a superseded same-generation page %s',
+    async (outcome) => {
+      const app = application();
+      const first = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const second = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const reads = vi
+        .fn<PairedApplication['savedResults']>()
+        .mockReturnValueOnce(first.promise)
+        .mockReturnValueOnce(second.promise);
+      const controller = new PairedController({ ...app, savedResults: reads });
+      controller.accept(snapshot());
+      const a = controller.library(query);
+      const b = controller.library({ ...query, name: 'new' });
+      second.resolve(page());
+      await b;
+      if (outcome === 'failure') first.reject(new Error('late_failure'));
+      else first.resolve(page());
+      await a;
+      expect(controller.getState().library).toMatchObject({
+        kind: 'ready',
+        query: { name: 'new' },
+      });
+      expect(controller.getState().issue).toBeNull();
+      expect(controller.getState().snapshot?.workspace?.tasks).toHaveLength(1);
+    },
+  );
+  it.each(['offline', 'suspended', 'blocked', 'signed_out'] as const)(
+    'discards pages and notices on %s without a generation change',
+    async (status) => {
+      const pending = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const saved = controlled<boolean>();
+      const controller = new PairedController({
+        ...application(),
+        savedResults: () => pending.promise,
+      });
+      const initial = snapshot();
+      controller.accept(initial);
+      const read = controller.library(query);
+      const exporting = controller.export(() => saved.promise);
+      controller.accept({ ...initial, revision: 11, status });
+      pending.resolve(page());
+      saved.resolve(true);
+      await Promise.all([read, exporting]);
+      expect(controller.getState().library.kind).toBe('closed');
+      expect(controller.getState().source.kind).toBe('idle');
+      expect(controller.getState().notice).toBeNull();
+      expect(controller.getState().busy).toBe(false);
+    },
+  );
+  it('discards old source success and failure after source selection or filters change', async () => {
+    const initial = snapshot();
+    const source = initial.workspace?.tasks[0];
+    if (!source) throw new Error('Missing test source.');
+    const first = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    const second = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    const reads = vi
+      .fn<PairedApplication['sourceTask']>()
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+    const controller = new PairedController({ ...application(), sourceTask: reads });
+    controller.accept(initial);
+    const a = controller.sourceTask(source.id);
+    const b = controller.sourceTask(source.id);
+    second.resolve({ generation: 2, manager: id, task: source });
+    await b;
+    first.reject(new Error('late_source_failure'));
+    await a;
+    expect(controller.getState().source.kind).toBe('ready');
+    const third = controlled<Awaited<ReturnType<PairedApplication['sourceTask']>>>();
+    reads.mockReturnValueOnce(third.promise);
+    const c = controller.sourceTask(source.id);
+    await controller.library({ ...query, name: 'changed' });
+    third.resolve({ generation: 2, manager: id, task: source });
+    await c;
+    expect(controller.getState().source.kind).toBe('idle');
+  });
+  it.each(['manager', 'generation', 'dispose'] as const)(
+    'invalidates an outstanding read on %s change',
+    async (change) => {
+      const pending = controlled<Awaited<ReturnType<PairedApplication['savedResults']>>>();
+      const controller = new PairedController({
+        ...application(),
+        savedResults: () => pending.promise,
+      });
+      const initial = snapshot();
+      controller.accept(initial);
+      const read = controller.library(query);
+      if (change === 'dispose') controller.dispose();
+      else
+        controller.accept(
+          remoteSnapshotSchema.parse({
+            ...initial,
+            revision: 11,
+            generation: change === 'generation' ? 3 : 2,
+            workspace: { ...initial.workspace, manager: change === 'manager' ? task : id },
+          }),
+        );
+      pending.reject(new Error('stale_read'));
+      await read;
+      expect(controller.getState().library.kind).toBe('closed');
+      expect(controller.getState().issue).toBeNull();
+    },
+  );
+  it('clears busy state and ignores a save notice after filters change', async () => {
+    const saved = controlled<boolean>();
+    const controller = new PairedController(application());
+    controller.accept(snapshot());
+    const saving = controller.export(() => saved.promise);
+    await controller.library({ ...query, name: 'changed' });
+    saved.resolve(true);
+    await saving;
+    expect(controller.getState().busy).toBe(false);
+    expect(controller.getState().notice).toBeNull();
+  });
+  it('keeps an unrelated operation busy while the library changes', async () => {
+    const pending = controlled<RemoteSnapshot>();
+    const controller = new PairedController(application());
+    controller.accept(snapshot());
+    const operation = controller.run(() => pending.promise);
+    await controller.library(query);
+    controller.closeLibrary();
+    expect(controller.getState().busy).toBe(true);
+    pending.resolve(snapshot());
+    await operation;
+    expect(controller.getState().busy).toBe(false);
   });
 });

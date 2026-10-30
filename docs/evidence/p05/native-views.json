@@ -1,0 +1,1354 @@
+{
+  "before": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 4,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793359009,
+          "id": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "name": "Inference bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 14,
+      "inbox": [],
+      "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "b1a883a4-1bb9-4d5e-a740-8ff99696c565",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c59071bf-1aeb-4c32-abc2-9d58b3665152"
+        }
+      ],
+      "tasks": [],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c59071bf-1aeb-4c32-abc2-9d58b3665152",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "library_workspace": {
+    "candidate": null,
+    "generation": 0,
+    "intents": [],
+    "issue": null,
+    "pairing": null,
+    "review": null,
+    "revision": 3,
+    "routine_panel": {
+      "history": [],
+      "message": null,
+      "preview": []
+    },
+    "status": "online",
+    "workspace": {
+      "bots": [
+        {
+          "created_at": 1793359009,
+          "id": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "name": "Inference bot"
+        },
+        {
+          "created_at": 1793359014,
+          "id": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "name": "Other result bot"
+        }
+      ],
+      "configurations": [
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "context_tokens": 32768,
+          "model": "mistral-small-2506",
+          "ready": true,
+          "revision": 2
+        }
+      ],
+      "cursor": 365,
+      "inbox": [],
+      "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+      "owner": "M04 owner",
+      "permissions": [
+        {
+          "allow": true,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "revision": 2
+        },
+        {
+          "allow": true,
+          "bot": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "revision": 2
+        }
+      ],
+      "publishers": [],
+      "routine_budget": null,
+      "routine_occurrences": [],
+      "routines": [],
+      "runs": [],
+      "sessions": [
+        {
+          "bot_id": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "id": "4d3f38e3-36e1-4e95-b877-b81c81d59148",
+          "owner": "bot",
+          "revision": 1,
+          "status": "confirmed",
+          "worker_id": "c59071bf-1aeb-4c32-abc2-9d58b3665152"
+        },
+        {
+          "bot_id": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "b1a883a4-1bb9-4d5e-a740-8ff99696c565",
+          "owner": "bot",
+          "revision": 2,
+          "status": "confirmed",
+          "worker_id": "c59071bf-1aeb-4c32-abc2-9d58b3665152"
+        }
+      ],
+      "tasks": [
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"0c1b1e4c-edfd-4f69-a138-a028870b3bfc\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"6803b55d-8640-44c9-9256-ebe3c5d57c3c\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"3dc18a00-64e1-4077-ac9d-d26f5a73321f\",\n  \"execution\": \"3b56861a-c956-4a9e-a552-155709078eeb\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "6803b55d-8640-44c9-9256-ebe3c5d57c3c",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"d7f8b521-ca21-4f76-a101-01e48baa641c\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"eba3ea19-f721-4601-af2f-e1b55b4d70fb\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"c7da3590-a133-4a9f-bc99-4bdc25e0a9f0\",\n  \"execution\": \"ed664614-3a53-48f3-87b6-80aa4bb31e46\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "eba3ea19-f721-4601-af2f-e1b55b4d70fb",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"117866a2-b84b-459a-af75-6d9471a3ba45\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"6fcd9161-5641-4288-95b3-b0dccd9a44ed\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"2245490f-e54d-47e9-a7e1-4a61cb540200\",\n  \"execution\": \"cae2e285-ae0c-4444-8b55-0aab32d04f73\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "6fcd9161-5641-4288-95b3-b0dccd9a44ed",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"1649a147-f960-4f32-81e9-f7e223431a45\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"8c098915-bf83-4554-b519-a37effe92689\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"a5ee28d5-c328-4828-a425-025b22d1b5e0\",\n  \"execution\": \"a93f03f3-c603-4919-9a3d-ed56bb04a2f5\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "8c098915-bf83-4554-b519-a37effe92689",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"e8b74f71-60db-457b-baaf-9ac67445af5a\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"6e5719f7-67a5-4921-b375-996e5f06263b\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"7751e0c5-a0c2-4f78-a037-356c7d108912\",\n  \"execution\": \"a7f80896-3701-4dab-be5b-c5b9fb0d6cac\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "6e5719f7-67a5-4921-b375-996e5f06263b",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"1f6e789e-5977-4d86-ad1f-fc4867b4ed1b\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"7c7404e1-bce5-4fd5-8fed-041f746e2178\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"a13a64e7-36d3-4a08-9394-bf363f2639d6\",\n  \"execution\": \"8e661612-8a46-4ce3-970e-842ad9ca8828\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "7c7404e1-bce5-4fd5-8fed-041f746e2178",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"fc1a4c47-cdaf-4e78-9305-a2cc71a44cdf\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"b1d9ebb1-7a6b-4777-ab04-d4ee05f03c81\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"076ae701-b4a8-4c92-967d-3b6da51339bd\",\n  \"execution\": \"43ca6acf-c0e5-48fb-a9d0-51a11bd2301b\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "b1d9ebb1-7a6b-4777-ab04-d4ee05f03c81",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"070a4db4-b351-44f4-b12f-79a05bdbf3e2\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"118e5f6d-707f-4df2-8550-e11690936adb\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"dbeef3ef-2090-4b76-b7e2-752519a0a80d\",\n  \"execution\": \"58c9c277-715f-45df-b2ff-7655f0f6a985\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "118e5f6d-707f-4df2-8550-e11690936adb",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"0395243b-62f1-4782-ada0-44494f8c651f\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"cfdb5428-c76e-4fc4-9b08-f3b04de8dfed\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"ea094e60-4859-486f-bdd7-0ed612e7171f\",\n  \"execution\": \"2c893a56-1217-4e42-8705-d307fcaaafa8\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "cfdb5428-c76e-4fc4-9b08-f3b04de8dfed",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"1dd586dc-6c7f-474f-97bc-f6b544285d30\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"cb48184f-9802-4625-92b8-8ef9286d312c\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"ab32efe5-dc51-44ff-b677-899ff7dd4cb3\",\n  \"execution\": \"a750fa7b-0ad8-4237-b54b-25291774ee37\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "cb48184f-9802-4625-92b8-8ef9286d312c",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"aaf452e8-c302-4991-b670-6f91dbcee85b\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"bab582aa-3438-4af5-b604-fa4e2db554f5\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"9ff5bd8f-fd82-4f60-abb1-fd3fd1d59d49\",\n  \"execution\": \"3bb2ee04-fc3d-4b4c-9387-abe36842c0ad\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "bab582aa-3438-4af5-b604-fa4e2db554f5",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"c2a5fc27-4599-4e82-909a-8d20a9e0048c\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"c4ac416a-e5ae-4776-8bc9-01e58fff9e1c\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"8beb78d8-7b5b-47ea-843e-892d69a29649\",\n  \"execution\": \"a7329269-355b-44c2-bdc0-15904e51bf7e\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "c4ac416a-e5ae-4776-8bc9-01e58fff9e1c",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"75445ad4-e62b-4f7d-9e0e-06409b77c4ca\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"d82899f7-435b-4570-89e7-d8b956fd4111\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"c0c55478-f8ea-4a02-93a3-f1df49c438fa\",\n  \"execution\": \"e08e776d-1f2f-4e38-9cbb-dbe5c9036112\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "d82899f7-435b-4570-89e7-d8b956fd4111",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"996110dd-ba4b-4009-a3f2-51fbba1fbd77\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"84f148a6-611c-493d-8eb4-61f3d0beda73\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"c63b3657-f721-4d7d-96ad-c4dbd2c47add\",\n  \"execution\": \"b630d96e-4c2b-4172-b9e6-034dabfbcec4\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "84f148a6-611c-493d-8eb4-61f3d0beda73",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"f4d25a2f-4924-4fa0-aa55-0f184555d287\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"87b43b23-4907-4b68-bb32-4df5e62aead5\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"6a7c53fd-3a4e-4b30-9c2f-a1ff5685eaa9\",\n  \"execution\": \"7179433e-d371-476a-b405-d623af7e0c3a\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "87b43b23-4907-4b68-bb32-4df5e62aead5",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"153d60a3-9213-43a5-a6e1-064831bdcf81\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"ee00d4a8-a7e5-47bc-abda-31dde66b7854\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"53f65590-bc7d-4717-8a5a-f04bba366200\",\n  \"execution\": \"85280a6f-8492-41ec-a7e6-dd16a71483d8\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "ee00d4a8-a7e5-47bc-abda-31dde66b7854",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"1e80f9b4-96b3-49c3-a182-86037fa3093f\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"934394d1-2aa6-4499-ab8b-4266dfd4e3f6\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"28e20fd6-6d0b-4208-b980-8f455eb2c6e4\",\n  \"execution\": \"bb2f27ea-4a8c-4af8-b69d-d9d0dc1652f7\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "934394d1-2aa6-4499-ab8b-4266dfd4e3f6",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"0923149d-845b-478e-89c6-6fedcf802cbc\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"57104848-8bb1-48e1-94ed-74824be217b6\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"76a63010-0545-44cf-a86a-b73fec64974f\",\n  \"execution\": \"bf82df84-f7f5-42ab-9d8c-fdcfdf00654d\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "57104848-8bb1-48e1-94ed-74824be217b6",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"296c3005-332c-44fb-8e7f-21fbaca8c364\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"80a26a42-f003-41f8-a2e8-1e6c39b4a196\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"2ed51f24-4b5b-4b16-ba49-f193b907dcc2\",\n  \"execution\": \"e3aa0478-02ad-47da-ba0c-e3ff40286cf7\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "80a26a42-f003-41f8-a2e8-1e6c39b4a196",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"6b87bc71-8ee1-428b-ae28-a88a5dfbb4c7\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"812d238c-a969-4123-a0ad-202c095322c6\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"332f565c-98d6-4b71-8fff-98dde4d6d072\",\n  \"execution\": \"991a5aac-0f1f-4b1b-b965-511c1575e61f\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "812d238c-a969-4123-a0ad-202c095322c6",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"18adff71-ace8-4370-ba93-6eb1074da989\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"0678c409-2d36-453f-9e97-55a0a0a5ade6\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"4cffd580-b88b-4e50-8b0d-21281e69e5e6\",\n  \"execution\": \"61c3424f-93f1-4839-bed5-bc27eefa9126\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "0678c409-2d36-453f-9e97-55a0a0a5ade6",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"d6a5177e-68e4-4e92-890b-c90f0ef4cc20\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"593a9b12-40df-4dc1-9a30-bf2722d17310\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"73b0164d-9428-4e2e-807f-b613a2a29365\",\n  \"execution\": \"549efe1f-26a3-430d-9f59-5d9d3ebee05d\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "593a9b12-40df-4dc1-9a30-bf2722d17310",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"bf271433-e06e-4481-9ccb-6c3d6d215667\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"3e8b786a-9d84-4cab-8a47-20c705532e25\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"b16ef7e3-37bf-4eae-98c7-64a68518c906\",\n  \"execution\": \"09595c55-e7d3-4912-b2c5-5d9b2987f8af\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "3e8b786a-9d84-4cab-8a47-20c705532e25",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"5daa61de-0f82-4eb1-88fd-0b29c4f32c77\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"c2d3609f-2b86-4ec4-b05b-45493f124e48\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"d442cb53-46a2-4eba-b397-76adfc5e67f9\",\n  \"execution\": \"924a9b2c-2218-4fe1-9ebc-43762d848b83\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "c2d3609f-2b86-4ec4-b05b-45493f124e48",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"7a506027-3af8-4c2b-8b7a-900b036a86bc\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"a2992fef-d9db-41a2-9d17-10b56a8c5250\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"7eb20c9a-7a52-4484-825f-db8d9704713f\",\n  \"execution\": \"14473b84-c77e-4942-8822-bec697c1d9ea\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "a2992fef-d9db-41a2-9d17-10b56a8c5250",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"e2261866-0da1-4b11-be97-8bfc8e4dc655\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"d36f2f29-f6c4-4e4f-b1d4-a297d0c2bd13\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"329f89c3-9def-453c-a397-259e78e01312\",\n  \"execution\": \"776a4d16-b966-40d0-94d6-df0071596cd9\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "d36f2f29-f6c4-4e4f-b1d4-a297d0c2bd13",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"b52132a4-35a5-4745-b1f8-48b011082da2\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"2cd18219-0cb1-4c6c-96e5-c46f879e0af5\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"7f0d9db1-3aa6-42db-a109-aa5ac207adfe\",\n  \"execution\": \"14761ef7-345d-4d29-aed0-26c8d2e1185c\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "2cd18219-0cb1-4c6c-96e5-c46f879e0af5",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"4b602679-00ac-47d8-a70e-a932972782cb\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"a2a3e8b6-afe5-4a1c-8dbb-58291ff3483e\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"ecce4606-aece-4169-9e20-dcbc756c8124\",\n  \"execution\": \"58506bf6-6ca0-4dec-83b4-92694894cf5c\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "a2a3e8b6-afe5-4a1c-8dbb-58291ff3483e",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"1ce2b655-dae1-4875-ad7e-49e164599315\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"f0ed9f70-c258-4a1d-b190-6a1ebde3b8c4\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"8a17ecec-e096-4935-a6d3-24ae327965a7\",\n  \"execution\": \"5193b3bc-eb9b-4948-99a4-b42814b0f80c\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "f0ed9f70-c258-4a1d-b190-6a1ebde3b8c4",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"7aca6ec0-b4e0-4f03-bab5-83b9b6ffed54\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"7eb2d9df-daf2-4fd6-8c1c-e8b44aa8af6c\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"1fdcf01a-a1be-4b0b-afd2-99d65b2ea7f3\",\n  \"execution\": \"06f01b6d-7358-4cd1-8205-89cc1a54f08d\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "7eb2d9df-daf2-4fd6-8c1c-e8b44aa8af6c",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"aacea336-55b0-418e-8195-23d19a8ea15c\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"d3e9b4ec-f0dc-418e-a07c-4f55e6e9f2fe\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"e2293273-7b5a-4385-b12c-bc7de19eadf9\",\n  \"execution\": \"06ecbd8a-6017-405b-b5e6-92188b1c1a00\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "d3e9b4ec-f0dc-418e-a07c-4f55e6e9f2fe",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        },
+        {
+          "action": "Execution is unavailable\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"52eaa219-a391-46ce-b32c-03e75c4bafd6\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"38685b32-0cfd-4bc7-9b5b-f36d00b132e1\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"e0aa1f3e-56af-473e-bd72-b10f45b382e7\",\n  \"execution\": \"e0a263ca-a176-49f9-a7af-84a5dc01bfa2\",\n  \"work\": {\n    \"type\": \"unavailable\"\n  }\n}",
+          "approval_consumed": false,
+          "approval_revoked": false,
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "evidence": "[]",
+          "id": "38685b32-0cfd-4bc7-9b5b-f36d00b132e1",
+          "outputs": [],
+          "progress": 0,
+          "state": "cancelled"
+        }
+      ],
+      "vault_unlocked": true,
+      "workers": [
+        {
+          "id": "c59071bf-1aeb-4c32-abc2-9d58b3665152",
+          "phase": "ready",
+          "revoked": false
+        }
+      ]
+    }
+  },
+  "literal": {
+    "generation": 0,
+    "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+    "page": {
+      "entries": [
+        {
+          "bot": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "literal %_*.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+              "type": "available"
+            }
+          },
+          "task": "e9945c9e-8be9-4307-94dc-26d2e770c9f6"
+        }
+      ],
+      "next": null
+    }
+  },
+  "next": {
+    "generation": 0,
+    "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+    "page": {
+      "entries": [
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "f6416d23-9717-41f8-8d86-3e45638c90f2",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "f6416d23-9717-41f8-8d86-3e45638c90f2",
+              "type": "available"
+            }
+          },
+          "task": "029e9836-0a98-4e22-be0b-af21d3c2b266"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "f981ef03-ede8-42c9-94c5-8b2c0455fc2c",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "f981ef03-ede8-42c9-94c5-8b2c0455fc2c",
+              "type": "available"
+            }
+          },
+          "task": "46fb5879-7bc2-4b4b-9ecc-aab9ac3e85fb"
+        },
+        {
+          "bot": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "literal %_*.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+              "type": "available"
+            }
+          },
+          "task": "e9945c9e-8be9-4307-94dc-26d2e770c9f6"
+        }
+      ],
+      "next": null
+    }
+  },
+  "other_bot": {
+    "generation": 0,
+    "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+    "page": {
+      "entries": [
+        {
+          "bot": "9452a13c-a059-42d7-b660-2da34616d6f3",
+          "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "literal %_*.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "c9374ef1-762a-4142-a8ab-7e6b4d02e584",
+              "type": "available"
+            }
+          },
+          "task": "e9945c9e-8be9-4307-94dc-26d2e770c9f6"
+        }
+      ],
+      "next": null
+    }
+  },
+  "page": {
+    "generation": 0,
+    "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+    "page": {
+      "entries": [
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "d519d089-6bcd-400e-81f5-2ace1d9e137c",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "00-old-result.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "d519d089-6bcd-400e-81f5-2ace1d9e137c",
+              "type": "available"
+            }
+          },
+          "task": "67d80173-7014-4e9c-b227-97c477db85be"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "01bbf613-f0d9-44a0-8c25-af767571ced1",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "01bbf613-f0d9-44a0-8c25-af767571ced1",
+              "type": "available"
+            }
+          },
+          "task": "1c27a2ae-554a-4656-9691-47978b0b17db"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "066cd714-d11f-44ac-9231-7955342b76c2",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "066cd714-d11f-44ac-9231-7955342b76c2",
+              "type": "available"
+            }
+          },
+          "task": "5bc06f77-775f-49ec-ac47-c0d7e20e6d7f"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "074698cf-c2a4-4c9c-bd04-c311d1f285fc",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "074698cf-c2a4-4c9c-bd04-c311d1f285fc",
+              "type": "available"
+            }
+          },
+          "task": "22968557-dc07-4fe3-bd49-2d26f3365da3"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "081cc99c-7801-4952-9acb-a0fb0848e69d",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "081cc99c-7801-4952-9acb-a0fb0848e69d",
+              "type": "available"
+            }
+          },
+          "task": "49272b7b-0cf1-40f6-a785-cb9434da1306"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "0e079c06-c4df-45f3-ae85-17bb1ace29ca",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "0e079c06-c4df-45f3-ae85-17bb1ace29ca",
+              "type": "available"
+            }
+          },
+          "task": "7c8a54ba-df37-41fa-b392-044ac9ef8d91"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "13d28bb2-02c2-4b1a-a6eb-020719fe50d1",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "13d28bb2-02c2-4b1a-a6eb-020719fe50d1",
+              "type": "available"
+            }
+          },
+          "task": "40b4a6ad-3087-4f18-ab63-1b5e3593d29c"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "19d4b17a-74d3-42eb-bd9a-616c6f7a7f48",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "19d4b17a-74d3-42eb-bd9a-616c6f7a7f48",
+              "type": "available"
+            }
+          },
+          "task": "7fab05c7-a41b-4ee4-9220-7c5dce3cc2e2"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "1e908820-4021-4a2a-bd98-c262d3f07c50",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "1e908820-4021-4a2a-bd98-c262d3f07c50",
+              "type": "available"
+            }
+          },
+          "task": "4161da55-b340-4d64-a6c5-a441ecaca08b"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "224c15eb-829e-4247-920b-a0a1652d6b61",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "224c15eb-829e-4247-920b-a0a1652d6b61",
+              "type": "available"
+            }
+          },
+          "task": "a3654fcb-e631-48c8-b22c-a029d4519fd6"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "240b6c71-4236-4632-85a7-9543b97ec4af",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "240b6c71-4236-4632-85a7-9543b97ec4af",
+              "type": "available"
+            }
+          },
+          "task": "42989ee9-0619-410c-97a3-8c65787db784"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "3030cb80-2850-41a3-896e-3e8255bdcaf3",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "3030cb80-2850-41a3-896e-3e8255bdcaf3",
+              "type": "available"
+            }
+          },
+          "task": "360a57fa-f537-4fdf-9c6e-78109740cfc4"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "3f543682-53fc-42c3-bea6-16d1ee7ea42e",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "3f543682-53fc-42c3-bea6-16d1ee7ea42e",
+              "type": "available"
+            }
+          },
+          "task": "b739e74a-b7b2-48f3-b63b-22efa26a65df"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "45194f78-bbeb-493e-9f5d-125125df3677",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "45194f78-bbeb-493e-9f5d-125125df3677",
+              "type": "available"
+            }
+          },
+          "task": "9598e154-86af-49d5-bf3e-9133706d2c5b"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "469be884-6c12-4c6f-9795-8077b9f344c7",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "469be884-6c12-4c6f-9795-8077b9f344c7",
+              "type": "available"
+            }
+          },
+          "task": "f3e37dad-74be-4ab0-98af-0ce29680060e"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "47bad51a-c09b-4af9-b0f0-742c507ace77",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "47bad51a-c09b-4af9-b0f0-742c507ace77",
+              "type": "available"
+            }
+          },
+          "task": "16ab7371-5e4c-4ade-8d38-ed18f3a76f95"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "56213e0f-4448-4685-9e9e-4310f12d4c30",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "56213e0f-4448-4685-9e9e-4310f12d4c30",
+              "type": "available"
+            }
+          },
+          "task": "baf992d5-06a8-4248-a995-af12f6097df8"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "6dc5f9c3-fcff-4237-99cc-a0ebf930a317",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "6dc5f9c3-fcff-4237-99cc-a0ebf930a317",
+              "type": "available"
+            }
+          },
+          "task": "3e3f0f70-2d21-4ae0-848c-6cc1bd16c5bc"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "746129d3-2537-4a1a-be81-26a4931930b5",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "746129d3-2537-4a1a-be81-26a4931930b5",
+              "type": "available"
+            }
+          },
+          "task": "53abf50f-98ce-48c2-90a9-a67120c71822"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "770ec551-f240-45c7-908a-65b3003a157d",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "770ec551-f240-45c7-908a-65b3003a157d",
+              "type": "available"
+            }
+          },
+          "task": "4dd292db-88b2-4369-8f97-436d9e7c9e35"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "a5d66e83-75d2-4bef-b119-03b3fcd69606",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "a5d66e83-75d2-4bef-b119-03b3fcd69606",
+              "type": "available"
+            }
+          },
+          "task": "03f73c1d-c8a0-4be0-8de1-ffd769fc9235"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "a5fd6a37-cfcb-4332-92ae-56874776452a",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "a5fd6a37-cfcb-4332-92ae-56874776452a",
+              "type": "available"
+            }
+          },
+          "task": "9326fbfb-7430-44cd-a70c-11407e83850d"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "a8131b21-2c71-45a6-b4ce-71b54039aba4",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "a8131b21-2c71-45a6-b4ce-71b54039aba4",
+              "type": "available"
+            }
+          },
+          "task": "1309bd50-0f10-4dc8-a79e-1925ff9ead79"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "ac73b6c9-ed89-489e-9623-6e2b729a3300",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "ac73b6c9-ed89-489e-9623-6e2b729a3300",
+              "type": "available"
+            }
+          },
+          "task": "01fdae1d-2fed-4b00-ab71-89e857fe21d2"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "b1887e5f-7367-49d9-a176-80c32ad81c36",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "b1887e5f-7367-49d9-a176-80c32ad81c36",
+              "type": "available"
+            }
+          },
+          "task": "cfb7c420-56a1-43d7-b0a8-f420e28c9664"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "b6ed20c9-b1f5-4730-9d31-ccc2be198928",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "b6ed20c9-b1f5-4730-9d31-ccc2be198928",
+              "type": "available"
+            }
+          },
+          "task": "daa4b86f-c2c1-4659-b996-63697dc002bc"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "b963151f-51b1-4696-ada1-6e9cdd928c7f",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "b963151f-51b1-4696-ada1-6e9cdd928c7f",
+              "type": "available"
+            }
+          },
+          "task": "0f9da68a-952a-45cf-95d4-74842c1eba40"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "c88ab817-c5b4-4b32-bf34-895e81837624",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "c88ab817-c5b4-4b32-bf34-895e81837624",
+              "type": "available"
+            }
+          },
+          "task": "baac6fb4-953f-4a68-b8cd-ebd736731211"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "d2c7293e-f2f2-454a-9111-8c98ecf201a3",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "d2c7293e-f2f2-454a-9111-8c98ecf201a3",
+              "type": "available"
+            }
+          },
+          "task": "2150e2fd-a22e-4f18-96b6-6bbac059889d"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "dc426c96-ebc7-4e8c-b758-538e6cc0bc0b",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "dc426c96-ebc7-4e8c-b758-538e6cc0bc0b",
+              "type": "available"
+            }
+          },
+          "task": "6385ed32-5949-42a0-894b-15272b8cf52f"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "e4d37245-dc54-492c-854d-ae8e2723f52e",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "e4d37245-dc54-492c-854d-ae8e2723f52e",
+              "type": "available"
+            }
+          },
+          "task": "f7a1803b-61dd-4cbe-b338-041d94a4062e"
+        },
+        {
+          "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+          "id": "e5d1e021-a812-40a4-b681-9aa62c5b3672",
+          "output": {
+            "declaration": {
+              "max_bytes": 1024,
+              "media_type": "text_plain",
+              "name": "Duplicate.txt",
+              "slot": "text"
+            },
+            "state": {
+              "content": {
+                "length": 65,
+                "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+              },
+              "id": "e5d1e021-a812-40a4-b681-9aa62c5b3672",
+              "type": "available"
+            }
+          },
+          "task": "ae285824-561d-42a9-a86f-162942c20010"
+        }
+      ],
+      "next": "{\"bot\":null,\"name\":\"\",\"filename\":\"duplicate.txt\",\"id\":\"e5d1e021-a812-40a4-b681-9aa62c5b3672\"}"
+    }
+  },
+  "source": {
+    "generation": 0,
+    "manager": "22734d0d-057c-4fbb-8998-577bc1f46edd",
+    "task": {
+      "action": "1. Write file \"/tmp/p05-result.txt\"\n   Exact contents: \"Exact ordinary action contents must remain visible.\"\n\n2. Read file \"/tmp/p05-result.txt\" into output \"text\"\n\nExecution target\nWorker c59071bf-1aeb-4c32-abc2-9d58b3665152\nSession b1a883a4-1bb9-4d5e-a740-8ff99696c565\n\nComplete execution details\n{\n  \"id\": \"7f95e27f-6a31-4d6e-b674-236536546709\",\n  \"owner\": \"4af3797d-3d58-4011-a8f8-ea3921f82179\",\n  \"task\": \"67d80173-7014-4e9c-b227-97c477db85be\",\n  \"bot\": \"315e9c83-f8bd-41d3-beff-c2bd245785ae\",\n  \"worker\": \"c59071bf-1aeb-4c32-abc2-9d58b3665152\",\n  \"session\": \"b1a883a4-1bb9-4d5e-a740-8ff99696c565\",\n  \"operation\": \"250d47d4-54b9-4a4f-8504-38ba9eb72e79\",\n  \"execution\": \"44fd6cb6-76c9-46fe-840e-1790abe13d01\",\n  \"work\": {\n    \"type\": \"computer\",\n    \"spec\": {\n      \"profile\": \"linux_playwright_v1\",\n      \"account\": {\n        \"uid\": 1000,\n        \"gid\": 1000\n      },\n      \"runtime\": {\n        \"sha256\": \"7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0\"\n      },\n      \"deadline\": 1793359614,\n      \"limits\": {\n        \"runtime_seconds\": 120,\n        \"output_bytes\": 1024,\n        \"processes\": 64,\n        \"memory_bytes\": 536870912\n      },\n      \"viewport\": {\n        \"width\": 800,\n        \"height\": 600\n      },\n      \"operations\": [\n        {\n          \"type\": \"write_file\",\n          \"path\": \"/tmp/p05-result.txt\",\n          \"text\": \"Exact ordinary action contents must remain visible.\"\n        },\n        {\n          \"type\": \"read_file\",\n          \"path\": \"/tmp/p05-result.txt\",\n          \"output\": \"text\"\n        }\n      ],\n      \"outputs\": [\n        {\n          \"slot\": \"text\",\n          \"name\": \"00-old-result.txt\",\n          \"media_type\": \"text_plain\",\n          \"max_bytes\": 1024\n        }\n      ]\n    }\n  }\n}",
+      "approval_consumed": true,
+      "approval_revoked": false,
+      "bot": "315e9c83-f8bd-41d3-beff-c2bd245785ae",
+      "evidence": "[]",
+      "id": "67d80173-7014-4e9c-b227-97c477db85be",
+      "outputs": [
+        {
+          "declaration": {
+            "max_bytes": 1024,
+            "media_type": "text_plain",
+            "name": "00-old-result.txt",
+            "slot": "text"
+          },
+          "state": {
+            "content": {
+              "length": 65,
+              "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906"
+            },
+            "id": "d519d089-6bcd-400e-81f5-2ace1d9e137c",
+            "type": "available"
+          }
+        }
+      ],
+      "progress": 0,
+      "state": "completed"
+    }
+  }
+}

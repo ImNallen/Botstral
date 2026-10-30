@@ -1,0 +1,1 @@
+{"extends":"../tsconfig.json","compilerOptions":{"resolveJsonModule":true},"include":["p05-proof.tsx"]}

@@ -1134,3 +1134,36 @@ summary {
 .saved-memory-text {
   white-space: pre-wrap;
 }
+
+.saved-results {
+  width: min(900px, calc(100vw - 48px));
+}
+.saved-result-list {
+  list-style: none;
+  padding: 0;
+}
+.saved-result-list > li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.saved-results label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+.saved-results input,
+.saved-results select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--main);
+  color: var(--text);
+  padding: 8px 10px;
+  font: inherit;
+}
+.saved-artifact-id {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}

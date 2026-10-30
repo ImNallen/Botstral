@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 116, in <module>
+    main()
+  File "/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/fixtures/paired_manager.py", line 68, in main
+    raise RuntimeError('Fixture startup failed. Inspect '+str(root/'manager.log'))
+RuntimeError: Fixture startup failed. Inspect /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-qcjf7wpn/manager.log
+
+EXIT_CODE=1

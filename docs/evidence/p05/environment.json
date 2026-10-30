@@ -1,0 +1,10 @@
+{
+  "base": "271f9cd72dabd2d0749027b84d355ca046de5f7e",
+  "platform": "Darwin arm64",
+  "node": "v26.12.1",
+  "npm": "11.20.0",
+  "rustc": "rustc 1.93.0 (254b59607 2026-01-19)",
+  "cargo": "cargo 1.93.0 (083ac5135 2025-12-15)",
+  "python": "Python 3.9.6",
+  "runtime_note": "Local npm dependencies only. The agent runtime package requests Node 24.22.1; this capture used Node 26.12.1 with its install engine warning. No global runtime or emulation settings changed."
+}

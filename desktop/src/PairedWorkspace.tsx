@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import type { PairedController } from './paired-application';
-import { remoteIssues, type Device, type Task, type Workspace } from './paired-domain';
+import { TaskCard } from './TaskCard';
+import { SavedResults } from './SavedResults';
+import { remoteIssues, type Device, type Workspace } from './paired-domain';
 import { Avatar } from './Avatar';
 import { Icon } from './Icon';
 import { formatDate } from './format';
@@ -37,92 +39,6 @@ function WorkspaceDialog({
     >
       {children}
     </dialog>
-  );
-}
-function taskTerminal(task: Task) {
-  return ['completed', 'failed', 'cancelled'].includes(task.state);
-}
-function TaskCard({
-  task,
-  controller,
-  busy,
-}: {
-  task: Task;
-  controller: PairedController;
-  busy: boolean;
-}) {
-  const act = (action: () => ReturnType<typeof controller.app.refresh>) => {
-    void controller.run(action);
-  };
-  return (
-    <article className="task-card" aria-label={`Task ${task.id}`} id={`task-${task.id}`}>
-      <header>
-        <strong>Task activity</strong>
-        <span className="state-label">{task.state.replaceAll('_', ' ')}</span>
-      </header>
-      <p className="small-copy muted">
-        {task.progress} operations reported.{' '}
-        {task.state === 'cancelling'
-          ? 'Cancellation requested. Waiting for authoritative stop evidence.'
-          : ''}
-      </p>
-      <details>
-        <summary>Exact action and target</summary>
-        <pre>{task.action}</pre>
-      </details>
-      {task.evidence !== '[]' && (
-        <details>
-          <summary>Execution evidence</summary>
-          <pre>{task.evidence}</pre>
-        </details>
-      )}
-      <div className="action-row">
-        {!taskTerminal(task) && !task.approval_consumed && (
-          <button disabled={busy} onClick={() => act(() => controller.app.review(task.id))}>
-            Review action
-          </button>
-        )}
-        {!taskTerminal(task) && (
-          <button
-            disabled={busy || task.state === 'cancelling'}
-            onClick={() => act(() => controller.app.cancelTask(task.id))}
-          >
-            Cancel task
-          </button>
-        )}
-        {!taskTerminal(task) && !task.approval_revoked && (
-          <button disabled={busy} onClick={() => act(() => controller.app.revokeApproval(task.id))}>
-            Revoke approval
-          </button>
-        )}
-      </div>
-      {task.outputs.map((output) => (
-        <div key={output.declaration.slot} className="artifact-row">
-          <span>
-            {output.declaration.name}
-            <small>
-              {output.state.type === 'available'
-                ? `${output.state.content.length} bytes · ${output.state.content.sha256}`
-                : output.state.type === 'unavailable'
-                  ? output.state.reason.replaceAll('_', ' ')
-                  : output.state.type}
-            </small>
-          </span>
-          {output.state.type === 'available' && (
-            <button
-              disabled={busy}
-              onClick={() => {
-                const state = output.state;
-                if (state.type === 'available')
-                  void controller.export(() => controller.app.exportArtifact(task.id, state.id));
-              }}
-            >
-              Save verified file
-            </button>
-          )}
-        </div>
-      ))}
-    </article>
   );
 }
 function Pairing({
@@ -608,6 +524,15 @@ export function PairedWorkspace({
           ))}
         </nav>
         <footer className="roster-footer">
+          <button
+            className="detail-action"
+            disabled={snapshot?.status !== 'online'}
+            onClick={() => {
+              void controller.library();
+            }}
+          >
+            Saved results
+          </button>
           <p className="small-copy muted">
             {workspace?.owner ?? 'Native owner client'} ·{' '}
             {snapshot?.status.replaceAll('_', ' ') ?? 'Starting'}
@@ -636,6 +561,7 @@ export function PairedWorkspace({
         </footer>
       </aside>
       <main className="main-panel">
+        {state.library.kind !== 'closed' && <SavedResults controller={controller} />}
         <header className="conversation-header" data-tauri-drag-region>
           <div className="conversation-title">
             {bot && <Avatar seed={bot.id} primary />}
