@@ -103,19 +103,18 @@ jobs:
         env:
           CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY_P8 }}
-          NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
-          NOTARY_ISSUER: ${{ secrets.APPLE_NOTARY_ISSUER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
           set -eu
           umask 077
           test -n "$CERTIFICATE"
           test -n "$CERTIFICATE_PASSWORD"
-          test -n "$NOTARY_KEY"
-          test -n "$NOTARY_KEY_ID"
-          test -n "$NOTARY_ISSUER"
+          test -n "$APPLE_ID"
+          test -n "$APPLE_TEAM_ID"
+          test -n "$APPLE_APP_SPECIFIC_PASSWORD"
           printf '%s' "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/release.p12"
-          printf '%s' "$NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
           password=$(openssl rand -hex 32)
           security create-keychain -p "$password" "$RUNNER_TEMP/release.keychain-db"
           security set-keychain-settings -lut 21600 "$RUNNER_TEMP/release.keychain-db"
@@ -123,7 +122,7 @@ jobs:
           security import "$RUNNER_TEMP/release.p12" -k "$RUNNER_TEMP/release.keychain-db" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security list-keychains -d user -s "$RUNNER_TEMP/release.keychain-db" login.keychain-db
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$RUNNER_TEMP/release.keychain-db"
-          xcrun notarytool store-credentials botstral-release --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" --keychain "$RUNNER_TEMP/release.keychain-db"
+          xcrun notarytool store-credentials botstral-release --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --keychain "$RUNNER_TEMP/release.keychain-db"
       - env:
           TARGET: ${{ matrix.target }}
           APPLE_SIGNING_IDENTITY: ${{ vars.APPLE_SIGNING_IDENTITY }}
@@ -145,7 +144,7 @@ jobs:
       - if: always() && runner.os == 'macOS'
         run: |
           security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true
-          rm -f "$RUNNER_TEMP/release.p12" "$RUNNER_TEMP/notary.p8"
+          rm -f "$RUNNER_TEMP/release.p12"
       - uses: actions/upload-artifact@v4
         with:
           name: native-${{ matrix.target }}

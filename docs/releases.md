@@ -163,7 +163,7 @@ The release workflow runs for stable tags, scheduled nightly builds, or explicit
 
 Configure these credentials before expecting production success:
 
-- Native build secrets: `APPLE_CERTIFICATE_P12_BASE64`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_NOTARY_KEY_P8`, `APPLE_NOTARY_KEY_ID`, and `APPLE_NOTARY_ISSUER`.
+- Native build repository secrets: `APPLE_CERTIFICATE_P12_BASE64`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_ID`, `APPLE_TEAM_ID`, and `APPLE_APP_SPECIFIC_PASSWORD`.
 - Native build variable: `APPLE_SIGNING_IDENTITY`, using the existing Developer ID Application team for credential continuity.
 - Signing environment secret: `RELEASE_MANIFEST_PRIVATE_KEY`.
 - Independently configured signing and publication variable: `RELEASE_MANIFEST_PUBLIC_KEY`.
