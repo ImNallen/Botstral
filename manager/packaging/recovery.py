@@ -169,6 +169,17 @@ def artifact_check(connection, root):
         require(metadata(path).st_size == content['length'] and digest(path) == content['sha256'], 'ledger artifact integrity failed')
 
 
+def attachment_check(connection, root):
+    if connection.execute('PRAGMA user_version').fetchone()[0] < 17:
+        return
+    rows = connection.execute('SELECT run,sha256,length FROM run_files UNION ALL SELECT run,sha256,length FROM staged_run_files')
+    for identity, sha256, length in rows:
+        require(str(uuid.UUID(identity)) == identity, 'invalid attachment identity')
+        require(type(length) is int and 1 <= length <= 16 * 1024, 'invalid attachment length')
+        path = root / 'run-files' / identity
+        require(metadata(path).st_size == length and digest(path) == sha256, 'ledger attachment integrity failed')
+
+
 def worker_records(connection):
     for (record,) in connection.execute('SELECT record FROM executions'):
         process = json.loads(record).get('process')
@@ -281,7 +292,8 @@ def manager_layout(relative, info):
     if relative == '.':
         return
     parts = relative.split('/')
-    require((len(parts) == 1 and (stat.S_ISREG(info.st_mode) or (relative == 'artifacts' and stat.S_ISDIR(info.st_mode)))) or (len(parts) == 2 and parts[0] == 'artifacts' and stat.S_ISREG(info.st_mode)), 'unsupported manager state layout')
+    stores = {'artifacts', 'run-files'}
+    require((len(parts) == 1 and (stat.S_ISREG(info.st_mode) or (relative in stores and stat.S_ISDIR(info.st_mode)))) or (len(parts) == 2 and parts[0] in stores and stat.S_ISREG(info.st_mode)), 'unsupported manager state layout')
 
 
 def copy_file(source, destination):
@@ -310,6 +322,7 @@ def create(component, state, destination, plan=None):
             stack.callback(connection.close)
             if component == 'manager':
                 artifact_check(connection, state)
+                attachment_check(connection, state)
             else:
                 worker_records(connection)
                 worker_quiet([Path(root['path']) for root in roots])
@@ -418,6 +431,7 @@ def verify(component, bundle):
         require(type(manifest.schema) is int and schema == manifest.schema and identity == manifest.identity, 'database identity or schema mismatch')
         if component == 'manager':
             artifact_check(connection, bundle / 'files/state')
+            attachment_check(connection, bundle / 'files/state')
             require(manifest.references == [], 'unexpected manager reference')
         else:
             worker_records(connection)

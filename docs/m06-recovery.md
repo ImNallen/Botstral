@@ -12,11 +12,11 @@ botstral-manager-backup verify --backup /private/backups/manager-01
 botstral-manager-backup restore --backup /private/backups/manager-01 --destination /private/recovered-manager
 ```
 
-The source must contain an initialized owner. Backup acquires `manager.lock`, uses SQLite's online backup API while the service is offline, and validates SQLite integrity. The snapshot includes committed WAL transactions. Markdown sources, encrypted identity and credential records, owner history, and artifact bytes travel in one bundle. Every available artifact must match its durable ledger length and SHA256. Transfer `.part` files, SQLite WAL and shared-memory sidecars, and service locks are excluded.
+The source must contain an initialized owner. Backup acquires `manager.lock`, uses SQLite's online backup API while the service is offline, and validates SQLite integrity. The snapshot includes committed WAL transactions. Markdown sources, encrypted identity and credential records, owner history, artifacts, and submitted or staged attachment bytes travel in one bundle. Every available artifact and recorded attachment must match its database length and SHA256. Artifact transfer files matching `artifacts/*.part`, SQLite WAL and shared-memory sidecars, and service locks are excluded.
 
 Restore requires a new destination. It validates format, schema, component identity, root labels, paths, modes, sizes, file digests, SQLite integrity, and ledger artifact digests before publication. It rejects unexpected files, duplicate paths, symbolic links, hardlinks, special files, and populated destinations. It publishes through a private sibling directory. Manager startup preserves the original encrypted identity, starts locked, drops old local sign-in sessions, and uses existing recovery and reconciliation.
 
-The bundle is private, not encrypted. Existing encrypted vault and credential fields remain encrypted. History, Markdown, and artifact contents remain plaintext. Copy bundles through an encrypted channel and keep them on protected storage. SHA256 detects corruption. The manifest is not a signature against an attacker who can rewrite the entire bundle.
+The bundle is private, not encrypted. Existing encrypted vault and credential fields remain encrypted. History, Markdown, artifact contents, and attachment contents remain plaintext. Copy bundles through an encrypted channel and keep them on protected storage. SHA256 detects corruption. The manifest is not a signature against an attacker who can rewrite the entire bundle.
 
 ## Select Computer recovery roots
 

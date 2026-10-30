@@ -119,6 +119,78 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'artifact integrity'):
             r.create('manager', self.state, self.root / 'corrupt-backup')
 
+    def attachments(self):
+        self.db.executescript((Path(__file__).resolve().parents[1] / 'migrations/0017.sql').read_text())
+        directory = self.state / 'run-files'
+        directory.mkdir(mode=0o700)
+        files = []
+        for table, content in [('run_files', b'bound attachment'),
+                               ('staged_run_files', b'\xff\x00staged attachment')]:
+            identity = str(uuid.uuid4())
+            path = directory / identity
+            path.write_bytes(content)
+            path.chmod(0o600)
+            self.db.execute(f'INSERT INTO {table} VALUES(?,?,?,?)',
+                            (identity, 'note.txt', r.digest(path), len(content)))
+            files.append((table, identity, content))
+        self.db.commit()
+        self.private_database()
+        return files
+
+    def private_database(self):
+        for path in self.state.glob('manager.sqlite3*'):
+            path.chmod(0o600)
+
+    def test_bound_and_staged_attachments_restore_with_private_verified_bytes(self):
+        files = self.attachments()
+        self.create()
+        restored = self.root / 'restored'
+        r.restore('manager', self.backup, restored)
+        self.assertEqual((restored / 'run-files').stat().st_mode & 0o777, 0o700)
+        with sqlite3.connect(restored / 'manager.sqlite3') as db:
+            for table, identity, content in files:
+                path = restored / 'run-files' / identity
+                self.assertEqual(path.read_bytes(), content)
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                self.assertEqual(db.execute(f'SELECT sha256,length FROM {table} WHERE run=?', (identity,)).fetchone(),
+                                 (r.digest(path), len(content)))
+
+    def test_attachment_ledger_refuses_missing_corrupt_and_linked_bytes(self):
+        files = self.attachments()
+        for table, identity, content in files:
+            path = self.state / 'run-files' / identity
+            for case in ('missing', 'corrupt', 'symlink', 'hardlink'):
+                with self.subTest(table=table, case=case):
+                    path.unlink()
+                    if case == 'corrupt':
+                        path.write_bytes(b'wrong attachment')
+                        path.chmod(0o600)
+                    elif case == 'symlink':
+                        path.symlink_to(self.state / 'memory-test.md')
+                    elif case == 'hardlink':
+                        os.link(self.state / 'memory-test.md', path)
+                    with self.assertRaises((ValueError, FileNotFoundError)):
+                        self.create()
+                    self.assertFalse(self.backup.exists())
+                    path.unlink(missing_ok=True)
+                    path.write_bytes(content)
+                    path.chmod(0o600)
+
+    def test_attachment_manifest_cannot_override_database_digest(self):
+        _, identity, _ = self.attachments()[0]
+        self.create()
+        path = self.backup / 'files/state/run-files' / identity
+        path.write_bytes(b'replacement bytes')
+        manifest_path = self.backup / 'manifest.json'
+        manifest = r.read_json(manifest_path)
+        for item in manifest['entries']:
+            if item['path'] == 'run-files/' + identity:
+                item.update(size=path.stat().st_size, sha256=r.digest(path))
+        manifest_path.write_text(json.dumps(manifest))
+        with self.assertRaisesRegex(ValueError, 'attachment integrity'):
+            r.restore('manager', self.backup, self.root / 'restored')
+        self.assertFalse((self.root / 'restored').exists())
+
     def test_link_and_source_change_refusals(self):
         target = self.state / 'memory-test.md'
         for link_kind in ('symlink', 'hardlink'):
