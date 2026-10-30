@@ -1,3 +1,4 @@
+pub mod release;
 #[cfg(feature = "tls")]
 pub mod tls;
 

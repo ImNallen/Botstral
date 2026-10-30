@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "version": "0.1.0",
+  "artifacts": [
+    {"component": "manager", "target": "ubuntu24.04-amd64", "kind": "deb", "architecture": "amd64"},
+    {"component": "agent", "target": "ubuntu24.04-amd64", "kind": "deb", "architecture": "amd64"},
+    {"component": "desktop", "target": "macos-arm64", "kind": "dmg", "architecture": "arm64"}
+  ],
+  "protocols": {"worker": 4, "owner": 3},
+  "data_compatibility": {"manager_schema": 17, "worker_schema": 2, "rollback": "restore coordinated offline backup"},
+  "runtime_requirements": {"ubuntu": "24.04", "systemd": "255", "python": "3.9", "sqlite": "3.37", "macos": "12.0", "rust": "1.93.0", "computer": "agent/connector/configure.py pins interpreter and runtime digests at installation", "vibe": "2.24.2; sealed manifest and file digests required"}
+}

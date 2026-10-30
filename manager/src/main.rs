@@ -2,6 +2,9 @@ use botstral_manager::{LocalState, WorkerTls, protect_process, serve_with_worker
 use std::{net::SocketAddr, path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
+    if botstral_link::release::print_version("manager") {
+        return ExitCode::SUCCESS;
+    }
     if run().is_err() {
         eprintln!("manager startup or shutdown failed");
         return ExitCode::FAILURE;
