@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run native old-to-new package acceptance on a disposable host, without publishing."""
+DESCRIPTION = 'Run native old-to-new package acceptance on a disposable host, without publishing.'
 import argparse
 from pathlib import Path
 import subprocess
@@ -33,7 +33,7 @@ def refused(args, expected, **kwargs):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--old', type=Path, required=True)
     parser.add_argument('--new', type=Path, required=True)
     parser.add_argument('--target', choices=['ubuntu24.04-amd64', 'macos-arm64'], required=True)

@@ -16,7 +16,7 @@ def run(args, **kwargs):
 FIXTURE = r'''
 import json, os, pathlib, shutil, sqlite3, subprocess, sys
 os.umask(0o077)
-home = pathlib.Path('/home/botstral-agent')
+home = pathlib.Path(os.environ.get('BOTSTRAL_ACCEPTANCE_HOME', '/home/botstral-agent'))
 state = home / 'fixture-state'
 state.mkdir(mode=0o700)
 certs = home / 'fixture-certs'
@@ -41,6 +41,8 @@ assert b'InvalidMessage' not in result.stderr and b'connector runtime changed' n
 with sqlite3.connect(state / 'agent.sqlite3') as db:
     assert db.execute('PRAGMA user_version').fetchone()[0] == 2
     identity = db.execute('SELECT incarnation FROM metadata').fetchone()[0]
+if os.environ.get('BOTSTRAL_ACCEPTANCE_PACKAGE_ONLY') == '1':
+    sys.exit(0)
 plan = home / 'fixture-plan.json'
 roots = [{'label': 'certificates', 'kind': 'certificate', 'path': str(certs)}, {'label': 'connector-runtime', 'kind': 'runtime', 'path': str(runtime)}]
 plan.write_text(json.dumps({'roots': roots}))

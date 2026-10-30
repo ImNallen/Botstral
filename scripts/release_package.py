@@ -1,4 +1,3 @@
-"""Native package construction from fresh staging roots."""
 import json
 import os
 from pathlib import Path
@@ -33,7 +32,8 @@ def build(identity_path, target, output, unsigned):
     from release import versions, validate_release_ref
     identity_path = Path(identity_path).resolve()
     identity = ReleaseIdentity.parse(read_json(identity_path))
-    revision = os.environ.get('BOTSTRAL_SOURCE_REVISION') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    require(os.environ.get('BOTSTRAL_SOURCE_REVISION', revision) == revision, 'source revision override differs from checkout')
     require(identity.revision == revision, 'source revision mismatch')
     versions(identity=identity)
     if not unsigned:
@@ -86,7 +86,6 @@ def build_deb(entry, binary, identity, output):
         guard = (ROOT / 'manager/packaging/debian/guard.py').read_text()
         for name, operation in [('preinst', 'install'), ('prerm', 'remove')]:
             arguments = json.dumps([component, native, identity.json(), operation])
-            # The argument is generated JSON with validated version and identity fields.
             script = '#!/bin/sh\nset -eu\nexec /usr/bin/python3 - ' + "'" + arguments + "'" + ' "$@" <<\'BOTSTRAL_GUARD\'\n' + guard + '\nBOTSTRAL_GUARD\n'
             (control / name).write_text(script)
             (control / name).chmod(0o755)
@@ -100,7 +99,6 @@ def build_dmg(identity, output, env, unsigned):
     notarization = env.get('APPLE_NOTARY_PROFILE')
     require(unsigned or (signing and notarization), 'Developer ID signing identity and notarytool keychain profile required')
     command(['npm', 'ci'], cwd=ROOT, env=env)
-    # Tauri creates the bundle. Final native version fields precede signing.
     command(['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app', '--', '--locked'], cwd=ROOT, env=env)
     source = ROOT / 'desktop/src-tauri/target/release/bundle/macos/Botstral.app'
     with tempfile.TemporaryDirectory(prefix='botstral-dmg-') as directory:

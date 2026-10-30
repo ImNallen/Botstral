@@ -1,4 +1,3 @@
-"""A recorded HTTPS provider confined to a disposable acceptance host."""
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json

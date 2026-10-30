@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify an exact release and record an offline upgrade before native replacement."""
+DESCRIPTION = 'Verify an exact release and record an offline upgrade before native replacement.'
 import argparse
 import json
 import os
@@ -57,9 +57,21 @@ def prepare(args):
     previous = None
     if args.repair_receipt:
         receipt = read_json(args.repair_receipt)
+        require(receipt.get('phase') == 'prepared', 'repair requires an incomplete prepared upgrade')
+        require(receipt.get('installation_path') == str(installed.absolute()), 'repair receipt belongs to a different installation')
         require(receipt['target'] == release.identity.json() and receipt['component'] == args.component, 'repair receipt does not match exact target')
         require(receipt['artifact_sha256'] == artifact.sha256, 'repair artifact differs from prepared upgrade')
         previous = ReleaseIdentity.parse(receipt['previous']) if receipt['previous'] else None
+        if previous:
+            replacement_policy(previous, release.identity, args.switch_channel)
+        if installed.exists():
+            require(not installed.is_symlink(), 'unmanaged symlink refused')
+            try:
+                current = ReleaseIdentity.parse(embedded(installed)['identity'])
+            except (ValueError, KeyError, TypeError):
+                current = None
+            if current:
+                replacement_policy(current, release.identity, args.switch_channel)
     elif installed.exists():
         require(not installed.is_symlink(), 'unmanaged symlink refused')
         previous = ReleaseIdentity.parse(embedded(installed)['identity'])
@@ -72,12 +84,13 @@ def prepare(args):
         if args.component == 'desktop':
             require(not args.app_path.exists(), 'damaged existing bundle requires --repair-receipt')
     backup = None
-    if previous or args.repair_receipt:
+    if previous:
         require(args.backup_receipt and args.config_backup, 'coordinated offline backup receipt and configuration backup required')
         backup = read_json(args.backup_receipt)
         require(all(key in backup for key in ('stopped_at', 'manager', 'worker')), 'incomplete coordinated backup receipt')
         require(args.config_backup.is_dir() and not args.config_backup.is_symlink(), 'configuration backup directory required')
-    receipt = {'component': args.component, 'previous': previous.json() if previous else None,
+    receipt = {'component': args.component, 'phase': 'prepared', 'installation_path': str(installed.absolute()),
+               'previous': previous.json() if previous else None,
                'target': release.identity.json(), 'artifact_sha256': artifact.sha256,
                'backup_receipt': str(args.backup_receipt.resolve()) if args.backup_receipt else None,
                'backup_receipt_sha256': digest(args.backup_receipt) if args.backup_receipt else None,
@@ -114,7 +127,7 @@ def replace_app(dmg, destination, identity, production):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('directory', type=Path)
     parser.add_argument('--version', required=True)
     parser.add_argument('--component', choices=['manager', 'agent', 'desktop'], required=True)
@@ -141,6 +154,14 @@ def main():
         installed = args.app_path / 'Contents/MacOS/botstral-desktop' if args.component == 'desktop' else Path('/usr/bin/botstral-' + args.component)
         actual = json.loads(subprocess.check_output([str(installed), '--version-json']))
         require(actual['identity'] == release.identity.json(), 'installed identity confirmation failed; leave services stopped')
+        receipt = read_json(args.receipt)
+        receipt['phase'] = 'applied'
+        with args.receipt.open('r+') as stream:
+            json.dump(receipt, stream, sort_keys=True, indent=2)
+            stream.write('\n')
+            stream.truncate()
+            stream.flush()
+            os.fsync(stream.fileno())
     print(json.dumps({'receipt': str(args.receipt), 'applied': args.apply, 'services_started': False}))
 
 

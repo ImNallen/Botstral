@@ -1,0 +1,17 @@
+{
+  "identity": {
+    "build_id": "local-new",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.2"
+  },
+  "negative_controls": [
+    "corrupt artifact",
+    "missing artifact",
+    "incomplete registry",
+    "mixed identity",
+    "wrong target",
+    "unsafe artifact path"
+  ],
+  "passed": true
+}

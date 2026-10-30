@@ -119,7 +119,7 @@ class ReleaseTests(unittest.TestCase):
         import os
         names = ('manager', 'agent', 'agent-supervisor-check')
         for name in names:
-            path = ROOT / 'target/debug' / ('botstral-' + name)
+            path = Path(os.environ.get('CARGO_TARGET_DIR', ROOT / 'target')) / 'debug' / ('botstral-' + name)
             if not path.exists():
                 self.skipTest('build production binaries before release tests')
             expected = embedded(path)
@@ -132,6 +132,20 @@ class ReleaseTests(unittest.TestCase):
 
 
 class VersionDriftTests(unittest.TestCase):
+    def test_build_rejects_revision_override_before_compilation(self):
+        import os
+        from unittest.mock import patch
+        from release_package import build
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            identity = ReleaseTests().identity(True)
+            path = root / 'identity.json'
+            write_json(path, identity.json())
+            with patch.dict(os.environ, {'BOTSTRAL_SOURCE_REVISION': identity.revision}):
+                with self.assertRaisesRegex(ValueError, 'source revision override differs from checkout'):
+                    build(path, 'macos-arm64', root / 'output', unsigned=False)
+            self.assertFalse((root / 'output').exists())
+
     def test_every_source_mirror_refuses_drift(self):
         import re
         import release

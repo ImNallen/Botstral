@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise verifier refusals against a real built release set."""
+DESCRIPTION = 'Exercise verifier refusals against a real built release set.'
 import argparse
 import copy
 from pathlib import Path
@@ -48,7 +48,7 @@ def expect_refusal(directory, expected=None):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('directory', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()

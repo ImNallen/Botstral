@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and verify immutable, exact-version Botstral release sets."""
+DESCRIPTION = 'Build and verify immutable, exact-version Botstral release sets.'
 import argparse
 import datetime
 import json
@@ -38,7 +38,6 @@ def versions(check=True, identity=None, mirrors_only=False):
         return changes
     for path, wanted in changes.items():
         if check:
-            # Formatting is owned by the existing formatters.
             actual = path.read_text()
             if path.suffix == '.json':
                 require(json.loads(actual) == json.loads(wanted), 'version drift: ' + str(path.relative_to(ROOT)))
@@ -107,7 +106,7 @@ def aggregate(inputs, output, receipts):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
     commands = parser.add_subparsers(dest='command', required=True)
     p = commands.add_parser('versions')
     modes = p.add_mutually_exclusive_group()

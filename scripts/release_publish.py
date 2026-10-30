@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Publish a complete signed set, then move its channel pointer. CI credentials only."""
 import os
 from pathlib import Path
 import subprocess

@@ -24,6 +24,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  desktop:
+    uses: ./.github/workflows/desktop.yml
+
   identity:
     runs-on: ubuntu-24.04
     outputs:
@@ -68,7 +74,7 @@ jobs:
           if-no-files-found: error
 
   native:
-    needs: identity
+    needs: [identity, verify, desktop]
     strategy:
       fail-fast: false
       matrix:

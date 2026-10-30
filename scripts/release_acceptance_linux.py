@@ -1,4 +1,3 @@
-"""Install actual Debian packages and reopen actual application state on a disposable host."""
 from http.client import HTTPConnection
 import json
 import os
@@ -7,6 +6,7 @@ import platform
 import pwd
 import shutil
 import signal
+import socket
 import sqlite3
 import subprocess
 import sys
@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 from release_acceptance import ROOT, run, refused
 from release_artifacts import inspect_deb
-from release_model import authority, digest, require
+from release_model import authority, digest, require, write_json
 
 
 def fixture_binary():
@@ -141,7 +141,6 @@ def manager_accept(old_package, new_package, other_package, helper, root, demote
     require(snapshot(state) == before, 'manager identity, credentials, history, worker pairing, artifacts, or uncertainty changed')
     run([helper, 'release_verify_fixture', '--ignored', '--nocapture'], preexec_fn=demote, env=environment)
     refused(['dpkg', '--install', old_package], 'downgrade requires full backup recovery')
-    # A failed target startup must leave state available. A future schema is a deliberate failure control.
     with sqlite3.connect(state / 'manager.sqlite3') as db:
         db.execute('PRAGMA user_version=999')
     failed = subprocess.run([str(binary), '--state-dir', str(state), '--listen', '127.0.0.1:0'], preexec_fn=demote, timeout=20, capture_output=True)
@@ -163,7 +162,6 @@ def manager_accept(old_package, new_package, other_package, helper, root, demote
 
 def agent_accept(old_package, new_package, root, demote, environment, production, package_only):
     run(['dpkg', '--install', old_package])
-    # Reuse the existing real production-journal recovery fixture with selected runtime roots.
     sys.path.insert(0, str(ROOT / 'agent/packaging'))
     import importlib.util
     spec = importlib.util.spec_from_file_location('worker_container_acceptance', ROOT / 'agent/packaging/container-acceptance.py')
@@ -172,32 +170,64 @@ def agent_accept(old_package, new_package, root, demote, environment, production
     connector = ROOT / 'agent/connector'
     files = {name: (connector / name).read_text() for name in ('configure.py', 'runtime.py')}
     source = 'CONNECTOR_FILES = ' + repr(files) + '\n' + module.FIXTURE
-    source = source.replace("pathlib.Path('/home/botstral-agent')", 'pathlib.Path(' + repr(str(root)) + ')')
-    # Leave the restored production journal in place for the new binary to reopen.
-    if package_only:
-        source = source.split("plan = home / 'fixture-plan.json'", 1)[0]
     script = root / 'worker-fixture.py'
     script.write_text(source)
     script.chmod(0o644)
-    run([sys.executable, script], preexec_fn=demote, env=environment)
+    fixture_environment = dict(environment, BOTSTRAL_ACCEPTANCE_HOME=str(root),
+                               BOTSTRAL_ACCEPTANCE_PACKAGE_ONLY='1' if package_only else '0')
+    run([sys.executable, script], preexec_fn=demote, env=fixture_environment)
     state = root / 'fixture-state'
     with sqlite3.connect(state / 'agent.sqlite3') as db:
         previous = db.execute('SELECT incarnation, head, acknowledged FROM metadata').fetchall()
     retained = {str(p.relative_to(root)): digest(p) for p in root.rglob('*') if p.is_file() and p.suffix != '.sqlite3' and not p.name.endswith(('-wal', '-shm'))}
     run(['dpkg', '--install', new_package])
-    check = subprocess.run(['/usr/bin/botstral-agent', 'check', '--state-dir', str(state)], preexec_fn=demote, env=environment, capture_output=True, timeout=30)
-    require(check.returncode == 1, 'invalid fixture TLS unexpectedly connected')
+    worker_tls_probe(state, root, demote, environment)
     with sqlite3.connect(state / 'agent.sqlite3') as db:
         require(db.execute('SELECT incarnation, head, acknowledged FROM metadata').fetchall() == previous, 'worker journal identity changed')
     require(all(digest(root / name) == sha for name, sha in retained.items()), 'worker configuration, certificates or runtime changed')
     refused(['dpkg', '--install', old_package], 'downgrade requires full backup recovery')
-    # Interrupt package payload integrity and reinstall the same exact native artifact.
     Path('/usr/bin/botstral-agent').write_bytes(b'interrupted native payload')
     run(['dpkg', '--install', new_package])
     require(json.loads(subprocess.check_output(['/usr/bin/botstral-agent', '--version-json']))['identity']['version'] in new_package.name, 'repair did not restore exact executable')
     if production:
         run(['/usr/bin/botstral-agent-supervisor-check', '--scratch', root / 'supervisor-proof'], preexec_fn=demote, env=environment)
     run(['dpkg', '--remove', 'botstral-agent'])
+
+
+def worker_tls_probe(state, root, demote, environment):
+    config = state / 'config.json'
+    original = config.read_bytes()
+    with tempfile.TemporaryDirectory(dir=root, prefix='tls-probe-') as directory:
+        directory = Path(directory)
+        os.chown(directory, state.stat().st_uid, state.stat().st_gid)
+        certificate, key = directory / 'certificate.pem', directory / 'key.pem'
+        run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key,
+             '-out', certificate, '-days', '1', '-subj', '/CN=localhost'], preexec_fn=demote,
+            env=environment, capture_output=True)
+        with socket.socket() as server:
+            server.bind(('127.0.0.1', 0))
+            server.listen(1)
+            server.settimeout(20)
+            write_json(config, {'manager': 'wss://127.0.0.1:' + str(server.getsockname()[1]),
+                               'manager_ca': str(certificate), 'client_cert': str(certificate),
+                               'client_key': str(key)})
+            process = None
+            try:
+                process = subprocess.Popen(['/usr/bin/botstral-agent', 'check', '--state-dir', str(state)],
+                                           preexec_fn=demote, env=environment, stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+                connection, _ = server.accept()
+                with connection:
+                    connection.settimeout(10)
+                    hello = connection.recv(6, socket.MSG_WAITALL)
+                    require(len(hello) == 6 and hello[:2] == b'\x16\x03' and hello[5] == 1, 'worker did not send a TLS ClientHello after opening its journal')
+                process.communicate(timeout=15)
+                require(process.returncode == 1, 'closed TLS probe unexpectedly succeeded')
+            finally:
+                config.write_bytes(original)
+                if process is not None and process.poll() is None:
+                    process.terminate()
+                    process.communicate(timeout=15)
 
 
 def accept(args, old, new, old_artifacts, artifacts):
@@ -248,6 +278,7 @@ def accept(args, old, new, old_artifacts, artifacts):
     return {'real_debian_old_to_new': True, 'manager_locked_restart_and_credential_decryption_after_unlock': True,
             'manager_identity_worker_pairing_history_artifacts_and_attention_retained': True,
             'worker_journal_certificates_and_runtime_retained': True,
+            'worker_reopened_journal_before_tls_client_hello': True,
             'active_replacement_and_downgrade_refused': True, 'future_schema_failure_and_backup_recovery': True,
             'native_package_repair': True, 'production_systemd_supervisor': args.production,
             'worker_backup_and_runtime_diagnostics': not args.package_only,

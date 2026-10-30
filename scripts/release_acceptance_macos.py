@@ -1,4 +1,3 @@
-"""Exercise real DMG replacement and synthetic Keychain continuity in a temporary app path."""
 import json
 from pathlib import Path
 import platform
@@ -28,7 +27,6 @@ def accept(args, old, new, old_artifacts, artifacts):
         command = [executable, '--release-keychain-check', slot]
         run([*command, 'write'])
         try:
-            # A running packaged executable must prevent replacement.
             process = subprocess.Popen([str(executable), '--release-acceptance-hold'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
             try:
                 require(process.stdout.readline().strip() == 'release acceptance process ready', 'packaged executable readiness missing')
@@ -46,7 +44,6 @@ def accept(args, old, new, old_artifacts, artifacts):
             executable = inspect_app(app, new, args.production)
             require(json.loads(subprocess.check_output([str(executable), '--version-json']))['identity'] == new.json(), 'new packaged desktop identity differs')
             run([executable, '--release-keychain-check', slot, 'verify'])
-            # Model an interrupted copy, then repair from the same verified immutable DMG.
             shutil.rmtree(app / 'Contents/MacOS')
             retired = app.with_name('Botstral.app.retired-' + new.build_id)
             if retired.exists():

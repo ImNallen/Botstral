@@ -1,4 +1,3 @@
-"""Executed from package control scripts before replacement or removal."""
 import json
 import os
 from pathlib import Path

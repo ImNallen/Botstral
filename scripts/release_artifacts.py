@@ -1,4 +1,3 @@
-"""Inspect package contents without executing privileged installation scripts."""
 import io
 import plistlib
 from pathlib import Path

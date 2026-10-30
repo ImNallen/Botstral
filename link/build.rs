@@ -19,9 +19,7 @@ fn main() {
         String::from_utf8(result.stdout).unwrap().trim().to_owned()
     };
     println!("cargo:rerun-if-env-changed=BOTSTRAL_SOURCE_REVISION");
-    let revision = if let Ok(revision) = env::var("BOTSTRAL_SOURCE_REVISION") {
-        revision
-    } else if root.join(".git").exists() {
+    let revision = if root.join(".git").exists() {
         println!(
             "cargo:rerun-if-changed={}",
             root.join(git(&["rev-parse", "--git-path", "HEAD"]))
@@ -40,7 +38,14 @@ fn main() {
                     .display()
             );
         }
-        git(&["rev-parse", "HEAD"])
+        let revision = git(&["rev-parse", "HEAD"]);
+        if let Ok(supplied) = env::var("BOTSTRAL_SOURCE_REVISION") {
+            assert_eq!(
+                supplied, revision,
+                "source revision override differs from checkout"
+            );
+        }
+        revision
     } else {
         env::var("BOTSTRAL_SOURCE_REVISION")
             .expect("source archives require BOTSTRAL_SOURCE_REVISION")
