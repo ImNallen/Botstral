@@ -3,6 +3,8 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { chromium } from 'playwright';
+import { protection, isProtected, channel, safePath, login } from './protected.mjs';
+import { fileURLToPath } from 'node:url';
 
 const [mode, specPath, profile, outputRoot] = process.argv.slice(2);
 const probe = mode === 'probe';
@@ -38,10 +40,12 @@ async function exportFile(source, slot) {
     });
   } finally { await file.close(); }
 }
+const send = channel(specPath);
+const runtime = path.dirname(fileURLToPath(import.meta.url));
 let context;
 try {
-  if (probe || spec.operations.some(op => ['navigate', 'click', 'fill', 'capture_text', 'screenshot'].includes(op.type))) {
-    context = await chromium.launchPersistentContext(profile, { headless: true, viewport: spec.viewport, acceptDownloads: false, timeout: 15000 });
+  if (probe || spec.operations.some(op => ['navigate', 'click', 'fill', 'capture_text', 'screenshot', 'protected_login'].includes(op.type))) {
+    context = await chromium.launchPersistentContext(profile, { headless: true, viewport: spec.viewport, acceptDownloads: false, serviceWorkers: 'block', timeout: 15000 });
     context.setDefaultTimeout(10000);
     const page = context.pages()[0] ?? await context.newPage();
     if (probe) {
@@ -52,15 +56,28 @@ try {
   }
   const page = context?.pages()[0];
   for (const op of spec.operations) {
+    const p = await protection(profile);
     switch (op.type) {
+      case 'protected_login': await login(page, op, send, profile); break;
       case 'navigate': await page.goto(op.url, { waitUntil: 'domcontentloaded', timeout: 15000 }); break;
       case 'click': await page.locator(op.selector).click(); break;
       case 'fill': await page.locator(op.selector).fill(op.text); break;
-      case 'capture_text': await bytes(op.output, Buffer.from(await page.locator(op.selector).innerText())); break;
-      case 'screenshot': await bytes(op.output, await page.screenshot({ fullPage: false, type: 'png' })); break;
-      case 'write_file': await atomicFile(op.path, f => f.writeFile(op.text)); break;
+      case 'capture_text': {
+        let text = await page.locator(op.selector).innerText();
+        if (isProtected(p)) {
+          const reply = await send({ type: 'screen', protection: p, text });
+          text = '';
+          if (reply.type !== 'screened') throw Error('protected observation withheld');
+          text = reply.text;
+        }
+        await bytes(op.output, Buffer.from(text));
+        text = '';
+        break;
+      }
+      case 'screenshot': if (isProtected(p)) throw Error('protected capture refused'); await bytes(op.output, await page.screenshot({ fullPage: false, type: 'png' })); break;
+      case 'write_file': await atomicFile(await safePath(op.path, profile, runtime), f => f.writeFile(op.text)); break;
       case 'read_file':
-      case 'export_file': await exportFile(op.path, op.output); break;
+      case 'export_file': if (isProtected(p)) throw Error('protected export refused'); await exportFile(await safePath(op.path, profile, runtime), op.output); break;
       default: throw Error('unsupported operation');
     }
   }

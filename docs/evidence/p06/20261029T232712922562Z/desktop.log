@@ -1,0 +1,479 @@
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> check
+> npm run bindings:check && npm run check --workspaces
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+
+> @botstral/link@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop
+
+
+ Test Files  6 passed | 1 skipped (7)
+      Tests  33 passed | 1 skipped (34)
+   Start at  00:34:47
+   Duration  1.56s (environment 56%, tests 28%, setup 10%, import 5%, transform 1%)
+
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 135 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
+dist/assets/index-Dqz5kOLW.js   393.55 kB │ gzip: 117.05 kB
+
+✓ built in 72ms
+    Checking objc2-exception-helper v0.1.1
+    Checking ring v0.17.14
+    Checking objc2 v0.6.5
+    Checking rustls-webpki v0.103.16
+    Checking block2 v0.6.2
+    Checking objc2-core-foundation v0.3.2
+    Checking dispatch2 v0.3.1
+    Checking rustls v0.23.46
+    Checking objc2-foundation v0.3.2
+    Checking objc2-core-graphics v0.3.2
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+    Checking tokio-rustls v0.26.6
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Checking objc2-quartz-core v0.3.2
+    Checking mac-notification-sys v0.6.15
+    Checking notify-rust v4.18.2
+    Checking objc2-app-kit v0.3.2
+    Checking objc2-web-kit v0.3.2
+    Checking muda v0.20.0
+    Checking tao v0.37.2
+    Checking window-vibrancy v0.8.1
+    Checking rfd v0.17.2
+    Checking wry v0.57.1
+    Checking tauri-runtime v2.12.2
+    Checking tray-icon v0.25.1
+    Checking tauri-runtime-wry v2.12.3
+    Checking tauri v2.12.4
+    Checking tauri-plugin-fs v2.7.1
+    Checking tauri-plugin-deep-link v2.6.3
+    Checking tauri-plugin-notification v2.7.0
+    Checking tauri-plugin-dialog v2.8.4
+    Checking botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.55s
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.18s
+     Running unittests src/lib.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-7da198508d63944d)
+
+running 3 tests
+test shell::tests::rejected_callers_receive_no_application_data ... ok
+test shell::tests::native_page_policy_rejects_remote_and_nested_content ... ok
+test remote::memory_tests::journal_retains_obsolete_memory_writes_for_uncertainty_only ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running unittests src/main.rs (desktop/src-tauri/target/debug/deps/botstral_desktop-fbf95e76165f6e40)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-747fce4ef6d094d9)
+
+running 13 tests
+test admitted_journal_must_remain_readable_after_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test conversational_memory_and_obsolete_journal ... ignored, Requires desktop/fixtures/paired_manager.py --verify-memory.
+test historical_approval_cannot_confirm_an_unknown_regrant ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test missing_journal_does_not_become_an_empty_paired_profile ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p03_routine_controls_and_crash_journal_recovery ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p06_collision_receipt_is_final_and_value_free ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p06_locked_reads_preserve_the_paired_unlock_path ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test p06_native_receipt_manager_binding ... ignored, Requires two owned synthetic manager fixtures from p06-manager-switch.py.
+test p06_protected_entry_never_enters_native_journal ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test readable_unknown_journal_blocks_mutation_without_replay ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+test trimmed_run_history_does_not_strand_unknown_intents ... ignored, Requires desktop/fixtures/paired_manager.py with its isolated actual manager.
+
+test result: ok. 0 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-deb6efc4cfed0758)
+
+running 6 tests
+test actual_manager_owner_bot_workers_and_sign_out ... ignored, Build the manager, then run with --ignored --test-threads=1.
+test late_grant_is_revoked_after_immediate_sign_out ... ok
+test sign_out_fences_queued_writes_and_old_unauthorized_results ... ok
+test creation_can_retry_the_same_uuid_and_name_after_refresh_failure ... ok
+test an_old_unauthorized_response_cannot_clear_a_new_sign_in ... ok
+test transport_rejects_redirects_oversize_and_untrusted_addresses ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.01s
+
+     Running tests/remote.rs (desktop/src-tauri/target/debug/deps/remote-2895f518a414cc41)
+
+running 8 tests
+test actual_manager_native_keychain_run_approval_artifact_and_lifecycle ... ignored, Requires desktop/fixtures/paired_manager.py and the real unlocked OS keychain.
+test pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths ... ok
+test unavailable_native_storage_never_publishes_a_fingerprint ... ok
+test failed_secret_deletion_leaves_a_durable_signed_out_tombstone ... ok
+test a_journal_larger_than_secret_file_limits_restores_without_credentials_on_disk ... ok
+test sign_out_blocks_new_intents_while_an_admitted_native_call_is_finishing ... ok
+test sign_out_clears_native_authority_when_the_profile_directory_was_removed ... ok
+test concurrent_sign_out_callers_wait_until_native_deletion_finishes ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+   Doc-tests botstral_desktop
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.92s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running tests/local.rs (desktop/src-tauri/target/debug/deps/local-deb6efc4cfed0758)
+
+running 1 test
+test actual_manager_owner_bot_workers_and_sign_out ... Verified real manager sign-in, owner, idempotent bot creation, status, workers, and local sign-out through the production native service.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 6.29s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-8fvgkyd5
+Local manager: 127.0.0.1:57229
+Paired WSS route: wss://127.0.0.1:57248/owner/v1/connect
+Manager identity: db6e3d10-34fe-4e60-a9db-5e78183e1169
+Manager leaf: 4af15391baa9e7662eb059491498d093d6e9df0fb374adc9b979d7c433491b33
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-8fvgkyd5/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-8fvgkyd5/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+JOURNAL_OVERFLOW generated_bytes=195 admitted_records=1 restore_status=Ok("online") retained_records=1
+test admitted_journal_must_remain_readable_after_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 5.64s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-euu22ahb
+Local manager: 127.0.0.1:57313
+Paired WSS route: wss://127.0.0.1:57331/owner/v1/connect
+Manager identity: 2790ecc2-7b28-4b6e-921c-ae5032dbe950
+Manager leaf: 3388ca11179850fd4408965952bcb16ca03fa7890ef6c5f8b21800effe7d777d
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-euu22ahb/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-euu22ahb/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test conversational_memory_and_obsolete_journal ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 6.96s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-o75gzwog
+Local manager: 127.0.0.1:57387
+Paired WSS route: wss://127.0.0.1:57410/owner/v1/connect
+Manager identity: c11f2c4a-859f-4918-b2f5-c5ccedbf9f0b
+Manager leaf: 319001d3171d7a8156817805909d93f749be90b66d15b23da1ffff98ba3d020d
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-o75gzwog/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-o75gzwog/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+UNKNOWN_REGRANT historical_revoked_status=unknown
+test historical_approval_cannot_confirm_an_unknown_regrant ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 3.44s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-_a7e8ayp
+Local manager: 127.0.0.1:57440
+Paired WSS route: wss://127.0.0.1:57454/owner/v1/connect
+Manager identity: 3b5a3575-031d-47d3-a4c7-92448ea15491
+Manager leaf: d5435ade8fb29cbffbde84d64d817a2eb0f03871e4064a2bdb0436211036ffb1
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-_a7e8ayp/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-_a7e8ayp/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+JOURNAL_READ_FAILURE restored_status=Err("journal_unavailable") restored_disk_records=1 pairing_ok=false mutation_ok=false permission_before=2 permission_after=2 unknown_visible=0
+test journal_read_failure_must_preserve_unknown_and_block_mutation ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 2.80s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-cwqgutcx
+Local manager: 127.0.0.1:57483
+Paired WSS route: wss://127.0.0.1:57501/owner/v1/connect
+Manager identity: 29f037eb-4b34-4829-9e52-f1825b1f02f2
+Manager leaf: 62fcbd16a24cdb781b5ec5ff0442f3e2f8aff29d2532b4a74a586338b4dd6f81
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-cwqgutcx/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-cwqgutcx/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test missing_journal_does_not_become_an_empty_paired_profile ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 1.39s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hc62s4ov
+Local manager: 127.0.0.1:57519
+Paired WSS route: wss://127.0.0.1:57537/owner/v1/connect
+Manager identity: f4b79c05-7aa0-4a46-8f0a-0c836f853531
+Manager leaf: 64856418188729b8b53e86ab5a244460db10f89b9c02993fab22dad6597b71c8
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hc62s4ov/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hc62s4ov/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+REVOKED_OFFLINE_RESTART result=Err("revoked") cached_activity=false
+test observed_revocation_blocks_cached_activity_after_offline_restart ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 2.80s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-767dlo9u
+Local manager: 127.0.0.1:57576
+Paired WSS route: wss://127.0.0.1:57592/owner/v1/connect
+Manager identity: 968111fb-4e24-4ae8-8ef2-15b52efea44e
+Manager leaf: 035a15c5182596d1f4f0644153d97c35dd73e9361131d48e2480e102e5c2ca95
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-767dlo9u/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-767dlo9u/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p03_routine_controls_and_crash_journal_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 4.62s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-iuauo3nz
+Local manager: 127.0.0.1:57699
+Paired WSS route: wss://127.0.0.1:57715/owner/v1/connect
+Manager identity: 8a5d601b-aed6-4838-bb45-38d2c8a90377
+Manager leaf: 420874940da803358a480554a323a58c79d21b02ac648250a057185d6723704f
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-iuauo3nz/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-iuauo3nz/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p06_collision_receipt_is_final_and_value_free ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 1.62s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-67oiz6to
+Local manager: 127.0.0.1:57737
+Paired WSS route: wss://127.0.0.1:57752/owner/v1/connect
+Manager identity: f2951b76-bc43-41b3-a336-7363118604d9
+Manager leaf: 730f81c862f592ecaca72336da95d7f6d3535d90241036efd2b9cee256d20a02
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-67oiz6to/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-67oiz6to/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p06_locked_reads_preserve_the_paired_unlock_path ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 2.93s
+
+[{"command": ["cargo", "test", "--manifest-path", "desktop/src-tauri/Cargo.toml", "--no-default-features", "--locked", "--test", "journal", "p06_native_receipt_manager_binding", "--", "--ignored", "--exact", "--nocapture"], "exit_code": 0, "log": "native-adversarial.log"}, {"command": ["python3", "desktop/fixtures/paired_manager.py", "--root", "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-xbj0of6q/manager-a", "--duration", "120"], "exit_code": 0}, {"command": ["python3", "desktop/fixtures/paired_manager.py", "--root", "/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-xbj0of6q/manager-b", "--duration", "120"], "exit_code": 0}]
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hvwp3yha
+Local manager: 127.0.0.1:57849
+Paired WSS route: wss://127.0.0.1:57867/owner/v1/connect
+Manager identity: 14e695a5-7e47-441e-990f-3a5c59cdfd17
+Manager leaf: 2980ca7cb4a8c7d0ee7c470d127230bde5eb43ec0287bf645f55306a81fc49a0
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hvwp3yha/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-hvwp3yha/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test p06_protected_entry_never_enters_native_journal ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 1.80s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-mzxqkd94
+Local manager: 127.0.0.1:57891
+Paired WSS route: wss://127.0.0.1:57908/owner/v1/connect
+Manager identity: 1b601679-032c-40d8-b88b-edf670eae774
+Manager leaf: 852b1c27ae2fd3bb50a458d66b01caebb9e35edd669de90e411f6da20b66c790
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-mzxqkd94/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-mzxqkd94/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+PASS readable unknown journal remains durable, blocks mutations, and leaves manager permission unchanged
+test readable_unknown_journal_blocks_mutation_without_replay ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 1.45s
+
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-uo_opv70
+Local manager: 127.0.0.1:57929
+Paired WSS route: wss://127.0.0.1:57943/owner/v1/connect
+Manager identity: b5adb2f2-5040-4952-a38e-3bc6e41aaad1
+Manager leaf: 2efeb5f3fefe3b3ec2716c3a32fd22dd75a67c7bdfa8167d81b4f2f69412c20d
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-uo_opv70/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-uo_opv70/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-6c0d7d711cfd2f83)
+
+running 1 test
+test trimmed_run_history_does_not_strand_unknown_intents ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 6.19s
+
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.366s
+
+OK
+ISSUES native composer browser, actual DOM/file effects and verified exports: injected send transport failure
+ISSUES native composer browser, actual DOM/file effects and verified exports: injected send transport failure
+ISSUES native composer browser, actual DOM/file effects and verified exports: injected send transport failure
+
+> desktop
+> npm run tauri --workspace @botstral/desktop -- build --debug --no-bundle
+
+
+> @botstral/desktop@0.1.0 tauri
+> tauri build --debug --no-bundle
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 135 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
+dist/assets/index-Dqz5kOLW.js   393.55 kB │ gzip: 117.05 kB
+
+✓ built in 70ms
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling ring v0.17.14
+   Compiling mac-notification-sys v0.6.15
+   Compiling objc2-foundation v0.3.2
+   Compiling wry v0.57.1
+   Compiling block2 v0.6.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling rustls v0.23.46
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling rustls-webpki v0.103.16
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling objc2-quartz-core v0.3.2
+   Compiling notify-rust v4.18.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling muda v0.20.0
+   Compiling tao v0.37.2
+   Compiling window-vibrancy v0.8.1
+   Compiling rfd v0.17.2
+   Compiling tauri-runtime v2.12.2
+   Compiling tray-icon v0.25.1
+   Compiling tauri-runtime-wry v2.12.3
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-fs v2.7.1
+   Compiling tauri-plugin-deep-link v2.6.3
+   Compiling tauri-plugin-notification v2.7.0
+   Compiling tauri-plugin-dialog v2.8.4
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.09s
+       Built application at: /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri/target/debug/botstral-desktop

@@ -28,6 +28,12 @@ impl SecretStore for MemorySecrets {
 }
 async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::Value) {
     let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
+    paired_at(root, &fixture_root).await
+}
+async fn paired_at(
+    root: &Path,
+    fixture_root: &Path,
+) -> (RemoteService, Arc<MemorySecrets>, serde_json::Value) {
     let fixture: serde_json::Value =
         serde_json::from_slice(&std::fs::read(fixture_root.join("fixture.json")).unwrap()).unwrap();
     let store = Arc::new(MemorySecrets::default());
@@ -67,6 +73,130 @@ async fn paired(root: &Path) -> (RemoteService, Arc<MemorySecrets>, serde_json::
     );
     local.sign_out();
     (service, store, fixture)
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_locked_reads_preserve_the_paired_unlock_path() {
+    let directory = tempfile::tempdir().unwrap();
+    let (service, _, _) = paired(&directory.path().join("owner")).await;
+    service.command(IntentCommand::LockVault).await.unwrap();
+    assert!(service.credential_uses().await.is_err());
+    assert_eq!(
+        service.inspect().status,
+        "online",
+        "A locked Vault must preserve the paired owner connection needed to unlock it."
+    );
+    assert!(service.login_items().await.is_err());
+    assert_eq!(service.inspect().status, "online");
+    let status = service
+        .protected(
+            service.inspect().generation,
+            protected::ProtectedOwnerRequest {
+                id: RequestId::new(),
+                operation: protected::ProtectedOwnerOperation::Unlock {
+                    passphrase: Zeroizing::new("synthetic M04 vault passphrase".into()),
+                },
+            },
+        )
+        .await
+        .unwrap();
+    assert!(matches!(
+        status,
+        CredentialWriteStatus::ClosedWithoutCommit { .. }
+    ));
+    assert!(service.login_items().await.is_ok());
+    assert_eq!(service.inspect().status, "online");
+    service.sign_out().await.unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_protected_entry_never_enters_native_journal() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, store, fixture) = paired(&root).await;
+    let bot: BotId = fixture["bot"].as_str().unwrap().parse().unwrap();
+    let username = "synthetic-p06-native-user";
+    let password = "synthetic-p06-native-\"\\\n-private";
+    let request = RequestId::new();
+    let status = service
+        .protected(
+            service.inspect().generation,
+            protected::ProtectedOwnerRequest {
+                id: request,
+                operation: protected::ProtectedOwnerOperation::Write {
+                    target: CredentialWriteTarget::Create {
+                        metadata: LoginMetadata {
+                            label: "Native fixture".into(),
+                            bots: BotAccess::Selected { bots: vec![bot] },
+                            allowed_origins: vec!["https://example.test".into()],
+                            password_policy: PasswordPolicy::EveryFill,
+                        },
+                    },
+                    values: protected::LoginValues {
+                        username: username.into(),
+                        password: password.into(),
+                        totp_seed: String::new(),
+                    },
+                },
+            },
+        )
+        .await
+        .unwrap();
+    let CredentialWriteStatus::Committed { item, .. } = status.clone() else {
+        panic!("protected write did not commit")
+    };
+    assert_eq!(service.login_items().await.unwrap(), vec![item.clone()]);
+    service.shutdown().await;
+    simulate_lost_protected_reply(&root, request);
+    let restarted = RemoteService::new(root.clone(), store);
+    restarted.restore().await.unwrap();
+    assert_eq!(restarted.protected_status().await.unwrap(), Some(status));
+    assert_eq!(restarted.login_items().await.unwrap().len(), 1);
+    restarted
+        .command(IntentCommand::UpdateLogin {
+            id: item.id,
+            expected_revision: item.revision,
+            metadata: None,
+        })
+        .await
+        .unwrap();
+    assert_eq!(
+        restarted.login_items().await.unwrap()[0].state,
+        CredentialState::Removed
+    );
+    fn scan(root: &Path, secrets: &[&str]) {
+        for entry in std::fs::read_dir(root).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                scan(&path, secrets);
+            } else {
+                let bytes = std::fs::read(path).unwrap();
+                for secret in secrets {
+                    assert!(
+                        !bytes.windows(secret.len()).any(|v| v == secret.as_bytes()),
+                        "private value persisted in operational files"
+                    );
+                    let escaped = serde_json::to_string(secret).unwrap();
+                    assert!(
+                        !bytes
+                            .windows(escaped.len())
+                            .any(|v| v == escaped.as_bytes()),
+                        "escaped private value persisted in operational files"
+                    );
+                }
+            }
+        }
+    }
+    scan(&root, &[username, password]);
+    let manager =
+        PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap()).join("manager-state");
+    scan(&manager, &[username, password]);
+    if let Some(evidence) = std::env::var_os("BOTSTRAL_P06_EVIDENCE") {
+        std::fs::write(PathBuf::from(evidence).join("native-storage.json"), serde_json::to_vec_pretty(&serde_json::json!({"paired_protected_write":true,"metadata_only":true,"lost_reply_reconciled_without_resend":true,"removed":true,"desktop_and_manager_file_scan":"passed","native_controls":"not exercised by this service integration"})).unwrap()).unwrap();
+    }
+    restarted.sign_out().await.unwrap();
 }
 
 #[tokio::test]
@@ -563,4 +693,135 @@ mod conversational_memory;
 #[ignore = "Requires desktop/fixtures/paired_manager.py --verify-memory."]
 async fn conversational_memory_and_obsolete_journal() {
     conversational_memory::verify().await;
+}
+
+fn simulate_lost_protected_reply(root: &Path, request: RequestId) {
+    let path = root.join("protected-status.json");
+    let mut record: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    record["status"] = serde_json::to_value(CredentialWriteStatus::Unresolved { request }).unwrap();
+    std::fs::write(path, serde_json::to_vec(&record).unwrap()).unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires two owned synthetic manager fixtures from p06-manager-switch.py."]
+async fn p06_native_receipt_manager_binding() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, _, _) = paired(&root).await;
+    let request = RequestId::new();
+    let make_request = |id| protected::ProtectedOwnerRequest {
+        id,
+        operation: protected::ProtectedOwnerOperation::Write {
+            target: CredentialWriteTarget::Create {
+                metadata: LoginMetadata {
+                    label: "Authority bound receipt".into(),
+                    bots: BotAccess::AllOwnerBots,
+                    allowed_origins: vec!["https://example.test".into()],
+                    password_policy: PasswordPolicy::EveryFill,
+                },
+            },
+            values: protected::LoginValues {
+                username: uuid::Uuid::new_v4().to_string(),
+                password: uuid::Uuid::new_v4().to_string(),
+                totp_seed: String::new(),
+            },
+        },
+    };
+    let stale = service
+        .protected(
+            service.inspect().generation + 1,
+            make_request(RequestId::new()),
+        )
+        .await;
+    assert!(matches!(stale, Err(ref e) if e == "stale"));
+    assert!(service.login_items().await.unwrap().is_empty());
+    let committed = service
+        .protected(service.inspect().generation, make_request(request))
+        .await
+        .unwrap();
+    assert!(matches!(committed, CredentialWriteStatus::Committed { .. }));
+    service.shutdown().await;
+    simulate_lost_protected_reply(&root, request);
+    let original = std::fs::read(root.join("protected-status.json")).unwrap();
+    service.sign_out().await.unwrap();
+    let other_root = PathBuf::from(std::env::var_os("BOTSTRAL_REVIEW_OTHER_MANAGER").unwrap());
+    let (other, _, _) = paired_at(&root, &other_root).await;
+    assert!(other.login_items().await.unwrap().is_empty());
+    assert!(
+        matches!(other.protected_status().await, Err(ref e) if e == "receipt_manager_mismatch")
+    );
+    assert_eq!(
+        std::fs::read(root.join("protected-status.json")).unwrap(),
+        original
+    );
+    let refused = other
+        .protected(other.inspect().generation, make_request(RequestId::new()))
+        .await;
+    assert!(matches!(refused, Err(ref e) if e == "receipt_manager_mismatch"));
+    assert_eq!(
+        std::fs::read(root.join("protected-status.json")).unwrap(),
+        original
+    );
+    other.sign_out().await.unwrap();
+    let (original_manager, _, _) = paired(&root).await;
+    assert_eq!(
+        original_manager.protected_status().await.unwrap(),
+        Some(committed)
+    );
+    original_manager.sign_out().await.unwrap();
+}
+
+#[tokio::test]
+#[ignore = "Requires desktop/fixtures/paired_manager.py with its isolated actual manager."]
+async fn p06_collision_receipt_is_final_and_value_free() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("owner");
+    let (service, _, _) = paired(&root).await;
+    let request = RequestId::new();
+    let password = uuid::Uuid::new_v4().to_string();
+    let make = |id, username: String| protected::ProtectedOwnerRequest {
+        id,
+        operation: protected::ProtectedOwnerOperation::Write {
+            target: CredentialWriteTarget::Create {
+                metadata: LoginMetadata {
+                    label: "Native collision refusal".into(),
+                    bots: BotAccess::AllOwnerBots,
+                    allowed_origins: vec!["https://example.test".into()],
+                    password_policy: PasswordPolicy::EveryFill,
+                },
+            },
+            values: protected::LoginValues {
+                username,
+                password: password.clone(),
+                totp_seed: String::new(),
+            },
+        },
+    };
+    let refused = service
+        .protected(service.inspect().generation, make(request, "admin".into()))
+        .await
+        .unwrap();
+    assert_eq!(
+        refused,
+        CredentialWriteStatus::Rejected {
+            request,
+            reason: CredentialWriteRejection::PublicValueCollision
+        }
+    );
+    assert_eq!(service.protected_status().await.unwrap(), Some(refused));
+    assert!(service.login_items().await.unwrap().is_empty());
+    let receipt = std::fs::read_to_string(root.join("protected-status.json")).unwrap();
+    assert!(!receipt.contains("admin") && !receipt.contains(&password));
+    assert!(matches!(
+        service
+            .protected(
+                service.inspect().generation,
+                make(RequestId::new(), uuid::Uuid::new_v4().to_string())
+            )
+            .await
+            .unwrap(),
+        CredentialWriteStatus::Committed { .. }
+    ));
+    service.sign_out().await.unwrap();
 }

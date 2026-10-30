@@ -1,0 +1,1 @@
+Historical independent rejection at source 4e3e3e2. The original probes use .audit/p06-recheck paths. Copy these files there to reproduce on the reviewed source. No raw transcript snapshot is published. The report separates failures, passed lanes and pending root checks.

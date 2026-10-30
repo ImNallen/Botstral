@@ -13,7 +13,28 @@ export type InferenceAttemptId = string;
 export type CodingCallPhase = 'reserved' | 'sent' | 'settled' | 'unknown' | 'not_sent';
 export type TaskId = string;
 export type RequestId = string;
+export type CredentialWriteTarget =
+  | {
+      metadata: LoginMetadata;
+      type: 'create';
+    }
+  | {
+      expected_revision: CredentialRevision;
+      id: CredentialId;
+      type: 'rotate';
+    };
+export type BotAccess =
+  | {
+      type: 'all_owner_bots';
+    }
+  | {
+      bots: BotId[];
+      type: 'selected';
+    };
 export type BotId = string;
+export type PasswordPolicy = 'every_fill' | 'remembered_origins';
+export type CredentialRevision = number;
+export type CredentialId = string;
 export type DocumentKind = 'instructions' | 'memory';
 export type SourceReference =
   | {
@@ -176,6 +197,13 @@ export type VibeSession =
     };
 export type ComputerOperation =
   | {
+      item: CredentialId;
+      plan: LoginSitePlan;
+      purpose: CredentialFields;
+      revision: CredentialRevision;
+      type: 'protected_login';
+    }
+  | {
       type: 'navigate';
       url: string;
     }
@@ -212,6 +240,7 @@ export type ComputerOperation =
       path: string;
       type: 'export_file';
     };
+export type CredentialFields = 'password' | 'totp';
 export type ComputerProfile = 'linux_playwright_v1';
 export type ConnectorOperation =
   | {
@@ -549,6 +578,31 @@ export type OwnerClientMessage =
     };
 export type OwnerOperation =
   | {
+      method: 'lock_vault';
+    }
+  | {
+      method: 'credential_uses';
+    }
+  | {
+      decision: UseDecision;
+      method: 'decide_credential_use';
+      review: CredentialUseReview;
+    }
+  | {
+      method: 'login_items';
+    }
+  | {
+      close: boolean;
+      method: 'credential_write_status';
+      request: RequestId;
+    }
+  | {
+      expected_revision: CredentialRevision;
+      id: CredentialId;
+      metadata?: LoginMetadata | null;
+      method: 'update_login';
+    }
+  | {
       id: RequestId;
       method: 'routine_status';
     }
@@ -761,6 +815,27 @@ export type OwnerOperation =
       method: 'coding_calls';
       task: TaskId;
     };
+export type UseDecision = 'allow_once' | 'deny' | 'remember_password';
+export type BrowserInstanceId = string;
+export type LoginFieldRole = 'username' | 'password' | 'totp';
+export type BrowserFrameId = string;
+export type BrowserDocumentId = string;
+export type BrowserPageId = string;
+export type ProfileEpoch = string;
+export type CredentialUseId = string;
+export type CredentialEpoch = number;
+export type CredentialState = 'active' | 'removed';
+export type ReleaseId = string;
+export type UseState =
+  | 'awaiting_approval'
+  | 'denied'
+  | 'authorized'
+  | 'released'
+  | 'applied'
+  | 'refused'
+  | 'uncertain'
+  | 'revoked'
+  | 'expired';
 export type RoutineAction =
   | {
       definition: RoutineDefinition;
@@ -871,6 +946,29 @@ export type OwnerHello =
     };
 export type OwnerReply =
   | {
+      type: 'vault_locked';
+    }
+  | {
+      type: 'credential_uses';
+      value: CredentialUseReview[];
+    }
+  | {
+      type: 'credential_use';
+      value: CredentialUseReview;
+    }
+  | {
+      type: 'login_items';
+      value: LoginItemView[];
+    }
+  | {
+      type: 'login_item';
+      value: LoginItemView;
+    }
+  | {
+      type: 'credential_write_status';
+      value: CredentialWriteStatus;
+    }
+  | {
       type: 'routine_status';
       value: RoutineControlResult | null;
     }
@@ -973,6 +1071,26 @@ export type OwnerReply =
         declaration: OutputDeclaration;
       };
     };
+export type CredentialWriteStatus =
+  | {
+      reason: CredentialWriteRejection;
+      request: RequestId;
+      type: 'rejected';
+    }
+  | {
+      item: LoginItemView;
+      request: RequestId;
+      type: 'committed';
+    }
+  | {
+      request: RequestId;
+      type: 'closed_without_commit';
+    }
+  | {
+      request: RequestId;
+      type: 'unresolved';
+    };
+export type CredentialWriteRejection = 'public_value_collision';
 export type ConnectorCallId = string;
 export type ConnectorResult =
   | {
@@ -1078,6 +1196,10 @@ export type VaultOutcome =
     }
   | {
       type: 'reusable_login_unsupported';
+    }
+  | {
+      bot: BotId;
+      type: 'login_entry';
     };
 export type EventReplay =
   | {
@@ -1226,6 +1348,11 @@ export type TaskEvent =
 export type LogCode = 'started' | 'input_applied' | 'stopped';
 export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
 export type OwnerServerMessage =
+  | {
+      id: RequestId;
+      status: CredentialWriteStatus;
+      type: 'protected_reply';
+    }
   | {
       device: DeviceId;
       manager: ManagerId;
@@ -1403,6 +1530,7 @@ export type ReleaseChannel = 'stable' | 'experimental';
 export interface Protocol {
   coding_calls: CodingCallView[];
   coding_result: VibeResult;
+  credential_write_target: CredentialWriteTarget;
   document: WriteDocument;
   inference: SubmitInference;
   inference_configuration: ConfigureInference;
@@ -1445,6 +1573,12 @@ export interface VibeResult {
   exit_code: number;
   native_session: RequestId;
   tool_errors: number;
+}
+export interface LoginMetadata {
+  allowed_origins: string[];
+  bots: BotAccess;
+  label: string;
+  password_policy: PasswordPolicy;
 }
 export interface WriteDocument {
   bot: BotId;
@@ -1610,6 +1744,18 @@ export interface ComputerSpec {
   profile: ComputerProfile;
   runtime: ComputerRuntime;
   viewport: Viewport;
+}
+export interface LoginSitePlan {
+  action: string;
+  form: string;
+  frame?: string | null;
+  origin: string;
+  password: string;
+  route: string;
+  submitter: string;
+  totp: string;
+  username: string;
+  version: number;
 }
 export interface ComputerRuntime {
   sha256: CertificateFingerprint;
@@ -1902,6 +2048,47 @@ export interface TaskSettings {
   max_tokens: number;
   max_turns: number;
   model: string;
+}
+export interface CredentialUseReview {
+  binding: ExecutionBinding;
+  destination: LiveDestination;
+  expires_at: number;
+  fence: InputFence;
+  id: CredentialUseId;
+  incarnation: JournalId;
+  item: LoginItemView;
+  purpose: CredentialFields;
+  release: ReleaseId;
+  state: UseState;
+}
+export interface LiveDestination {
+  browser: BrowserInstanceId;
+  certain: boolean;
+  fields: LoginField[];
+  form: string;
+  frame: BrowserFrameId;
+  frame_document: BrowserDocumentId;
+  frame_origin: string;
+  page: BrowserPageId;
+  plan: LoginSitePlan;
+  profile: ProfileEpoch;
+  submitter: string;
+  top_document: BrowserDocumentId;
+  top_origin: string;
+}
+export interface LoginField {
+  input_type: string;
+  name: string;
+  object: RequestId;
+  role: LoginFieldRole;
+}
+export interface LoginItemView {
+  epoch: CredentialEpoch;
+  has_totp: boolean;
+  id: CredentialId;
+  metadata: LoginMetadata;
+  revision: CredentialRevision;
+  state: CredentialState;
 }
 export interface RoutineCommand {
   action: RoutineAction;

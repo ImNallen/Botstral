@@ -1,0 +1,14 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "botstral-manager",
+    "--locked",
+    "--lib"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-e73580b6",
+  "exit": 0,
+  "start": "2026-10-30T00:34:43.347365+00:00",
+  "end": "2026-10-30T00:35:29.242554+00:00"
+}

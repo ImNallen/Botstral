@@ -1,0 +1,10 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.83s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+revoked_presence_query_error=Internal; restored_schema_safe=true
+test manager::state::connectors::tests::fresh_recheck_revoked_presence_query_failure_propagates ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 189 filtered out; finished in 0.03s
+

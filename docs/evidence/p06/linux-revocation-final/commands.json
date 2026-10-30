@@ -1,0 +1,169 @@
+[
+  {
+    "argv": [
+      "docker",
+      "info",
+      "--format",
+      "{{json .Architecture}}"
+    ],
+    "exit": 0,
+    "log": "docker-architecture.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "run",
+      "--rm",
+      "--name",
+      "botstral-p06-141ce991b958-binfmt-before",
+      "--privileged",
+      "node:26",
+      "sh",
+      "-ec",
+      "test -e /proc/sys/fs/binfmt_misc/register || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc; for f in /proc/sys/fs/binfmt_misc/*; do case $f in */register|*/status) ;; *) printf '%s\\n' \"$f\"; cat \"$f\";; esac; done"
+    ],
+    "exit": 0,
+    "log": "binfmt-before.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "botstral-p06-141ce991b958",
+      "--privileged",
+      "--cgroupns=private",
+      "--tmpfs",
+      "/run",
+      "--tmpfs",
+      "/run/lock",
+      "--mount",
+      "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-binfmt.service,readonly",
+      "--mount",
+      "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-sysctl.service,readonly",
+      "--mount",
+      "type=bind,src=/dev/null,dst=/etc/systemd/system/systemd-modules-load.service,readonly",
+      "botstral-p06-fae8ad814bf4-mixed"
+    ],
+    "exit": 0,
+    "log": "start-container.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "cp",
+      "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-agent",
+      "botstral-p06-141ce991b958:/usr/local/bin/"
+    ],
+    "exit": 0,
+    "log": "copy-botstral-agent.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "cp",
+      "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-agent-supervisor-check",
+      "botstral-p06-141ce991b958:/usr/local/bin/"
+    ],
+    "exit": 0,
+    "log": "copy-botstral-agent-supervisor-check.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "cp",
+      "/Users/nallen/.t3/worktrees/Botstral/t3-8aaf445c/.audit/p06-linux-8aaf445c/target/x86_64-unknown-linux-gnu/release/botstral-manager",
+      "botstral-p06-141ce991b958:/usr/local/bin/"
+    ],
+    "exit": 0,
+    "log": "copy-botstral-manager.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "cp",
+      "agent/tests/p06_linux/fixture.py",
+      "botstral-p06-141ce991b958:/home/p06/fixture.py"
+    ],
+    "exit": 0,
+    "log": "copy-fixture.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "exec",
+      "--user",
+      "10001:10001",
+      "-e",
+      "XDG_RUNTIME_DIR=/run/user/10001",
+      "-e",
+      "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/10001/bus",
+      "botstral-p06-141ce991b958",
+      "systemctl",
+      "--user",
+      "is-system-running"
+    ],
+    "exit": 0,
+    "log": "user-systemd.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "exec",
+      "--user",
+      "10001:10001",
+      "-e",
+      "XDG_RUNTIME_DIR=/run/user/10001",
+      "-e",
+      "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/10001/bus",
+      "botstral-p06-141ce991b958",
+      "python3",
+      "/home/p06/fixture.py",
+      "--root",
+      "/home/p06/fixture",
+      "--runtime",
+      "/opt/p06-runtime"
+    ],
+    "exit": 0,
+    "log": "integration.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "exec",
+      "botstral-p06-141ce991b958",
+      "sh",
+      "-c",
+      "cat /home/p06/fixture/worker.log /home/p06/fixture/manager.log"
+    ],
+    "exit": 0,
+    "log": "service-logs.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "rm",
+      "-f",
+      "botstral-p06-141ce991b958"
+    ],
+    "exit": 0,
+    "log": "remove-owned-container.log"
+  },
+  {
+    "argv": [
+      "docker",
+      "run",
+      "--rm",
+      "--name",
+      "botstral-p06-141ce991b958-binfmt-after",
+      "--privileged",
+      "node:26",
+      "sh",
+      "-ec",
+      "test -e /proc/sys/fs/binfmt_misc/register || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc; for f in /proc/sys/fs/binfmt_misc/*; do case $f in */register|*/status) ;; *) printf '%s\\n' \"$f\"; cat \"$f\";; esac; done"
+    ],
+    "exit": 0,
+    "log": "binfmt-after.log"
+  }
+]

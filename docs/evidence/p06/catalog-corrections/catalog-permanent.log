@@ -1,0 +1,535 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+error[E0425]: cannot find type `ConnectorToolPolicy` in this scope
+ --> manager/src/manager/state/test_catalog.rs:4:17
+  |
+4 |     pub policy: ConnectorToolPolicy,
+  |                 ^^^^^^^^^^^^^^^^^^^ not found in this scope
+  |
+  = note: struct `crate::manager::state::tasks::tests::ConnectorToolPolicy` exists but is inaccessible
+help: consider importing this struct
+  |
+1 + use botstral_link::ConnectorToolPolicy;
+  |
+
+error[E0425]: cannot find type `ComputerSessionId` in this scope
+ --> manager/src/manager/state/test_catalog.rs:5:18
+  |
+5 |     pub session: ComputerSessionId,
+  |                  ^^^^^^^^^^^^^^^^^ not found in this scope
+  |
+  = note: struct `crate::manager::state::workers::tests::ComputerSessionId` exists but is inaccessible
+help: consider importing this struct
+  |
+1 + use botstral_link::ComputerSessionId;
+  |
+
+error[E0425]: cannot find type `Envelope` in this scope
+ --> manager/src/manager/state/test_catalog.rs:7:31
+  |
+7 |     _outbound: mpsc::Receiver<Envelope<ManagerMessage>>,
+  |                               ^^^^^^^^ not found in this scope
+  |
+  = note: struct `crate::manager::state::workers::tests::Envelope` exists but is inaccessible
+help: consider importing this struct
+  |
+1 + use botstral_link::Envelope;
+  |
+
+error[E0425]: cannot find type `ManagerMessage` in this scope
+ --> manager/src/manager/state/test_catalog.rs:7:40
+  |
+7 |     _outbound: mpsc::Receiver<Envelope<ManagerMessage>>,
+  |                                        ^^^^^^^^^^^^^^ not found in this scope
+  |
+  = note: enum `crate::manager::state::workers::tests::ManagerMessage` exists but is inaccessible
+help: consider importing this enum
+  |
+1 + use botstral_link::ManagerMessage;
+  |
+
+error[E0422]: cannot find struct, variant or union type `ConfigureInference` in this scope
+  --> manager/src/manager/state/test_catalog.rs:29:13
+   |
+29 |             ConfigureInference {
+   |             ^^^^^^^^^^^^^^^^^^ not found in this scope
+   |
+   = note: struct `crate::manager::state::tasks::tests::ConfigureInference` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 1 + use botstral_link::ConfigureInference;
+   |
+ 1 + use botstral_link::OwnerOperation::ConfigureInference;
+   |
+
+error[E0422]: cannot find struct, variant or union type `VerifyInference` in this scope
+  --> manager/src/manager/state/test_catalog.rs:37:50
+   |
+37 |         .prepare_inference_verification(token(), VerifyInference { bot, revision: 1 })
+   |                                                  ^^^^^^^^^^^^^^^ not found in this scope
+   |
+   = note: struct `crate::manager::state::tasks::tests::VerifyInference` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 1 + use botstral_link::OwnerOperation::VerifyInference;
+   |
+ 1 + use botstral_link::VerifyInference;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Hello`
+  --> manager/src/manager/state/test_catalog.rs:57:21
+   |
+57 |     let mut hello = Hello::current(false);
+   |                     ^^^^^ use of undeclared type `Hello`
+   |
+   = note: struct `crate::manager::state::workers::tests::Hello` exists but is inaccessible
+help: consider importing this struct
+   |
+ 1 + use botstral_link::Hello;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> manager/src/manager/state/test_catalog.rs:60:18
+   |
+60 |         .extend([Capability::ProcessSystemdV1, Capability::ConnectorV1]);
+   |                  ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: enum `crate::manager::state::workers::tests::Capability` exists but is inaccessible
+help: consider importing this enum
+   |
+ 1 + use botstral_link::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Capability`
+  --> manager/src/manager/state/test_catalog.rs:60:48
+   |
+60 |         .extend([Capability::ProcessSystemdV1, Capability::ConnectorV1]);
+   |                                                ^^^^^^^^^^ use of undeclared type `Capability`
+   |
+   = note: enum `crate::manager::state::workers::tests::Capability` exists but is inaccessible
+help: consider importing this enum
+   |
+ 1 + use botstral_link::Capability;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `RequestId`
+  --> manager/src/manager/state/test_catalog.rs:67:13
+   |
+67 |             RequestId::new(),
+   |             ^^^^^^^^^ use of undeclared type `RequestId`
+   |
+   = note: struct `crate::manager::state::workers::tests::RequestId` exists but is inaccessible
+help: consider importing this struct
+   |
+ 1 + use botstral_link::RequestId;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Envelope`
+  --> manager/src/manager/state/test_catalog.rs:73:13
+   |
+73 |             Envelope::new(WorkerMessage::SnapshotApplied {
+   |             ^^^^^^^^ use of undeclared type `Envelope`
+   |
+   = note: struct `crate::manager::state::workers::tests::Envelope` exists but is inaccessible
+help: consider importing this struct
+   |
+ 1 + use botstral_link::Envelope;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `WorkerMessage`
+  --> manager/src/manager/state/test_catalog.rs:73:27
+   |
+73 |             Envelope::new(WorkerMessage::SnapshotApplied {
+   |                           ^^^^^^^^^^^^^ use of undeclared type `WorkerMessage`
+   |
+   = note: enum `crate::manager::state::workers::tests::WorkerMessage` exists but is inaccessible
+help: consider importing this enum
+   |
+ 1 + use botstral_link::WorkerMessage;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `JournalId`
+  --> manager/src/manager/state/test_catalog.rs:78:19
+   |
+78 |     let journal = JournalId::new();
+   |                   ^^^^^^^^^ use of undeclared type `JournalId`
+   |
+   = note: struct `crate::manager::state::tasks::tests::JournalId` exists but is inaccessible
+help: consider importing this struct
+   |
+ 1 + use botstral_link::JournalId;
+   |
+
+error[E0422]: cannot find struct, variant or union type `InstallConnection` in this scope
+  --> manager/src/manager/state/test_catalog.rs:92:13
+   |
+92 |             InstallConnection {
+   |             ^^^^^^^^^^^^^^^^^ not found in this scope
+   |
+   = note: struct `crate::manager::state::tasks::tests::InstallConnection` exists but is inaccessible
+help: consider importing one of these items
+   |
+ 1 + use botstral_link::InstallConnection;
+   |
+ 1 + use botstral_link::OwnerOperation::InstallConnection;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectionId`
+  --> manager/src/manager/state/test_catalog.rs:93:21
+   |
+93 |                 id: ConnectionId::new(),
+   |                     ^^^^^^^^^^^^ use of undeclared type `ConnectionId`
+   |
+   = note: struct `crate::manager::state::tasks::tests::ConnectionId` exists but is inaccessible
+help: a struct with a similar name exists
+   |
+93 -                 id: ConnectionId::new(),
+93 +                 id: Connection::new(),
+   |
+help: consider importing this struct
+   |
+ 1 + use botstral_link::ConnectionId;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectionTransport`
+  --> manager/src/manager/state/test_catalog.rs:95:28
+   |
+95 |                 transport: ConnectionTransport::RemoteHttp {
+   |                            ^^^^^^^^^^^^^^^^^^^ use of undeclared type `ConnectionTransport`
+   |
+   = note: enum `crate::manager::state::tasks::tests::ConnectionTransport` exists but is inaccessible
+help: consider importing this enum
+   |
+ 1 + use botstral_link::ConnectionTransport;
+   |
+
+error[E0422]: cannot find struct, variant or union type `ConnectorRunner` in this scope
+   --> manager/src/manager/state/test_catalog.rs:101:18
+    |
+101 |     let runner = ConnectorRunner {
+    |                  ^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::ConnectorRunner` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ConnectorRunner;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CertificateFingerprint`
+   --> manager/src/manager/state/test_catalog.rs:102:18
+    |
+102 |         runtime: CertificateFingerprint::from_der(b"fresh connector runtime"),
+    |                  ^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `CertificateFingerprint`
+    |
+    = note: struct `crate::manager::state::workers::tests::CertificateFingerprint` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::CertificateFingerprint;
+    |
+
+error[E0422]: cannot find struct, variant or union type `ProcessAccount` in this scope
+   --> manager/src/manager/state/test_catalog.rs:103:18
+    |
+103 |         account: ProcessAccount {
+    |                  ^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::ProcessAccount` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ProcessAccount;
+    |
+
+error[E0422]: cannot find struct, variant or union type `ProcessLimits` in this scope
+   --> manager/src/manager/state/test_catalog.rs:107:17
+    |
+107 |         limits: ProcessLimits {
+    |                 ^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::ProcessLimits` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ProcessLimits;
+    |
+
+error[E0422]: cannot find struct, variant or union type `DiscoverConnection` in this scope
+   --> manager/src/manager/state/test_catalog.rs:117:13
+    |
+117 |             DiscoverConnection {
+    |             ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::DiscoverConnection` exists but is inaccessible
+help: consider importing one of these items
+    |
+  1 + use botstral_link::DiscoverConnection;
+    |
+  1 + use botstral_link::OwnerOperation::DiscoverConnection;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `TaskId`
+   --> manager/src/manager/state/test_catalog.rs:118:23
+    |
+118 |                 task: TaskId::new(),
+    |                       ^^^^^^ use of undeclared type `TaskId`
+    |
+    = note: struct `crate::manager::state::tasks::tests::TaskId` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::TaskId;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ManagerMessage`
+   --> manager/src/manager/state/test_catalog.rs:139:38
+    |
+139 |         if matches!(message.message, ManagerMessage::Permit { .. }) {
+    |                                      ^^^^^^^^^^^^^^ use of undeclared type `ManagerMessage`
+    |
+    = note: enum `crate::manager::state::workers::tests::ManagerMessage` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::ManagerMessage;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `WorkSpec`
+   --> manager/src/manager/state/test_catalog.rs:145:9
+    |
+145 |         WorkSpec::Connector { spec } => spec.operation.clone(),
+    |         ^^^^^^^^ use of undeclared type `WorkSpec`
+    |
+    = note: enum `crate::manager::state::tasks::tests::WorkSpec` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::WorkSpec;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectorCallId`
+   --> manager/src/manager/state/test_catalog.rs:148:16
+    |
+148 |     let call = ConnectorCallId::new();
+    |                ^^^^^^^^^^^^^^^ use of undeclared type `ConnectorCallId`
+    |
+    = note: struct `crate::manager::state::tasks::tests::ConnectorCallId` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ConnectorCallId;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectorOutcome`
+   --> manager/src/manager/state/test_catalog.rs:164:13
+    |
+164 |             ConnectorOutcome::Finished {
+    |             ^^^^^^^^^^^^^^^^ use of undeclared type `ConnectorOutcome`
+    |
+    = note: enum `crate::manager::state::tasks::tests::ConnectorOutcome` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::ConnectorOutcome;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectorResult`
+   --> manager/src/manager/state/test_catalog.rs:165:25
+    |
+165 |                 result: ConnectorResult::Catalog {
+    |                         ^^^^^^^^^^^^^^^ use of undeclared type `ConnectorResult`
+    |
+    = note: enum `crate::manager::state::tasks::tests::ConnectorResult` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::ConnectorResult;
+    |
+
+error[E0422]: cannot find struct, variant or union type `McpTool` in this scope
+   --> manager/src/manager/state/test_catalog.rs:166:33
+    |
+166 |                     tools: vec![McpTool {
+    |                                 ^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::McpTool` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::McpTool;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `TaskState`
+   --> manager/src/manager/state/test_catalog.rs:180:18
+    |
+180 |     done.state = TaskState::Completed;
+    |                  ^^^^^^^^^ use of undeclared type `TaskState`
+    |
+    = note: enum `crate::manager::state::tasks::tests::TaskState` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::TaskState;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `ConnectionAvailability`
+   --> manager/src/manager/state/test_catalog.rs:183:41
+    |
+183 |     assert_eq!(connection.availability, ConnectionAvailability::Ready);
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `ConnectionAvailability`
+    |
+    = note: enum `crate::manager::state::tasks::tests::ConnectionAvailability` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::ConnectionAvailability;
+    |
+
+error[E0422]: cannot find struct, variant or union type `SetConnectorGrants` in this scope
+   --> manager/src/manager/state/test_catalog.rs:189:13
+    |
+189 |             SetConnectorGrants {
+    |             ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::SetConnectorGrants` exists but is inaccessible
+help: consider importing one of these items
+    |
+  1 + use botstral_link::OwnerOperation::SetConnectorGrants;
+    |
+  1 + use botstral_link::SetConnectorGrants;
+    |
+
+error[E0422]: cannot find struct, variant or union type `ConnectorToolPolicy` in this scope
+   --> manager/src/manager/state/test_catalog.rs:198:17
+    |
+198 |         policy: ConnectorToolPolicy {
+    |                 ^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::ConnectorToolPolicy` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ConnectorToolPolicy;
+    |
+
+error[E0425]: cannot find type `ComputerSessionId` in this scope
+   --> manager/src/manager/state/test_catalog.rs:212:14
+    |
+212 |     session: ComputerSessionId,
+    |              ^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::workers::tests::ComputerSessionId` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ComputerSessionId;
+    |
+
+error[E0425]: cannot find type `ConnectorToolPolicy` in this scope
+   --> manager/src/manager/state/test_catalog.rs:213:24
+    |
+213 |     connectors: Option<ConnectorToolPolicy>,
+    |                        ^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::ConnectorToolPolicy` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::ConnectorToolPolicy;
+    |
+
+error[E0422]: cannot find struct, variant or union type `SubmitRun` in this scope
+   --> manager/src/manager/state/test_catalog.rs:216:19
+    |
+216 |     let request = SubmitRun {
+    |                   ^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::SubmitRun` exists but is inaccessible
+help: consider importing one of these items
+    |
+  1 + use botstral_link::OwnerOperation::SubmitRun;
+    |
+  1 + use botstral_link::SubmitRun;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `RunId`
+   --> manager/src/manager/state/test_catalog.rs:217:13
+    |
+217 |         id: RunId::new(),
+    |             ^^^^^ use of undeclared type `RunId`
+    |
+    = note: struct `crate::manager::state::tasks::tests::RunId` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::RunId;
+    |
+
+error[E0422]: cannot find struct, variant or union type `RunLimits` in this scope
+   --> manager/src/manager/state/test_catalog.rs:223:17
+    |
+223 |         limits: RunLimits {
+    |                 ^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::RunLimits` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::RunLimits;
+    |
+
+error[E0422]: cannot find struct, variant or union type `RunExecutionPolicy` in this scope
+   --> manager/src/manager/state/test_catalog.rs:232:27
+    |
+232 |         execution_policy: RunExecutionPolicy {
+    |                           ^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::RunExecutionPolicy` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::RunExecutionPolicy;
+    |
+
+error[E0422]: cannot find struct, variant or union type `InferenceUsage` in this scope
+   --> manager/src/manager/state/test_catalog.rs:254:20
+    |
+254 |             usage: InferenceUsage {
+    |                    ^^^^^^^^^^^^^^ not found in this scope
+    |
+    = note: struct `crate::manager::state::tasks::tests::InferenceUsage` exists but is inaccessible
+help: consider importing this struct
+    |
+  1 + use botstral_link::InferenceUsage;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `RunMessage`
+   --> manager/src/manager/state/test_catalog.rs:260:26
+    |
+260 |             response: Ok(RunMessage::Assistant {
+    |                          ^^^^^^^^^^ use of undeclared type `RunMessage`
+    |
+    = note: enum `crate::manager::state::tasks::tests::RunMessage` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::RunMessage;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `InferenceFinishReason`
+   --> manager/src/manager/state/test_catalog.rs:264:33
+    |
+264 |             finish_reason: Some(InferenceFinishReason::Stop),
+    |                                 ^^^^^^^^^^^^^^^^^^^^^ use of undeclared type `InferenceFinishReason`
+    |
+    = note: enum `crate::manager::state::tasks::tests::InferenceFinishReason` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::InferenceFinishReason;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `RunPhase`
+   --> manager/src/manager/state/test_catalog.rs:268:36
+    |
+268 |     assert_eq!(view.summary.phase, RunPhase::Completed);
+    |                                    ^^^^^^^^ use of undeclared type `RunPhase`
+    |
+    = note: enum `crate::manager::state::tasks::tests::RunPhase` exists but is inaccessible
+help: consider importing this enum
+    |
+  1 + use botstral_link::RunPhase;
+    |
+
+Some errors have detailed explanations: E0422, E0425, E0433.
+For more information about an error, try `rustc --explain E0422`.
+error: could not compile `botstral-manager` (lib test) due to 42 previous errors

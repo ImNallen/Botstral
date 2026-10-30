@@ -1,0 +1,58 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rusqlite v0.38.0
+   Compiling rustls-webpki v0.103.16
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.61s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 5 tests
+altered_destination_prepares_accepted=[true, true, true, true, true]
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses' (639354797) panicked at manager/src/manager/state/credentials/tests/live/security.rs:160:5:
+assertion failed: changed.iter().all(|accepted| !accepted)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses ... FAILED
+prepare_retry_records=6; same_identity=false
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry' (639354798) panicked at manager/src/manager/state/credentials/tests/live/security.rs:129:5:
+assertion `left == right` failed
+  left: 6
+ right: 1
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry ... FAILED
+unrecorded_profile_benign_accepted=true; unrelated_guess_accepted=false
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory' (639354801) panicked at manager/src/manager/state/credentials/tests/live/security.rs:59:5:
+unrecorded caller-selected profiles cannot query private inventory
+test manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory ... FAILED
+recorded_profile_acceptance=[false, false, false, false, false]
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values' (639354800) panicked at manager/src/manager/state/credentials/tests/live/security.rs:89:5:
+assertion `left == right` failed
+  left: [false, false, false, false, false]
+ right: [false, false, true, true, true]
+test manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values ... FAILED
+cached_prepare_at_capacity_returned=false
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity' (639354799) panicked at manager/src/manager/state/credentials/tests/live/security.rs:212:59:
+called `Result::unwrap()` on an `Err` value: Busy
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses
+    manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry
+    manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity
+    manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values
+    manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 184 filtered out; finished in 0.40s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

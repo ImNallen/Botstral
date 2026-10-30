@@ -1,0 +1,69 @@
+diff --git a/manager/src/manager/provider.rs b/manager/src/manager/provider.rs
+index 786de8e..6797687 100644
+--- a/manager/src/manager/provider.rs
++++ b/manager/src/manager/provider.rs
+@@ -53,6 +53,9 @@ fn run_system_message() -> serde_json::Value {
+ fn wakeup_definition() -> serde_json::Value {
+     serde_json::json!({"type":"function","function":{"name":"request_wakeup","description":"Request one future wakeup within the explicit owner grant. Owner budgets, horizon, spacing, and cumulative limits remain enforced. This cannot edit routines or approve effects.","parameters":schemars::schema_for!(RequestWakeup)}})
+ }
++pub(super) fn connector_definition(tool: &ConnectorToolDefinition) -> serde_json::Value {
++    serde_json::json!({"type":"function","function":{"name":tool.binding.public_name(),"description":tool.description,"parameters":tool.input_schema}})
++}
+ fn chat_envelope(
+     model: &str,
+     max_tokens: u32,
+@@ -495,7 +498,10 @@ impl PreparedChat {
+                 self.body["tools"] = serde_json::json!([]);
+             }
+             for tool in &definitions {
+-                self.body["tools"].as_array_mut().unwrap().push(serde_json::json!({"type":"function","function":{"name":tool.binding.public_name(),"description":tool.description,"parameters":tool.input_schema}}));
++                self.body["tools"]
++                    .as_array_mut()
++                    .unwrap()
++                    .push(connector_definition(tool));
+             }
+             self.tools = true;
+             self.body["tool_choice"] = "auto".into();
+diff --git a/manager/src/manager/state/connectors.rs b/manager/src/manager/state/connectors.rs
+index 364ed3b..a463f37 100644
+--- a/manager/src/manager/state/connectors.rs
++++ b/manager/src/manager/state/connectors.rs
+@@ -539,6 +539,22 @@ impl State {
+         }
+         Ok(tools)
+     }
++    pub(super) fn current_connector_catalogs(
++        &self,
++    ) -> Result<Vec<ConnectorToolDefinition>, OperationError> {
++        let bots = self
++            .connection
++            .prepare("SELECT DISTINCT bot FROM connector_grants WHERE bot IN (SELECT id FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones)) ORDER BY bot")?
++            .query_map([], |r| r.get::<_, String>(0))?
++            .collect::<Result<Vec<_>, _>>()?;
++        let mut catalogs = Vec::new();
++        for bot in bots {
++            catalogs.extend(
++                self.current_connector_tools(bot.parse().map_err(|_| OperationError::Internal)?)?,
++            );
++        }
++        Ok(catalogs)
++    }
+     pub(in crate::manager) fn permitted_connector_catalog(
+         &self,
+         bot: BotId,
+diff --git a/manager/src/manager/state/credentials.rs b/manager/src/manager/state/credentials.rs
+index c6a76f3..8b50207 100644
+--- a/manager/src/manager/state/credentials.rs
++++ b/manager/src/manager/state/credentials.rs
+@@ -41,6 +41,11 @@ impl State {
+             "scaffold":crate::manager::provider::credential_public_scaffold(),
+             "configurations":self.inference_configurations()?,
+             "memory":self.all_memory_entries()?,
++            "connectors":self.current_connector_catalogs()?.iter()
++                .map(|tool| serde_json::json!({
++                    "definition":tool,
++                    "provider":crate::manager::provider::connector_definition(tool),
++                })).collect::<Vec<_>>(),
+             "memory_preface":runs::MEMORY_PREFACE,
+             "screenshot_preface":runs::SCREENSHOT_PREFACE,
+         }))

@@ -1,0 +1,65 @@
+[
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2/docs/evidence/p06/packaged-native-linux-controlled",
+    "source": {
+      "reviewed_head": "5d5da1814ad120eb5895a12fed70afa5fdfa092d",
+      "diff_sha256": "e22d9fed8611a81053a2720709959e0abdd7f25e32183b33a75b0a48ce9260af",
+      "fixture_sha256": "25a657e7675fc04002f5b4f638d88d858432196ddad5b64efba9d6c11ed7b29c",
+      "binaries": {
+        "botstral-agent": "d5537c1a62ae94b371fbaec8e15bd65aabc4ad30a8ecd0dc1b60d551b0f9351b",
+        "botstral-agent-supervisor-check": "a5701657a1454591732ad83bb02cfe0b39576416768b53e73a0ff6aa974847ae",
+        "botstral-manager": "4724f8a4c503bc84ea5394519b6f231bc1200c411554de0085e0132b2cdbdbda"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "password_posts": 1,
+    "fresh_totp": 0,
+    "transport_refusals": 4,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true,
+    "integration_sha256": "3f6d02f8e1fce74f2f82d764f19ab8ab87d790e10d676cd913eab8395ebae3c8"
+  },
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2/docs/evidence/p06/linux-final-password-totp",
+    "source": {
+      "reviewed_head": "e10c09e3690bc5f5e8cad0e35d21945434df570c",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixture_sha256": "25a657e7675fc04002f5b4f638d88d858432196ddad5b64efba9d6c11ed7b29c",
+      "binaries": {
+        "botstral-agent": "d5537c1a62ae94b371fbaec8e15bd65aabc4ad30a8ecd0dc1b60d551b0f9351b",
+        "botstral-agent-supervisor-check": "a5701657a1454591732ad83bb02cfe0b39576416768b53e73a0ff6aa974847ae",
+        "botstral-manager": "4724f8a4c503bc84ea5394519b6f231bc1200c411554de0085e0132b2cdbdbda"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "password_posts": 1,
+    "fresh_totp": 2,
+    "transport_refusals": 4,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true,
+    "integration_sha256": "624a215472a63ad9f23182c00492b66e09aa78244ef6e52824b0ef128a47eafd"
+  },
+  {
+    "folder": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/docs/evidence/p06/linux-revocation-final",
+    "source": {
+      "reviewed_head": "b45c7ed575d3009de8a7b3fcf8f64da76e5caa32",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixture_sha256": "25a657e7675fc04002f5b4f638d88d858432196ddad5b64efba9d6c11ed7b29c",
+      "binaries": {
+        "botstral-agent": "d5537c1a62ae94b371fbaec8e15bd65aabc4ad30a8ecd0dc1b60d551b0f9351b",
+        "botstral-agent-supervisor-check": "a5701657a1454591732ad83bb02cfe0b39576416768b53e73a0ff6aa974847ae",
+        "botstral-manager": "31ecfd7ae2c4b71718b67c5130ccd3ac62d2e038c4670b829ffadb22a59712f0"
+      },
+      "headless_only": false,
+      "host_architecture": "aarch64"
+    },
+    "password_posts": 1,
+    "fresh_totp": 2,
+    "transport_refusals": 4,
+    "all_command_exits_zero": true,
+    "binfmt_equal": true,
+    "integration_sha256": "00c3c0184b306a65fcc0d2ab2854627db123c7c3fb3a17f60f4f08595e977c9f"
+  }
+]

@@ -1,0 +1,35 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.69s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 5 tests
+filter=permission; stale_policy_refused=true; inventory_matches_prospective=true; current_usable_preserved=true
+revoked_connection=true; usable_catalog_empty=true; revoked_epoch_ciphertexts=0; benign_scan=Ok(()); fresh_write=Ok(Committed { request: RequestId(b388ce61-47bc-43c6-a118-0eb981a440a6), item: LoginItemView { id: CredentialId(700df9a6-c306-45f2-b17e-ad02e11f3000), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }); safe_rotation=Ok(Committed { request: RequestId(3030cf8c-cb62-435c-9653-f8d45cd14a25), item: LoginItemView { id: CredentialId(8358f94d-7878-4fa0-9158-d5c732c02d45), revision: CredentialRevision(2), epoch: CredentialEpoch(2), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }); metadata=Ok([LoginItemView { id: CredentialId(700df9a6-c306-45f2-b17e-ad02e11f3000), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false }, LoginItemView { id: CredentialId(8358f94d-7878-4fa0-9158-d5c732c02d45), revision: CredentialRevision(2), epoch: CredentialEpoch(2), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false }]); receipt_replay=Ok(Committed { request: RequestId(7031d2a7-d88b-4501-bb7f-0500bf25c37b), item: LoginItemView { id: CredentialId(8358f94d-7878-4fa0-9158-d5c732c02d45), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }); plain_chat=Ok(())
+test manager::state::runs::tests::publication_tests::fresh_catalog_revocation_preserves_unrelated_private_entry_and_chat ... ok
+fresh_generated shape=raw_name; cross_bot=true; catalog_preexists=true; repeated_release_refused=true; retained=0; authorized=true; expiry_removal_complete=true
+filter=empty_grants; stale_policy_refused=true; inventory_matches_prospective=true; current_usable_preserved=true
+fresh_intake shape=nested_enum password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+multiple_live_bots=3; disabled=1; current_catalogs=2; both_usable_catalogs_rejected_collision=true; complete=true
+test manager::state::runs::tests::publication_tests::fresh_catalog_multiple_live_bots_do_not_hide_each_other ... ok
+filter=stale_grant; stale_policy_refused=true; inventory_matches_prospective=true; current_usable_preserved=true
+fresh_generated shape=nested_enum; cross_bot=true; catalog_preexists=true; repeated_release_refused=true; retained=0; authorized=true; expiry_removal_complete=true
+filter=reconnect; stale_policy_refused=true; inventory_matches_prospective=true; current_usable_preserved=true
+test manager::state::runs::tests::publication_tests::fresh_catalog_filtering_matches_usable_inventory ... ok
+fresh_intake shape=nested_enum password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_generated shape=numeric_default; cross_bot=true; catalog_preexists=true; repeated_release_refused=true; retained=0; authorized=true; expiry_removal_complete=true
+fresh_intake shape=encoded_description password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_generated shape=encoded_description; cross_bot=true; catalog_preexists=true; repeated_release_refused=true; retained=0; authorized=true; expiry_removal_complete=true
+test manager::state::credentials::tests::live::authority::fresh_catalog_generated_codes_nested_numeric_encoded_and_raw_binding ... ok
+fresh_intake shape=encoded_description password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=binding_identity password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=binding_identity password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=schema_digest password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=schema_digest password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=rendered_alias password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=rendered_alias password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=raw_name password=false cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+fresh_intake shape=raw_name password=true cross_bot_selected_scope=true final_replay=true rotation_atomic=true retired_screened=true complete=true
+test manager::state::runs::tests::publication_tests::fresh_catalog_intake_nested_encoded_and_identity_cases ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 181 filtered out; finished in 3.60s
+

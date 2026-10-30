@@ -3,12 +3,15 @@ mod artifacts;
 mod backup_tests;
 mod coding;
 mod connectors;
+mod credentials;
 mod devices;
 mod inference;
 mod memory;
 mod routines;
 mod runs;
 mod tasks;
+#[cfg(test)]
+mod test_catalog;
 mod vision;
 mod workers;
 
@@ -77,7 +80,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 12 {
+    if version > 16 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -140,10 +143,30 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
         tx.execute_batch(include_str!("../../migrations/0012.sql"))?;
         tx.commit()?;
     }
+    if version < 13 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0013.sql"))?;
+        tx.commit()?;
+    }
+    if version < 14 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0014.sql"))?;
+        tx.commit()?;
+    }
     connection.execute(
         "INSERT OR IGNORE INTO manager_identity VALUES(1, ?1)",
         [Uuid::new_v4().to_string()],
     )?;
+    if version < 15 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0015.sql"))?;
+        tx.commit()?;
+    }
+    if version < 16 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0016.sql"))?;
+        tx.commit()?;
+    }
     Ok(())
 }
 
@@ -213,6 +236,7 @@ impl State {
             #[cfg(test)]
             test_time: None,
         };
+        state.recover_credential_uses()?;
         state.reconcile_documents()?;
         state.reconcile_artifacts()?;
         state.recover_inferences(false)?;
@@ -513,7 +537,14 @@ impl State {
         token: SessionToken,
         passphrase: VaultPassphrase,
     ) -> Result<(), OperationError> {
-        self.authorize(&token)?;
+        self.unlock_protected(&OwnerAuthority::Local(token), passphrase)
+    }
+    fn unlock_protected(
+        &mut self,
+        authority: &OwnerAuthority,
+        passphrase: VaultPassphrase,
+    ) -> Result<(), OperationError> {
+        self.authorize_owner(authority)?;
         if !matches!(
             self.installation,
             Installation::Configured {
@@ -535,8 +566,12 @@ impl State {
         tasks::event(&self.connection, "vault_changed", "owner")?;
         Ok(())
     }
-    pub(super) fn lock_vault(&mut self, token: SessionToken) -> Result<(), OperationError> {
-        self.authorize(&token)?;
+    pub(super) fn lock_vault(
+        &mut self,
+        authority: impl Into<OwnerAuthority>,
+    ) -> Result<(), OperationError> {
+        self.authorize_owner(&authority.into())?;
+        self.recover_credential_uses()?;
         self.installation = Installation::Configured {
             vault: VaultState::Locked,
         };
@@ -637,12 +672,12 @@ mod tests {
                 .unwrap(),
             0
         );
-        db.pragma_update(None, "user_version", 13).unwrap();
+        db.pragma_update(None, "user_version", 17).unwrap();
         assert!(migrate(&mut db).is_err());
         assert_eq!(
             db.pragma_query_value::<i64, _>(None, "user_version", |row| row.get(0))
                 .unwrap(),
-            13
+            17
         );
     }
 

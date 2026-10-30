@@ -1,0 +1,19 @@
+{"sameJournalRestored":true,"newerProfilePreserved":true,"captureProtected":false}
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Restored older metadata must not clear protection on a newer profile.
+
+false !== true
+
+    at file:///Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/[eval1]:28:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.12.1

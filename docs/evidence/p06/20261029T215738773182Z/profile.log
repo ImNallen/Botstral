@@ -1,0 +1,46 @@
+   Compiling getrandom v0.2.17
+   Compiling once_cell v1.21.4
+   Compiling syn v3.0.9
+   Compiling deranged v0.5.9
+   Compiling futures-sink v0.3.34
+   Compiling base64 v0.22.1
+   Compiling ring v0.17.14
+   Compiling tempfile v3.27.0
+   Compiling pem v3.0.6
+   Compiling time v0.3.55
+   Compiling yasna v0.5.2
+   Compiling serde_derive_internals v0.30.0
+   Compiling serde_derive v1.0.229
+   Compiling tokio-macros v2.7.2
+   Compiling thiserror-impl v2.0.21
+   Compiling ref-cast-impl v1.0.27
+   Compiling futures-macro v0.3.34
+   Compiling schemars_derive v1.2.3
+   Compiling ref-cast v1.0.27
+   Compiling tokio v1.54.1
+   Compiling futures-util v0.3.34
+   Compiling thiserror v2.0.21
+   Compiling serde v1.0.229
+   Compiling tungstenite v0.28.0
+   Compiling zeroize v1.9.1
+   Compiling schemars v1.2.3
+   Compiling rustls-pki-types v1.15.1
+   Compiling rustls-webpki v0.103.16
+   Compiling rustls-pemfile v2.2.0
+   Compiling rcgen v0.13.2
+   Compiling rustls v0.23.46
+   Compiling hyper v1.12.0
+   Compiling tokio-tungstenite v0.28.0
+   Compiling hyper-util v0.1.21
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling botstral-agent v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/agent)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.21s
+     Running unittests src/lib.rs (/Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/desktop/src-tauri/target/debug/deps/botstral_agent-e20dadc2751268e1)
+
+running 3 tests
+test protected_browser::tests::existing_profile_without_history_never_gains_complete_coverage ... ok
+test protected_browser::tests::profile_provenance_survives_restart_and_journal_replacement_refuses_capture ... ok
+test protected_browser::tests::restored_or_incomplete_history_cannot_clear_a_newer_profile ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.20s

@@ -248,6 +248,7 @@ impl State {
         {
             return Err(OperationError::NotFound);
         }
+        credentials::uses::invalidate_device(&tx, device)?;
         tx.commit()?;
         self.owner_connections.retain(|_, c| {
             if c.lease.device == device {
@@ -297,6 +298,34 @@ impl State {
         operation: OwnerOperation,
     ) -> Result<OwnerReply, OperationError> {
         match operation {
+            OwnerOperation::LockVault => {
+                self.lock_vault(lease)?;
+                Ok(OwnerReply::VaultLocked)
+            }
+            OwnerOperation::CredentialUses => {
+                Ok(OwnerReply::CredentialUses(self.credential_uses(lease)?))
+            }
+            OwnerOperation::DecideCredentialUse { review, decision } => {
+                Ok(OwnerReply::CredentialUse(Box::new(
+                    self.decide_credential_use(lease, *review, decision)?,
+                )))
+            }
+            OwnerOperation::LoginItems => Ok(OwnerReply::LoginItems(self.login_items(lease)?)),
+            OwnerOperation::CredentialWriteStatus { request, close } => {
+                Ok(OwnerReply::CredentialWriteStatus(
+                    self.credential_write_status(lease, request, close)?,
+                ))
+            }
+            OwnerOperation::UpdateLogin {
+                id,
+                expected_revision,
+                metadata,
+            } => Ok(OwnerReply::LoginItem(self.update_login(
+                lease,
+                id,
+                expected_revision,
+                metadata,
+            )?)),
             OwnerOperation::RoutineStatus { id } => {
                 Ok(OwnerReply::RoutineStatus(self.routine_status(lease, id)?))
             }

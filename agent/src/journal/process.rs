@@ -57,6 +57,45 @@ impl ProcessOperation {
     }
 }
 impl Journal {
+    pub(crate) fn browser_scope(
+        &self,
+        sessions: &Sessions,
+    ) -> io::Result<Option<crate::protected_browser::Scope>> {
+        let Some(execution) = self.process_slot else {
+            return Ok(None);
+        };
+        let Some(e) = self
+            .executions()?
+            .into_iter()
+            .find(|e| e.body.execution == execution)
+        else {
+            return Ok(None);
+        };
+        let Some(p) = &e.process else {
+            return Ok(None);
+        };
+        let Lifecycle::ReleasePossible { ready } = &p.lifecycle else {
+            return Ok(None);
+        };
+        let Some(computer) = &p.manifest.computer else {
+            return Ok(None);
+        };
+        if computer.probe || sessions.check(p.fence).is_err() || p.manifest.expires_at <= now() {
+            return Ok(None);
+        }
+        Ok(Some(crate::protected_browser::Scope {
+            authority: protected::BrowserAuthority {
+                task: e.body.task,
+                execution,
+                fence: p.fence,
+                journal: self.incarnation,
+            },
+            scope: ready.scope.clone(),
+            profile: computer.profile.clone(),
+            directory: crate::process::directory(&self.directory, execution),
+        }))
+    }
+
     pub async fn configure_processes(&mut self) -> io::Result<()> {
         let config = Configuration::read(&self.directory)?;
         if let Some(configuration) = config.clone() {
@@ -289,6 +328,7 @@ impl Journal {
                     &directory,
                     false,
                 );
+                crate::protected_browser::initialize(&launch.profile, self.incarnation)?;
                 launch.prepare()?;
                 (launch.lower(), Some(launch), None, None)
             }

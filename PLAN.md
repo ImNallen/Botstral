@@ -305,22 +305,25 @@ Complete when the owner finds an earlier result, inspects its source task, edits
 
 Depends on M03, M04, and C02. Connector-specific flows also require M06. Build protected Playwright fills for v1 on W01. Manual takeover extends those flows through W02 in v1.x.
 
-- [ ] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
-- [ ] Support private website sign-in, saved credentials, rotation, and revocation. Add manual takeover through W02 in v1.x.
-- [ ] Extend the encrypted store from M01 with individual owner-created login items, metadata, and per-item usage policy. Do not import an entire password vault automatically.
-- [ ] Make items available to the owner's bots under the item's policy. Explain that shared guest access does not isolate bots from one another.
-- [ ] Add approval for every fill and automatic fill on explicitly allowed origins. Require approval when page classification is uncertain. A login approval cannot authorize a purchase or send.
-- [ ] Keep TOTP seeds on the manager and send only the current approved code. Require approval for every TOTP fill in v1.
-- [ ] Bind fill requests to the task, browser session, page, frame origin, and target fields. Revalidate the destination immediately before filling and reject changed destinations.
-- [ ] Exclude secret values from prompts, screenshots, recordings, transcripts, logs, memory, and artifacts. Pause capture during protected entry and verify supported sites before unattended use.
+The supported v1 implementation is independently accepted at the source recorded in [Protected reusable logins](docs/p06-protected-logins.md). Exact-source repository, desktop and Linux checks passed. The complete packaged native-to-Linux flow passed on its earlier recorded loopback source. Native entry supports macOS; browser forms are limited to the documented adapter. Verified rows below cover that scope. Host reboot verification and manual takeover remain open.
+
+- [x] Add protected secret entry that excludes literal values from ordinary conversations and model inputs.
+- [x] Support private website sign-in, saved credentials, rotation, and revocation within the supported form adapter.
+- [ ] Add manual takeover through W02 in v1.x.
+- [x] Extend the encrypted store from M01 with individual owner-created login items, metadata, and per-item usage policy. Do not import an entire password vault automatically.
+- [x] Make items available to the owner's bots under the item's policy. Explain that shared guest access does not isolate bots from one another.
+- [x] Add approval for every fill and automatic fill on explicitly allowed origins. Require approval when page classification is uncertain. A login approval cannot authorize a purchase or send.
+- [x] Keep TOTP seeds on the manager and send only the current approved code. Require approval for every TOTP fill in v1.
+- [x] Bind fill requests to the task, browser session, page, frame origin, and target fields. Revalidate the destination immediately before filling and reject changed destinations.
+- [x] Exclude secret values from prompts, screenshots, recordings, transcripts, logs, memory, and artifacts. Pause capture during protected entry and verify supported sites before unattended use.
 - [ ] Verify locked-store behavior after reboot. Automatic unlock requires an explicitly provisioned key and a documented protection, backup, and recovery policy.
-- [ ] Prevent clients from retrieving stored secret values. Expose only metadata and protected entry or approval controls.
-- [ ] Block future fills when an item is removed. Treat existing website sessions, copied credentials, cookies, and remote grants as separate revocation or rotation work.
-- [ ] Add allow-once, deny, and remembered approval rules with explicit precedence.
-- [ ] Apply current rules consistently across bots, routines, plugins, and paired devices.
-- [ ] Preserve exact action arguments and meaningful context in approval requests.
-- [ ] Test denied, modified, expired, previously consumed, and revoked approval requests. None may authorize stale execution.
-- [ ] Verify redaction and private input using synthetic credentials before enabling the flow.
+- [x] Prevent clients from retrieving stored secret values. Expose only metadata and protected entry or approval controls.
+- [x] Block future fills when an item is removed. Treat existing website sessions, copied credentials, cookies, and remote grants as separate revocation or rotation work.
+- [x] Add allow-once, deny, and remembered approval rules with explicit precedence.
+- [x] Apply current rules consistently across bots, routines, plugins, and paired devices.
+- [x] Preserve exact action arguments and meaningful context in approval requests.
+- [x] Test denied, modified, expired, previously consumed, and revoked approval requests. None may authorize stale execution.
+- [x] Verify redaction and private input using synthetic credentials before enabling the flow.
 
 Complete when the owner authorizes an exact action on another device and completes a supported private sign-in without exposing the entered secret through normal model-visible capture or logs. Verify origin-change rejection, locked-store recovery, per-fill TOTP approval, and future-fill revocation. Full desktop takeover additionally requires W02.
 

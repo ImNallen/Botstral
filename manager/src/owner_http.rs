@@ -134,6 +134,18 @@ async fn socket_loop(
             },
             incoming=stream.next()=>{
                 let message=match incoming {
+                    Some(Ok(Message::Binary(bytes))) => {
+                        let bytes = zeroize::Zeroizing::new(bytes.to_vec());
+                        let request = protected::ProtectedOwnerRequest::decode(&bytes).map_err(|_| io::Error::other("invalid protected frame"))?;
+                        let id = request.id;
+                        let reply = match manager.protected_owner(lease, request).await {
+                            Ok(status) => OwnerServerMessage::ProtectedReply { id, status },
+                            Err(error) => OwnerServerMessage::Error { id: Some(id), code: owner_error(error) },
+                        };
+                        control.try_send(reply.into()).map_err(io::Error::other)?;
+                        idle.as_mut().reset(tokio::time::Instant::now()+Duration::from_secs(30));
+                        continue;
+                    }
                     Some(Ok(Message::Text(text)))=>serde_json::from_str::<OwnerClientMessage>(&text).map_err(io::Error::other)?,
                     _=>return Ok(()),
                 };

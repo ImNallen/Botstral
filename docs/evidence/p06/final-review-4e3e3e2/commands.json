@@ -1,0 +1,273 @@
+[
+  {
+    "label": "adversarial-expanded",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "recheck_",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 101,
+    "start": "2026-10-29T23:27:31.939037+00:00",
+    "end": "2026-10-29T23:27:36.767127+00:00"
+  },
+  {
+    "label": "adversarial-matrix",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "recheck_",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 101,
+    "start": "2026-10-29T23:27:01.812409+00:00",
+    "end": "2026-10-29T23:27:06.020891+00:00"
+  },
+  {
+    "label": "adversarial",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "recheck_",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 101,
+    "start": "2026-10-29T23:29:19.562142+00:00",
+    "end": "2026-10-29T23:29:24.618991+00:00"
+  },
+  {
+    "label": "browser-adversarial",
+    "command": [
+      "node",
+      ".audit/p06-recheck/browser-probe.mjs"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:27:57.462092+00:00",
+    "end": "2026-10-29T23:28:02.119552+00:00"
+  },
+  {
+    "label": "browser-deps",
+    "command": [
+      "npm",
+      "ci",
+      "--prefix",
+      "agent/runtime",
+      "--ignore-scripts"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:27:02.952178+00:00",
+    "end": "2026-10-29T23:27:03.397798+00:00"
+  },
+  {
+    "label": "browser-manager-missing-dependency",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 101,
+    "start": "2026-10-29T23:28:43.555884+00:00",
+    "end": "2026-10-29T23:28:43.830243+00:00"
+  },
+  {
+    "label": "browser-manager",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:29:02.129933+00:00",
+    "end": "2026-10-29T23:29:24.235545+00:00"
+  },
+  {
+    "label": "evidence-audit",
+    "command": [
+      "python3",
+      ".audit/p06-recheck/audit-evidence.py"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:30:23.778949+00:00",
+    "end": "2026-10-29T23:30:23.807677+00:00"
+  },
+  {
+    "label": "manager",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:26:04.438262+00:00",
+    "end": "2026-10-29T23:27:06.214422+00:00"
+  },
+  {
+    "label": "native-build",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "desktop/src-tauri/Cargo.toml",
+      "--no-default-features",
+      "--locked",
+      "--test",
+      "journal",
+      "--no-run"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:26:05.678675+00:00",
+    "end": "2026-10-29T23:26:22.372669+00:00"
+  },
+  {
+    "label": "native-collision",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_collision_receipt_is_final_and_value_free"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:28:15.336267+00:00",
+    "end": "2026-10-29T23:28:24.169068+00:00"
+  },
+  {
+    "label": "native-receipts",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_native_receipt_manager_binding"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:27:34.228317+00:00",
+    "end": "2026-10-29T23:28:02.838842+00:00"
+  },
+  {
+    "label": "native-storage-missing-directory",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 1,
+    "start": "2026-10-29T23:30:03.123768+00:00",
+    "end": "2026-10-29T23:30:15.645456+00:00"
+  },
+  {
+    "label": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:30:47.197464+00:00",
+    "end": "2026-10-29T23:30:57.476833+00:00"
+  },
+  {
+    "label": "native-unlock",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_locked_reads_preserve_the_paired_unlock_path"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:28:14.175195+00:00",
+    "end": "2026-10-29T23:28:24.301336+00:00"
+  },
+  {
+    "label": "profile-runtime",
+    "command": [
+      "node",
+      "agent/tests/p06_profile_provenance.mjs"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:27:58.610607+00:00",
+    "end": "2026-10-29T23:27:58.711623+00:00"
+  },
+  {
+    "label": "worker",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-agent",
+      "--locked",
+      "protected_browser::tests",
+      "--",
+      "--nocapture"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:27:33.069727+00:00",
+    "end": "2026-10-29T23:27:47.353922+00:00"
+  },
+  {
+    "label": "workspace-deps",
+    "command": [
+      "npm",
+      "ci",
+      "--ignore-scripts"
+    ],
+    "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7",
+    "exit": 0,
+    "start": "2026-10-29T23:28:50.477555+00:00",
+    "end": "2026-10-29T23:28:51.253069+00:00"
+  }
+]

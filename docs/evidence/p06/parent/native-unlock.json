@@ -1,0 +1,19 @@
+{
+  "packaged_pairing": true,
+  "locked_read_kept_owner_online": true,
+  "native_unlock_dialog_opened": true,
+  "unlock_notice": "Vault unlocked.",
+  "cancel_notice": "Protected entry cancelled. No values were sent.",
+  "signed_out": true,
+  "keychain_cleanup_exit": 44,
+  "private_value_file_matches": [],
+  "files_scanned": 27,
+  "native_sources_sha256": {
+    "desktop/src/LoginEntry.tsx": "0c77fc4b16ec07abb48d61be0bc4b8fdc878a2cacf7e95c0bc6935c156267039",
+    "desktop/src/PairedWorkspace.tsx": "33dc7439f53c327384406c86e7a72cdc60b8255788740c06bbde70faa402ecb2",
+    "desktop/src/paired-domain.ts": "7623f90d9bd9f27ea87e367c9fa79b734dd1a533ed06c8fbb1bea5c1bbd1da74",
+    "desktop/src-tauri/src/remote.rs": "21c76ae4cac2de174d44251a6142946e88ad610658da84575b905b6865e0d6ca",
+    "desktop/src-tauri/src/shell.rs": "02fd2910f343c95c0b55240ff0154c1e73bfb8fb5094df06b73e343d7160f132",
+    "desktop/src-tauri/src/protected_input.rs": "dca3fb47cbfdde0d7c0f9bafdb721fb963e90176ddae3a64e7c1ceb1eeb9cd6d"
+  }
+}

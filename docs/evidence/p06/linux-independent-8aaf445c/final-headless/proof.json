@@ -1,0 +1,112 @@
+{
+  "reviewed_head": "3527f3cfc2a3e3486df1d7e166141de19c96c70b",
+  "runtime": {
+    "check": "runtime_identity",
+    "directory": "/opt/p06-headless",
+    "sha256": "656902c61b008bb716a8e02855e7fd2197dbab23926634d90b1077390e01f414"
+  },
+  "scope": {
+    "journal": "99df68ca-587a-436c-a751-edf70d1fcd10",
+    "execution": "b91876f0-3b5e-458d-afb5-17af76c5f08a",
+    "host": "be7861ae67a004f9213279a30c1abc92c7b2387160d7bc29927a4b75f481febb",
+    "boot": "55f7caed-619d-4287-a81f-8e8189b974db",
+    "invocation": "384668ae75df469da5e3d460e6a12434",
+    "unit": "botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service",
+    "cgroup": "/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+  },
+  "peers": [
+    {
+      "pid": 322,
+      "comm": "botstral-agent",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 324,
+      "comm": "MainThread",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 336,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 338,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 339,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 354,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 358,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    },
+    {
+      "pid": 396,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-99df68ca-587a-436c-a751-edf70d1fcd10-b91876f0-3b5e-458d-afb5-17af76c5f08a.service"
+    }
+  ],
+  "task_state": "completed",
+  "runtime_exit": {
+    "type": "exited",
+    "code": 0
+  },
+  "review_states": [
+    "applied"
+  ],
+  "submissions": [
+    {
+      "valid": true,
+      "path": "/session",
+      "method": "POST"
+    }
+  ],
+  "provenance": {
+    "journal": "99df68ca-587a-436c-a751-edf70d1fcd10",
+    "protection": {
+      "type": "tracked",
+      "profile": "10bb40a0-72ca-4ff4-ae27-a328b9c238ae",
+      "releases": [
+        "1afbf66f-02c8-4f77-b22d-3edbf686a130"
+      ],
+      "complete": true
+    },
+    "consumed": [
+      "1afbf66f-02c8-4f77-b22d-3edbf686a130"
+    ]
+  },
+  "negative_probes": [
+    {
+      "check": "authenticated_worker_tls_poll",
+      "status": 200
+    },
+    {
+      "check": "missing_client_certificate_refused",
+      "status": 403
+    },
+    {
+      "check": "changed_generation_refused",
+      "status": 403
+    },
+    {
+      "check": "same_uid_outside_scope_refused",
+      "response_bytes": 0,
+      "submissions": 0
+    },
+    {
+      "check": "repeated_tls_release_refused",
+      "status": 403
+    }
+  ],
+  "binfmt_unchanged": true
+}

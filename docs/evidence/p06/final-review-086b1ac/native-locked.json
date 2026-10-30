@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "desktop/fixtures/paired_manager.py",
+    "--verify-journal",
+    "--journal-case",
+    "p06_locked_reads_preserve_the_paired_unlock_path"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-e73580b6",
+  "exit": 0,
+  "start": "2026-10-30T00:36:18.237303+00:00",
+  "end": "2026-10-30T00:36:32.189746+00:00"
+}

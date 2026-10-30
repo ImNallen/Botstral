@@ -17,3 +17,5 @@ mod vibe;
 mod worker;
 
 pub use config::{Config, entry};
+
+mod protected_browser;

@@ -1,0 +1,23 @@
+{"command": ["cargo", "test", "-p", "botstral-manager", "--locked", "--lib", "independent_", "--", "--nocapture"], "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb", "exit": 0, "start": "2026-10-30T00:21:39.459547+00:00", "end": "2026-10-30T00:21:45.776110+00:00"}
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.23s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 6 tests
+typed_user_assistant_tool_calls_tool_and_optional_image_json_preserved=true; no_tools_envelope_preserved=true
+test manager::state::runs::tests::publication_tests::independent_typed_provider_wire_shapes_preserved ... ok
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+fresh_current_memory=false; baseline_and_after_complete=true; rejected_final=true; epochs=0
+fresh_current_memory=true; baseline_and_after_complete=true; rejected_final=true; epochs=0
+test manager::state::runs::tests::publication_tests::independent_fresh_configuration_and_memory_rejection_preserves_completion ... ok
+fresh_model_generated_collision=true; release_refused=true; retained_codes=0; use_still_authorized=true; baseline_and_after_complete=true
+test manager::state::credentials::tests::live::authority::independent_fresh_generated_model_collision_refuses_without_consumption ... ok
+catalog_schema=false; baseline_complete=true; intake_committed=false; after=Ok(()); after_rotation=Ok(()); after_removal=Ok(()); plain=Ok(())
+catalog_predates_code=true; baseline_complete=true; code_released=false; retained_codes=0; after=Ok(()); after_expiry_removal=Ok(()); plain=Ok(())
+test manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation ... ok
+catalog_schema=true; baseline_complete=true; intake_committed=false; after=Ok(()); after_rotation=Ok(()); after_removal=Ok(()); plain=Ok(())
+test manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 174 filtered out; finished in 0.39s
+
+

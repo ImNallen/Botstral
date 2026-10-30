@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+generated_code_released=true; retained_codes=1; public_configuration_readable=false
+
+thread 'manager::state::credentials::tests::live::authority::totp_collision_cannot_poison_existing_public_configuration' (637201789) panicked at manager/src/manager/state/credentials/tests/live/authority.rs:547:5:
+generated code permanently poisoned the existing public configuration
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::authority::totp_collision_cannot_poison_existing_public_configuration ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::totp_collision_cannot_poison_existing_public_configuration
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 173 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

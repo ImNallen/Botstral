@@ -204,7 +204,7 @@ impl State {
                     task.command.work,
                     WorkSpec::Connector { .. } | WorkSpec::Vibe { .. }
                 ) {
-                    self.connection.execute("INSERT INTO connector_leases VALUES(?1,?2,?3,?4) ON CONFLICT(task) DO UPDATE SET execution=excluded.execution,generation=excluded.generation,fence=excluded.fence",
+                    self.connection.execute("INSERT INTO execution_leases VALUES(?1,?2,?3,?4) ON CONFLICT(task) DO UPDATE SET execution=excluded.execution,generation=excluded.generation,fence=excluded.fence",
                         params![task.id.to_string(),task.command.execution.to_string(),lease.generation.get() as i64,serde_json::to_string(fence).map_err(|_|OperationError::Internal)?])?;
                 }
             }

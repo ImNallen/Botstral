@@ -1,0 +1,37 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.99s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+catalog_surface=description; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=description; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+
+thread 'manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations' (637383887) panicked at manager/src/manager/state/runs/tests/publication_tests.rs:493:13:
+assertion `left == right` failed
+  left: Committed { request: RequestId(cacabc3c-c427-47bb-bf50-638139f6a45a), item: LoginItemView { id: CredentialId(4d5c54ca-703e-4cfe-9065-499c68bbffea), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+ right: Rejected { request: RequestId(cacabc3c-c427-47bb-bf50-638139f6a45a), reason: PublicValueCollision }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations ... FAILED
+
+failures:
+
+failures:
+    manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 176 filtered out; finished in 1.52s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

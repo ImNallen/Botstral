@@ -1,0 +1,36 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.17s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+
+thread 'manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations' (637380450) panicked at manager/src/manager/state/runs/tests/publication_tests.rs:491:13:
+assertion `left == right` failed
+  left: Committed { request: RequestId(b39b1891-faf7-4266-88c5-f18bafd3c580), item: LoginItemView { id: CredentialId(82159c03-f24c-41a0-ade5-54a5aede50d6), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+ right: Rejected { request: RequestId(b39b1891-faf7-4266-88c5-f18bafd3c580), reason: PublicValueCollision }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations ... FAILED
+
+thread 'manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations' (637380449) panicked at manager/src/manager/state/credentials/tests/live/authority.rs:579:9:
+assertion failed: matches!(f.release(&review), Err(OperationError::Conflict))
+test manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations
+    manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 175 filtered out; finished in 0.17s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

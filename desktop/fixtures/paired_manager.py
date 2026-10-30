@@ -46,6 +46,9 @@ def main():
                 command += ['--root', str(args.root/case)]
             subprocess.run(command, cwd=ROOT, check=True)
         return
+    if args.verify_journal and args.journal_case == 'p06_native_receipt_manager_binding':
+        subprocess.run([sys.executable, str(ROOT / 'desktop/fixtures/p06-manager-switch.py')], cwd=ROOT, check=True)
+        return
     os.umask(0o077)
     temporary = tempfile.TemporaryDirectory(prefix='botstral-c02-native-') if args.root is None else None
     root = Path(temporary.name) if temporary else args.root.resolve()
@@ -71,7 +74,8 @@ def main():
             print('Paired WSS route: wss://'+fixture['public']+'/owner/v1/connect', flush=True)
             print('Manager identity: '+trust['manager'], flush=True)
             print('Manager leaf: '+trust['leaf'], flush=True)
-            print('Synthetic password: '+fixture['password'], flush=True)
+            if not os.environ.get('BOTSTRAL_P06_EVIDENCE'):
+                print('Synthetic password: '+fixture['password'], flush=True)
             print('Trusted export: '+str(root/'trust.json'), flush=True)
             print('Browser runtime digest: '+fixture['runtime'], flush=True)
             print('Worker is synthetic. No real process or browser execution is proved.', flush=True)

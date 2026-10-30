@@ -1,0 +1,196 @@
+{
+  "cutoff": "2026-10-30T00:52:21.801930+00:00",
+  "directory": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/docs/evidence/p06/20261030T004930409369Z",
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "head": "b45c7ed575d3009de8a7b3fcf8f64da76e5caa32",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native_controls": "macOS native fixture"
+  },
+  "completed_commands": [
+    {
+      "name": "credentials",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "credentials::"
+      ],
+      "started": "2026-10-30T00:49:30.442402+00:00",
+      "finished": "2026-10-30T00:49:45.519414+00:00",
+      "exit_code": 0,
+      "log": "credentials.log"
+    },
+    {
+      "name": "profile",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-agent",
+        "--locked",
+        "--lib",
+        "protected_browser::"
+      ],
+      "started": "2026-10-30T00:49:45.519759+00:00",
+      "finished": "2026-10-30T00:49:50.168474+00:00",
+      "exit_code": 0,
+      "log": "profile.log"
+    },
+    {
+      "name": "profile-runtime",
+      "command": [
+        "node",
+        "agent/tests/p06_profile_provenance.mjs"
+      ],
+      "started": "2026-10-30T00:49:50.168796+00:00",
+      "finished": "2026-10-30T00:49:50.272415+00:00",
+      "exit_code": 0,
+      "log": "profile-runtime.log"
+    },
+    {
+      "name": "native-storage",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_protected_entry_never_enters_native_journal"
+      ],
+      "started": "2026-10-30T00:49:50.272769+00:00",
+      "finished": "2026-10-30T00:50:05.073837+00:00",
+      "exit_code": 0,
+      "log": "native-storage.log"
+    },
+    {
+      "name": "native-locked-unlock",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_locked_reads_preserve_the_paired_unlock_path"
+      ],
+      "started": "2026-10-30T00:50:05.074156+00:00",
+      "finished": "2026-10-30T00:50:15.134458+00:00",
+      "exit_code": 0,
+      "log": "native-locked-unlock.log"
+    },
+    {
+      "name": "native-collision",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_collision_receipt_is_final_and_value_free"
+      ],
+      "started": "2026-10-30T00:50:15.135213+00:00",
+      "finished": "2026-10-30T00:50:23.867686+00:00",
+      "exit_code": 0,
+      "log": "native-collision.log"
+    },
+    {
+      "name": "native-manager-switch",
+      "command": [
+        "python3",
+        "desktop/fixtures/p06-manager-switch.py"
+      ],
+      "started": "2026-10-30T00:50:23.868007+00:00",
+      "finished": "2026-10-30T00:50:36.467765+00:00",
+      "exit_code": 0,
+      "log": "native-manager-switch.log"
+    },
+    {
+      "name": "publication",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "review_probe_numeric_secret_publication"
+      ],
+      "started": "2026-10-30T00:50:36.468060+00:00",
+      "finished": "2026-10-30T00:50:36.715496+00:00",
+      "exit_code": 0,
+      "log": "publication.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "p06_controlled_browser_acceptance",
+        "--",
+        "--ignored",
+        "--nocapture"
+      ],
+      "started": "2026-10-30T00:50:36.715815+00:00",
+      "finished": "2026-10-30T00:50:58.309642+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "submission-boundary",
+      "command": [
+        "node",
+        "agent/tests/p06_submission_boundary.mjs"
+      ],
+      "started": "2026-10-30T00:50:58.309956+00:00",
+      "finished": "2026-10-30T00:51:00.630281+00:00",
+      "exit_code": 0,
+      "log": "submission-boundary.log"
+    },
+    {
+      "name": "entry-component",
+      "command": [
+        "node",
+        "desktop/fixtures/p06-entry.mjs"
+      ],
+      "started": "2026-10-30T00:51:00.630736+00:00",
+      "finished": "2026-10-30T00:51:01.563012+00:00",
+      "exit_code": 0,
+      "log": "entry-component.log"
+    },
+    {
+      "name": "native-controls",
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "desktop/src-tauri/Cargo.toml",
+        "--locked",
+        "--example",
+        "p06-native-entry"
+      ],
+      "started": "2026-10-30T00:51:01.563342+00:00",
+      "finished": "2026-10-30T00:51:16.018765+00:00",
+      "exit_code": 0,
+      "log": "native-controls.log"
+    }
+  ],
+  "log_sha256": {
+    "credentials.log": "7b5387349a99d54f10d2b53b497c2efe7972b9344ec21867308a14fe8fe5f679",
+    "profile.log": "97c69d54b5155929af307c16be7a151fc4a818ccc3389f5725163042540092c9",
+    "profile-runtime.log": "3344eddd9e7072236816d893c6c5d07ee76e4ce1e5e5fb3c4fc2834862dcbb7c",
+    "native-storage.log": "5d367b88c72412a02fe2267e25b2a52b4e1fb116b094a84ac5d5a789afa66be1",
+    "native-locked-unlock.log": "ba566ac5cf9ff496d16da8b6307cf949874f58fbc5e0499ddef7ca6ddbe6f77c",
+    "native-collision.log": "303704d17f3291f156e0a8210ebc7d640098aa8e973d03322c16020b733d6cdd",
+    "native-manager-switch.log": "6c8599d8816f8f1e49e1240adb72e1f4cc07d0a52517e608cb84c3ef3523ed85",
+    "publication.log": "e1471234d2f76e613b7e455f275f239abfefaf3cf112c36433e4ca100c382b25",
+    "browser.log": "a38d56029cd003fab18a5e1c756f0e56ef7452318b7479fe93557f359110d32f",
+    "submission-boundary.log": "df2bf17b902f87bdeb96a42e6b7eefe0521b94b4d9a46d017767a540e7871180",
+    "entry-component.log": "95485fb0f508b04bb92fc4417c351e7450ba4ea3704ebe706cb1d409a44070d6",
+    "native-controls.log": "42845589a03d1042e0506209dff3193a16015d6f7d1a030e9c749ac2479bf915"
+  },
+  "broad_complete": false
+}

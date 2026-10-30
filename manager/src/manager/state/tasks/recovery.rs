@@ -607,10 +607,10 @@ impl State {
         }
         if matches!(
             task.command.work,
-            WorkSpec::Vibe { .. } | WorkSpec::Connector { .. }
+            WorkSpec::Vibe { .. } | WorkSpec::Connector { .. } | WorkSpec::Computer { .. }
         ) {
             tx.execute(
-                "INSERT INTO connector_leases VALUES(?1,?2,?3,?4)",
+                "INSERT INTO execution_leases VALUES(?1,?2,?3,?4)",
                 params![
                     task.id.to_string(),
                     task.command.execution.to_string(),

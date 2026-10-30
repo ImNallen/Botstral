@@ -1,0 +1,191 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::"
+    ],
+    "started": "2026-10-29T23:13:14.465642+00:00",
+    "finished": "2026-10-29T23:13:28.604122+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  },
+  {
+    "name": "profile",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-agent",
+      "--locked",
+      "--lib",
+      "protected_browser::"
+    ],
+    "started": "2026-10-29T23:13:28.604468+00:00",
+    "finished": "2026-10-29T23:13:36.191537+00:00",
+    "exit_code": 0,
+    "log": "profile.log"
+  },
+  {
+    "name": "profile-runtime",
+    "command": [
+      "node",
+      "agent/tests/p06_profile_provenance.mjs"
+    ],
+    "started": "2026-10-29T23:13:36.192395+00:00",
+    "finished": "2026-10-29T23:13:36.299958+00:00",
+    "exit_code": 0,
+    "log": "profile-runtime.log"
+  },
+  {
+    "name": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "started": "2026-10-29T23:13:36.300221+00:00",
+    "finished": "2026-10-29T23:13:49.741479+00:00",
+    "exit_code": 0,
+    "log": "native-storage.log"
+  },
+  {
+    "name": "native-locked-unlock",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_locked_reads_preserve_the_paired_unlock_path"
+    ],
+    "started": "2026-10-29T23:13:49.741812+00:00",
+    "finished": "2026-10-29T23:13:59.427454+00:00",
+    "exit_code": 0,
+    "log": "native-locked-unlock.log"
+  },
+  {
+    "name": "native-collision",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_collision_receipt_is_final_and_value_free"
+    ],
+    "started": "2026-10-29T23:13:59.428295+00:00",
+    "finished": "2026-10-29T23:14:07.984371+00:00",
+    "exit_code": 0,
+    "log": "native-collision.log"
+  },
+  {
+    "name": "native-manager-switch",
+    "command": [
+      "python3",
+      "desktop/fixtures/p06-manager-switch.py"
+    ],
+    "started": "2026-10-29T23:14:07.984804+00:00",
+    "finished": "2026-10-29T23:14:20.169017+00:00",
+    "exit_code": 0,
+    "log": "native-manager-switch.log"
+  },
+  {
+    "name": "publication",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "review_probe_numeric_secret_publication"
+    ],
+    "started": "2026-10-29T23:14:20.169364+00:00",
+    "finished": "2026-10-29T23:14:27.569996+00:00",
+    "exit_code": 0,
+    "log": "publication.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T23:14:27.570418+00:00",
+    "finished": "2026-10-29T23:14:48.509113+00:00",
+    "exit_code": 0,
+    "log": "browser.log"
+  },
+  {
+    "name": "submission-boundary",
+    "command": [
+      "node",
+      "agent/tests/p06_submission_boundary.mjs"
+    ],
+    "started": "2026-10-29T23:14:48.509401+00:00",
+    "finished": "2026-10-29T23:14:50.821028+00:00",
+    "exit_code": 0,
+    "log": "submission-boundary.log"
+  },
+  {
+    "name": "entry-component",
+    "command": [
+      "node",
+      "desktop/fixtures/p06-entry.mjs"
+    ],
+    "started": "2026-10-29T23:14:50.821771+00:00",
+    "finished": "2026-10-29T23:14:51.699121+00:00",
+    "exit_code": 0,
+    "log": "entry-component.log"
+  },
+  {
+    "name": "native-controls",
+    "command": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "desktop/src-tauri/Cargo.toml",
+      "--locked",
+      "--example",
+      "p06-native-entry"
+    ],
+    "started": "2026-10-29T23:14:51.699424+00:00",
+    "finished": "2026-10-29T23:15:10.986593+00:00",
+    "exit_code": 0,
+    "log": "native-controls.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T23:15:10.987117+00:00",
+    "finished": "2026-10-29T23:21:33.182134+00:00",
+    "exit_code": 0,
+    "log": "repository.log"
+  },
+  {
+    "name": "desktop",
+    "command": [
+      "./scripts/verify-desktop.sh"
+    ],
+    "started": "2026-10-29T23:21:33.182476+00:00",
+    "finished": "2026-10-29T23:24:55.660384+00:00",
+    "exit_code": 0,
+    "log": "desktop.log"
+  }
+]

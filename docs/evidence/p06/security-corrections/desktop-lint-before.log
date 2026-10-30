@@ -1,0 +1,116 @@
+
+> format:check
+> prettier --check "desktop/src/**/*.{ts,tsx,css}" desktop/vite.config.ts desktop/tsconfig.json desktop/index.html desktop/src-tauri/tauri.conf.json desktop/src-tauri/capabilities/main.json scripts/generate-link.mjs package.json
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> check
+> npm run bindings:check && npm run check --workspaces
+
+
+> bindings:check
+> node scripts/generate-link.mjs --check
+
+
+> @botstral/link@0.1.0 check
+> tsc --noEmit -p tsconfig.json
+
+
+> @botstral/desktop@0.1.0 check
+> tsc --noEmit
+
+
+> test
+> npm run test --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop
+
+
+ Test Files  6 passed | 1 skipped (7)
+      Tests  33 passed | 1 skipped (34)
+   Start at  23:41:32
+   Duration  1.59s (environment 56%, tests 27%, setup 11%, import 5%, transform 2%)
+
+
+> build
+> npm run build --workspace @botstral/desktop
+
+
+> @botstral/desktop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 135 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:   0.28 kB
+dist/assets/index-CViWsiqx.css   16.71 kB │ gzip:   4.11 kB
+dist/assets/index-BqpAzp_9.js   393.32 kB │ gzip: 116.97 kB
+
+✓ built in 73ms
+   Compiling objc2-exception-helper v0.1.1
+   Compiling ring v0.17.14
+   Compiling mac-notification-sys v0.6.15
+   Compiling objc2 v0.6.5
+    Checking objc2-core-foundation v0.3.2
+    Checking block2 v0.6.2
+    Checking dispatch2 v0.3.1
+    Checking objc2-foundation v0.3.2
+    Checking objc2-core-graphics v0.3.2
+   Compiling rustls v0.23.46
+    Checking rustls-webpki v0.103.16
+    Checking botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+    Checking tokio-rustls v0.26.6
+    Checking botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+    Checking objc2-quartz-core v0.3.2
+    Checking notify-rust v4.18.2
+    Checking objc2-app-kit v0.3.2
+    Checking objc2-web-kit v0.3.2
+    Checking muda v0.20.0
+    Checking tao v0.37.2
+    Checking window-vibrancy v0.8.1
+    Checking rfd v0.17.2
+    Checking tauri-runtime v2.12.2
+    Checking wry v0.57.1
+    Checking tray-icon v0.25.1
+    Checking tauri-runtime-wry v2.12.3
+    Checking tauri v2.12.4
+    Checking tauri-plugin-fs v2.7.1
+    Checking tauri-plugin-deep-link v2.6.3
+    Checking tauri-plugin-notification v2.7.0
+    Checking tauri-plugin-dialog v2.8.4
+    Checking botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/desktop/src-tauri)
+error: this `if` statement can be collapsed
+    --> src/remote.rs:1111:9
+     |
+1111 | /         if let Some(previous) = self.protected_record()? {
+1112 | |             if matches!(previous.status, CredentialWriteStatus::Unresolved { .. }) {
+1113 | |                 return Err(if previous.manager == manager {
+1114 | |                     "reconcile_previous_entry"
+...    |
+1120 | |         }
+     | |_________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.93.0/index.html#collapsible_if
+     = note: `-D clippy::collapsible-if` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+     |
+1111 ~         if let Some(previous) = self.protected_record()?
+1112 ~             && matches!(previous.status, CredentialWriteStatus::Unresolved { .. }) {
+1113 |                 return Err(if previous.manager == manager {
+ ...
+1118 |                 .into());
+1119 ~             }
+     |
+
+error: could not compile `botstral-desktop` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `botstral-desktop` (lib) due to 1 previous error

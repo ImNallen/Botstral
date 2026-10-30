@@ -1,0 +1,34 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.50s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 10 tests
+test manager::state::credentials::tests::live::security::pr56_security_unemitted_profile_does_not_screen_any_private_value ... ok
+altered_destination_prepares_accepted=[false, false, false, false, false]
+prepare_retry_records=1; same_identity=true
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry ... ok
+test manager::state::credentials::tests::live::security::pr56_security_remembered_successor_is_unique_and_keeps_root_deadline ... ok
+test manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses ... ok
+test manager::state::credentials::tests::live::security::pr56_security_profile_requires_all_emissions_and_correct_worker ... ok
+unrecorded_profile_benign_accepted=false; unrelated_guess_accepted=false
+test manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory ... ok
+
+thread 'manager::state::credentials::tests::live::security::pr56_security_totp_profile_uses_only_issued_code_and_retains_integrity' (639476501) panicked at manager/src/manager/state/credentials/tests/live/security.rs:404:10:
+called `Result::unwrap()` on an `Err` value: SqliteFailure(Error { code: ConstraintViolation, extended_code: 1811 }, Some("retained issued code"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::security::pr56_security_totp_profile_uses_only_issued_code_and_retains_integrity ... FAILED
+recorded_profile_acceptance=[false, false, true, true, true]
+rejected_attempt_persisted=true; changed_guess_not_rescanned=true; reviews_allocated=0
+test manager::state::credentials::tests::live::security::pr56_security_rejected_prepare_attempt_cannot_probe_again ... ok
+test manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values ... ok
+cached_prepare_at_capacity_returned=true
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity ... ok
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::security::pr56_security_totp_profile_uses_only_issued_code_and_retains_integrity
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 184 filtered out; finished in 0.75s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

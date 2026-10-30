@@ -1,0 +1,17 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "botstral-manager",
+    "--locked",
+    "--lib",
+    "fresh_catalog_revocation_preserves_unrelated_private_entry_and_chat",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb",
+  "exit": 101,
+  "start": "2026-10-30T00:43:49.962329+00:00",
+  "end": "2026-10-30T00:43:54.732332+00:00"
+}

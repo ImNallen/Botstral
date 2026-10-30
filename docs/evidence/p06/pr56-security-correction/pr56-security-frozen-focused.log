@@ -1,0 +1,42 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.14s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 10 tests
+test manager::state::credentials::tests::live::security::pr56_security_unemitted_profile_does_not_screen_any_private_value ... ok
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retries_do_not_allocate_or_extend_expiry ... ok
+test manager::state::credentials::tests::live::security::pr56_security_changed_destination_and_consumed_prepare_cannot_mint_uses ... ok
+test manager::state::credentials::tests::live::security::pr56_security_remembered_successor_is_unique_and_keeps_root_deadline ... ok
+test manager::state::credentials::tests::live::security::pr56_security_profile_requires_all_emissions_and_correct_worker ... ok
+test manager::state::credentials::tests::live::security::pr56_security_unknown_profile_cannot_probe_global_inventory ... ok
+test manager::state::credentials::tests::live::security::pr56_security_totp_profile_uses_only_issued_code_and_retains_integrity ... ok
+test manager::state::credentials::tests::live::security::pr56_security_rejected_prepare_attempt_cannot_probe_again ... ok
+test manager::state::credentials::tests::live::security::pr56_security_recorded_profile_screens_only_emitted_values ... ok
+test manager::state::credentials::tests::live::security::pr56_security_prepare_retry_survives_full_global_capacity ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 184 filtered out; finished in 0.77s
+
+     Running unittests src/main.rs (target/debug/deps/botstral_manager-2995a2282d4b92b0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/owner-probe.rs (target/debug/deps/owner_probe-572819be8050d634)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/m01_local.rs (target/debug/deps/m01_local-f719774ef620ca26)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/m05_bounds.rs (target/debug/deps/m05_bounds-1455156b052f04dd)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+

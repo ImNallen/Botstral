@@ -1,0 +1,28 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.42s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 4 tests
+
+thread 'manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation' (637321094) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/common.rs:8:76:
+called `Result::unwrap()` on an `Err` value: Conflict
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation ... FAILED
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+fresh_current_memory=false; baseline_and_after_complete=true; rejected_final=true; epochs=0
+
+thread 'manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation' (637321093) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/common.rs:8:76:
+called `Result::unwrap()` on an `Err` value: Conflict
+test manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation ... FAILED
+fresh_current_memory=true; baseline_and_after_complete=true; rejected_final=true; epochs=0
+test manager::state::runs::tests::publication_tests::independent_fresh_configuration_and_memory_rejection_preserves_completion ... ok
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation
+    manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 174 filtered out; finished in 0.29s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

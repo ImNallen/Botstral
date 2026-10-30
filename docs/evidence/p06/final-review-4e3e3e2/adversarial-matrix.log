@@ -1,0 +1,36 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.96s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+candidate=admin; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(327b4e3f-e76f-46ce-92a1-435c8cfc86bc), reason: PublicValueCollision }
+candidate=owner; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(ba51d54a-ca49-4eb8-9c9b-1abf71f2caf6), reason: PublicValueCollision }
+candidate=standard_only; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(e5fb6332-c191-4c7b-8e67-83be2e901c18), reason: PublicValueCollision }
+candidate=none; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(ed64a980-36e6-4edf-ba66-25556f07b64e), reason: PublicValueCollision }
+candidate=public_value_collision; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(1440d6a1-b2a6-434b-8b02-ae99e87c7469), reason: PublicValueCollision }
+candidate=parallel_tool_calls; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(646d7568-0a17-4644-bade-f4d1fc41f98e), reason: PublicValueCollision }
+candidate=request_wakeup; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(becfecc6-b80c-479b-be4b-324e4f1fea4f), reason: PublicValueCollision }
+test manager::state::runs::tests::child_claim_and_publication_recheck_parent_without_consuming_ineligible_approval ... ok
+candidate=max_turns; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(140629ad-b314-4cc7-aa7e-45216b4f6270), item: LoginItemView { id: CredentialId(cd262f0b-acc0-46b7-83f1-f1834d222ffa), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=execution_policy; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(bc9fd29f-2ea6-4968-bef4-1e01c75ff0c2), item: LoginItemView { id: CredentialId(790c6e65-3d64-48e9-a65a-1a34bb549140), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=configuration_revision; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(b204ed5a-cbf0-451e-ae5b-f78f6f4032c7), item: LoginItemView { id: CredentialId(43d12428-f9bc-4c00-b852-39fd4483ef71), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=max_total_tokens; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(0a1edd42-aa1b-4f30-a71c-3fd91df5ac85), item: LoginItemView { id: CredentialId(aa977c9c-e73a-4c64-82f5-1aabc84e654a), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=max_cost_microusd; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(d3ed44f1-7eb0-45b6-af9d-c556638c3e02), item: LoginItemView { id: CredentialId(c1f054f5-c7b4-4d07-8abb-9b20053eeb2d), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=assistant; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(62315c7c-ecde-413f-bd45-2837388743ef), item: LoginItemView { id: CredentialId(64ecfb4b-35de-47ac-b19a-c0239725f635), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=global; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(40637d4f-315a-404d-aa7a-a9000fbb5000), item: LoginItemView { id: CredentialId(01d67e8a-6ba1-4659-a471-f6c2a42761f2), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=verified; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(3977e82a-8f01-4cda-b604-67ed4beedbf0), item: LoginItemView { id: CredentialId(f9cb1a05-8407-4a84-847c-78521c28bcee), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=mistral-small-latest; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(f15e90c3-25a2-4869-8ab9-07d37e6bf670), item: LoginItemView { id: CredentialId(a29ac498-4a73-40fe-912b-fccb05413edc), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+
+thread 'manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix' (637157514) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/.audit/p06-recheck/publication-probes.rs:19:5:
+accepted values poison unchanged benign conversation: ["max_turns", "execution_policy", "configuration_revision", "max_total_tokens", "max_cost_microusd", "verified"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix ... FAILED
+
+failures:
+
+failures:
+    manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 172 filtered out; finished in 0.61s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

@@ -1,0 +1,14 @@
+{"check": "command", "argv": ["systemd", "--version"], "exit": 0}
+{"check": "environment", "machine": "aarch64", "cgroup": "0::/init.scope", "systemd": "systemd 255 (255.4-1ubuntu8.18)"}
+{"check": "production_supervisor", "exit": 0, "stdout": "production systemd backend launch and empty-scope stop proved", "stderr": ""}
+{"check": "command", "argv": ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", "ca.key", "-out", "ca.pem", "-days", "1", "-subj", "/CN=P06 isolated fixture CA", "-addext", "basicConstraints=critical,CA:TRUE"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "manager.key", "-out", "manager.csr", "-subj", "/CN=manager"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "manager.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "manager.pem", "-days", "1", "-extfile", "manager.ext"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "worker.key", "-out", "worker.csr", "-subj", "/CN=worker"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "worker.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "worker.pem", "-days", "1", "-extfile", "worker.ext"], "exit": 0}
+{"check": "manager_started", "listeners": {"listen": "127.0.0.1:38073", "setup": "127.0.0.1:35509", "worker": "127.0.0.1:44319", "public": "127.0.0.1:44319"}}
+{"check": "paired_owner_authenticated"}
+{"check": "command", "argv": ["botstral-agent", "enroll", "--state-dir", "/home/p06/run-05/agent", "--manager", "wss://127.0.0.1:44319", "--manager-ca", "/home/p06/run-05/ca.pem", "--client-cert", "/home/p06/run-05/worker.pem", "--client-key", "/home/p06/run-05/worker.key", "--invitation-file", "/home/p06/run-05/invitation.json"], "exit": 0}
+{"check": "worker_ready", "worker": {"id": "ca5ab461-9c72-4184-82a1-a549ebcc23f1", "fingerprint": "44563c26070d428fa5420ede13e74970ed12c0b528d85db24746feb1c925024f", "revoked": false, "generation": 1, "phase": "ready"}}
+{"check": "fixture_processes_stopped", "exits": [0, 0], "root": "/home/p06/run-05"}
+{"check": "fixture_failed", "error": "HTTP POST /v1/tasks status 409", "exception": "RuntimeError"}

@@ -1,0 +1,22 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-e73580b6/manager)
+error[E0277]: the trait bound `u64: ToSql` is not satisfied
+   --> /Users/nallen/.t3/worktrees/Botstral/t3-e73580b6/.audit/p06-catalog-recheck/publication-probes.rs:116:125
+    |
+116 | ...ch=?2",params![version.connection.to_string(),revoked.version.credential_epoch],|r|r.get(0)).unwrap();
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ToSql` is not implemented for `u64`
+    |
+    = help: the following other types implement trait `ToSql`:
+              f32
+              f64
+              i16
+              i32
+              i64
+              i8
+              isize
+              u16
+            and 2 others
+    = note: required for the cast from `&u64` to `&dyn ToSql`
+    = note: this error originates in the macro `params` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `botstral-manager` (lib test) due to 1 previous error

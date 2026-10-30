@@ -1,0 +1,13 @@
+{
+  "command": [
+    "git",
+    "merge-base",
+    "--is-ancestor",
+    "b589c7623296784e7a0b0d4442440a5ffe265947",
+    "HEAD"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:15:43.573352+00:00",
+  "end": "2026-10-30T00:15:43.582488+00:00"
+}

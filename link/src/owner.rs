@@ -134,6 +134,22 @@ pub enum OwnerHello {
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
+    LockVault,
+    CredentialUses,
+    DecideCredentialUse {
+        review: Box<CredentialUseReview>,
+        decision: UseDecision,
+    },
+    LoginItems,
+    CredentialWriteStatus {
+        request: RequestId,
+        close: bool,
+    },
+    UpdateLogin {
+        id: CredentialId,
+        expected_revision: CredentialRevision,
+        metadata: Option<LoginMetadata>,
+    },
     RoutineStatus {
         id: RequestId,
     },
@@ -333,6 +349,12 @@ pub struct OwnerReceipt {
     deny_unknown_fields
 )]
 pub enum OwnerReply {
+    VaultLocked,
+    CredentialUses(Vec<CredentialUseReview>),
+    CredentialUse(Box<CredentialUseReview>),
+    LoginItems(Vec<LoginItemView>),
+    LoginItem(LoginItemView),
+    CredentialWriteStatus(CredentialWriteStatus),
     RoutineStatus(Option<RoutineControlResult>),
     RoutineControl(RoutineControlResult),
     RoutineHistory(Vec<RoutineOccurrence>),
@@ -366,6 +388,10 @@ pub enum OwnerReply {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerServerMessage {
+    ProtectedReply {
+        id: RequestId,
+        status: CredentialWriteStatus,
+    },
     Welcome {
         version: u16,
         manager: ManagerId,

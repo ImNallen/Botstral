@@ -1,0 +1,26 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.41s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 2 tests
+
+thread 'manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations' (637376031) panicked at manager/src/manager/state/test_catalog.rs:144:41:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations ... FAILED
+catalog_surface=description; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=description; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+test manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations ... ok
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::generated_code_current_catalog_collision_preserves_complete_conversations
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 175 filtered out; finished in 1.33s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

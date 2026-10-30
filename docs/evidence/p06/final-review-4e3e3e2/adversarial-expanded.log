@@ -1,0 +1,48 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.42s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 4 tests
+candidate=admin; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(81a8920b-831e-451a-ac4a-93f51a861c17), reason: PublicValueCollision }
+accepted assistant; plain completion phase=Stopped { reason: UnsupportedProposal }; turns=[RunTurn { manager_result: None, id: RunTurnId(3c6b1a81-3434-4d38-93ac-c2772b930910), ordinal: 1, attempt: RunAttemptId(6c4069af-8540-4500-b910-c93f23333417), messages: [User { content: "Hello." }], reservation: InferenceReservation { total_tokens: 32832, cost_microusd: 32896 }, accounting: Settled { charged_microusd: 28 }, phase: Responded, finish_reason: Some(Stop), usage: Some(InferenceUsage { prompt_tokens: 12, completion_tokens: 8, total_tokens: 20 }), provider_request_id: Some("recorded-response"), response: None, intent: None }]
+
+thread 'manager::state::runs::tests::publication_tests::recheck_plain_assistant_completion_after_accepted_value' (637161245) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/.audit/p06-recheck/publication-probes.rs:49:5:
+accepted fixed assistant discriminator prevents benign completion
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::recheck_plain_assistant_completion_after_accepted_value ... FAILED
+accepted max_turns; real rotation committed; removal committed; active inventory empty; create=Some(InvalidInput); rotation=Some(InvalidInput); removal=Some(InvalidInput)
+
+thread 'manager::state::runs::tests::publication_tests::recheck_accepted_fixed_key_survives_rotation_and_removal' (637161243) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/.audit/p06-recheck/publication-probes.rs:35:5:
+fixed mandatory request key still poisons plain chat after successful rotation and removal
+test manager::state::runs::tests::publication_tests::recheck_accepted_fixed_key_survives_rotation_and_removal ... FAILED
+candidate=owner; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(78c3fc2b-063c-4080-899e-fa245d326bc5), reason: PublicValueCollision }
+candidate=standard_only; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(c1014d78-9eee-4643-b270-ee01b39c94a3), reason: PublicValueCollision }
+candidate=none; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(bc676fed-7d18-43e0-a5ad-e893e6b35c9b), reason: PublicValueCollision }
+candidate=public_value_collision; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(76be5443-a6fe-4f42-bf48-d0cc2106f68f), reason: PublicValueCollision }
+candidate=parallel_tool_calls; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(2281b867-9bc0-4b19-924d-9c8801742679), reason: PublicValueCollision }
+candidate=request_wakeup; accepted=false; plain_admitted=true; receipt=Rejected { request: RequestId(c903887b-10b1-4de3-8343-38616e687e59), reason: PublicValueCollision }
+test manager::state::runs::tests::child_claim_and_publication_recheck_parent_without_consuming_ineligible_approval ... ok
+candidate=max_turns; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(112c4373-95b3-4f48-89e5-aca30a51e69b), item: LoginItemView { id: CredentialId(1cbca0f2-8b2c-4364-b8a6-02c986f58b53), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=execution_policy; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(a2ad8a69-226c-4ca9-afc6-9bf4dae10446), item: LoginItemView { id: CredentialId(18a01e1b-793f-4804-9f8b-a3ebb6154452), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=configuration_revision; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(435d41a8-3ed5-4e7b-bb89-d4d75e9ead21), item: LoginItemView { id: CredentialId(fada1f52-77e0-4cbe-8492-b1d786c5687f), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=max_total_tokens; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(ae054859-d24d-4eef-84bd-f2df5c58d5f3), item: LoginItemView { id: CredentialId(0267f690-dd88-48c6-a04e-10756d6a9b85), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=max_cost_microusd; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(dfe7f56c-78c5-4194-b317-4a8d592015f6), item: LoginItemView { id: CredentialId(b9e0162e-7ac2-4dfb-bf97-a38712737ac8), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=assistant; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(3b17fc35-19e0-486e-9bef-762b1991f137), item: LoginItemView { id: CredentialId(66b7ee04-eb38-4003-ab88-71b0e698cba1), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=global; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(d54e843e-449e-435d-a26e-03b4990b4fef), item: LoginItemView { id: CredentialId(d20de6c7-e2e8-4279-bb99-8599fb58169f), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=verified; accepted=true; plain_admitted=false; receipt=Committed { request: RequestId(5f4bd72c-f7cf-4b65-9dd5-7e2a49a82ff2), item: LoginItemView { id: CredentialId(6057b6c6-01d4-469d-b46c-a91c6a90d352), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+candidate=mistral-small-latest; accepted=true; plain_admitted=true; receipt=Committed { request: RequestId(716c88ca-cb27-4294-a15e-c4c0086a2eea), item: LoginItemView { id: CredentialId(9359ba5f-d824-4ad9-95d5-83b1ca23c933), revision: CredentialRevision(1), epoch: CredentialEpoch(1), state: Active, metadata: LoginMetadata { label: "Isolated credential", bots: AllOwnerBots, allowed_origins: ["https://example.test"], password_policy: EveryFill }, has_totp: false } }
+
+thread 'manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix' (637161244) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-a30697c7/.audit/p06-recheck/publication-probes.rs:19:5:
+accepted values poison unchanged benign conversation: ["max_turns", "execution_policy", "configuration_revision", "max_total_tokens", "max_cost_microusd", "verified"]
+test manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix ... FAILED
+
+failures:
+
+failures:
+    manager::state::runs::tests::publication_tests::recheck_accepted_fixed_key_survives_rotation_and_removal
+    manager::state::runs::tests::publication_tests::recheck_fixed_public_surface_matrix
+    manager::state::runs::tests::publication_tests::recheck_plain_assistant_completion_after_accepted_value
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 172 filtered out; finished in 0.79s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

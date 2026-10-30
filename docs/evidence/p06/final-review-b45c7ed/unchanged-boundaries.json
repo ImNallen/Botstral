@@ -1,0 +1,20 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--exit-code",
+    "086b1acb41226be3e5ace6055be6f765c070b8fa",
+    "HEAD",
+    "--",
+    "agent",
+    "link",
+    "desktop",
+    "mobile",
+    "manager/src/manager/state/credentials.rs",
+    "manager/src/manager/state/connectors/gateway.rs"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+  "exit": 0,
+  "start": "2026-10-30T00:52:34.872978+00:00",
+  "end": "2026-10-30T00:52:34.883497+00:00"
+}

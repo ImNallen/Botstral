@@ -1,0 +1,104 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::"
+    ],
+    "started": "2026-10-29T20:51:54.978459+00:00",
+    "finished": "2026-10-29T20:52:15.184877+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  },
+  {
+    "name": "profile",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-agent",
+      "--locked",
+      "--lib",
+      "protected_browser::"
+    ],
+    "started": "2026-10-29T20:52:15.185175+00:00",
+    "finished": "2026-10-29T20:52:19.210527+00:00",
+    "exit_code": 0,
+    "log": "profile.log"
+  },
+  {
+    "name": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "started": "2026-10-29T20:52:19.210830+00:00",
+    "finished": "2026-10-29T20:52:34.322210+00:00",
+    "exit_code": 0,
+    "log": "native-storage.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T20:52:34.322533+00:00",
+    "finished": "2026-10-29T20:52:52.513682+00:00",
+    "exit_code": 0,
+    "log": "browser.log"
+  },
+  {
+    "name": "entry-component",
+    "command": [
+      "node",
+      "desktop/fixtures/p06-entry.mjs"
+    ],
+    "started": "2026-10-29T20:52:52.514004+00:00",
+    "finished": "2026-10-29T20:52:53.441289+00:00",
+    "exit_code": 0,
+    "log": "entry-component.log"
+  },
+  {
+    "name": "native-controls",
+    "command": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "desktop/src-tauri/Cargo.toml",
+      "--locked",
+      "--example",
+      "p06-native-entry"
+    ],
+    "started": "2026-10-29T20:52:53.442126+00:00",
+    "finished": "2026-10-29T20:53:08.711882+00:00",
+    "exit_code": 0,
+    "log": "native-controls.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T20:53:08.712342+00:00",
+    "finished": "2026-10-29T20:56:07.385810+00:00",
+    "exit_code": 101,
+    "log": "repository.log"
+  }
+]

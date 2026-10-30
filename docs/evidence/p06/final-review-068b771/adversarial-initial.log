@@ -1,0 +1,45 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/manager)
+error[E0603]: enum import `ConnectorOutcome` is private
+  --> /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/common.rs:4:58
+   |
+ 4 |     use crate::manager::connectors::{ConnectorAdmission, ConnectorOutcome, ConnectorResult};
+   |                                                          ^^^^^^^^^^^^^^^^ private enum import
+   |
+note: the enum import `ConnectorOutcome` is defined here...
+  --> manager/src/manager/connectors.rs:2:5
+   |
+ 2 | use botstral_link::*;
+   |     ^^^^^^^^^^^^^^^^
+note: ...and refers to the enum `ConnectorOutcome` which is defined here
+  --> /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/link/src/lib.rs:95:9
+   |
+95 | pub use connector::*;
+   |         ^^^^^^^^^ you could import this directly
+help: import `ConnectorOutcome` directly
+   |
+ 4 |     use crate::manager::connectors::{ConnectorAdmission, botstral_link::connector::ConnectorOutcome, ConnectorResult};
+   |                                                          ++++++++++++++++++++++++++
+
+error[E0603]: enum import `ConnectorResult` is private
+  --> /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/common.rs:4:76
+   |
+ 4 |     use crate::manager::connectors::{ConnectorAdmission, ConnectorOutcome, ConnectorResult};
+   |                                                                            ^^^^^^^^^^^^^^^ private enum import
+   |
+note: the enum import `ConnectorResult` is defined here...
+  --> manager/src/manager/connectors.rs:2:5
+   |
+ 2 | use botstral_link::*;
+   |     ^^^^^^^^^^^^^^^^
+note: ...and refers to the enum `ConnectorResult` which is defined here
+  --> /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/link/src/lib.rs:95:9
+   |
+95 | pub use connector::*;
+   |         ^^^^^^^^^ you could import this directly
+help: import `ConnectorResult` directly
+   |
+ 4 |     use crate::manager::connectors::{ConnectorAdmission, ConnectorOutcome, botstral_link::connector::ConnectorResult};
+   |                                                                            ++++++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `botstral-manager` (lib test) due to 2 previous errors

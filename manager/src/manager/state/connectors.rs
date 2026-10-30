@@ -93,6 +93,16 @@ impl State {
         let mut seen = std::collections::HashSet::new();
         let mut secrets = Vec::new();
         for view in views {
+            if view.availability == ConnectionAvailability::Revoked {
+                let stored: bool = self.connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM connection_secrets WHERE connection=?1 AND epoch=?2)",
+                    params![view.id.to_string(), view.version.credential_epoch as i64],
+                    |r| r.get(0),
+                )?;
+                if !stored {
+                    continue;
+                }
+            }
             if seen.insert((view.id, view.version.credential_epoch)) {
                 secrets.extend(
                     secret_values(&self.connection_secret(&view)?)
@@ -538,6 +548,22 @@ impl State {
             return Err(OperationError::Internal);
         }
         Ok(tools)
+    }
+    pub(super) fn current_connector_catalogs(
+        &self,
+    ) -> Result<Vec<ConnectorToolDefinition>, OperationError> {
+        let bots = self
+            .connection
+            .prepare("SELECT DISTINCT bot FROM connector_grants WHERE bot IN (SELECT id FROM bots WHERE id NOT IN (SELECT bot FROM bot_tombstones)) ORDER BY bot")?
+            .query_map([], |r| r.get::<_, String>(0))?
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut catalogs = Vec::new();
+        for bot in bots {
+            catalogs.extend(
+                self.current_connector_tools(bot.parse().map_err(|_| OperationError::Internal)?)?,
+            );
+        }
+        Ok(catalogs)
     }
     pub(in crate::manager) fn permitted_connector_catalog(
         &self,

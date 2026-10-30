@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+
+thread 'manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session' (636243560) panicked at manager/src/manager/state/tasks.rs:877:9:
+assertion `left == right` failed
+  left: 15
+ right: 14
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session ... FAILED
+
+failures:
+
+failures:
+    manager::state::tasks::tests::populated_version_two_migration_preserves_worker_and_session
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::tests"
+    ],
+    "started": "2026-10-29T20:03:25.858660+00:00",
+    "finished": "2026-10-29T20:03:34.460072+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  }
+]

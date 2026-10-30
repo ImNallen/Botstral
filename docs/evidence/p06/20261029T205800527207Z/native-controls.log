@@ -1,0 +1,7 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `desktop/src-tauri/target/debug/examples/p06-native-entry`
+native save: secure controls cleared
+native cancel: secure controls cleared
+native generation: secure controls cleared
+native disconnect: secure controls cleared
+native unlock: secure controls cleared

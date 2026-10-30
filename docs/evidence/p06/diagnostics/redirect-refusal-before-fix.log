@@ -1,0 +1,36 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-796b8ad5691d66dd)
+
+running 1 test
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: redirect redirect reached an unapproved destination
+
+1 !== 0
+
+    at file:///Users/nallen/.t3/worktrees/Botstral/t3-7cc62f11/manager/tests/p06_browser.mjs:119:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.12.1
+
+thread 'manager::state::credentials::tests::live::p06_controlled_browser_acceptance' (633551402) panicked at manager/src/manager/state/credentials/tests/live.rs:654:13:
+controlled browser driver failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::credentials::tests::live::p06_controlled_browser_acceptance ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::p06_controlled_browser_acceptance
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 154 filtered out; finished in 3.66s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

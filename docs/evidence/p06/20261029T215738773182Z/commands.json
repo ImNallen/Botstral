@@ -1,0 +1,140 @@
+[
+  {
+    "name": "credentials",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "credentials::"
+    ],
+    "started": "2026-10-29T21:57:38.815236+00:00",
+    "finished": "2026-10-29T21:57:52.954075+00:00",
+    "exit_code": 0,
+    "log": "credentials.log"
+  },
+  {
+    "name": "profile",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-agent",
+      "--locked",
+      "--lib",
+      "protected_browser::"
+    ],
+    "started": "2026-10-29T21:57:52.954441+00:00",
+    "finished": "2026-10-29T21:58:03.672304+00:00",
+    "exit_code": 0,
+    "log": "profile.log"
+  },
+  {
+    "name": "profile-runtime",
+    "command": [
+      "node",
+      "agent/tests/p06_profile_provenance.mjs"
+    ],
+    "started": "2026-10-29T21:58:03.673116+00:00",
+    "finished": "2026-10-29T21:58:03.781048+00:00",
+    "exit_code": 0,
+    "log": "profile-runtime.log"
+  },
+  {
+    "name": "native-storage",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_protected_entry_never_enters_native_journal"
+    ],
+    "started": "2026-10-29T21:58:03.781297+00:00",
+    "finished": "2026-10-29T21:58:16.193812+00:00",
+    "exit_code": 0,
+    "log": "native-storage.log"
+  },
+  {
+    "name": "native-locked-unlock",
+    "command": [
+      "python3",
+      "desktop/fixtures/paired_manager.py",
+      "--verify-journal",
+      "--journal-case",
+      "p06_locked_reads_preserve_the_paired_unlock_path"
+    ],
+    "started": "2026-10-29T21:58:16.194126+00:00",
+    "finished": "2026-10-29T21:58:27.680463+00:00",
+    "exit_code": 0,
+    "log": "native-locked-unlock.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "botstral-manager",
+      "--locked",
+      "--lib",
+      "p06_controlled_browser_acceptance",
+      "--",
+      "--ignored",
+      "--nocapture"
+    ],
+    "started": "2026-10-29T21:58:27.681427+00:00",
+    "finished": "2026-10-29T21:58:49.228133+00:00",
+    "exit_code": 0,
+    "log": "browser.log"
+  },
+  {
+    "name": "submission-boundary",
+    "command": [
+      "node",
+      "agent/tests/p06_submission_boundary.mjs"
+    ],
+    "started": "2026-10-29T21:58:49.228434+00:00",
+    "finished": "2026-10-29T21:58:51.545252+00:00",
+    "exit_code": 0,
+    "log": "submission-boundary.log"
+  },
+  {
+    "name": "entry-component",
+    "command": [
+      "node",
+      "desktop/fixtures/p06-entry.mjs"
+    ],
+    "started": "2026-10-29T21:58:51.545626+00:00",
+    "finished": "2026-10-29T21:58:52.446126+00:00",
+    "exit_code": 0,
+    "log": "entry-component.log"
+  },
+  {
+    "name": "native-controls",
+    "command": [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "desktop/src-tauri/Cargo.toml",
+      "--locked",
+      "--example",
+      "p06-native-entry"
+    ],
+    "started": "2026-10-29T21:58:52.446445+00:00",
+    "finished": "2026-10-29T21:59:12.379439+00:00",
+    "exit_code": 0,
+    "log": "native-controls.log"
+  },
+  {
+    "name": "repository",
+    "command": [
+      "./scripts/verify.sh"
+    ],
+    "started": "2026-10-29T21:59:12.380334+00:00",
+    "finished": "2026-10-29T21:59:36.865760+00:00",
+    "exit_code": 1,
+    "log": "repository.log"
+  }
+]

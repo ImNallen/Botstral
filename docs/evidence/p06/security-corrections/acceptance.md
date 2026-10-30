@@ -1,0 +1,17 @@
+# Historical independent findings and initial coordinator corrections
+
+This record describes the initial corrections through `8fc5904`. Its accepted-identifier scope decision was subsequently rejected by independent review. [The current acceptance record](../final-acceptance.md) tracks later code and evidence. Original logs remain unchanged.
+
+The initial manager review found four defects at `3527f3c`. The coordinator reproduced all four against `b95fb2c` before changing the source. [The original report](initial-manager-review.txt) records that review's scope, exact commands and limits. [The browser lane](initial-browser-review.md) passed at the same original source with synthetic private callbacks. Neither report establishes acceptance of the later corrections.
+
+[Device and URL failures](manager-before.log) show release after device revocation, missing cancellation, and bot-visible encoded metadata. [Numeric publication](numeric-before.log) records a failing expected-safe assertion against actual run settlement. [Wrong-manager reconciliation](receipt-before.log) records false closure through two actual manager services.
+
+The fixes are `970176e`, `3498b1e`, and `8fc5904`. [The correction contract](design.md) explains authority provenance, scanner normalization and manager-bound receipts. Migration 15 adds private approval provenance. Old remembered approvals without provenance require fresh owner review.
+
+The coordinator promoted the review probes into permanent tests. `cargo test -p botstral-manager --locked --lib credentials::` passed 24 tests with one opt-in browser skip in [the manager run](manager-after.log). This includes revocation before and after release, remembered approval revocation, unrelated revocation and disconnection, release transaction rollback, peer and task fences, and retained code boundaries. `cargo test -p botstral-manager --locked --lib publication_tests` passed both numeric publication and conservative identifier refusal in [the publication run](numeric-after.log). `cargo test -p botstral-manager --locked --lib screening_tests` passed the ordinary-encoding and scalar matrix in [the scanner run](scanner-after.log).
+
+`python3 desktop/fixtures/p06-manager-switch.py` passed [the two-manager regression](receipt-after.log). Manager B refuses reconciliation and replacement of manager A's unresolved receipt without changing its bytes. Reconnecting to A recovers its committed result. Fault injection preserves the manager identity written by production code. Both owned managers stopped with exit zero.
+
+[The additional identifier probe](identifier-collision-probe.log) confirmed a conservative usability refusal. A stored synthetic `admin` username prevents a later benign conversation because its literal value occurs in public scaffolding. A synthetic `owner` identifier also collides with serialized metadata. Root initially retained that refusal policy and changed a regression to expect it. Independent review rejected this decision because accepted entries permanently broke otherwise benign conversation. Later corrections require final refusal before storage, preserve benign conversation and completion, and retain the original failure evidence.
+
+The full default-path driver and fresh Linux run at the corrected source are recorded separately. This record does not claim a combined packaged native-to-Linux session or cross-build keychain continuity. No P06 milestone checkbox is completed here.

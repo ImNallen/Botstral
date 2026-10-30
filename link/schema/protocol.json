@@ -12,6 +12,9 @@
     "coding_result": {
       "$ref": "#/$defs/VibeResult"
     },
+    "credential_write_target": {
+      "$ref": "#/$defs/CredentialWriteTarget"
+    },
     "document": {
       "$ref": "#/$defs/WriteDocument"
     },
@@ -65,6 +68,7 @@
     }
   },
   "required": [
+    "credential_write_target",
     "owner_hello",
     "owner_client",
     "owner_server",
@@ -526,6 +530,43 @@
         "height"
       ]
     },
+    "BotAccess": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "all_owner_bots"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bots": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/BotId"
+              }
+            },
+            "type": {
+              "type": "string",
+              "const": "selected"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bots"
+          ]
+        }
+      ]
+    },
     "BotConnectorGrants": {
       "type": "object",
       "properties": {
@@ -556,6 +597,22 @@
       ]
     },
     "BotId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "BrowserDocumentId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "BrowserFrameId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "BrowserInstanceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "BrowserPageId": {
       "type": "string",
       "format": "uuid"
     },
@@ -809,6 +866,35 @@
     },
     "ComputerOperation": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/CredentialId"
+            },
+            "plan": {
+              "$ref": "#/$defs/LoginSitePlan"
+            },
+            "purpose": {
+              "$ref": "#/$defs/CredentialFields"
+            },
+            "revision": {
+              "$ref": "#/$defs/CredentialRevision"
+            },
+            "type": {
+              "type": "string",
+              "const": "protected_login"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "item",
+            "revision",
+            "purpose",
+            "plan"
+          ]
+        },
         {
           "type": "object",
           "properties": {
@@ -1874,6 +1960,215 @@
         "id",
         "conversation",
         "text"
+      ]
+    },
+    "CredentialEpoch": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "CredentialFields": {
+      "type": "string",
+      "enum": [
+        "password",
+        "totp"
+      ]
+    },
+    "CredentialId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CredentialRevision": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "CredentialState": {
+      "type": "string",
+      "enum": [
+        "active",
+        "removed"
+      ]
+    },
+    "CredentialUseId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "CredentialUseReview": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/ExecutionBinding"
+        },
+        "destination": {
+          "$ref": "#/$defs/LiveDestination"
+        },
+        "expires_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "fence": {
+          "$ref": "#/$defs/InputFence"
+        },
+        "id": {
+          "$ref": "#/$defs/CredentialUseId"
+        },
+        "incarnation": {
+          "$ref": "#/$defs/JournalId"
+        },
+        "item": {
+          "$ref": "#/$defs/LoginItemView"
+        },
+        "purpose": {
+          "$ref": "#/$defs/CredentialFields"
+        },
+        "release": {
+          "$ref": "#/$defs/ReleaseId"
+        },
+        "state": {
+          "$ref": "#/$defs/UseState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "release",
+        "item",
+        "purpose",
+        "binding",
+        "fence",
+        "incarnation",
+        "destination",
+        "expires_at",
+        "state"
+      ]
+    },
+    "CredentialWriteRejection": {
+      "type": "string",
+      "enum": [
+        "public_value_collision"
+      ]
+    },
+    "CredentialWriteStatus": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/CredentialWriteRejection"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "rejected"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/LoginItemView"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "committed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request",
+            "item"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "closed_without_commit"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "type": {
+              "type": "string",
+              "const": "unresolved"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "request"
+          ]
+        }
+      ]
+    },
+    "CredentialWriteTarget": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "$ref": "#/$defs/LoginMetadata"
+            },
+            "type": {
+              "type": "string",
+              "const": "create"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "metadata"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "$ref": "#/$defs/CredentialRevision"
+            },
+            "id": {
+              "$ref": "#/$defs/CredentialId"
+            },
+            "type": {
+              "type": "string",
+              "const": "rotate"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "expected_revision"
+          ]
+        }
       ]
     },
     "DeviceFingerprint": {
@@ -3007,12 +3302,219 @@
         "stopped"
       ]
     },
+    "LiveDestination": {
+      "type": "object",
+      "properties": {
+        "browser": {
+          "$ref": "#/$defs/BrowserInstanceId"
+        },
+        "certain": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoginField"
+          }
+        },
+        "form": {
+          "type": "string"
+        },
+        "frame": {
+          "$ref": "#/$defs/BrowserFrameId"
+        },
+        "frame_document": {
+          "$ref": "#/$defs/BrowserDocumentId"
+        },
+        "frame_origin": {
+          "type": "string"
+        },
+        "page": {
+          "$ref": "#/$defs/BrowserPageId"
+        },
+        "plan": {
+          "$ref": "#/$defs/LoginSitePlan"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileEpoch"
+        },
+        "submitter": {
+          "type": "string"
+        },
+        "top_document": {
+          "$ref": "#/$defs/BrowserDocumentId"
+        },
+        "top_origin": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "browser",
+        "page",
+        "top_document",
+        "frame",
+        "frame_document",
+        "top_origin",
+        "frame_origin",
+        "plan",
+        "form",
+        "fields",
+        "submitter",
+        "certain"
+      ]
+    },
     "LogCode": {
       "type": "string",
       "enum": [
         "started",
         "input_applied",
         "stopped"
+      ]
+    },
+    "LoginField": {
+      "type": "object",
+      "properties": {
+        "input_type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "object": {
+          "$ref": "#/$defs/RequestId"
+        },
+        "role": {
+          "$ref": "#/$defs/LoginFieldRole"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "object",
+        "role",
+        "name",
+        "input_type"
+      ]
+    },
+    "LoginFieldRole": {
+      "type": "string",
+      "enum": [
+        "username",
+        "password",
+        "totp"
+      ]
+    },
+    "LoginItemView": {
+      "type": "object",
+      "properties": {
+        "epoch": {
+          "$ref": "#/$defs/CredentialEpoch"
+        },
+        "has_totp": {
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/$defs/CredentialId"
+        },
+        "metadata": {
+          "$ref": "#/$defs/LoginMetadata"
+        },
+        "revision": {
+          "$ref": "#/$defs/CredentialRevision"
+        },
+        "state": {
+          "$ref": "#/$defs/CredentialState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "revision",
+        "epoch",
+        "state",
+        "metadata",
+        "has_totp"
+      ]
+    },
+    "LoginMetadata": {
+      "type": "object",
+      "properties": {
+        "allowed_origins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bots": {
+          "$ref": "#/$defs/BotAccess"
+        },
+        "label": {
+          "type": "string"
+        },
+        "password_policy": {
+          "$ref": "#/$defs/PasswordPolicy"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "bots",
+        "allowed_origins",
+        "password_policy"
+      ]
+    },
+    "LoginSitePlan": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "form": {
+          "type": "string"
+        },
+        "frame": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "origin": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string"
+        },
+        "submitter": {
+          "type": "string"
+        },
+        "totp": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "origin",
+        "route",
+        "form",
+        "username",
+        "password",
+        "totp",
+        "submitter",
+        "action"
       ]
     },
     "ManagerId": {
@@ -4401,6 +4903,118 @@
         {
           "type": "object",
           "properties": {
+            "method": {
+              "type": "string",
+              "const": "lock_vault"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "credential_uses"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "$ref": "#/$defs/UseDecision"
+            },
+            "method": {
+              "type": "string",
+              "const": "decide_credential_use"
+            },
+            "review": {
+              "$ref": "#/$defs/CredentialUseReview"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "review",
+            "decision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "login_items"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "close": {
+              "type": "boolean"
+            },
+            "method": {
+              "type": "string",
+              "const": "credential_write_status"
+            },
+            "request": {
+              "$ref": "#/$defs/RequestId"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "request",
+            "close"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "expected_revision": {
+              "$ref": "#/$defs/CredentialRevision"
+            },
+            "id": {
+              "$ref": "#/$defs/CredentialId"
+            },
+            "metadata": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/LoginMetadata"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "method": {
+              "type": "string",
+              "const": "update_login"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "id",
+            "expected_revision"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "id": {
               "$ref": "#/$defs/RequestId"
             },
@@ -5374,6 +5988,110 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "vault_locked"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "credential_uses"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/CredentialUseReview"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "credential_use"
+            },
+            "value": {
+              "$ref": "#/$defs/CredentialUseReview"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "login_items"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/LoginItemView"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "login_item"
+            },
+            "value": {
+              "$ref": "#/$defs/LoginItemView"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "credential_write_status"
+            },
+            "value": {
+              "$ref": "#/$defs/CredentialWriteStatus"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "routine_status"
             },
             "value": {
@@ -5846,6 +6564,27 @@
         {
           "type": "object",
           "properties": {
+            "id": {
+              "$ref": "#/$defs/RequestId"
+            },
+            "status": {
+              "$ref": "#/$defs/CredentialWriteStatus"
+            },
+            "type": {
+              "type": "string",
+              "const": "protected_reply"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "id",
+            "status"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
             "device": {
               "$ref": "#/$defs/DeviceId"
             },
@@ -6163,6 +6902,13 @@
         "run_ready_bots",
         "vault_unlocked",
         "state"
+      ]
+    },
+    "PasswordPolicy": {
+      "type": "string",
+      "enum": [
+        "every_fill",
+        "remembered_origins"
       ]
     },
     "Permission": {
@@ -6514,6 +7260,10 @@
         "limits"
       ]
     },
+    "ProfileEpoch": {
+      "type": "string",
+      "format": "uuid"
+    },
     "PublisherId": {
       "type": "string",
       "format": "uuid"
@@ -6574,6 +7324,10 @@
         "stable",
         "experimental"
       ]
+    },
+    "ReleaseId": {
+      "type": "string",
+      "format": "uuid"
     },
     "ReplaceConnectionSecret": {
       "type": "object",
@@ -8781,6 +9535,28 @@
       "type": "string",
       "format": "uuid"
     },
+    "UseDecision": {
+      "type": "string",
+      "enum": [
+        "allow_once",
+        "deny",
+        "remember_password"
+      ]
+    },
+    "UseState": {
+      "type": "string",
+      "enum": [
+        "awaiting_approval",
+        "denied",
+        "authorized",
+        "released",
+        "applied",
+        "refused",
+        "uncertain",
+        "revoked",
+        "expired"
+      ]
+    },
     "VaultOutcome": {
       "oneOf": [
         {
@@ -8807,6 +9583,23 @@
           "additionalProperties": false,
           "required": [
             "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bot": {
+              "$ref": "#/$defs/BotId"
+            },
+            "type": {
+              "type": "string",
+              "const": "login_entry"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "bot"
           ]
         }
       ]

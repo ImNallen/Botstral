@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    ".audit/p06-public-context-review/audit-evidence.py"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:12:57.347093+00:00",
+  "end": "2026-10-30T00:12:57.378434+00:00"
+}

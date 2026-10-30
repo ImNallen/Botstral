@@ -1,0 +1,112 @@
+{
+  "reviewed_head": "3527f3cfc2a3e3486df1d7e166141de19c96c70b",
+  "runtime": {
+    "check": "runtime_identity",
+    "directory": "/opt/p06-runtime",
+    "sha256": "b30b0896a520d1224046404c442a2e2ccb272ec971370af92ea2296d0f2a518b"
+  },
+  "scope": {
+    "journal": "e14048a8-0a71-4e4c-a4fe-3efc278944e0",
+    "execution": "6c24c036-2f09-47c5-8b09-de617ce8d908",
+    "host": "be7861ae67a004f9213279a30c1abc92c7b2387160d7bc29927a4b75f481febb",
+    "boot": "55f7caed-619d-4287-a81f-8e8189b974db",
+    "invocation": "4eb4c848711649aaaf7ef878dd7d6d37",
+    "unit": "botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service",
+    "cgroup": "/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+  },
+  "peers": [
+    {
+      "pid": 313,
+      "comm": "botstral-agent",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 315,
+      "comm": "MainThread",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 327,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 329,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 330,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 345,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 349,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    },
+    {
+      "pid": 387,
+      "comm": "chrome-headless",
+      "cgroup": "0::/user.slice/user-10001.slice/user@10001.service/app.slice/botstral-e14048a8-0a71-4e4c-a4fe-3efc278944e0-6c24c036-2f09-47c5-8b09-de617ce8d908.service"
+    }
+  ],
+  "task_state": "completed",
+  "runtime_exit": {
+    "type": "exited",
+    "code": 0
+  },
+  "review_states": [
+    "applied"
+  ],
+  "submissions": [
+    {
+      "valid": true,
+      "path": "/session",
+      "method": "POST"
+    }
+  ],
+  "provenance": {
+    "journal": "e14048a8-0a71-4e4c-a4fe-3efc278944e0",
+    "protection": {
+      "type": "tracked",
+      "profile": "4242df53-ab4b-4100-ade5-bc78c6193976",
+      "releases": [
+        "7acfe267-fd69-492d-99ad-074a7942c240"
+      ],
+      "complete": true
+    },
+    "consumed": [
+      "7acfe267-fd69-492d-99ad-074a7942c240"
+    ]
+  },
+  "negative_probes": [
+    {
+      "check": "authenticated_worker_tls_poll",
+      "status": 200
+    },
+    {
+      "check": "missing_client_certificate_refused",
+      "status": 403
+    },
+    {
+      "check": "changed_generation_refused",
+      "status": 403
+    },
+    {
+      "check": "same_uid_outside_scope_refused",
+      "response_bytes": 0,
+      "submissions": 0
+    },
+    {
+      "check": "repeated_tls_release_refused",
+      "status": 403
+    }
+  ],
+  "binfmt_unchanged": true
+}

@@ -277,13 +277,21 @@ impl Backend {
             directory.to_string_lossy().into_owned(),
         ];
         command("/usr/bin/systemd-run", &args, 6).await?;
-        let deadline = tokio::time::Instant::now() + Duration::from_secs(3);
+        let remaining = manifest
+            .expires_at
+            .min(manifest.spec.deadline)
+            .saturating_sub(now())
+            .clamp(0, 30);
+        let deadline = tokio::time::Instant::now() + Duration::from_secs(remaining as u64);
         loop {
+            if tokio::time::Instant::now() >= deadline
+                || now() >= manifest.expires_at
+                || now() >= manifest.spec.deadline
+            {
+                return Err(io::Error::other("helper readiness timeout"));
+            }
             if directory.join("ready.json").try_exists()? {
                 return self.observe(directory, manifest).await;
-            }
-            if tokio::time::Instant::now() >= deadline {
-                return Err(io::Error::other("helper readiness timeout"));
             }
             tokio::time::sleep(Duration::from_millis(20)).await;
         }

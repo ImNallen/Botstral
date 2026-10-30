@@ -212,7 +212,9 @@ impl State {
                                                         VaultOutcome::ProviderKeySetup
                                                     }
                                                     VaultPurpose::ReusableLogin => {
-                                                        VaultOutcome::ReusableLoginUnsupported
+                                                        VaultOutcome::LoginEntry {
+                                                            bot: view.request.bot,
+                                                        }
                                                     }
                                                 },
                                             }
@@ -222,7 +224,17 @@ impl State {
                                     let result = match &outcome {
                                         ManagerOutcome::Memory { outcome } => json(outcome)?,
                                         ManagerOutcome::Vault { outcome } => {
-                                            outcome.notice().into()
+                                            if matches!(outcome, VaultOutcome::LoginEntry { .. }) {
+                                                format!(
+                                                    "{}\nAccessible login metadata: {}",
+                                                    outcome.notice(),
+                                                    json(&self.accessible_login_items(
+                                                        view.request.bot
+                                                    )?)?
+                                                )
+                                            } else {
+                                                outcome.notice().into()
+                                            }
                                         }
                                     };
                                     view.summary.accounting.admitted_operations += 1;
@@ -407,7 +419,10 @@ impl State {
             return Ok(());
         }
         match result {
-            Ok(result) if result.len() <= MAX_RUN_RESULT_BYTES => {
+            Ok(result)
+                if result.len() <= MAX_RUN_RESULT_BYTES
+                    && self.reject_known_secrets(&result).is_ok() =>
+            {
                 intent.result = Some(result);
                 view.summary.phase = RunPhase::Ready;
             }

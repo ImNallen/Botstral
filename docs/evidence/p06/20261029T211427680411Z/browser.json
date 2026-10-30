@@ -1,0 +1,177 @@
+{
+  "boundary": "Real Chromium and production protected runtime module against a controlled HTTPS form. Real manager state admission, owner decisions, releases and settlement through a private fixture socket. Linux supervisor, worker TLS and packaged native interaction are not proved by this fixture.",
+  "results": [
+    {
+      "scenario": "approved",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "remember",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "totp",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "redirect",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "post_redirect",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "echo",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1,
+      "runtime": {
+        "results": [
+          {
+            "scenario": "safe_text",
+            "exit": 0,
+            "passed": true
+          },
+          {
+            "scenario": "echo_text",
+            "exit": 1,
+            "passed": true
+          },
+          {
+            "scenario": "screenshot",
+            "exit": 1,
+            "passed": true
+          },
+          {
+            "scenario": "profile_file",
+            "exit": 1,
+            "passed": true
+          },
+          {
+            "scenario": "alias_export",
+            "exit": 1,
+            "passed": true
+          },
+          {
+            "scenario": "missing_inventory",
+            "exit": 1,
+            "passed": true
+          },
+          {
+            "scenario": "corrupt_provenance",
+            "exit": 1,
+            "passed": true
+          }
+        ],
+        "scan": "Actual runtime specifications and output files, raw and escaped synthetic inventory. Browser profile is the protected private state, not a public artifact."
+      }
+    },
+    {
+      "scenario": "field_replace",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "form_replace",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "top_reload",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "action",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "method",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "hidden",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "submit_override",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "event_action",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "formdata_get",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "formdata_payload",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "prototype",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "frame",
+      "passed": true,
+      "submissions": 1,
+      "authenticated": 1
+    },
+    {
+      "scenario": "frame_replace",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "after_release_field",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "deny",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    },
+    {
+      "scenario": "dropped_release",
+      "passed": true,
+      "submissions": 0,
+      "authenticated": 0
+    }
+  ]
+}

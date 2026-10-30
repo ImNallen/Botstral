@@ -56,6 +56,7 @@ export const managerOutcomeSchema = z.discriminatedUnion('type', [
     outcome: z.discriminatedUnion('type', [
       z.strictObject({ type: z.literal('provider_key_setup') }),
       z.strictObject({ type: z.literal('reusable_login_unsupported') }),
+      z.strictObject({ type: z.literal('login_entry'), bot: id }),
     ]),
   }),
 ]) satisfies z.ZodType<ManagerOutcome>;

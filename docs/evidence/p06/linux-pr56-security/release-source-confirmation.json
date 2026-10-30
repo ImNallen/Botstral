@@ -1,0 +1,5 @@
+{
+  "production_head": "379bfc8ff406473c8f2096b449edeb2e62a72bad",
+  "build_manifest_matches_committed_source": true,
+  "note": "Build began on the frozen precommit working tree. The same source hashes are now committed. Driver source.json records the clean start and actual binary digests."
+}

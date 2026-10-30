@@ -1,0 +1,70 @@
+/proc/sys/fs/binfmt_misc/arm
+enabled
+interpreter /usr/bin/qemu-arm
+flags: POCF
+offset 0
+magic 7f454c4601010100000000000000000002002800
+mask ffffffffffffff00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/i386
+enabled
+interpreter /usr/bin/qemu-i386
+flags: POCF
+offset 0
+magic 7f454c4601010100000000000000000002000300
+mask fffffffffffefe00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/mips64
+enabled
+interpreter /usr/bin/qemu-mips64
+flags: POCF
+offset 0
+magic 7f454c4602020100000000000000000000020008
+mask ffffffffffffff00fffffffffffffffffffeffff
+/proc/sys/fs/binfmt_misc/mips64le
+enabled
+interpreter /usr/bin/qemu-mips64el
+flags: POCF
+offset 0
+magic 7f454c4602010100000000000000000002000800
+mask ffffffffffffff00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/ppc64le
+enabled
+interpreter /usr/bin/qemu-ppc64le
+flags: POCF
+offset 0
+magic 7f454c4602010100000000000000000002001500
+mask ffffffffffffff00fffffffffffffffffeffff00
+/proc/sys/fs/binfmt_misc/riscv64
+enabled
+interpreter /usr/bin/qemu-riscv64
+flags: POCF
+offset 0
+magic 7f454c460201010000000000000000000200f300
+mask ffffffffffffff00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/rosetta
+enabled
+interpreter /run/rosetta/rosetta
+flags: POCF
+offset 0
+magic 7f454c4602010100000000000000000002003e00
+mask fffffffffffefe00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/rosetta-wrapper
+enabled
+interpreter /usr/bin/rosetta-wrapper
+flags: POCF
+offset 0
+magic 7f454c4602010100000000000000000002003e00
+mask fffffffffffefe00fffffffffffffffffeffffff
+/proc/sys/fs/binfmt_misc/s390x
+enabled
+interpreter /usr/bin/qemu-s390x
+flags: POCF
+offset 0
+magic 7f454c4602020100000000000000000000020016
+mask ffffffffffffff00fffffffffffffffffffeffff
+/proc/sys/fs/binfmt_misc/x86_64
+enabled
+interpreter /usr/bin/qemu-x86_64
+flags: POCF
+offset 0
+magic 7f454c4602010100000000000000000002003e00
+mask fffffffffffefe00fffffffffffffffffeffffff

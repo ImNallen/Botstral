@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "desktop/fixtures/paired_manager.py",
+    "--verify-journal",
+    "--journal-case",
+    "p06_native_receipt_manager_binding"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:11:25.273935+00:00",
+  "end": "2026-10-30T00:11:41.780250+00:00"
+}

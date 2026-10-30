@@ -37,14 +37,41 @@ pub struct OutputDeclaration {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 pub enum ComputerOperation {
-    Navigate { url: String },
-    Click { selector: String },
-    Fill { selector: String, text: String },
-    CaptureText { selector: String, output: String },
-    Screenshot { output: String },
-    WriteFile { path: String, text: String },
-    ReadFile { path: String, output: String },
-    ExportFile { path: String, output: String },
+    ProtectedLogin {
+        item: CredentialId,
+        revision: CredentialRevision,
+        purpose: CredentialFields,
+        plan: Box<LoginSitePlan>,
+    },
+    Navigate {
+        url: String,
+    },
+    Click {
+        selector: String,
+    },
+    Fill {
+        selector: String,
+        text: String,
+    },
+    CaptureText {
+        selector: String,
+        output: String,
+    },
+    Screenshot {
+        output: String,
+    },
+    WriteFile {
+        path: String,
+        text: String,
+    },
+    ReadFile {
+        path: String,
+        output: String,
+    },
+    ExportFile {
+        path: String,
+        output: String,
+    },
 }
 fn bounded(value: &str, max: usize) -> bool {
     value.len() <= max && !value.contains('\0')
@@ -111,6 +138,13 @@ impl ComputerSpec {
         let mut written = std::collections::HashSet::new();
         for op in &self.operations {
             let (selector, path, output) = match op {
+                ComputerOperation::ProtectedLogin { plan, .. } => {
+                    plan.validate()?;
+                    if self.operations.len() != 1 || !self.outputs.is_empty() {
+                        return Err(ErrorCode::InvalidMessage);
+                    }
+                    (None, None, None)
+                }
                 ComputerOperation::Navigate { url } => {
                     if !bounded(url, 512)
                         || !(url.starts_with("https://") || url.starts_with("http://"))

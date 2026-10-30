@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    ".audit/p06-revocation-recheck/verify-source.py"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-48e45ec2",
+  "exit": 0,
+  "start": "2026-10-30T00:54:08.657684+00:00",
+  "end": "2026-10-30T00:54:08.815913+00:00"
+}

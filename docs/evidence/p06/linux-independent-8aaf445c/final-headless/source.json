@@ -1,0 +1,10 @@
+{
+  "reviewed_head": "3527f3cfc2a3e3486df1d7e166141de19c96c70b",
+  "binaries": {
+    "botstral-agent": "e3895690293c68d7d5d6cde371e0c492e7909cdfe45c30e33cbb8539c2f75bbc",
+    "botstral-agent-supervisor-check": "3fee78daa1d8e465d57f92b3c4fddee15a0549f1ecceff5e71519d0ca428724f",
+    "botstral-manager": "ef9eaaf3a56e1a64a2397b867a6640c681a50c0e0ffb1d88a4fd7a565db29707"
+  },
+  "headless_only": true,
+  "host_architecture": "aarch64"
+}

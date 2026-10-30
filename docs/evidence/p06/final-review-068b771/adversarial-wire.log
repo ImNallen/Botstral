@@ -1,0 +1,51 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/manager)
+warning: variable does not need to be mutable
+  --> /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/publication-probes.rs:57:9
+   |
+57 |     let mut f=fixture();
+   |         ----^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `botstral-manager` (lib test) generated 1 warning (run `cargo fix --lib -p botstral-manager --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.88s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 6 tests
+
+thread 'manager::state::runs::tests::publication_tests::independent_typed_provider_wire_shapes_preserved' (637351266) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/publication-probes.rs:69:5:
+assertion `left == right` failed
+  left: Array [Object {"content": String("plain user"), "role": String("user")}, Object {"content": String("plain assistant"), "role": String("assistant")}, Object {"content": String("tool assistant"), "role": String("assistant"), "tool_calls": Array [Object {"function": Object {"arguments": String("{\"action\":\"list\",\"scope\":\"individual\"}"), "name": String("memory")}, "id": String("independent-call"), "type": String("function")}]}, Object {"content": String("tool result"), "role": String("tool"), "tool_call_id": String("independent-call")}, Object {"authorized_images": Array [], "content": String("empty images"), "role": String("user")}]
+ right: Array [Object {"content": String("plain user"), "role": String("user")}, Object {"content": String("plain assistant"), "role": String("assistant")}, Object {"content": String("tool assistant"), "role": String("assistant"), "tool_calls": Array [Object {"function": Object {"arguments": String("{\"action\":\"list\",\"scope\":{\"type\":\"individual\"}}"), "name": String("memory")}, "id": String("independent-call"), "type": String("function")}]}, Object {"content": String("tool result"), "role": String("tool"), "tool_call_id": String("independent-call")}, Object {"authorized_images": Array [], "content": String("empty images"), "role": String("user")}]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::independent_typed_provider_wire_shapes_preserved ... FAILED
+test manager::state::connectors::tests::owner_installation_does_not_grant_tools_and_bots_have_independent_revisions ... ok
+fresh_current_memory=false; baseline_and_after_complete=true; rejected_final=true; epochs=0
+fresh_model_generated_collision=true; release_refused=true; retained_codes=0; use_still_authorized=true; baseline_and_after_complete=true
+test manager::state::credentials::tests::live::authority::independent_fresh_generated_model_collision_refuses_without_consumption ... ok
+fresh_current_memory=true; baseline_and_after_complete=true; rejected_final=true; epochs=0
+test manager::state::runs::tests::publication_tests::independent_fresh_configuration_and_memory_rejection_preserves_completion ... ok
+catalog_predates_code=true; baseline_complete=true; code_released=true; retained_codes=1; after=Err(InvalidInput); plain=Ok(())
+
+thread 'manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation' (637351263) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/generated-probes.rs:15:5:
+generated code poisoned an already enabled catalog
+test manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation ... FAILED
+catalog_schema=false; baseline_complete=true; intake_committed=true; after=Err(InvalidInput); after_rotation=Err(InvalidInput); after_removal=Err(InvalidInput); plain=Ok(())
+catalog_schema=true; baseline_complete=true; intake_committed=true; after=Err(InvalidInput); after_rotation=Err(InvalidInput); after_removal=Err(InvalidInput); plain=Ok(())
+
+thread 'manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation' (637351264) panicked at /Users/nallen/.t3/worktrees/Botstral/t3-225dddf5/.audit/p06-public-context-review/publication-probes.rs:29:5:
+accepted value broke unchanged preexisting enabled connector conversation
+test manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation ... FAILED
+
+failures:
+
+failures:
+    manager::state::credentials::tests::live::authority::independent_generated_code_current_catalog_preserves_conversation
+    manager::state::runs::tests::publication_tests::independent_current_catalog_intake_preserves_complete_conversation
+    manager::state::runs::tests::publication_tests::independent_typed_provider_wire_shapes_preserved
+
+test result: FAILED. 3 passed; 3 failed; 0 ignored; 0 measured; 174 filtered out; finished in 0.56s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

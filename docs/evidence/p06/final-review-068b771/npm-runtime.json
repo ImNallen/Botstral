@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "ci",
+    "--prefix",
+    "agent/runtime",
+    "--ignore-scripts"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:11:24.550214+00:00",
+  "end": "2026-10-30T00:11:25.231523+00:00"
+}

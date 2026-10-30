@@ -140,6 +140,7 @@ impl State {
     ) -> Result<(), OperationError> {
         let value = serde_json::to_value(value).map_err(|_| OperationError::Internal)?;
         let mut secrets = self.known_connector_secrets()?;
+        secrets.extend(self.known_login_secrets()?);
         match self.provider_secret() {
             Ok(secret) => secrets.push(secret),
             Err(OperationError::NotFound) => {}
@@ -198,14 +199,20 @@ impl State {
         Ok(entries)
     }
 
+    pub(in crate::manager::state) fn all_memory_entries(
+        &mut self,
+    ) -> Result<Vec<MemoryEntry>, OperationError> {
+        self.recover_memory_publications()?;
+        self.import_legacy_memory()?;
+        self.live_memory_entries()
+    }
+
     pub(in crate::manager::state) fn memory_context(
         &mut self,
         bot: BotId,
     ) -> Result<Vec<MemoryEntry>, OperationError> {
-        self.recover_memory_publications()?;
-        self.import_legacy_memory()?;
         let entries: Vec<_> = self
-            .live_memory_entries()?
+            .all_memory_entries()?
             .into_iter()
             .filter(|e| {
                 e.scope == MemoryScope::Shared || e.scope == MemoryScope::Individual { bot }

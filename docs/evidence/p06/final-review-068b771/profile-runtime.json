@@ -1,0 +1,10 @@
+{
+  "command": [
+    "node",
+    "agent/tests/p06_profile_provenance.mjs"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-225dddf5",
+  "exit": 0,
+  "start": "2026-10-30T00:11:35.273755+00:00",
+  "end": "2026-10-30T00:11:35.365560+00:00"
+}

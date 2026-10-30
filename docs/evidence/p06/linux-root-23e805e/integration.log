@@ -1,0 +1,17 @@
+{"check": "command", "argv": ["systemd", "--version"], "exit": 0}
+{"check": "environment", "machine": "aarch64", "cgroup": "0::/init.scope", "systemd": "systemd 255 (255.4-1ubuntu8.18)"}
+{"check": "production_supervisor", "exit": 0, "stdout": "production systemd backend launch and empty-scope stop proved", "stderr": ""}
+{"check": "command", "argv": ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", "ca.key", "-out", "ca.pem", "-days", "1", "-subj", "/CN=P06 isolated fixture CA", "-addext", "basicConstraints=critical,CA:TRUE"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "manager.key", "-out", "manager.csr", "-subj", "/CN=manager"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "manager.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "manager.pem", "-days", "1", "-extfile", "manager.ext"], "exit": 0}
+{"check": "command", "argv": ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", "worker.key", "-out", "worker.csr", "-subj", "/CN=worker"], "exit": 0}
+{"check": "command", "argv": ["openssl", "x509", "-req", "-in", "worker.csr", "-CA", "ca.pem", "-CAkey", "ca.key", "-CAcreateserial", "-out", "worker.pem", "-days", "1", "-extfile", "worker.ext"], "exit": 0}
+{"check": "manager_started", "listeners": {"listen": "127.0.0.1:46027", "setup": "127.0.0.1:37445", "worker": "127.0.0.1:44319", "public": "127.0.0.1:44319"}}
+{"check": "paired_owner_authenticated"}
+{"check": "paired_private_unlock", "receipt": {"type": "protected_reply", "id": "af12a724-e93b-4787-ba80-e8b2b8d801e3", "status": {"type": "closed_without_commit", "request": "af12a724-e93b-4787-ba80-e8b2b8d801e3"}}}
+{"check": "command", "argv": ["botstral-agent", "enroll", "--state-dir", "/home/p06/fixture/agent", "--manager", "wss://127.0.0.1:44319", "--manager-ca", "/home/p06/fixture/ca.pem", "--client-cert", "/home/p06/fixture/worker.pem", "--client-key", "/home/p06/fixture/worker.key", "--invitation-file", "/home/p06/fixture/invitation.json"], "exit": 0}
+{"check": "runtime_identity", "directory": "/opt/p06-runtime", "sha256": "57d2c5f9854ed7bbebb1b6517bb8270a4fd112289b94fc1412562bea4957df1c"}
+{"check": "worker_ready", "worker": {"id": "369f29fc-3ab7-4154-b95d-355356c2aefb", "fingerprint": "9a79b73bdbcffc802f290fd1c785caa1519b886f60a886eea13a6034eef01960", "revoked": false, "generation": 1, "phase": "ready"}}
+{"check": "owned_scope_cleanup", "unit": "botstral-c471a043-e531-449f-9f96-b95b47088361-e2281312-b583-496f-883d-682a7f65edc2.service", "exit": 0}
+{"check": "fixture_processes_stopped", "exits": [0, 0], "root": "/home/p06/fixture"}
+{"check": "fixture_failed", "error": "HTTP POST /v1/tasks status 409", "exception": "RuntimeError"}

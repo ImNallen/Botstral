@@ -1,0 +1,12 @@
+{
+  "reviewed_head": "c180ed22189b976a8d72314b63db5b7b324e315c",
+  "diff_sha256": "23402b7ea60bd881b6fc3a3c24017d722e44123aaf328fc6d62a038f91c3c3b3",
+  "fixture_sha256": "1deec9b4b8b497d1dc23d5871ca2031fb59962779af755ae9a503fe9755a74de",
+  "binaries": {
+    "botstral-agent": "46bbc6c3f75bb76eabed8687dd1cf66de763b6a15fc804e7288a40944c768110",
+    "botstral-agent-supervisor-check": "f57e390835e76c4abda20fcba3301b8459905296c279603e6cbfe671dc5cdfbb",
+    "botstral-manager": "9e540071da4310de2d4930c6df8ee371c9be33260b4ed53b16c6da21b7fa455f"
+  },
+  "headless_only": false,
+  "host_architecture": "aarch64"
+}

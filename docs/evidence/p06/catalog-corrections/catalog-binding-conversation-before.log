@@ -1,0 +1,25 @@
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.84s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+catalog_surface=description; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=description; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=schema; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=false; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+catalog_surface=rendered_name; private_password=true; final_refusal=true; rotation_unchanged=true; complete_conversations=true
+
+thread 'manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations' (637385286) panicked at manager/src/manager/state/runs/tests/publication_tests.rs:511:18:
+accepted credentials must preserve the existing catalog conversation: InvalidInput
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations ... FAILED
+
+failures:
+
+failures:
+    manager::state::runs::tests::publication_tests::current_connector_catalog_collision_preserves_complete_conversations
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 176 filtered out; finished in 1.41s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`
