@@ -1,9 +1,11 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
+python3 scripts/release.py versions
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo build --workspace --locked
+python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 -m unittest discover -s manager/packaging -p 'test_*.py' -v
 python3 -m unittest discover -s manager/tests -p 'test_first_acceptance*.py' -v
 python3 -m unittest discover -s manager/tests -p 'test_p06_reboot.py' -v
@@ -22,6 +24,9 @@ cargo build --workspace --release --locked --target-dir "$release_dir"
 test ! -e "$release_dir/release/botstral-test-agent"
 "$release_dir/release/botstral-manager" --help
 "$release_dir/release/botstral-agent" --help
+"$release_dir/release/botstral-manager" --version-json
+"$release_dir/release/botstral-agent" --version-json
+"$release_dir/release/botstral-agent-supervisor-check" --version-json
 for package in botstral-agent botstral-manager; do
     if cargo build -p "$package" --release --features nonproduction-test-worker --locked --target-dir "$release_dir" > "$release_dir/$package-refusal.log" 2>&1; then
         echo "$package must reject nonproduction-test-worker in release compilation." >&2

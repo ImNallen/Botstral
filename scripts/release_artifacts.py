@@ -31,6 +31,26 @@ def ar_members(path):
     return result
 
 
+def validate_payload(archive, component):
+    package = 'botstral-' + component
+    files = {'usr/bin/' + package, 'usr/bin/' + package + '-backup', 'usr/bin/' + package + '-diagnose',
+             'usr/lib/systemd/' + ('system' if component == 'manager' else 'user') + '/' + package + '.service'}
+    if component == 'agent':
+        files.add('usr/bin/' + package + '-supervisor-check')
+    roots = {'usr/lib/' + package, 'usr/share/' + package}
+    directories = {str(parent) for name in files | roots for parent in Path(name).parents} | roots
+    for member in archive.getmembers():
+        name = member.name.removeprefix('./').rstrip('/')
+        require(not member.name.startswith('/') and '..' not in Path(name).parts, 'unsafe payload path')
+        require(member.uid == 0 and member.gid == 0 and not member.mode & 0o7000, 'unsafe payload ownership or mode')
+        owned = any(name.startswith(root + '/') for root in roots)
+        require(name in files or owned or (member.isdir() and name in directories), 'unexpected package payload path')
+        if member.issym():
+            require(name == 'usr/bin/' + package + '-backup' and member.linkname == '/usr/lib/' + package + '/backup.py', 'unsafe package symlink')
+        else:
+            require(member.isdir() or member.isfile(), 'unsafe package payload type')
+
+
 def inspect_deb(path, artifact, release):
     members = ar_members(path)
     with tarfile.open(fileobj=io.BytesIO(members['control.tar.xz']), mode='r:xz') as archive:
@@ -47,10 +67,7 @@ def inspect_deb(path, artifact, release):
     with tarfile.open(fileobj=io.BytesIO(members['data.tar.xz']), mode='r:xz') as archive:
         names = archive.getnames()
         require(len(names) == len(set(names)), 'duplicate payload paths')
-        for member in archive.getmembers():
-            parts = Path(member.name).parts
-            require(not member.name.startswith('/') and '..' not in parts, 'unsafe payload path')
-            require(not any(p in parts for p in ('var', 'home', 'root')), 'state in package payload')
+        validate_payload(archive, artifact.component)
         for name in binaries:
             member = archive.getmember(name)
             require(member.isfile(), 'regular packaged executable required')

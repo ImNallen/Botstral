@@ -56,3 +56,5 @@ Use the composer plus button to attach one regular file up to 16 KiB. Supported 
 Open **Saved results** to find generated files beyond recent activity. Filter by bot or file name, inspect the source task, and save verified bytes. See the [acceptance evidence and limits](docs/evidence/p05/acceptance.md).
 
 See the [C02 architecture](docs/c02-architecture.md), [native fixture workflow](docs/c02-native-workflow.md), and [acceptance record](docs/c02-acceptance.md). Run `make verify-desktop` for desktop checks. The packaged macOS workflow passed over the public relay with the production worker, including browser work, cancellation and recovery. See the acceptance record for independent review and platform limits.
+
+Install and explicitly upgrade exact stable or nightly packages with the [release guide](docs/releases.md).

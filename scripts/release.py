@@ -4,6 +4,7 @@ import argparse
 import datetime
 import json
 from pathlib import Path
+import platform
 import re
 import subprocess
 import sys
@@ -56,7 +57,14 @@ def versions(check=True, identity=None, mirrors_only=False):
     require(max(int(v) for v in re.findall(r'PRAGMA user_version=(\d+)', journal)) == config['data_compatibility']['worker_schema'], 'worker data compatibility drift')
     require('channel = "' + config['runtime_requirements']['rust'] + '"' in (ROOT / 'rust-toolchain.toml').read_text(), 'Rust runtime evidence drift')
     require('"' + config['runtime_requirements']['vibe'].split(';')[0] + '"' in (ROOT / 'link/src/vibe.rs').read_text(), 'Vibe runtime evidence drift')
+    for path, expected in config['runtime_requirements']['source_pins'].items():
+        require(digest(ROOT / path) == expected, 'runtime source pin drift: ' + path)
 
+
+def validate_release_ref(identity):
+    if identity.channel == 'stable':
+        tags = subprocess.check_output(['git', 'tag', '--points-at', identity.revision], cwd=ROOT, text=True).splitlines()
+        require('v' + identity.version in tags, 'stable production requires its matching source tag')
 
 
 def create_identity(channel, build_id, sequence, date, local):
@@ -102,7 +110,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
     p = commands.add_parser('versions')
-    p.add_argument('--write', action='store_true')
+    modes = p.add_mutually_exclusive_group()
+    modes.add_argument('--write', action='store_true')
+    modes.add_argument('--check', action='store_true')
     p.add_argument('--identity', type=Path)
     p = commands.add_parser('identity')
     p.add_argument('--channel', choices=['stable', 'nightly'], required=True)
@@ -146,6 +156,10 @@ def main():
         release = verify(args.directory, unsigned=True)
         ReleaseManifest.parse(release.value, production=True)
         require(release.identity.revision == subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'signing checkout differs from release source')
+        validate_release_ref(release.identity)
+        require(sys.platform == 'darwin' and platform.machine() == 'arm64', 'production signing requires native Apple silicon inspection')
+        from release_artifacts import inspect_artifacts
+        inspect_artifacts(args.directory, release, production=True)
         subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(args.private_key), '-out', str(args.directory / 'manifest.sig'), str(args.directory / 'manifest.json')], check=True)
         verify(args.directory, args.trusted_key, production=True)
     elif args.command == 'build':

@@ -93,6 +93,13 @@ class ReleaseTests(unittest.TestCase):
             subprocess.run(['openssl', 'rsa', '-in', str(key), '-pubout', '-out', str(public)], check=True, capture_output=True)
             subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(key), '-out', str(release / 'manifest.sig'), str(release / 'manifest.json')], check=True, capture_output=True)
             verify(release, public)
+            wrong = root / 'wrong.pem'
+            wrong_public = root / 'wrong-public.pem'
+            subprocess.run(['openssl', 'genrsa', '-out', str(wrong), '2048'], check=True, capture_output=True)
+            subprocess.run(['openssl', 'rsa', '-in', str(wrong), '-pubout', '-out', str(wrong_public)], check=True, capture_output=True)
+            with self.assertRaises(subprocess.CalledProcessError):
+                verify(release, wrong_public)
+
             with self.assertRaisesRegex(ValueError, 'independently'):
                 verify(release)
             with self.assertRaisesRegex(ValueError, 'outside'):
@@ -100,6 +107,13 @@ class ReleaseTests(unittest.TestCase):
             (release / 'manifest.json').write_text((release / 'manifest.json').read_text() + ' ')
             with self.assertRaises(subprocess.CalledProcessError):
                 verify(release, public)
+            wrong = root / 'wrong.pem'
+            wrong_public = root / 'wrong-public.pem'
+            subprocess.run(['openssl', 'genrsa', '-out', str(wrong), '2048'], check=True, capture_output=True)
+            subprocess.run(['openssl', 'rsa', '-in', str(wrong), '-pubout', '-out', str(wrong_public)], check=True, capture_output=True)
+            with self.assertRaises(subprocess.CalledProcessError):
+                verify(release, wrong_public)
+
 
     def test_embedded_real_binaries_if_built(self):
         import os
@@ -116,10 +130,6 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(actual['link_schema_sha256'], digest(ROOT / 'link/schema/protocol.json'))
             self.assertEqual(actual['identity']['revision'], os.environ.get('BOTSTRAL_SOURCE_REVISION') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
 
-
-
-if __name__ == '__main__':
-    unittest.main()
 
 class VersionDriftTests(unittest.TestCase):
     def test_every_source_mirror_refuses_drift(self):
@@ -158,3 +168,30 @@ class VersionDriftTests(unittest.TestCase):
                     release.versions()
             finally:
                 release.ROOT = previous
+
+
+class PayloadPolicyTests(unittest.TestCase):
+    def test_unexpected_paths_links_and_privileged_modes_are_refused(self):
+        import tarfile
+        from release_artifacts import validate_payload
+        class Archive:
+            def __init__(self, member):
+                self.member = member
+            def getmembers(self):
+                return [self.member]
+        for path in ('../escape', '/usr/bin/botstral-manager', './etc/botstral-manager/service.json', './usr/bin/unrelated'):
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                validate_payload(Archive(tarfile.TarInfo(path)), 'manager')
+        member = tarfile.TarInfo('./usr/lib/botstral-manager/unsafe')
+        member.type = tarfile.SYMTYPE
+        member.linkname = '/var/lib/botstral-manager'
+        with self.assertRaisesRegex(ValueError, 'symlink'):
+            validate_payload(Archive(member), 'manager')
+        member = tarfile.TarInfo('./usr/bin/botstral-manager')
+        member.mode = 0o4755
+        with self.assertRaisesRegex(ValueError, 'mode'):
+            validate_payload(Archive(member), 'manager')
+
+
+if __name__ == '__main__':
+    unittest.main()

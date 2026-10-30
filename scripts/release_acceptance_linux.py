@@ -89,7 +89,6 @@ def locked_and_unlock(state):
     require(status == 200 and verified['verification']['type'] == 'verified', 'packaged manager did not use retained credential against recorded HTTPS provider: ' + str((status, verified)))
 
 
-
 def stop(process):
     process.send_signal(signal.SIGTERM)
     require(process.wait(timeout=20) == 0, 'packaged manager shutdown failed')

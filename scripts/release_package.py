@@ -30,7 +30,7 @@ def verify_source():
 
 
 def build(identity_path, target, output, unsigned):
-    from release import versions
+    from release import versions, validate_release_ref
     identity_path = Path(identity_path).resolve()
     identity = ReleaseIdentity.parse(read_json(identity_path))
     revision = os.environ.get('BOTSTRAL_SOURCE_REVISION') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
@@ -38,6 +38,7 @@ def build(identity_path, target, output, unsigned):
     versions(identity=identity)
     if not unsigned:
         verify_source()
+        validate_release_ref(identity)
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     env = dict(os.environ, BOTSTRAL_RELEASE_IDENTITY=str(identity_path))
@@ -100,7 +101,7 @@ def build_dmg(identity, output, env, unsigned):
     require(unsigned or (signing and notarization), 'Developer ID signing identity and notarytool keychain profile required')
     command(['npm', 'ci'], cwd=ROOT, env=env)
     # Tauri creates the bundle. Final native version fields precede signing.
-    command(['npm', 'run', 'desktop', '--', 'build', '--bundles', 'app'], cwd=ROOT, env=env)
+    command(['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app', '--', '--locked'], cwd=ROOT, env=env)
     source = ROOT / 'desktop/src-tauri/target/release/bundle/macos/Botstral.app'
     with tempfile.TemporaryDirectory(prefix='botstral-dmg-') as directory:
         stage = Path(directory) / 'volume'

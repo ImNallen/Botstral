@@ -84,7 +84,7 @@ def prepare(args):
                'configuration_backup': str(args.config_backup.resolve()) if args.config_backup else None,
                'production': not args.unsigned, 'services_started': False}
     require(not args.receipt.exists(), 'upgrade receipt must be new')
-    with args.receipt.open('x') as stream:
+    with open(args.receipt, 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as stream:
         json.dump(receipt, stream, sort_keys=True, indent=2)
         stream.write('\n')
         stream.flush()
