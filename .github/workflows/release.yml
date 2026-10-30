@@ -1,0 +1,212 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+    inputs:
+      channel:
+        type: choice
+        options: [nightly, stable]
+        default: nightly
+      publish:
+        description: Publish after native acceptance and signing.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  desktop:
+    uses: ./.github/workflows/desktop.yml
+
+  identity:
+    runs-on: ubuntu-24.04
+    outputs:
+      revision: ${{ steps.identity.outputs.revision }}
+      channel: ${{ steps.identity.outputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: identity
+        env:
+          EVENT: ${{ github.event_name }}
+          REQUESTED_CHANNEL: ${{ inputs.channel }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          python3 - <<'PY'
+          import datetime, os, pathlib, subprocess, sys
+          sys.path.insert(0, 'scripts')
+          from release import create_identity
+          from release_model import write_json, require
+          channel = os.environ['REQUESTED_CHANNEL'] or ('stable' if os.environ['EVENT'] == 'push' else 'nightly')
+          require(os.environ['REF_TYPE'] == 'tag' if channel == 'stable' else os.environ['REF_NAME'] == os.environ['DEFAULT_BRANCH'], 'trusted release ref required')
+          sequence = int(os.environ['RUN_ID']) * 100 + int(os.environ['RUN_ATTEMPT']) * 2
+          date = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d')
+          build = os.environ['RUN_ID'] + '-' + os.environ['RUN_ATTEMPT']
+          pathlib.Path('identities').mkdir()
+          old = create_identity('nightly', build + '-acceptance-old', sequence, date, False)
+          new = create_identity(channel, build, sequence + 1, date, False)
+          write_json('identities/old.json', old.json())
+          write_json('identities/new.json', new.json())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+              stream.write('revision=' + new.revision + '\nchannel=' + channel + '\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: identities
+          path: identities/
+          if-no-files-found: error
+
+  native:
+    needs: [identity, verify, desktop]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: ubuntu24.04-amd64
+          - os: macos-15
+            target: macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.identity.outputs.revision }}
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.93.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: identities
+          path: identities
+      - if: runner.os == 'macOS'
+        env:
+          CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.APPLE_NOTARY_ISSUER }}
+        run: |
+          set -eu
+          umask 077
+          test -n "$CERTIFICATE"
+          test -n "$CERTIFICATE_PASSWORD"
+          test -n "$NOTARY_KEY"
+          test -n "$NOTARY_KEY_ID"
+          test -n "$NOTARY_ISSUER"
+          printf '%s' "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/release.p12"
+          printf '%s' "$NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
+          password=$(openssl rand -hex 32)
+          security create-keychain -p "$password" "$RUNNER_TEMP/release.keychain-db"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/release.keychain-db"
+          security unlock-keychain -p "$password" "$RUNNER_TEMP/release.keychain-db"
+          security import "$RUNNER_TEMP/release.p12" -k "$RUNNER_TEMP/release.keychain-db" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s "$RUNNER_TEMP/release.keychain-db" login.keychain-db
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$RUNNER_TEMP/release.keychain-db"
+          xcrun notarytool store-credentials botstral-release --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" --keychain "$RUNNER_TEMP/release.keychain-db"
+      - env:
+          TARGET: ${{ matrix.target }}
+          APPLE_SIGNING_IDENTITY: ${{ vars.APPLE_SIGNING_IDENTITY }}
+          APPLE_NOTARY_PROFILE: botstral-release
+        run: |
+          python3 scripts/release.py versions --write --identity identities/old.json
+          python3 scripts/release.py build --identity identities/old.json --target "$TARGET" --output native-old
+          python3 scripts/release.py versions --write --identity identities/new.json
+          python3 scripts/release.py build --identity identities/new.json --target "$TARGET" --output native-new
+      - if: runner.os == 'Linux'
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          sudo --preserve-env=PATH env CARGO_HOME="$HOME/.cargo" RUSTUP_HOME="$HOME/.rustup" BOTSTRAL_DISPOSABLE_RELEASE_HOST=1 python3 scripts/release_acceptance.py --old native-old --new native-new --target "$TARGET" --production --output acceptance.json
+      - if: runner.os == 'macOS'
+        env:
+          TARGET: ${{ matrix.target }}
+        run: python3 scripts/release_acceptance.py --old native-old --new native-new --target "$TARGET" --production --output acceptance.json
+      - if: always() && runner.os == 'macOS'
+        run: |
+          security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true
+          rm -f "$RUNNER_TEMP/release.p12" "$RUNNER_TEMP/notary.p8"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.target }}
+          path: |
+            native-new/*
+            acceptance.json
+          if-no-files-found: error
+
+  aggregate:
+    needs: [identity, native]
+    runs-on: macos-15
+    environment: release-signing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.identity.outputs.revision }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          path: inputs
+      - env:
+          PRIVATE_KEY: ${{ secrets.RELEASE_MANIFEST_PRIVATE_KEY }}
+          PUBLIC_KEY: ${{ vars.RELEASE_MANIFEST_PUBLIC_KEY }}
+        run: |
+          set -eu
+          test -n "$PRIVATE_KEY"
+          test -n "$PUBLIC_KEY"
+          umask 077
+          printf '%s' "$PRIVATE_KEY" > "$RUNNER_TEMP/manifest-private.pem"
+          printf '%s' "$PUBLIC_KEY" > "$RUNNER_TEMP/manifest-public.pem"
+          trap 'rm -f "$RUNNER_TEMP/manifest-private.pem"' EXIT
+          python3 scripts/release.py aggregate --input inputs/native-ubuntu24.04-amd64/native-new --input inputs/native-macos-arm64/native-new --receipt inputs/native-ubuntu24.04-amd64/acceptance.json --receipt inputs/native-macos-arm64/acceptance.json --output release-set
+          python3 scripts/release.py sign release-set --private-key "$RUNNER_TEMP/manifest-private.pem" --trusted-key "$RUNNER_TEMP/manifest-public.pem"
+          python3 scripts/release.py verify release-set --production --trusted-key "$RUNNER_TEMP/manifest-public.pem"
+          python3 scripts/release_negative_controls.py release-set --output "$RUNNER_TEMP/negative-controls.json"
+          python3 scripts/release_cli_acceptance.py release-set --trusted-key "$RUNNER_TEMP/manifest-public.pem" --output "$RUNNER_TEMP/cli-acceptance.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-set
+          path: release-set/
+          if-no-files-found: error
+
+  publish:
+    needs: [identity, aggregate]
+    if: github.event_name != 'workflow_dispatch' || inputs.publish
+    runs-on: ubuntu-24.04
+    environment: release-publication
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.identity.outputs.revision }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-set
+          path: release-set
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PUBLIC_KEY: ${{ vars.RELEASE_MANIFEST_PUBLIC_KEY }}
+        run: python3 scripts/release_publish.py release-set

@@ -3,6 +3,7 @@ name: Verify
 on:
   push:
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -17,3 +18,4 @@ jobs:
           toolchain: 1.93.0
           components: clippy, rustfmt
       - run: make verify
+      - uses: docker://rhysd/actionlint:1.7.7

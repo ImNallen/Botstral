@@ -1,5 +1,6 @@
 pub mod keychain;
 pub mod local;
+pub mod release_acceptance;
 pub mod remote;
 
 #[cfg(feature = "native-ui")]

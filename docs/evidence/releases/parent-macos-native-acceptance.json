@@ -1,0 +1,29 @@
+{
+  "artifacts": {
+    "botstral-desktop_0.1.0-nightly.20261030.2_arm64.dmg": "91118af54c252b11f4f9a0d32e7523b26643a70dabbadcc3169651641177f9b8"
+  },
+  "coverage": "native",
+  "evidence": {
+    "active_replacement_refused": true,
+    "interrupted_copy_repaired": true,
+    "packaged_cli_identities": true,
+    "real_dmg_old_to_new": true,
+    "scope": "temporary native app bundles and synthetic Keychain entry; paired workspace state is covered by manager acceptance",
+    "synthetic_native_keychain_continuity": true
+  },
+  "identity": {
+    "build_id": "local-new",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.2"
+  },
+  "passed": true,
+  "previous": {
+    "build_id": "local-old",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.1"
+  },
+  "production": false,
+  "target": "macos-arm64"
+}

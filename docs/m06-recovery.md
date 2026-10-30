@@ -105,8 +105,8 @@ botstral-agent-supervisor-check --scratch /home/botstral-agent/new-supervisor-ch
 Build each image independently from the repository root. The Dockerfiles pin Rust and Ubuntu by registry digest. Ubuntu packages resolve from the immutable `20261020T000000Z` snapshot. Each image records resolved package versions in `/usr/share/botstral-image-packages.txt` and its binary digest in the installed component's `install.json`. Rust dependencies resolve from `Cargo.lock`. Maintenance requires Python 3.9 or newer and SQLite 3.37 or newer. The pinned Ubuntu images provide Python 3.12.
 
 ```sh
-docker build -f manager/packaging/Dockerfile -t botstral-manager:m06 .
-docker build -f agent/packaging/Dockerfile -t botstral-agent:m06 .
+docker build --build-arg BOTSTRAL_SOURCE_REVISION="$(git rev-parse HEAD)" -f manager/packaging/Dockerfile -t botstral-manager:m06 .
+docker build --build-arg BOTSTRAL_SOURCE_REVISION="$(git rev-parse HEAD)" -f agent/packaging/Dockerfile -t botstral-agent:m06 .
 python3 manager/packaging/container-acceptance.py --engine docker --image botstral-manager:m06
 python3 agent/packaging/container-acceptance.py --engine docker --image botstral-agent:m06 --evidence /private/evidence/docker-worker.json
 ```

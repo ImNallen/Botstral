@@ -1,0 +1,16 @@
+{
+  "active_replacement_refused": true,
+  "completed_repair_receipt_refused": true,
+  "exact_install_and_binary_confirmation": true,
+  "identity": {
+    "build_id": "local-new",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.2"
+  },
+  "incomplete_installation_repaired": true,
+  "missing_backup_refused": true,
+  "passed": true,
+  "production": false,
+  "wrong_version_refused": true
+}

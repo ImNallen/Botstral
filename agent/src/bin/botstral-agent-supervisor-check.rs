@@ -1,6 +1,9 @@
 use std::{path::PathBuf, process::ExitCode};
 
 fn main() -> ExitCode {
+    if botstral_link::release::print_version("agent-supervisor-check") {
+        return ExitCode::SUCCESS;
+    }
     if std::env::args().nth(1).as_deref() == Some("process-helper") {
         return botstral_agent::entry(false);
     }

@@ -1,0 +1,35 @@
+{
+  "artifacts": {
+    "botstral-agent_0.1.0-nightly.20261030.2_amd64.deb": "d7e6be9373d65af468a99d76ccf9d4b230de74a390d1e36ac6010905635122e9",
+    "botstral-manager_0.1.0-nightly.20261030.2_amd64.deb": "76b0b2f5998f4979182bcdfdadb5780f86bda0f231eeee96709d0a18bc6a7a0f"
+  },
+  "coverage": "package-only",
+  "evidence": {
+    "active_replacement_and_downgrade_refused": true,
+    "future_schema_failure_and_backup_recovery": true,
+    "manager_identity_worker_pairing_history_artifacts_and_attention_retained": true,
+    "manager_locked_restart_and_credential_decryption_after_unlock": true,
+    "native_package_repair": true,
+    "production_systemd_supervisor": false,
+    "real_debian_old_to_new": true,
+    "scope": "independent component hosts simulated sequentially; fixture worker pairing is synthetic; no external runtime execution claimed",
+    "worker_backup_and_runtime_diagnostics": false,
+    "worker_journal_certificates_and_runtime_retained": true,
+    "worker_reopened_journal_before_tls_client_hello": true
+  },
+  "identity": {
+    "build_id": "local-new",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.2"
+  },
+  "passed": true,
+  "previous": {
+    "build_id": "local-old",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.1"
+  },
+  "production": false,
+  "target": "ubuntu24.04-amd64"
+}

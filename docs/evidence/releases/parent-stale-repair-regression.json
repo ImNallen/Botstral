@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "production": false,
+  "previous": {
+    "build_id": "local-old",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.1"
+  },
+  "retained": {
+    "build_id": "local-new",
+    "channel": "nightly",
+    "revision": "6adcbfe2d8d540a5e774356646aecf6515c24d85",
+    "version": "0.1.0-nightly.20261030.2"
+  },
+  "completed_receipt_refused": true,
+  "stale_prepared_receipt_downgrade_refused": true,
+  "scope": "real two-DMG installer regression with fixture backup metadata and temporary app path"
+}

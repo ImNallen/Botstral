@@ -25,6 +25,17 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     let temporary = tempfile::tempdir().unwrap();
     let root = temporary.path().canonicalize().unwrap();
     fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+    recovery_fixture(root, false);
+}
+
+#[test]
+#[ignore = "Seeds real state for native release acceptance."]
+fn release_seed_fixture() {
+    let root = PathBuf::from(std::env::var_os("BOTSTRAL_RELEASE_FIXTURE").unwrap());
+    recovery_fixture(root, true);
+}
+
+fn recovery_fixture(root: PathBuf, export: bool) {
     let source = root.join("source");
     let local = crate::LocalState::open(&source).unwrap();
     let (configured, _) = watch::channel(false);
@@ -222,6 +233,19 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
     state
         .update_login(session(&grant), item.id, item.revision, None)
         .unwrap();
+    if export {
+        let mut uncertain = task.clone();
+        uncertain.id = TaskId::new();
+        uncertain.request.id = uncertain.id;
+        uncertain.command.task = uncertain.id;
+        uncertain.command.id = CommandId::new();
+        uncertain.outputs.clear();
+        uncertain.state = TaskState::AwaitingAttention;
+        tasks::insert_task(&state.connection, &uncertain).unwrap();
+        drop(state);
+        drop(local);
+        return;
+    }
     let command = [
         "create".as_ref(),
         "--state-dir".as_ref(),
@@ -605,4 +629,30 @@ fn offline_restore_reopens_owner_history_markdown_credentials_and_artifacts() {
             }
         ));
     }
+}
+
+#[test]
+#[ignore = "Reopens state after native package replacement and proves credential use."]
+fn release_verify_fixture() {
+    let root = PathBuf::from(std::env::var_os("BOTSTRAL_RELEASE_FIXTURE").unwrap());
+    let _local = crate::LocalState::open(&root.join("source")).unwrap();
+    let (configured, _) = watch::channel(false);
+    let mut state = State::open(root.join("source"), configured).unwrap();
+    let grant = state.sign_in(login()).unwrap();
+    assert_eq!(
+        state.connection_status(session(&grant)).unwrap().vault,
+        VaultStatus::Locked
+    );
+    assert!(state.provider_secret().is_err());
+    state.unlock_vault(session(&grant), passphrase()).unwrap();
+    assert_eq!(
+        state.provider_secret().unwrap().expose_secret(),
+        "synthetic restored provider credential"
+    );
+    assert!(
+        state
+            .reject_known_secrets(&"synthetic recovery private password")
+            .is_err()
+    );
+    println!("Retained encrypted credentials decrypt only after explicit unlock.");
 }

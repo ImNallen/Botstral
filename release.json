@@ -1,0 +1,52 @@
+{
+  "format": 1,
+  "version": "0.1.0",
+  "artifacts": [
+    {
+      "component": "manager",
+      "target": "ubuntu24.04-amd64",
+      "kind": "deb",
+      "architecture": "amd64"
+    },
+    {
+      "component": "agent",
+      "target": "ubuntu24.04-amd64",
+      "kind": "deb",
+      "architecture": "amd64"
+    },
+    {
+      "component": "desktop",
+      "target": "macos-arm64",
+      "kind": "dmg",
+      "architecture": "arm64"
+    }
+  ],
+  "protocols": {
+    "worker": 4,
+    "owner": 3
+  },
+  "data_compatibility": {
+    "manager_schema": 17,
+    "worker_schema": 2,
+    "rollback": "restore coordinated offline backup"
+  },
+  "runtime_requirements": {
+    "ubuntu": "24.04",
+    "systemd": "255",
+    "python": "3.9",
+    "sqlite": "3.37",
+    "macos": "12.0",
+    "rust": "1.93.0",
+    "computer": "agent/connector/configure.py pins interpreter and runtime digests at installation",
+    "vibe": "2.24.2; sealed manifest and file digests required",
+    "source_pins": {
+      "agent/connector/configure.py": "d6d34c20d7f65ab19b62145a4dd2116085178db73250c8b7e6c69b00728eb2fc",
+      "agent/connector/runtime.py": "ee2d55c9e712e9966cb35081d2c76906245979b508a240560158d64b635364d8",
+      "agent/runtime/package-lock.json": "cf8929cbdd493db733ca8e30ab2dd7c891c48e7e289f44f70dc76ec859e9e525",
+      "agent/runtime/seal.py": "cc532eb77dd880b170e338c0bdec77206d9c1b168166593b0b1311a8d8e3d373",
+      "agent/runtime/run.mjs": "fc5a8cb6b5a114113620b5b460bc6433043af789c3a31c476dce2c1c9a1f40dc",
+      "agent/vibe/runtime.py": "04d049b83ae4c91287b0e7cc9b345db95b178cd10813007e9e79a1a854e9ea72",
+      "agent/vibe/seal.py": "14ab4abbc691d538cfd141a515c5acd4780bb908bfce45cfcfb1e393c8375f79"
+    }
+  }
+}
