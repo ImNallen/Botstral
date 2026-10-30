@@ -24,6 +24,9 @@ import uuid
 import m05_acceptance as support
 
 
+ARTIFACT_NAMES = ("events.jsonl", "inspection.json", "before.json", "after.json", "manager.log")
+
+
 def require(value, message):
     if not value:
         raise RuntimeError(message)
@@ -45,6 +48,21 @@ def run(argv, timeout=40):
 
 def save(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
+
+
+def save_export(evidence, artifacts, unit):
+    require(isinstance(artifacts, dict), "invalid artifact export")
+    require(set(artifacts).issubset({*ARTIFACT_NAMES, unit}), "unexpected exported artifact")
+    destinations = []
+    for name, contents in artifacts.items():
+        require(isinstance(contents, str), "invalid exported artifact content")
+        destination = evidence / name
+        require(destination.resolve() == destination, "unsafe exported artifact destination")
+        destinations.append((destination, contents))
+    for destination, contents in destinations:
+        descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(descriptor, "w") as output:
+            output.write(contents)
 
 
 def poll(read, predicate, label, seconds=30):
@@ -402,7 +420,7 @@ class Fixture:
             if path.exists():
                 private.append(path.read_text().strip())
         evidence = {}
-        for name in ("events.jsonl", "inspection.json", "before.json", "after.json", "manager.log", self.unit):
+        for name in (*ARTIFACT_NAMES, self.unit):
             path = self.root / name
             if path.exists():
                 value = path.read_text()
@@ -453,8 +471,7 @@ def orchestrate(args):
         artifacts = remote("export")
         initial = json.loads(artifacts["before.json"])
         require(initial["binary_sha256"] == ledger["binary_sha256"], "running binary differs from supplied build")
-        for name, contents in artifacts.items():
-            (evidence / name).write_text(contents)
+        save_export(evidence, artifacts, ledger["unit"])
         ledger["pre_reboot_inventory"] = remote("inspect")
         ledger["reboot_requested_utc"] = datetime.now(timezone.utc).isoformat()
         save(evidence / "resources.json", ledger)
@@ -494,10 +511,9 @@ def orchestrate(args):
     finally:
         try:
             artifacts = remote("export")
-            for name, contents in artifacts.items():
-                (evidence / name).write_text(contents)
+            save_export(evidence, artifacts, ledger["unit"])
             if ledger.get("passed"):
-                required = {"before.json", "after.json", "events.jsonl", "inspection.json", "manager.log", ledger["unit"]}
+                required = {*ARTIFACT_NAMES, ledger["unit"]}
                 require(required.issubset(artifacts), "incomplete post-reboot evidence")
                 after = json.loads(artifacts["after.json"])
                 require(after["boot_id"] != initial["boot_id"]

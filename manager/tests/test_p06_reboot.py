@@ -24,6 +24,9 @@ class RebootEvidenceTests(unittest.TestCase):
             args = argparse.Namespace(guest="botstral-manager", binary=binary,
                                       evidence=evidence, timeout=1)
             binary_hash = p06_reboot.digest(binary)
+            outside = root / "escaped.txt"
+            if failure == "symlink":
+                outside.write_text("untouched")
             calls = []
             exports = 0
             readiness = 0
@@ -54,6 +57,12 @@ class RebootEvidenceTests(unittest.TestCase):
                         "events.jsonl": json.dumps({"check": "reboot_verification_passed"}) + "\n",
                         unit: "[Service]\n",
                     }
+                    if exports == 1 and failure == "traversal_before":
+                        value["../escaped.txt"] = "overwritten"
+                    elif exports == 1 and failure == "absolute_before":
+                        value[str(outside)] = "overwritten"
+                    elif exports == 1 and failure == "symlink":
+                        (evidence / "before.json").symlink_to(outside)
                     if exports == 2:
                         if failure in ("export", "after_export"):
                             code = 1
@@ -63,6 +72,8 @@ class RebootEvidenceTests(unittest.TestCase):
                             value["events.jsonl"] = ""
                         elif failure == "identity":
                             value["after.json"] = json.dumps({"boot_id": "old-boot", "binary_sha256": binary_hash})
+                        elif failure == "traversal_after":
+                            value["../escaped.txt"] = "overwritten"
                 elif operation == "cleanup":
                     value = {"stopped": True, "unit_removed": True, "root_removed": True}
                     if failure == "cleanup":
@@ -92,6 +103,10 @@ class RebootEvidenceTests(unittest.TestCase):
                     p06_reboot.orchestrate(args)
                 except RuntimeError as caught:
                     error = str(caught)
+            if failure in ("traversal_before", "absolute_before", "traversal_after"):
+                self.assertFalse(outside.exists(), "remote export wrote outside the evidence directory")
+            elif failure == "symlink":
+                self.assertEqual(outside.read_text(), "untouched", "remote export followed a local symlink")
             return error, json.loads((evidence / "resources.json").read_text()), calls
 
     def test_complete_evidence_and_cleanup_pass(self):
@@ -112,6 +127,30 @@ class RebootEvidenceTests(unittest.TestCase):
         self.assertIsNotNone(error, "manager readiness must share the reconnection deadline")
         self.assertFalse(ledger["passed"])
         self.assertNotIn("after", calls)
+        self.assertIn("cleanup", calls)
+
+    def test_initial_export_rejects_path_traversal(self):
+        error, ledger, calls = self.exercise("traversal_before")
+        self.assertIsNotNone(error)
+        self.assertFalse(ledger["passed"])
+        self.assertIn("cleanup", calls)
+
+    def test_initial_export_rejects_absolute_path(self):
+        error, ledger, calls = self.exercise("absolute_before")
+        self.assertIsNotNone(error)
+        self.assertFalse(ledger["passed"])
+        self.assertIn("cleanup", calls)
+
+    def test_final_export_rejects_path_traversal(self):
+        error, ledger, calls = self.exercise("traversal_after")
+        self.assertIsNotNone(error)
+        self.assertFalse(ledger["passed"])
+        self.assertIn("cleanup", calls)
+
+    def test_export_rejects_local_destination_symlink(self):
+        error, ledger, calls = self.exercise("symlink")
+        self.assertIsNotNone(error)
+        self.assertFalse(ledger["passed"])
         self.assertIn("cleanup", calls)
 
     def test_final_export_failure_fails_and_still_cleans_up(self):
