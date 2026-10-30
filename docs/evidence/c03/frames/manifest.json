@@ -1,0 +1,62 @@
+[
+  {
+    "name": "01-writing",
+    "caption": "Second bot conversation completes.",
+    "time": "2026-10-30T23:19:36.209Z",
+    "sha256": "9b704bff0f91bfe9d22df5599fd30197e6445976bec685be075cc59a17dc0b00"
+  },
+  {
+    "name": "02-inference",
+    "caption": "First bot shows its own completed conversation.",
+    "time": "2026-10-30T23:19:41.764Z",
+    "sha256": "ed94a1283534f55588d791fac492dc2dba7c894ee2a647987a0f84af42d23c9c"
+  },
+  {
+    "name": "03-writing-restored",
+    "caption": "Switching back restores only writing history.",
+    "time": "2026-10-30T23:19:44.414Z",
+    "sha256": "b18295cdfaa98bad2ca0bf30b2046dbe2b1fb50c33aacb5c6533ae603629824a"
+  },
+  {
+    "name": "04-attachment",
+    "caption": "Native import selected c03-note.txt.",
+    "time": "2026-10-30T23:19:59.238Z",
+    "sha256": "78d522e98fc39d99486990b3c814c6ccd938b5360bb0ac1af064cddd563a1588"
+  },
+  {
+    "name": "05-completed",
+    "caption": "Approved synthetic file task completes and exposes verified export.",
+    "time": "2026-10-30T23:20:13.572Z",
+    "sha256": "4d4a0fd8009a20df7b0c4eb9110d279f3d1af3e118074f632cb2f29168ce14be"
+  },
+  {
+    "name": "06-running",
+    "caption": "Approved bounded synthetic task is Running.",
+    "time": "2026-10-30T23:20:41.811Z",
+    "sha256": "fd948c0f029aba3463c1eccff95aedd991620299c09330643b09cf5a01dc5516"
+  },
+  {
+    "name": "07-cancelled",
+    "caption": "Synthetic stop evidence changes the task to Cancelled.",
+    "time": "2026-10-30T23:20:44.973Z",
+    "sha256": "2a1d38434388ad84af46298a3c343663eca4efac8de0cffefc3e9d745d68da72"
+  },
+  {
+    "name": "08-before-hide",
+    "caption": "Bounded task Running before window close.",
+    "time": "2026-10-30T23:22:45.837Z",
+    "sha256": "89f7a739d32b313441b23981fd16e9886e612f859cf3b6b1e08fe8cf18a1be42"
+  },
+  {
+    "name": "09-relaunch-writing",
+    "caption": "Same binary relaunch automatically reconnects and restores writing history.",
+    "time": "2026-10-30T23:23:46.374Z",
+    "sha256": "91adba7b05d9c4db285387678b70bdc00f5706fd83cc925f124491456805b267"
+  },
+  {
+    "name": "10-relaunch-inference",
+    "caption": "Relaunch restores the first bot file and cancelled task. Native accessibility also confirmed the hidden-work completion below the captured viewport.",
+    "time": "2026-10-30T23:24:05.335Z",
+    "sha256": "b4e925a016d1125f323076c424b12e6c8a10294fd69b11c95a661022090b4670"
+  }
+]

@@ -422,6 +422,8 @@ Depends on C02, M04, P05 core file workflows, and P06's v1 protected-fill checks
 
 The [scoped attachment acceptance](docs/evidence/p05/attachments.md) verifies import, exact approval, export, saved-result source access, manager restart, and app relaunch through the packaged macOS app with controlled fixtures. Tray restoration, delivered notifications, other platforms, signing, and the remaining daily desktop checks stay open.
 
+The [C03 macOS daily acceptance](docs/c03-acceptance.md) additionally verifies two isolated bot histories, native second-bot creation, cancellation, reconnect, same-binary relaunch, and close-to-hide with continuing synthetic activity at `0e3eb53`. Delivered notifications, native tray Show and Quit, nonzero task progress, other platforms, and release signing remain open. This does not close C03 or W02.
+
 - [ ] Verify desktop conversations, approvals, files, and switching between bots.
 - [ ] Add client support for the parity milestones as each manager capability becomes available.
 - [ ] Verify headless browser results and task progress in v1. Verify full screen streams, pointer and keyboard input, and manual takeover with W02 in v1.x.
