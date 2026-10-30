@@ -32,6 +32,8 @@ After the chooser, export checks current online authority, generation, and manag
 
 `SavedResults` presents all-bot and bot filters, literal filename search, next-page navigation, Refresh, source details, and verified save. Unavailable files have disabled save controls. `TaskCard` is shared with current activity. Retained tasks are never inserted into the recent execution projection.
 
+Export success, cancellation, and failure feedback appears inside the open library. Its position remains visible while source details are scrolled. Background workspace feedback is suppressed while the library is open.
+
 ## Accepted implementation choices
 
 The selected design is preserved. JSON encodes the bounded cursor. A modal contains the library. The shared native task projection owns its small output vector so both narrow replies and workspace serialization use one implementation.

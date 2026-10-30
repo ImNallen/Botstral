@@ -21,14 +21,15 @@ const app: PairedApplication = {
   inspect: async () => ({ ...data.library_workspace, revision: ++revision }),
   observe: async () => () => {},
   refresh: async () => ({ ...data.library_workspace, revision: ++revision }),
-  exportArtifact: async () => new Promise<boolean>((resolve) => {
+  exportArtifact: async () => new Promise<boolean>((resolve, reject) => {
     const dialog = document.createElement('dialog');
     dialog.setAttribute('aria-label', 'Replay save chooser');
-    dialog.innerHTML = '<p>Replay chooser. Real native file saves are verified separately.</p><button data-save>Save replay file</button><button data-cancel>Cancel replay save</button>';
+    dialog.innerHTML = '<p>Replay chooser. Real native file saves are verified separately.</p><button data-save>Save replay file</button><button data-cancel>Cancel replay save</button><button data-fail>Fail replay save</button>';
     document.body.append(dialog);
     const finish = (saved: boolean) => { dialog.close(); dialog.remove(); resolve(saved); };
     dialog.querySelector('[data-save]')?.addEventListener('click', () => finish(true));
     dialog.querySelector('[data-cancel]')?.addEventListener('click', () => finish(false));
+    dialog.querySelector('[data-fail]')?.addEventListener('click', () => { dialog.close(); dialog.remove(); reject(new Error('save_failed')); });
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); finish(false); });
     dialog.showModal();
   }),

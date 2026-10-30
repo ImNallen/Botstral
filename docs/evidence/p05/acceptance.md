@@ -26,7 +26,7 @@ Delayed controller promises cover superseded successes and failures within one g
 
 ## Revocation defect
 
-The original chooser checked generation alone. The real manager acknowledged revocation, native state cleared authority without incrementing generation, and the copied chooser guard still saved a file. The intended assertion failed. This is a correctness defect for parent issue tracking.
+The original chooser checked generation alone. The real manager acknowledged revocation, native state cleared authority without incrementing generation, and the copied chooser guard still saved a file. The intended assertion failed. [Issue #61](https://github.com/ImNallen/Botstral/issues/61) tracks the corrected authorization defect.
 
 [revocation-before.log](revocation-before.log) preserves the failed assertion and exit status. [chooser-before-source.rs](chooser-before-source.rs) preserves the original chooser implementation from base `271f9cd72dabd2d0749027b84d355ca046de5f7e`. [revocation-after.log](revocation-after.log) proves the fixed export refuses that same acknowledged state.
 
@@ -46,7 +46,7 @@ The append-only decision trail remains local at `.audit/p05/decisions.tsv`. The 
 
 Model the Domain shaped the ephemeral state unions. Prove It Works required real manager reads and disk-byte comparisons. Sequence Work into Verifiable Units shaped the catalog, native, and desktop commits.
 
-## Final verification
+## Original broad verification
 
 | Command | Exit status |
 | --- | --- |
@@ -54,6 +54,16 @@ Model the Domain shaped the ephemeral state unions. Prove It Works required real
 | `./scripts/verify.sh` | 0 |
 | `./scripts/verify-desktop.sh` | 0 |
 
-All 13 recorded commands passed with source hashes unchanged. Renderer tests passed 45 cases with one existing skip. [final-verification.log](final-verification.log), [verify.log](verify.log), and [verify-desktop.log](verify-desktop.log) retain exact exits. [cleanup.json](cleanup.json) confirms source and video hashes and no remaining owned processes. [deslop-check.log](deslop-check.log) confirms the extracted task presentation and private file writer preserve their original bodies.
+All 13 recorded commands passed with source hashes unchanged at the original frozen implementation. Renderer tests passed 45 cases with one existing skip. [final-verification.log](final-verification.log), [verify.log](verify.log), and [verify-desktop.log](verify-desktop.log) retain exact exits. [cleanup.json](cleanup.json) records the original handback's identity and cleanup checks. [deslop-check.log](deslop-check.log) confirms the extracted task presentation and private file writer preserve their original bodies. The parent integrated those source bytes at `80dfa43` before the correction below.
 
 One superseded broad run was deliberately stopped after source changed during added manager-switch coverage and identity checks. [superseded-verification.json](superseded-verification.json) records the stopped process tree. The final frozen run above replaced it.
+
+## Independent review and visible feedback correction
+
+The [gpt-6-astra review](independent-review.md) verified the source and evidence identities and independently repeated catalog restoration, focused renderer tests, and live manager export reauthorization. It found one visible-flow defect, tracked in [issue #62](https://github.com/ImNallen/Botstral/issues/62). Save outcomes appeared behind the open library and disappeared when it closed. The [actual-component counterexample](reviewer-probes/save-feedback.log), [observations](reviewer-probes/save-feedback.json), and [screenshot](reviewer-probes/save-feedback.png) preserve the failed assertion.
+
+The library now renders success, cancellation, and failure feedback inside its dialog. The feedback remains visible when source details are scrolled, and the background workspace does not duplicate it. Three new component cases failed before correction and pass afterward. The refreshed video asserts that each outcome is inside the dialog and within its visible bounds. Its simulated chooser also exercises save failure. [save-feedback.png](save-feedback.png) shows that failure message in the dialog.
+
+The parent repeated frontend formatting, generated bindings and type checks, all renderer tests, and the frontend build. Renderer tests pass 48 cases with one existing skip. The first type check caught unsupported `exact` options in two new test locators; removing those test-only options corrected the failure. The [parent catalog restoration log](parent-catalog-restore.log) repeats the retained 512-row, restore, source, and byte checks. [Parent verification](parent-verification.json) identifies the follow-up source and command outcomes. These checks supplement the earlier full suites; they do not claim another full native suite or packaged application run.
+
+The parent removed the three narration comments identified by review. No executable Rust behavior changed in that cleanup. The review's original local probe references are historical records; current reproduction uses the committed component tests and `desktop/fixtures/p05-proof.mjs`. P06 and pull request 58 remain separate from this feature's acceptance.

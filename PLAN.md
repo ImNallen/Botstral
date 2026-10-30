@@ -292,6 +292,8 @@ Complete when one bot delegates a task to another, both work independently, and 
 
 Depends on M03 and M04. External information sources use M06.
 
+The [saved-results slice](docs/evidence/p05/acceptance.md) finds retained generated files beyond recent task history, opens their source tasks, and exports verified bytes after restart or backup restoration. Full P05 remains open, including uploads, previews, editing, and the broader searchable library.
+
 - [ ] Add attachments, uploads, downloads, previews, and generated documents.
 - [ ] Add document ingestion through the verified Mistral OCR capability where required. Keep the selected endpoint and unsupported states visible.
 - [ ] Provide a searchable library of conversations, bot work, files, skills, and routines.

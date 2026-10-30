@@ -1,0 +1,21 @@
+   Compiling bitflags v2.13.2
+   Compiling rustix v1.1.5
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link)
+   Compiling fastrand v2.5.0
+   Compiling security-framework v3.7.0
+   Compiling tower-http v0.6.11
+   Compiling rusqlite v0.38.0
+   Compiling rustls-native-certs v0.8.5
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling tempfile v3.27.0
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-9cf8cc22/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.71s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 1 test
+test manager::state::backup_tests::offline_restore_reopens_owner_history_markdown_credentials_and_artifacts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 193 filtered out; finished in 8.87s
+

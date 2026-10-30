@@ -55,6 +55,15 @@ try {
   await page.goto(pathToFileURL(filename).href);
   await page.getByRole('button', { name: 'Saved results', exact: true }).click();
   const library = page.getByRole('dialog', { name: 'Saved results', exact: true });
+  const feedback = async (text) => {
+    const message = library.getByText(text, { exact: true });
+    await message.waitFor();
+    assert.equal(await page.getByText(text, { exact: true }).count(), 1);
+    const box = await message.boundingBox();
+    const modal = await library.boundingBox();
+    assert(box && modal && box.y >= modal.y && box.y + box.height <= modal.y + modal.height,
+      'Export feedback is visible within the open dialog.');
+  };
   await library.getByText('00-old-result.txt', { exact: true }).waitFor();
   await show();
   await page.screenshot({ path: path.join(evidence, 'component-after.png') });
@@ -81,11 +90,18 @@ try {
   await page.getByRole('dialog', { name: 'Replay save chooser' }).waitFor();
   await show();
   await page.getByRole('button', { name: 'Cancel replay save' }).click();
+  await feedback('Export cancelled.');
+  await show();
   await sourceTask.getByRole('button', { name: 'Save verified file' }).click();
   await page.getByRole('button', { name: 'Save replay file' }).click();
+  await feedback('The verified file was saved.');
   await show();
   await page.screenshot({ path: path.join(evidence, 'source-task.png') });
-  await page.getByText('The verified file was saved.', { exact: true }).waitFor();
+  await sourceTask.getByRole('button', { name: 'Save verified file' }).click();
+  await page.getByRole('button', { name: 'Fail replay save' }).click();
+  await feedback('The native export could not be completed.');
+  await show();
+  await page.screenshot({ path: path.join(evidence, 'save-feedback.png') });
   await library.getByRole('button', { name: 'Close saved results' }).click();
   await show();
   const video = page.video();
@@ -98,7 +114,7 @@ try {
     viewport: { width: 1440, height: 1080 },
     source: 'Actual PairedWorkspace, SavedResults, TaskCard, and PairedController components using captured real manager/native reads.',
     limitations: 'Replay only. Synthetic worker. Simulated save chooser and notices. Real byte verification, restart, restore, and private disk saves are separately tested. Packaged native UI was not exercised.',
-    actions: ['open library', '32 plus 3 result paging', 'bot filter', 'literal wildcard fragment', 'retained source task', 'exact action', 'cancel simulated chooser', 'complete simulated chooser'],
+    actions: ['open library', '32 plus 3 result paging', 'bot filter', 'literal wildcard fragment', 'retained source task', 'exact action', 'cancel simulated chooser with visible feedback', 'complete simulated chooser with visible feedback', 'simulate save failure with visible feedback'],
     errors,
     video: 'docs/evidence/p05/saved-results.webm',
     sha256: createHash('sha256').update(await fs.readFile(path.join(evidence, 'saved-results.webm'))).digest('hex'),

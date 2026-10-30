@@ -1,0 +1,29 @@
+Fixture root: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-zf2dd9la
+Local manager: 127.0.0.1:61588
+Paired WSS route: wss://127.0.0.1:61611/owner/v1/connect
+Manager identity: b716612c-f92c-4393-9538-7a824127ae08
+Manager leaf: 58da1a8fd3f5526241332fe8eaf61665274813d0ab15ecc6a64eaba466062c88
+Synthetic password: synthetic M04 login password
+Trusted export: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-zf2dd9la/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/botstral-c02-native-zf2dd9la/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link)
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/link/client)
+   Compiling botstral-desktop v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-6ce83c69/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.18s
+     Running tests/journal.rs (desktop/src-tauri/target/debug/deps/journal-5f34711e90dd2e9a)
+
+running 1 test
+test p05_export_reauthenticates_after_chooser ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 2.78s
+
+
+EXIT_CODE=0

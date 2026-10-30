@@ -572,13 +572,13 @@ export function PairedWorkspace({
           </span>
         </header>
         <div className="conversation paired-conversation">
-          {issue && (
+          {issue && state.library.kind === 'closed' && (
             <div className="banner error-banner" role="alert">
               {remoteIssues[issue] ??
                 'The native operation could not finish. Refresh to recover current state.'}
             </div>
           )}
-          {state.notice && (
+          {state.notice && state.library.kind === 'closed' && (
             <div className="banner notice-banner" role="status">
               {state.notice}
             </div>

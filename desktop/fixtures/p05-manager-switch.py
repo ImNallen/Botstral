@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Verify export fencing across two owned local manager fixtures."""
 import json
 import os
 from pathlib import Path

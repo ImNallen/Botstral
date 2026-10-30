@@ -148,7 +148,6 @@ mod catalog_tests {
         const {
             assert!(ARTIFACT_PAGE_SERIALIZED_BOUND < OWNER_TRANSFER_BYTES);
         }
-        // One decoded task plus all bounded row projections, sorting keys, and a page copy.
         const {
             assert!(
                 256 * 1024 + MAX_ARTIFACT_RECORDS * 2048 + ARTIFACT_PAGE_SIZE * 2048

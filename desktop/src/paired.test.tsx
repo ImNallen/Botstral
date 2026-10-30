@@ -1,9 +1,14 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { PairedController } from './paired-application';
 import { PairedWorkspace } from './PairedWorkspace';
-import { remoteSnapshotSchema, type PairedApplication, type RemoteSnapshot } from './paired-domain';
+import {
+  remoteSnapshotSchema,
+  savedResultsSchema,
+  type PairedApplication,
+  type RemoteSnapshot,
+} from './paired-domain';
 import { deferred, application as localApplication, signedOut } from './fixtures.test-support';
 import { ApplicationController } from './application';
 import type { Snapshot } from './domain';
@@ -310,6 +315,59 @@ describe('saved results authority and request ordering', () => {
   const query = { bot: null, name: '', after: null, limit: 32 } satisfies Parameters<
     PairedApplication['savedResults']
   >[0];
+  it.each([
+    { outcome: 'saved', message: 'The verified file was saved.' },
+    { outcome: 'cancelled', message: 'Export cancelled.' },
+    { outcome: 'failed', message: 'The native export could not be completed.' },
+  ])(
+    'shows saved-result export feedback inside the dialog when $outcome',
+    async ({ outcome, message }) => {
+      const results = savedResultsSchema.parse({
+        ...page(),
+        page: {
+          entries: [
+            {
+              id: task,
+              task,
+              bot: id,
+              output: {
+                declaration: {
+                  slot: 'result',
+                  name: 'Saved file.txt',
+                  media_type: 'text_plain',
+                  max_bytes: 1024,
+                },
+                state: {
+                  type: 'available',
+                  id: task,
+                  content: { length: 1, sha256: '0'.repeat(64) },
+                },
+              },
+            },
+          ],
+          next: null,
+        },
+      });
+      const app = {
+        ...application(),
+        savedResults: async () => results,
+        exportArtifact: async () => {
+          if (outcome === 'failed') throw new Error('save_failed');
+          return outcome === 'saved';
+        },
+      };
+      const controller = new PairedController(app);
+      controller.accept(snapshot());
+      render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+      const user = userEvent.setup();
+      await user.click(screen.getByRole('button', { name: 'Saved results' }));
+      const dialog = screen.getByRole('dialog', { name: 'Saved results' });
+      await user.click(within(dialog).getByRole('button', { name: 'Save verified file' }));
+      expect(await within(dialog).findByText(message)).toBeTruthy();
+      expect(screen.getAllByText(message)).toHaveLength(1);
+      controller.dispose();
+    },
+  );
   it.each(['success', 'failure'] as const)(
     'ignores a superseded same-generation page %s',
     async (outcome) => {

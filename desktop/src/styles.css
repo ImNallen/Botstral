@@ -1138,6 +1138,12 @@ summary {
 .saved-results {
   width: min(900px, calc(100vw - 48px));
 }
+.saved-results-feedback {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--main);
+}
 .saved-result-list {
   list-style: none;
   padding: 0;

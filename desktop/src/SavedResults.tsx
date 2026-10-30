@@ -4,7 +4,7 @@ import { remoteIssues } from './paired-domain';
 import { TaskCard } from './TaskCard';
 
 export function SavedResults({ controller }: { controller: PairedController }) {
-  const { snapshot, library, source, busy } = useSyncExternalStore(
+  const { snapshot, library, source, busy, issue, notice } = useSyncExternalStore(
     controller.subscribe,
     controller.getState,
   );
@@ -38,9 +38,24 @@ export function SavedResults({ controller }: { controller: PairedController }) {
         <h2>Saved results</h2>
         <button onClick={controller.closeLibrary}>Close saved results</button>
       </header>
+      {(issue || notice) && (
+        <div className="saved-results-feedback">
+          {issue && (
+            <div className="banner error-banner" role="alert">
+              {remoteIssues[issue] ??
+                'The native operation could not finish. Refresh to recover current state.'}
+            </div>
+          )}
+          {notice && (
+            <div className="banner notice-banner" role="status">
+              {notice}
+            </div>
+          )}
+        </div>
+      )}
       <p className="small-copy muted">
-        Ordered by file name, then artifact identity. Availability is recorded metadata. Saving
-        verifies the current bytes. Refresh to see earlier inserts.
+        Files are sorted by name. Saving verifies the file is available. Refresh to include newly
+        saved files.
       </p>
       <div className="action-row">
         <label>

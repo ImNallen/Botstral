@@ -177,7 +177,6 @@ pub(super) async fn verify() {
     let ArtifactState::Available { id: artifact, .. } = old.outputs[0].state else {
         panic!("Expected sealed output")
     };
-    // These tasks have no outputs, so they trim only the workspace projection.
     for _ in 0..34 {
         let id = TaskId::new();
         session

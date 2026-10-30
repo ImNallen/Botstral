@@ -14,10 +14,11 @@
     "literal wildcard fragment",
     "retained source task",
     "exact action",
-    "cancel simulated chooser",
-    "complete simulated chooser"
+    "cancel simulated chooser with visible feedback",
+    "complete simulated chooser with visible feedback",
+    "simulate save failure with visible feedback"
   ],
   "errors": [],
   "video": "docs/evidence/p05/saved-results.webm",
-  "sha256": "3988796899dc5df6867f106426fe193aa75e2fdb01629bbbff596b94451da4d4"
+  "sha256": "73fe553a0ed4dc3782519afe9b8e2746bd27228cde076f6acb019bdf27ecaa48"
 }
