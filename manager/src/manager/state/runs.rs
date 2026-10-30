@@ -1,3 +1,4 @@
+mod files;
 mod settlement;
 use super::{
     tasks::{event, insert_task, json, parse},
@@ -107,6 +108,9 @@ fn transcript(
             images: initial,
         }
     });
+    if let Some(offer) = files::attachment_offer(state, view.request.id)? {
+        push_attachment(&mut messages, offer)?;
+    }
     for turn in &view.turns {
         if let Some(result) = &turn.manager_result {
             if let Some(response) = &turn.response {
@@ -153,6 +157,35 @@ fn transcript(
     }
     state.reject_known_secrets(&messages)?;
     Ok(messages)
+}
+
+fn message_fits(messages: &[RunMessage], content: &str) -> Result<bool, OperationError> {
+    let mut trial = messages.to_vec();
+    trial.push(RunMessage::User {
+        content: content.to_string(),
+    });
+    Ok(json(&trial)?.len() <= MAX_RUN_TRANSCRIPT_BYTES)
+}
+
+fn push_attachment(
+    messages: &mut Vec<RunMessage>,
+    offer: files::AttachmentOffer,
+) -> Result<(), OperationError> {
+    let inline_fits = match &offer.inline {
+        Some(inline) => message_fits(messages, inline)?,
+        None => false,
+    };
+    let content = if inline_fits {
+        offer.inline
+    } else if message_fits(messages, &offer.retained)? {
+        Some(offer.retained)
+    } else {
+        None
+    };
+    if let Some(content) = content {
+        messages.push(RunMessage::User { content });
+    }
+    Ok(())
 }
 
 impl State {
@@ -273,6 +306,7 @@ impl State {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         insert_run(&tx, owner, &prepared)?;
+        files::bind_staged_run_file(&self.directory, &tx, prepared.view.request.id)?;
         tx.commit()?;
         self.fault("run_committed");
         self.public_run(prepared.view)
@@ -858,4 +892,21 @@ pub(super) fn insert_run(
         ],
     )?;
     event(db, "run_submitted", view.request.id)
+}
+
+#[cfg(test)]
+impl State {
+    pub(super) fn run_user_contents(&self, id: RunId) -> Result<Vec<String>, OperationError> {
+        let view = self.load_run(id)?;
+        let memory = self.load_run_memory(&view)?;
+        Ok(transcript(self, &view, &memory)?
+            .into_iter()
+            .filter_map(|message| match message {
+                RunMessage::User { content } | RunMessage::UserMultimodal { content, .. } => {
+                    Some(content)
+                }
+                _ => None,
+            })
+            .collect())
+    }
 }

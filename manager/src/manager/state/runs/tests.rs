@@ -617,3 +617,6 @@ mod memory_tests;
 
 #[path = "tests/publication_tests.rs"]
 mod publication_tests;
+
+#[path = "file_tests.rs"]
+mod file_tests;

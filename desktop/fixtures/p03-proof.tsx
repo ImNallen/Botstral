@@ -69,6 +69,8 @@ const app: PairedApplication = {
   routineHistory: () => stage('history'),
   routinePreview: () => stage('preview'),
   routineText: () => stage('help'),
+  chooseFile: unavailable,
+  clearFile: unavailable,
 };
 const controller = new PairedController(app);
 const initial = data.before;

@@ -77,6 +77,8 @@ const application: PairedApplication = {
   devices: unavailable,
   revokeDevice: unavailable,
   issueInvitation: unavailable,
+  chooseFile: unavailable,
+  clearFile: unavailable,
 };
 const controller = new PairedController(application);
 controller.accept(snapshot);

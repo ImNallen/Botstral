@@ -33,7 +33,7 @@ const app: PairedApplication = {
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); finish(false); });
     dialog.showModal();
   }),
-  beginPairing: unavailable, importPairing: unavailable, importTrust: unavailable, pairLocal: unavailable, confirmPairing: unavailable, send: unavailable, openSession: unavailable, permission: unavailable, review: unavailable, approve: unavailable, cancelTask: unavailable, cancelRun: unavailable, revokeApproval: unavailable, acknowledgeUncertainty: unavailable, signOut: unavailable, lifecycle: unavailable, devices: unavailable, revokeDevice: unavailable, issueInvitation: unavailable, runDetails: unavailable, routine: unavailable, routineText: unavailable, saveRoutine: unavailable, routineHistory: unavailable, routinePreview: unavailable,
+  beginPairing: unavailable, importPairing: unavailable, importTrust: unavailable, pairLocal: unavailable, confirmPairing: unavailable, send: unavailable, openSession: unavailable, permission: unavailable, review: unavailable, approve: unavailable, cancelTask: unavailable, cancelRun: unavailable, revokeApproval: unavailable, acknowledgeUncertainty: unavailable, signOut: unavailable, lifecycle: unavailable, devices: unavailable, revokeDevice: unavailable, issueInvitation: unavailable, runDetails: unavailable, routine: unavailable, routineText: unavailable, saveRoutine: unavailable, routineHistory: unavailable, routinePreview: unavailable, chooseFile: unavailable, clearFile: unavailable,
 };
 const controller = new PairedController(app);
 controller.accept(data.library_workspace);

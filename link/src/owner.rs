@@ -276,6 +276,9 @@ pub enum OwnerOperation {
     CancelInference {
         id: InferenceId,
     },
+    StageRunFile {
+        input: StageRunFile,
+    },
     SubmitRun {
         input: Box<SubmitRun>,
     },
@@ -379,6 +382,7 @@ pub enum OwnerReply {
     Configuration(InferenceConfiguration),
     Inference(Box<InferenceView>),
     Run(Box<RunView>),
+    RunFileStaged,
     ComputerSession(ComputerSession),
     Receipt(OwnerReceipt),
     CodingCalls(Vec<CodingCallView>),

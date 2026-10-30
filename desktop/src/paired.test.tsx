@@ -95,6 +95,8 @@ function application(initial = snapshot()) {
     confirmPairing: result,
     refresh: result,
     send: result,
+    chooseFile: async () => null,
+    clearFile: async () => {},
     openSession: result,
     permission: result,
     review: vi.fn(result),
@@ -297,6 +299,36 @@ describe('paired presentation boundary', () => {
     signOut.resolve(cleared);
     await signingOut;
     expect(controller.getState().snapshot?.workspace).toBeNull();
+    controller.dispose();
+  });
+  it('shows a chosen file on the paired composer', async () => {
+    const value = snapshot();
+    const ready = remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        configurations: [{ bot: id, model: 'mistral-fixture', ready: true, context_tokens: 4096 }],
+      },
+    });
+    const chooseFile = vi.fn<PairedApplication['chooseFile']>().mockResolvedValue({
+      name: 'notes.txt',
+      byte_length: 12,
+    });
+    const clearFile = vi.fn<PairedApplication['clearFile']>().mockResolvedValue(undefined);
+    const controller = new PairedController({ ...application(ready), chooseFile, clearFile });
+    controller.accept(ready);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const attach = screen.getByRole('button', { name: 'Attach a file' });
+    expect(attach.getAttribute('type')).toBe('button');
+    expect(attach.hasAttribute('disabled')).toBe(false);
+    expect(screen.getByRole('button', { name: 'Send' }).hasAttribute('disabled')).toBe(true);
+    const user = userEvent.setup();
+    await user.click(attach);
+    expect(chooseFile).toHaveBeenCalledOnce();
+    expect(screen.getByText('notes.txt')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Remove attached file' }));
+    expect(clearFile).toHaveBeenCalledOnce();
+    expect(screen.queryByText('notes.txt')).toBeNull();
     controller.dispose();
   });
 });

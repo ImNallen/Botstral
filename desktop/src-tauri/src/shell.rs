@@ -392,6 +392,45 @@ async fn routine_preview(
         .command(IntentCommand::RoutinePreview { trigger, after })
         .await
 }
+#[derive(Serialize)]
+struct ChosenRunFile {
+    name: String,
+    byte_length: u64,
+}
+
+#[tauri::command]
+async fn choose_run_file(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<Option<ChosenRunFile>, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    app.dialog().file().pick_file(move |path| {
+        let _ = tx.send(path);
+    });
+    let Some(picked) = rx.await.map_err(|_| "dialog")? else {
+        return Ok(None);
+    };
+    let path = picked.into_path().map_err(|_| "invalid_input")?;
+    let (name, bytes) = crate::remote::read_attached_file(&path)?;
+    service.remember_pending_file(path);
+    Ok(Some(ChosenRunFile {
+        name,
+        byte_length: bytes.len() as u64,
+    }))
+}
+
+#[tauri::command]
+async fn clear_run_file(
+    window: WebviewWindow,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<(), String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    service.clear_pending_file();
+    Ok(())
+}
+
 #[tauri::command]
 async fn send_run(
     window: WebviewWindow,
@@ -693,6 +732,8 @@ pub fn run() {
             pair_local,
             confirm_pairing,
             remote_refresh,
+            choose_run_file,
+            clear_run_file,
             send_run,
             run_details,
             routine_command,

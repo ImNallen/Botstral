@@ -387,6 +387,8 @@ export function PairedWorkspace({
   const workspace = snapshot?.workspace;
   const [selected, setSelected] = useState<string | null>(null);
   const [text, setText] = useState('');
+  const [file, setFile] = useState<{ name: string; byte_length: number } | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [settings, setSettings] = useState<Settings>({
     uid: 1000,
     gid: 1000,
@@ -750,12 +752,36 @@ export function PairedWorkspace({
                 {blocker}
               </p>
             )}
+            {fileError && (
+              <p className="composer-blocker" role="status">
+                {fileError}
+              </p>
+            )}
+            {file && (
+              <p className="composer-file">
+                <span>{file.name}</span>
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label="Remove attached file"
+                  onClick={() => {
+                    const current = file;
+                    setFile(null);
+                    void controller.app.clearFile().catch(() => setFile(current));
+                  }}
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </p>
+            )}
             <form
               className="composer"
               aria-label="Run composer"
               onSubmit={(event) => {
                 event.preventDefault();
                 if (blocker || !text.trim()) return;
+                setFile(null);
+                setFileError(null);
                 if (routineCommand) {
                   void controller.run(() => controller.app.routineText(bot.id, text));
                   setText('');
@@ -780,7 +806,23 @@ export function PairedWorkspace({
                 setText('');
               }}
             >
-              <button className="composer-plus" aria-label="Attachments unavailable" disabled>
+              <button
+                type="button"
+                className="composer-plus"
+                aria-label="Attach a file"
+                disabled={state.busy || !!blocker}
+                onClick={() => {
+                  void controller.app.chooseFile().then(
+                    (chosen) => {
+                      if (chosen) {
+                        setFile(chosen);
+                        setFileError(null);
+                      }
+                    },
+                    () => setFileError('Choose one regular file up to 16 KiB.'),
+                  );
+                }}
+              >
                 <Icon name="plus" size={18} />
               </button>
               <textarea

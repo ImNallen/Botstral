@@ -45,6 +45,17 @@ export const pairedApplication: PairedApplication = {
   confirmPairing: (candidate) => snapshot('confirm_pairing', { candidate }),
   refresh: () => snapshot('remote_refresh'),
   send: (input) => snapshot('send_run', { input }),
+  chooseFile: async () =>
+    z
+      .strictObject({
+        name: z.string(),
+        byte_length: z.number().int().nonnegative(),
+      })
+      .nullable()
+      .parse(await call('choose_run_file')),
+  clearFile: async () => {
+    await call('clear_run_file');
+  },
   openSession: (bot, worker) => snapshot('open_session', { bot, worker }),
   permission: (bot, expected, allow) => snapshot('set_permission', { bot, expected, allow }),
   review: (task) => snapshot('review_approval', { task }),

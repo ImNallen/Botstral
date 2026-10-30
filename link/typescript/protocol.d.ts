@@ -769,6 +769,10 @@ export type OwnerOperation =
       method: 'cancel_inference';
     }
   | {
+      input: StageRunFile;
+      method: 'stage_run_file';
+    }
+  | {
       input: SubmitRun;
       method: 'submit_run';
     }
@@ -1055,6 +1059,9 @@ export type OwnerReply =
   | {
       type: 'run';
       value: RunView;
+    }
+  | {
+      type: 'run_file_staged';
     }
   | {
       type: 'computer_session';
@@ -2123,6 +2130,12 @@ export interface SetConnectorGrants {
   connection: ConnectionVersion;
   expected_revision: number;
   tools: string[];
+}
+export interface StageRunFile {
+  hex: string;
+  id: RunId;
+  name: string;
+  sha256: CertificateFingerprint;
 }
 export interface SubmitRun {
   bot: BotId;

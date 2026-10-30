@@ -472,6 +472,10 @@ impl State {
             OwnerOperation::CancelInference { id } => Ok(OwnerReply::Inference(Box::new(
                 self.cancel_inference(lease, id)?,
             ))),
+            OwnerOperation::StageRunFile { input } => {
+                self.stage_run_file(lease, input)?;
+                Ok(OwnerReply::RunFileStaged)
+            }
             OwnerOperation::SubmitRun { input } => {
                 Ok(OwnerReply::Run(Box::new(self.submit_run(lease, *input)?)))
             }
