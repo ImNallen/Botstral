@@ -1,6 +1,8 @@
 FROM rust:1.93.0-bookworm@sha256:d0a4aa3ca2e1088ac0c81690914a0d810f2eee188197034edf366ed010a2b382 AS build
 WORKDIR /source
-COPY Cargo.toml Cargo.lock ./
+ARG BOTSTRAL_SOURCE_REVISION
+ENV BOTSTRAL_SOURCE_REVISION=$BOTSTRAL_SOURCE_REVISION
+COPY Cargo.toml Cargo.lock release.json ./
 COPY manager ./manager
 COPY agent ./agent
 COPY link ./link
@@ -15,6 +17,7 @@ RUN sed -i -E 's|http://[^ ]+/ubuntu(-ports)?/|https://snapshot.ubuntu.com/ubunt
     && systemd --version | head -1 | grep '^systemd 255 ' \
     && dpkg-query -W > /usr/share/botstral-image-packages.txt \
     && rm -rf /var/lib/apt/lists/*
+COPY --from=build /source/release.json /source/release.json
 COPY --from=build /source/manager/packaging /source/manager/packaging
 COPY --from=build /source/agent/packaging /source/agent/packaging
 COPY --from=build /source/target/release/botstral-agent /tmp/botstral-agent

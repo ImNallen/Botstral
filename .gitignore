@@ -11,3 +11,10 @@
 
 __pycache__/
 /dist-releases/
+
+/identities/
+/native-old/
+/native-new/
+/inputs/
+/release-set/
+/acceptance.json

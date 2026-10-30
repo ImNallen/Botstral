@@ -1,0 +1,9 @@
+Package: botstral-agent
+Version: @VERSION@
+Architecture: amd64
+Maintainer: Botstral maintainers
+Depends: libc6 (>= 2.39), libgcc-s1, python3 (>= 3.9), libsqlite3-0 (>= 3.37), systemd (>= 255)
+Conflicts: botstral-manager
+Section: admin
+Priority: optional
+Description: Botstral worker with explicit offline upgrades

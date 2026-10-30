@@ -3,17 +3,16 @@
 import argparse
 import datetime
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
 import sys
 
-from release_model import (ROOT, Artifact, ReleaseIdentity, ReleaseManifest, authority,
+from release_model import (ROOT, ReleaseIdentity, ReleaseManifest, authority,
                            digest, read_json, require, verify, write_json)
 
 
-def versions(check=True, identity=None):
+def versions(check=True, identity=None, mirrors_only=False):
     version = identity.version if identity else authority()['version']
     changes = {}
     for name in ('manager', 'agent', 'link', 'link/client', 'desktop/src-tauri'):
@@ -34,6 +33,8 @@ def versions(check=True, identity=None):
     for name in ('Cargo.lock', 'desktop/src-tauri/Cargo.lock'):
         path = ROOT / name
         changes[path] = re.sub(r'(name = "botstral-[^"]+"\nversion = ")[^"]+', lambda m: m[1] + version, path.read_text())
+    if mirrors_only:
+        return changes
     for path, wanted in changes.items():
         if check:
             # Formatting is owned by the existing formatters.
@@ -49,6 +50,13 @@ def versions(check=True, identity=None):
                                     ('link/src/owner.rs', r'pub const OWNER_VERSION: u[0-9]+ = (\d+)', config['protocols']['owner'])]:
         match = re.search(pattern, (ROOT / path).read_text())
         require(match is not None and int(match[1]) == expected, 'protocol mirror drift: ' + path)
+    schemas = [int(p.stem) for p in (ROOT / 'manager/migrations').glob('*.sql')]
+    require(max(schemas) == config['data_compatibility']['manager_schema'], 'manager data compatibility drift')
+    journal = (ROOT / 'agent/src/journal.rs').read_text()
+    require(max(int(v) for v in re.findall(r'PRAGMA user_version=(\d+)', journal)) == config['data_compatibility']['worker_schema'], 'worker data compatibility drift')
+    require('channel = "' + config['runtime_requirements']['rust'] + '"' in (ROOT / 'rust-toolchain.toml').read_text(), 'Rust runtime evidence drift')
+    require('"' + config['runtime_requirements']['vibe'].split(';')[0] + '"' in (ROOT / 'link/src/vibe.rs').read_text(), 'Vibe runtime evidence drift')
+
 
 
 def create_identity(channel, build_id, sequence, date, local):
@@ -61,7 +69,7 @@ def create_identity(channel, build_id, sequence, date, local):
             require(tag == 'v' + authority()['version'], 'stable requires matching immutable version tag')
     version = authority()['version']
     if channel == 'nightly':
-        require(1 <= sequence <= 255, 'nightly sequence must be 1 through 255')
+        require(sequence >= 1, 'nightly sequence must be positive')
         version += '-nightly.' + date + '.' + str(sequence)
     identity = ReleaseIdentity.parse({'version': version, 'channel': channel, 'revision': revision, 'build_id': build_id})
     identity.native_versions()
@@ -137,6 +145,7 @@ def main():
     elif args.command == 'sign':
         release = verify(args.directory, unsigned=True)
         ReleaseManifest.parse(release.value, production=True)
+        require(release.identity.revision == subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'signing checkout differs from release source')
         subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(args.private_key), '-out', str(args.directory / 'manifest.sig'), str(args.directory / 'manifest.json')], check=True)
         verify(args.directory, args.trusted_key, production=True)
     elif args.command == 'build':

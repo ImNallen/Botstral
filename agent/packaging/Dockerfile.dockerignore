@@ -28,3 +28,8 @@
 !link/client/src/
 !link/client/src/**
 **/__pycache__/
+
+!release.json
+!link/build.rs
+!link/schema/
+!link/schema/**

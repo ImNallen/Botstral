@@ -1,5 +1,6 @@
 """Release metadata and validation. Python 3.9 and the OpenSSL command are sufficient."""
 import dataclasses
+import datetime
 from enum import Enum
 import hashlib
 import json
@@ -59,6 +60,8 @@ class ReleaseIdentity:
         require(set(value) == {'version', 'channel', 'revision', 'build_id'}, 'invalid identity fields')
         match = re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-nightly\.(\d{8})\.([1-9][0-9]*))?', value['version'])
         require(match is not None, 'invalid release version')
+        if match[4]:
+            datetime.datetime.strptime(match[4], '%Y%m%d')
         channel = DistributionChannel(value['channel'])
         require((channel == DistributionChannel.NIGHTLY) == (match[4] is not None), 'version/channel mismatch')
         require(re.fullmatch(r'[0-9a-f]{40}', value['revision']) is not None, 'full source revision required')
@@ -72,8 +75,7 @@ class ReleaseIdentity:
         base, _, prerelease = self.version.partition('-')
         if prerelease:
             _, _, sequence = prerelease.split('.')
-            require(int(sequence) <= 255, 'nightly sequence exceeds CFBundleVersion development range')
-            mac = base + 'd' + sequence
+            mac = base + 'd1'
         else:
             mac = base
         return {'debian': self.version.replace('-nightly.', '~nightly.') + '-1',
@@ -139,7 +141,7 @@ class ReleaseManifest:
     def parse(cls, value, production=False):
         config = authority()
         require(set(value) == {'format', 'identity', 'protocols', 'link_schema_sha256', 'data_compatibility', 'runtime_requirements', 'artifacts', 'acceptance'}, 'invalid manifest fields')
-        require(value['format'] == 1, 'unsupported manifest format')
+        require(type(value['format']) is int and value['format'] == 1, 'unsupported manifest format')
         identity = ReleaseIdentity.parse(value['identity'])
         require(value['protocols'] == config['protocols'], 'protocol evidence mismatch')
         require(value['link_schema_sha256'] == digest(ROOT / 'link/schema/protocol.json'), 'link schema mismatch')
@@ -153,7 +155,7 @@ class ReleaseManifest:
             receipts = value['acceptance']
             require(len(receipts) == len(expected) and {r['target'] for r in receipts} == expected, 'complete native acceptance required')
             for receipt in receipts:
-                require(receipt['identity'] == identity.json() and receipt['passed'] is True and receipt['production'] is True, 'native acceptance did not pass production mode')
+                require(receipt['identity'] == identity.json() and receipt['passed'] is True and receipt['production'] is True and receipt.get('coverage') == 'native', 'native acceptance did not pass production mode')
                 require(receipt['artifacts'] == {a.filename: a.sha256 for a in artifacts if a.target == receipt['target']}, 'acceptance artifact mismatch')
             for a in artifacts:
                 require(a.signing == ('developer-id-notarized' if a.component == 'desktop' else 'manifest'), 'production signing required')

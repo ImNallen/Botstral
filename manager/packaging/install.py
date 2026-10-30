@@ -8,7 +8,7 @@ import shutil
 import sys
 
 
-def install(component, binary, root, source=None):
+def install(component, binary, root, source=None, identity=None):
     from recovery import absolute, require
     root = Path('/') if str(root) == '/' else absolute(root)
     other = 'agent' if component == 'manager' else 'manager'
@@ -65,7 +65,8 @@ def install(component, binary, root, source=None):
         configuration.mkdir(parents=True, mode=0o700)
         shutil.copyfile(source / 'recovery-plan.example.json', configuration / 'recovery-plan.example.json')
         (configuration / 'recovery-plan.example.json').chmod(0o600)
-    manifest = {'component': component, 'binary_sha256': source_id, 'version': '0.1.0', 'services_enabled': False, 'runtime': {'python': '3.9 or newer', 'sqlite': '3.37 or newer', 'systemd': '255 for worker', 'rust_build': '1.93.0', 'dependencies': 'Cargo.lock'}}
+    release = identity or json.loads((Path(__file__).resolve().parents[2] / 'release.json').read_text())
+    manifest = {'component': component, 'binary_sha256': source_id, 'version': release['version'], 'services_enabled': False, 'runtime': {'python': '3.9 or newer', 'sqlite': '3.37 or newer', 'systemd': '255 for worker', 'rust_build': '1.93.0', 'dependencies': 'Cargo.lock'}}
     (library / 'install.json').write_text(json.dumps(manifest, sort_keys=True, indent=2) + '\n')
     (library / 'install.json').chmod(0o644)
     return manifest
@@ -77,9 +78,10 @@ def main(component=None, source=None):
         parser.add_argument('component', choices=['manager', 'agent'])
     parser.add_argument('--binary', required=True)
     parser.add_argument('--root', required=True)
+    parser.add_argument('--identity', type=Path)
     args = parser.parse_args()
     try:
-        print(json.dumps(install(component or args.component, args.binary, args.root, source)))
+        print(json.dumps(install(component or args.component, args.binary, args.root, source, json.loads(args.identity.read_text()) if args.identity else None)))
     except (OSError, ValueError) as error:
         print('installation refused: ' + str(error), file=sys.stderr)
         return 1

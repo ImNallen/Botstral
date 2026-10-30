@@ -18,26 +18,38 @@ fn main() {
         assert!(result.status.success(), "git release identity failed");
         String::from_utf8(result.stdout).unwrap().trim().to_owned()
     };
-    println!(
-        "cargo:rerun-if-changed={}",
-        root.join(git(&["rev-parse", "--git-path", "HEAD"]))
-            .display()
-    );
-    let reference = Command::new("git")
-        .args(["symbolic-ref", "-q", "HEAD"])
-        .current_dir(&root)
-        .output()
-        .unwrap();
-    if reference.status.success() {
-        let name = String::from_utf8(reference.stdout).unwrap();
+    println!("cargo:rerun-if-env-changed=BOTSTRAL_SOURCE_REVISION");
+    let revision = if let Ok(revision) = env::var("BOTSTRAL_SOURCE_REVISION") {
+        revision
+    } else if root.join(".git").exists() {
         println!(
             "cargo:rerun-if-changed={}",
-            root.join(git(&["rev-parse", "--git-path", name.trim()]))
+            root.join(git(&["rev-parse", "--git-path", "HEAD"]))
                 .display()
         );
-    }
+        let reference = Command::new("git")
+            .args(["symbolic-ref", "-q", "HEAD"])
+            .current_dir(&root)
+            .output()
+            .unwrap();
+        if reference.status.success() {
+            let name = String::from_utf8(reference.stdout).unwrap();
+            println!(
+                "cargo:rerun-if-changed={}",
+                root.join(git(&["rev-parse", "--git-path", name.trim()]))
+                    .display()
+            );
+        }
+        git(&["rev-parse", "HEAD"])
+    } else {
+        env::var("BOTSTRAL_SOURCE_REVISION")
+            .expect("source archives require BOTSTRAL_SOURCE_REVISION")
+    };
+    assert!(
+        revision.len() == 40 && revision.bytes().all(|c| c.is_ascii_hexdigit()),
+        "full source revision required"
+    );
     let config: Value = serde_json::from_slice(&fs::read(config_path).unwrap()).unwrap();
-    let revision = git(&["rev-parse", "HEAD"]);
     let identity = if let Ok(path) = env::var("BOTSTRAL_RELEASE_IDENTITY") {
         println!("cargo:rerun-if-changed={path}");
         let value: Value = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();

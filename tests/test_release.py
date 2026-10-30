@@ -1,5 +1,4 @@
 import copy
-import dataclasses
 import json
 from pathlib import Path
 import subprocess
@@ -102,15 +101,60 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 verify(release, public)
 
-    def test_embedded_real_binary_if_built(self):
-        path = ROOT / 'target/debug/botstral-manager'
-        if not path.exists():
-            self.skipTest('manager not built')
-        expected = embedded(path)
-        actual = json.loads(subprocess.check_output([str(path), '--version-json']))
-        self.assertEqual(actual.pop('component'), 'manager')
-        self.assertEqual(actual, expected)
+    def test_embedded_real_binaries_if_built(self):
+        import os
+        names = ('manager', 'agent', 'agent-supervisor-check')
+        for name in names:
+            path = ROOT / 'target/debug' / ('botstral-' + name)
+            if not path.exists():
+                self.skipTest('build production binaries before release tests')
+            expected = embedded(path)
+            actual = json.loads(subprocess.check_output([str(path), '--version-json']))
+            self.assertEqual(actual.pop('component'), name)
+            self.assertEqual(actual, expected)
+            self.assertEqual(actual['protocols'], authority()['protocols'])
+            self.assertEqual(actual['link_schema_sha256'], digest(ROOT / 'link/schema/protocol.json'))
+            self.assertEqual(actual['identity']['revision'], os.environ.get('BOTSTRAL_SOURCE_REVISION') or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
+
 
 
 if __name__ == '__main__':
     unittest.main()
+
+class VersionDriftTests(unittest.TestCase):
+    def test_every_source_mirror_refuses_drift(self):
+        import re
+        import release
+        import shutil
+        files = ['manager/Cargo.toml', 'agent/Cargo.toml', 'link/Cargo.toml',
+                 'link/client/Cargo.toml', 'desktop/src-tauri/Cargo.toml',
+                 'desktop/package.json', 'link/package.json', 'desktop/src-tauri/tauri.conf.json',
+                 'package-lock.json', 'Cargo.lock', 'desktop/src-tauri/Cargo.lock']
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in files + ['link/src/lib.rs', 'link/src/owner.rs']:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, path)
+            previous = release.ROOT
+            release.ROOT = root
+            try:
+                for name in files:
+                    path = root / name
+                    original = path.read_text()
+                    if name.endswith('.lock'):
+                        changed = re.sub(r'(name = "botstral-link"\nversion = ")[^"]+', r'\g<1>9.9.9', original)
+                    else:
+                        changed = original.replace(authority()['version'], '9.9.9', 1)
+                    self.assertNotEqual(original, changed, name)
+                    path.write_text(changed)
+                    with self.subTest(file=name), self.assertRaisesRegex(ValueError, 'version drift'):
+                        release.versions()
+                    path.write_text(original)
+                value = json.loads((root / 'desktop/package.json').read_text())
+                value['dependencies']['@botstral/link'] = '9.9.9'
+                write_json(root / 'desktop/package.json', value)
+                with self.assertRaisesRegex(ValueError, 'version drift'):
+                    release.versions()
+            finally:
+                release.ROOT = previous

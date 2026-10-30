@@ -83,6 +83,13 @@ def inspect_app(app, identity, production=False):
     return executable
 
 
+def app_team(app):
+    detail = subprocess.run(['codesign', '-d', '--verbose=4', str(app)], check=True, capture_output=True, text=True).stderr
+    teams = [line.partition('=')[2] for line in detail.splitlines() if line.startswith('TeamIdentifier=')]
+    require(len(teams) == 1 and teams[0] != 'not set', 'signed application TeamIdentifier required')
+    return teams[0]
+
+
 def mount_dmg(path, mount):
     subprocess.run(['hdiutil', 'attach', '-readonly', '-nobrowse', '-mountpoint', str(mount), str(path)], check=True, capture_output=True)
 
@@ -93,6 +100,10 @@ def inspect_artifacts(directory, release, production=False):
         if artifact.filename.endswith('.deb'):
             inspect_deb(path, artifact, release)
         elif sys.platform == 'darwin':
+            if production:
+                subprocess.run(['codesign', '--verify', '--strict', str(path)], check=True, capture_output=True)
+                subprocess.run(['xcrun', 'stapler', 'validate', str(path)], check=True, capture_output=True)
+                subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', str(path)], check=True, capture_output=True)
             with tempfile.TemporaryDirectory() as directory:
                 mount = Path(directory) / 'volume'
                 mount_dmg(path, mount)
