@@ -48,7 +48,7 @@ Removing or rotating a login does not log out website sessions or revoke cookies
 
 Run `python3 scripts/verify-p06.py --full` after installing workspace dependencies, `npm ci --prefix agent/runtime --ignore-scripts` and `node agent/runtime/node_modules/playwright/cli.js install chromium`. The macOS browser fixture uses system Chrome unless `BOTSTRAL_CHROME` is supplied. It also uses Playwright Chromium for full-runtime capture and approval-component checks. Each invocation retains command exits and evidence under `docs/evidence/p06/`.
 
-The packaged macOS-to-Linux workflow and actual Linux cgroup/private-TLS release have passed on their recorded source revisions. [The acceptance record](evidence/p06/final-acceptance.md) separates those runs from bridge-backed component checks and later source changes. Final source review and verification remain open after the current-catalog collision correction. PLAN completion boxes remain open.
+The packaged macOS-to-Linux workflow and actual Linux cgroup/private-TLS release have passed on their recorded source revisions. [The acceptance record](evidence/p06/final-acceptance.md) separates those runs from bridge-backed component checks and later source changes. Current catalog-source broad and Linux verification passed. Final independent review remains open. PLAN completion boxes remain open.
 
 Approvals retain their originating paired device and grant epoch. Revoking that device invalidates its one-shot and remembered approvals and requests durable cancellation of its released work. Disconnecting a device does not revoke its durable approvals. Old remembered rules without recorded approval provenance require fresh approval.
 

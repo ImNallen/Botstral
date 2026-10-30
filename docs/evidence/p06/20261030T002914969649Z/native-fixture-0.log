@@ -1,0 +1,11 @@
+Fixture root: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-al6r6a9j/manager-a
+Local manager: 127.0.0.1:61628
+Paired WSS route: wss://127.0.0.1:61657/owner/v1/connect
+Manager identity: a4e49ce4-54d0-444e-8e78-5c8c28144765
+Manager leaf: 8e662d1b88ce72585563fd6a0ab353d20b5bf6ba811b448b698dd401d55905d1
+Trusted export: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-al6r6a9j/manager-a/trust.json
+Browser runtime digest: 7c63829baa2f5451c23789c5085b4de0627e5208b6c4bb2483217998f8cc38f0
+Worker is synthetic. No real process or browser execution is proved.
+Use the packaged app. Open local administration, sign in, return to the paired workspace, create a request, authorize with local manager, choose trust.json, and confirm the identity and pin.
+Isolated debug profile: /private/var/folders/rf/kpqj3jpn7qvf82sv18g4ppwr0000gn/T/p06-independent-native-al6r6a9j/manager-a/desktop-profile
+Launch the debug app executable with BOTSTRAL_DESKTOP_PROFILE set to that path. Sign out the paired device before stopping this fixture.

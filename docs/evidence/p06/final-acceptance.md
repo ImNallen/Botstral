@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-The last reviewed production source `b589c7623296784e7a0b0d4442440a5ffe265947` passed broad and Linux verification but was independently rejected for current-catalog collisions. The connector correction at `086b1acb41226be3e5ace6055be6f765c070b8fa` passed its rebuilt Linux gate. Broad verification and independent review remain open. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
+The last reviewed production source `b589c7623296784e7a0b0d4442440a5ffe265947` passed broad and Linux verification but was independently rejected for current-catalog collisions. The connector correction at `086b1acb41226be3e5ace6055be6f765c070b8fa` passed its rebuilt Linux gate. All fourteen broad phases also passed at that clean source. Independent review remains open. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
 
 ## Private entry and exact submission
 
@@ -72,3 +72,7 @@ Root reproduced the independent failures before correction. Permanent behavior c
 ## Current catalog-source Linux verification
 
 [The rebuilt full Linux run](linux-catalog-final/proof.json) passed at clean source `086b1acb41226be3e5ace6055be6f765c070b8fa`. The recorded starting diff is empty. The manager release digest is `523b2bf3249e285f7a0591953b07f1992833217782e1adb2689d414a608c7f96`; the worker and sealed runtime remain unchanged. One receiving-site-validated password POST and two separately approved valid current-code submissions completed with applied reviews. All four negative transport probes refused. Every command exited zero, the owned container was removed and emulation snapshots match. This is current-source manager/private-release execution, not a new packaged AppKit run or a universal cold-start claim.
+
+## Current catalog-source broad verification
+
+`python3 scripts/verify-p06.py --full` exited zero at clean source `086b1acb41226be3e5ace6055be6f765c070b8fa`. [All fourteen recorded phases](20261030T002914969649Z/commands.json) passed, including repository and desktop verification. The starting diff is empty; subsequent commits changed documentation and evidence only. The manager suite passed171 tests with six opt-in skips. The fresh default release build and both nonproduction release refusals passed. Native secure controls, paired storage/recovery/manager switching, locked unlock, live browser and capture checks, frontend/native tests and the debug application build also passed. Final independent code review remains open.
