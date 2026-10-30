@@ -1182,3 +1182,120 @@ fn bot_deletion_preserves_stopped_unknown_attention() {
     assert_eq!(after.outcome, stopped.outcome);
     assert_eq!(after.state, TaskState::AwaitingAttention);
 }
+
+#[test]
+fn revoked_connector_missing_historical_ciphertext_still_refuses() {
+    for revoke in [false, true] {
+        let mut f = fixture();
+        let installed = f.install(false);
+        let rotated = f
+            .state
+            .replace_connection_secret(
+                token(),
+                installed.id,
+                ReplaceConnectionSecret {
+                    expected_revision: installed.version.revision,
+                    secret: ConnectionSecretInput::Bearer {
+                        value: ConnectorSecretEntry("synthetic-retained-required-secret".into()),
+                    },
+                },
+            )
+            .unwrap();
+        if revoke {
+            f.state
+                .change_connection(token(), rotated.id, rotated.version.revision, true)
+                .unwrap();
+        }
+        f.state
+            .reject_known_secrets(&"Unrelated safe text.")
+            .unwrap();
+        let bytes: Vec<u8> = f
+            .state
+            .connection
+            .query_row(
+                "SELECT ciphertext FROM connection_secrets WHERE connection=?1 AND epoch=?2",
+                params![
+                    rotated.id.to_string(),
+                    rotated.version.credential_epoch as i64
+                ],
+                |r| r.get(0),
+            )
+            .unwrap();
+        f.state
+            .connection
+            .execute_batch("DROP TRIGGER retain_connection_secret")
+            .unwrap();
+        f.state
+            .connection
+            .execute(
+                "DELETE FROM connection_secrets WHERE connection=?1 AND epoch=?2",
+                params![
+                    rotated.id.to_string(),
+                    rotated.version.credential_epoch as i64
+                ],
+            )
+            .unwrap();
+        f.state.connection.execute_batch("CREATE TRIGGER retain_connection_secret BEFORE DELETE ON connection_secrets BEGIN SELECT RAISE(ABORT,'immutable credential epoch'); END;").unwrap();
+        assert_eq!(
+            f.state.reject_known_secrets(&"Unrelated safe text."),
+            Err(OperationError::Internal)
+        );
+        f.state
+            .connection
+            .execute(
+                "INSERT INTO connection_secrets VALUES(?1,?2,?3)",
+                params![
+                    rotated.id.to_string(),
+                    rotated.version.credential_epoch as i64,
+                    bytes
+                ],
+            )
+            .unwrap();
+        f.state
+            .reject_known_secrets(&"Unrelated safe text.")
+            .unwrap();
+        assert_eq!(
+            f.state
+                .reject_known_secrets(&"synthetic-retained-required-secret"),
+            Err(OperationError::InvalidInput)
+        );
+    }
+}
+
+#[test]
+fn revoked_connector_existing_terminal_ciphertext_remains_screened() {
+    let mut f = fixture();
+    let installed = f.install(false);
+    let revoked = f
+        .state
+        .change_connection(token(), installed.id, installed.version.revision, true)
+        .unwrap();
+    let secret = "synthetic-terminal-retained-secret";
+    let ciphertext = crypto::encrypt_connector(
+        f.state.connector_identity().unwrap(),
+        &context(&revoked),
+        &secret_bytes(&ConnectionSecretInput::Bearer {
+            value: ConnectorSecretEntry(secret.into()),
+        })
+        .unwrap(),
+    )
+    .unwrap();
+    f.state
+        .connection
+        .execute(
+            "INSERT INTO connection_secrets VALUES(?1,?2,?3)",
+            params![
+                revoked.id.to_string(),
+                revoked.version.credential_epoch as i64,
+                ciphertext
+            ],
+        )
+        .unwrap();
+    f.state
+        .reject_known_secrets(&"Unrelated safe text.")
+        .unwrap();
+    assert_eq!(
+        f.state.reject_known_secrets(&secret),
+        Err(OperationError::InvalidInput)
+    );
+}

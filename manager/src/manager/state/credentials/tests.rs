@@ -357,3 +357,144 @@ fn metadata_cannot_publish_private_values_or_ambiguous_origins() {
 }
 
 mod live;
+
+#[test]
+fn revoked_connector_history_survives_restore_and_unlock() {
+    let mut f = fixture();
+    let connection = f
+        .state
+        .install_connection(
+            copy_token(&f.token),
+            InstallConnection {
+                id: ConnectionId::new(),
+                label: "Revocation recovery fixture".into(),
+                transport: ConnectionTransport::RemoteHttp {
+                    endpoint: "https://example.test/mcp".into(),
+                },
+            },
+        )
+        .unwrap();
+    let mut version = connection.version;
+    let secrets = [
+        "synthetic-retained-connector-one",
+        "synthetic-retained-connector-two",
+    ];
+    for secret in secrets {
+        version = f
+            .state
+            .replace_connection_secret(
+                copy_token(&f.token),
+                version.connection,
+                ReplaceConnectionSecret {
+                    expected_revision: version.revision,
+                    secret: ConnectionSecretInput::Bearer {
+                        value: ConnectorSecretEntry(secret.into()),
+                    },
+                },
+            )
+            .unwrap()
+            .version;
+    }
+    let request = RequestId::new();
+    let receipt = f
+        .state
+        .write_login(
+            copy_token(&f.token),
+            request,
+            CredentialWriteTarget::Create {
+                metadata: metadata(),
+            },
+            values(51),
+        )
+        .unwrap();
+    assert!(matches!(receipt, CredentialWriteStatus::Committed { .. }));
+    let revoked = f
+        .state
+        .change_connection(
+            copy_token(&f.token),
+            version.connection,
+            version.revision,
+            true,
+        )
+        .unwrap();
+    let count: i64 = f
+        .state
+        .connection
+        .query_row(
+            "SELECT count(*) FROM connection_secrets WHERE connection=?1 AND epoch=?2",
+            params![
+                version.connection.to_string(),
+                revoked.version.credential_epoch as i64
+            ],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(count, 0);
+    let snapshot = f
+        .root
+        .path()
+        .canonicalize()
+        .unwrap()
+        .join("revoked-snapshot.sqlite3");
+    f.state
+        .connection
+        .execute("VACUUM INTO ?1", [snapshot.to_str().unwrap()])
+        .unwrap();
+    f.state.lock_vault(copy_token(&f.token)).unwrap();
+    let mut restored = State::from_connection(
+        Connection::open(snapshot).unwrap(),
+        f.root.path().to_path_buf(),
+        watch::channel(false).0,
+    )
+    .unwrap();
+    assert!(matches!(
+        restored.known_connector_secrets(),
+        Err(OperationError::Locked)
+    ));
+    let token = restored
+        .sign_in(LoginPassword::new("synthetic p06 owner password".into()).unwrap())
+        .unwrap()
+        .token;
+    restored
+        .unlock_vault(
+            copy_token(&token),
+            VaultPassphrase::new("synthetic p06 vault passphrase".into()).unwrap(),
+        )
+        .unwrap();
+    restored
+        .reject_known_secrets(&"Unrelated safe text.")
+        .unwrap();
+    for secret in secrets {
+        assert_eq!(
+            restored.reject_known_secrets(&secret),
+            Err(OperationError::InvalidInput)
+        );
+    }
+    assert_eq!(
+        restored
+            .credential_write_status(copy_token(&token), request, false)
+            .unwrap(),
+        receipt
+    );
+    assert_eq!(restored.login_items(copy_token(&token)).unwrap().len(), 1);
+    let fresh = restored
+        .write_login(
+            copy_token(&token),
+            RequestId::new(),
+            CredentialWriteTarget::Create {
+                metadata: metadata(),
+            },
+            values(52),
+        )
+        .unwrap();
+    assert!(matches!(fresh, CredentialWriteStatus::Committed { .. }));
+    let retained: i64 = restored
+        .connection
+        .query_row(
+            "SELECT count(*) FROM connection_secrets WHERE connection=?1",
+            [version.connection.to_string()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(retained, 3);
+}

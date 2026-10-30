@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "b589c76",
+    "HEAD",
+    "--",
+    "manager/src/manager/provider.rs",
+    "manager/src/manager/state/connectors.rs",
+    "manager/src/manager/state/credentials.rs"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-e73580b6",
+  "exit": 0,
+  "start": "2026-10-30T00:35:09.137365+00:00",
+  "end": "2026-10-30T00:35:09.151004+00:00"
+}

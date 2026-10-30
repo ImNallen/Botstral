@@ -599,3 +599,91 @@ fn current_connector_catalog_collision_preserves_complete_conversations() {
         }
     }
 }
+
+#[test]
+fn revoked_connector_preserves_safe_login_receipts_and_plain_conversation() {
+    use crate::manager::state::test_catalog;
+    let mut f = fixture();
+    let catalog = test_catalog::prepare(
+        &mut f.state,
+        f.input.bot,
+        "unrelated-catalog-account",
+        false,
+    );
+    test_catalog::complete(
+        &mut f.state,
+        catalog.bot,
+        catalog.session,
+        Some(catalog.policy.clone()),
+    )
+    .unwrap();
+    let request = RequestId::new();
+    let initial = f
+        .state
+        .write_login(
+            token(),
+            request,
+            CredentialWriteTarget::Create {
+                metadata: login_metadata(),
+            },
+            private_values(&RequestId::new().to_string()),
+        )
+        .unwrap();
+    let CredentialWriteStatus::Committed { item, .. } = &initial else {
+        panic!("safe control must commit");
+    };
+    let version = &catalog.policy.tools[0].connection;
+    let revoked = f
+        .state
+        .change_connection(token(), version.connection, version.revision, true)
+        .unwrap();
+    assert_eq!(revoked.availability, ConnectionAvailability::Revoked);
+    assert!(f.state.current_connector_catalogs().unwrap().is_empty());
+    assert!(
+        f.state
+            .connector_tools(token(), catalog.bot)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        f.state
+            .permitted_connector_catalog(catalog.bot, &catalog.policy)
+            .is_err()
+    );
+    f.state
+        .reject_known_secrets(&serde_json::json!({"message":"Hello."}))
+        .unwrap();
+    let fresh = f
+        .state
+        .write_login(
+            token(),
+            RequestId::new(),
+            CredentialWriteTarget::Create {
+                metadata: login_metadata(),
+            },
+            private_values(&RequestId::new().to_string()),
+        )
+        .unwrap();
+    assert!(matches!(fresh, CredentialWriteStatus::Committed { .. }));
+    let rotated = f
+        .state
+        .write_login(
+            token(),
+            RequestId::new(),
+            CredentialWriteTarget::Rotate {
+                id: item.id,
+                expected_revision: item.revision,
+            },
+            private_values(&RequestId::new().to_string()),
+        )
+        .unwrap();
+    assert!(matches!(rotated, CredentialWriteStatus::Committed { .. }));
+    assert_eq!(
+        f.state
+            .credential_write_status(token(), request, false)
+            .unwrap(),
+        initial
+    );
+    assert_eq!(f.state.login_items(token()).unwrap().len(), 2);
+    test_catalog::complete(&mut f.state, catalog.bot, catalog.session, None).unwrap();
+}

@@ -1,0 +1,40 @@
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.36.0
+   Compiling rustls v0.23.46
+   Compiling rustls-webpki v0.103.16
+   Compiling rusqlite v0.38.0
+   Compiling tokio-rustls v0.26.6
+   Compiling botstral-link v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link)
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.12.28
+   Compiling botstral-owner-client v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/link/client)
+   Compiling botstral-manager v0.1.0 (/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.03s
+     Running unittests src/lib.rs (target/debug/deps/botstral_manager-5d8c8d540abcb275)
+
+running 4 tests
+test manager::state::connectors::tests::revoked_connector_existing_terminal_ciphertext_remains_screened ... ok
+
+thread 'manager::state::connectors::tests::revoked_connector_missing_historical_ciphertext_still_refuses' (637491450) panicked at manager/src/manager/state/connectors/tests.rs:1211:14:
+called `Result::unwrap()` on an `Err` value: Internal
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test manager::state::connectors::tests::revoked_connector_missing_historical_ciphertext_still_refuses ... FAILED
+
+thread 'manager::state::runs::tests::publication_tests::revoked_connector_preserves_safe_login_receipts_and_plain_conversation' (637491452) panicked at manager/src/manager/state/runs/tests/publication_tests.rs:655:10:
+called `Result::unwrap()` on an `Err` value: Internal
+test manager::state::runs::tests::publication_tests::revoked_connector_preserves_safe_login_receipts_and_plain_conversation ... FAILED
+
+thread 'manager::state::credentials::tests::revoked_connector_history_survives_restore_and_unlock' (637491451) panicked at manager/src/manager/state/credentials/tests.rs:466:10:
+called `Result::unwrap()` on an `Err` value: Internal
+test manager::state::credentials::tests::revoked_connector_history_survives_restore_and_unlock ... FAILED
+
+failures:
+
+failures:
+    manager::state::connectors::tests::revoked_connector_missing_historical_ciphertext_still_refuses
+    manager::state::credentials::tests::revoked_connector_history_survives_restore_and_unlock
+    manager::state::runs::tests::publication_tests::revoked_connector_preserves_safe_login_receipts_and_plain_conversation
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 177 filtered out; finished in 7.69s
+
+error: test failed, to rerun pass `-p botstral-manager --lib`

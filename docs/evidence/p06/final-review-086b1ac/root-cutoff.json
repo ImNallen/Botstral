@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    ".audit/p06-catalog-recheck/capture-cutoff.py"
+  ],
+  "cwd": "/Users/nallen/.t3/worktrees/Botstral/t3-e73580b6",
+  "exit": 0,
+  "start": "2026-10-30T00:37:56.408543+00:00",
+  "end": "2026-10-30T00:37:56.437936+00:00"
+}

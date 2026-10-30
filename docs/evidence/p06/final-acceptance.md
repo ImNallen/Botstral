@@ -1,6 +1,6 @@
 # P06 corrected implementation acceptance
 
-The last reviewed production source `b589c7623296784e7a0b0d4442440a5ffe265947` passed broad and Linux verification but was independently rejected for current-catalog collisions. The connector correction at `086b1acb41226be3e5ace6055be6f765c070b8fa` passed its rebuilt Linux gate. All fourteen broad phases also passed at that clean source. Independent review remains open. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
+The current-catalog correction at `086b1acb41226be3e5ace6055be6f765c070b8fa` passed broad and Linux verification and independent catalog review. Overall acceptance was rejected for a separate inherited connector-revocation defect. The scanner correction below is implemented; new broad/Linux verification and independent review remain open. Earlier evidence remains tied to its recorded source. This record does not advance a PLAN checkbox or approve a merge.
 
 ## Private entry and exact submission
 
@@ -76,3 +76,9 @@ Root reproduced the independent failures before correction. Permanent behavior c
 ## Current catalog-source broad verification
 
 `python3 scripts/verify-p06.py --full` exited zero at clean source `086b1acb41226be3e5ace6055be6f765c070b8fa`. [All fourteen recorded phases](20261030T002914969649Z/commands.json) passed, including repository and desktop verification. The starting diff is empty; subsequent commits changed documentation and evidence only. The manager suite passed171 tests with six opt-in skips. The fresh default release build and both nonproduction release refusals passed. Native secure controls, paired storage/recovery/manager switching, locked unlock, live browser and capture checks, frontend/native tests and the debug application build also passed. Final independent code review remains open.
+
+## Inherited connector-revocation correction
+
+[The independent review](final-review-086b1ac/report.md) accepts the current-catalog repair and reproduces a separate inherited defect. Revocation creates a terminal credential epoch without ciphertext. The retained scanner treated that intentional absence as a database error, blocking safe login creation, metadata reads, committed-receipt recovery and plain chat. Rotation could still commit. [Issue55](https://github.com/ImNallen/Botstral/issues/55) tracks it. The three causal methods are byte-identical to accepted base; the base itself was not executed.
+
+The scanner now skips an absent revoked terminal version before recording the epoch as seen. All actual stored historical credentials remain screened, including ciphertext present on a revoked version. Missing ciphertext required by a nonrevoked historical version still refuses. No retained data is deleted and no migration is needed. Four permanent regressions cover complete plain conversation and receipt recovery after revocation, restoration and real passphrase unlock of an existing revoked store, missing mandatory ciphertext, and actual terminal ciphertext screening. Three fail against the original scanner; all four pass after correction. [The correction record](revocation-corrections/README.md) preserves the original failure, before/after tests and corrected fixture-setup failures. All five fresh independent probe functions pass on the correction. The manager library passes175 tests with six opt-in skips, and all-target Clippy passes. New final-source gates remain required.

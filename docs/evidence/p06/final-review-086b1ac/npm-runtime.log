@@ -1,0 +1,9 @@
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'botstral-computer-runtime@1.0.0',
+npm warn EBADENGINE   required: { node: '24.22.1' },
+npm warn EBADENGINE   current: { node: 'v26.12.1', npm: '11.20.0' }
+npm warn EBADENGINE }
+
+added 2 packages, and audited 3 packages in 345ms
+
+found 0 vulnerabilities

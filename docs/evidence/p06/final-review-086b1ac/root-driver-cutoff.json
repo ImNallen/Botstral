@@ -1,0 +1,207 @@
+{
+  "cutoff": "2026-10-30T00:37:56.435276+00:00",
+  "directory": "/Users/nallen/.t3/worktrees/Botstral/t3-010ce7cb/docs/evidence/p06/20261030T002914969649Z",
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "head": "086b1acb41226be3e5ace6055be6f765c070b8fa",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native_controls": "macOS native fixture"
+  },
+  "completed_commands": [
+    {
+      "name": "credentials",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "credentials::"
+      ],
+      "started": "2026-10-30T00:29:15.001880+00:00",
+      "finished": "2026-10-30T00:29:29.637116+00:00",
+      "exit_code": 0,
+      "log": "credentials.log"
+    },
+    {
+      "name": "profile",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-agent",
+        "--locked",
+        "--lib",
+        "protected_browser::"
+      ],
+      "started": "2026-10-30T00:29:29.637500+00:00",
+      "finished": "2026-10-30T00:29:34.210209+00:00",
+      "exit_code": 0,
+      "log": "profile.log"
+    },
+    {
+      "name": "profile-runtime",
+      "command": [
+        "node",
+        "agent/tests/p06_profile_provenance.mjs"
+      ],
+      "started": "2026-10-30T00:29:34.210536+00:00",
+      "finished": "2026-10-30T00:29:34.310800+00:00",
+      "exit_code": 0,
+      "log": "profile-runtime.log"
+    },
+    {
+      "name": "native-storage",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_protected_entry_never_enters_native_journal"
+      ],
+      "started": "2026-10-30T00:29:34.311076+00:00",
+      "finished": "2026-10-30T00:29:49.152937+00:00",
+      "exit_code": 0,
+      "log": "native-storage.log"
+    },
+    {
+      "name": "native-locked-unlock",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_locked_reads_preserve_the_paired_unlock_path"
+      ],
+      "started": "2026-10-30T00:29:49.153277+00:00",
+      "finished": "2026-10-30T00:29:59.201190+00:00",
+      "exit_code": 0,
+      "log": "native-locked-unlock.log"
+    },
+    {
+      "name": "native-collision",
+      "command": [
+        "python3",
+        "desktop/fixtures/paired_manager.py",
+        "--verify-journal",
+        "--journal-case",
+        "p06_collision_receipt_is_final_and_value_free"
+      ],
+      "started": "2026-10-30T00:29:59.201894+00:00",
+      "finished": "2026-10-30T00:30:07.845186+00:00",
+      "exit_code": 0,
+      "log": "native-collision.log"
+    },
+    {
+      "name": "native-manager-switch",
+      "command": [
+        "python3",
+        "desktop/fixtures/p06-manager-switch.py"
+      ],
+      "started": "2026-10-30T00:30:07.845512+00:00",
+      "finished": "2026-10-30T00:30:20.202546+00:00",
+      "exit_code": 0,
+      "log": "native-manager-switch.log"
+    },
+    {
+      "name": "publication",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "review_probe_numeric_secret_publication"
+      ],
+      "started": "2026-10-30T00:30:20.202860+00:00",
+      "finished": "2026-10-30T00:30:20.443855+00:00",
+      "exit_code": 0,
+      "log": "publication.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "botstral-manager",
+        "--locked",
+        "--lib",
+        "p06_controlled_browser_acceptance",
+        "--",
+        "--ignored",
+        "--nocapture"
+      ],
+      "started": "2026-10-30T00:30:20.444357+00:00",
+      "finished": "2026-10-30T00:30:41.857861+00:00",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "submission-boundary",
+      "command": [
+        "node",
+        "agent/tests/p06_submission_boundary.mjs"
+      ],
+      "started": "2026-10-30T00:30:41.858166+00:00",
+      "finished": "2026-10-30T00:30:44.205801+00:00",
+      "exit_code": 0,
+      "log": "submission-boundary.log"
+    },
+    {
+      "name": "entry-component",
+      "command": [
+        "node",
+        "desktop/fixtures/p06-entry.mjs"
+      ],
+      "started": "2026-10-30T00:30:44.206343+00:00",
+      "finished": "2026-10-30T00:30:45.092892+00:00",
+      "exit_code": 0,
+      "log": "entry-component.log"
+    },
+    {
+      "name": "native-controls",
+      "command": [
+        "cargo",
+        "run",
+        "--manifest-path",
+        "desktop/src-tauri/Cargo.toml",
+        "--locked",
+        "--example",
+        "p06-native-entry"
+      ],
+      "started": "2026-10-30T00:30:45.093213+00:00",
+      "finished": "2026-10-30T00:30:59.806302+00:00",
+      "exit_code": 0,
+      "log": "native-controls.log"
+    },
+    {
+      "name": "repository",
+      "command": [
+        "./scripts/verify.sh"
+      ],
+      "started": "2026-10-30T00:30:59.807219+00:00",
+      "finished": "2026-10-30T00:37:16.637776+00:00",
+      "exit_code": 0,
+      "log": "repository.log"
+    }
+  ],
+  "log_sha256": {
+    "credentials.log": "2f09287341f343d1e62a19f63c0c797215c61f645ff883d9c94a6c7c60175bfc",
+    "profile.log": "0e52653529015e709f760a452bcf0f3837d3cd039c98429a8cc428b5e2cefdfe",
+    "profile-runtime.log": "3344eddd9e7072236816d893c6c5d07ee76e4ce1e5e5fb3c4fc2834862dcbb7c",
+    "native-storage.log": "ab9d8b72e6cf0651c6f6de71170c6e44909572257b47612c87c816ba3e77e10b",
+    "native-locked-unlock.log": "e4ff097b754f92da656d49ff7e51702de74c5ce57a09be2fe9c3b532d3d6be46",
+    "native-collision.log": "5d72c8bb4d2297906a9c37404acf04bd0fa22ca12ce0289dd9aeaed952aa9d37",
+    "native-manager-switch.log": "0b0e795237e516e8539aae5164a9ec43a8e22136ffed6aba45edfc110dc13b91",
+    "publication.log": "a151bdc0336e9449d418b6ac9b45577f7fd65df858d4f5223ae4748720cbe50e",
+    "browser.log": "f181eb09f24401c5eed4c2d94b850270ce21b24d2cd1f420066a788f6c0f3615",
+    "submission-boundary.log": "df2bf17b902f87bdeb96a42e6b7eefe0521b94b4d9a46d017767a540e7871180",
+    "entry-component.log": "266c2f038b4862a1a8991054f7aa359ff1fc16074f111ca053525858cab29266",
+    "native-controls.log": "c4aa5961f9e0e14749d0112f46252eac0671d5ab3ed2833c2215261c02ce7342",
+    "repository.log": "2c6b28577a61223b10f1afda1f737bb58f197b3ca2d784241e997c4a6ab5480d"
+  },
+  "broad_complete": false
+}

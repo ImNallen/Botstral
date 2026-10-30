@@ -93,6 +93,16 @@ impl State {
         let mut seen = std::collections::HashSet::new();
         let mut secrets = Vec::new();
         for view in views {
+            if view.availability == ConnectionAvailability::Revoked {
+                let stored: bool = self.connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM connection_secrets WHERE connection=?1 AND epoch=?2)",
+                    params![view.id.to_string(), view.version.credential_epoch as i64],
+                    |r| r.get(0),
+                )?;
+                if !stored {
+                    continue;
+                }
+            }
             if seen.insert((view.id, view.version.credential_epoch)) {
                 secrets.extend(
                     secret_values(&self.connection_secret(&view)?)
