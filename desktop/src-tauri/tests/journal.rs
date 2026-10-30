@@ -873,8 +873,16 @@ async fn p05_chooser_rejects_acknowledged_same_generation_revocation() {
     );
 }
 
+#[path = "journal/attachments.rs"]
+mod attachments;
 #[path = "journal/saved_results.rs"]
 mod saved_results;
+#[tokio::test]
+#[ignore = "Requires the isolated paired manager fixture with recorded requests and restart support."]
+async fn p05_attachments_restart_and_export() {
+    attachments::verify().await;
+}
+
 #[tokio::test]
 #[ignore = "Requires the isolated paired manager fixture with restart support."]
 async fn p05_saved_results_restart_and_export() {
