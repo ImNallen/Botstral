@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/botstral/p06-reboot-bcb8617e6131/p06_reboot.py", line 509, in <module>
+    main()
+  File "/home/botstral/p06-reboot-bcb8617e6131/p06_reboot.py", line 501, in main
+    fixture.exercise(False)
+  File "/home/botstral/p06-reboot-bcb8617e6131/p06_reboot.py", line 294, in exercise
+    require(owner.call({"method": "login_items"})["value"] == [self.private["item"]], "metadata changed after reboot")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/botstral/p06-reboot-bcb8617e6131/m05_acceptance.py", line 108, in call
+    require(start['type'] == 'transfer_start' and start['request'] == request, 'operation did not start a transfer')
+  File "/home/botstral/p06-reboot-bcb8617e6131/m05_acceptance.py", line 25, in require
+    raise AssertionError(message)
+AssertionError: operation did not start a transfer

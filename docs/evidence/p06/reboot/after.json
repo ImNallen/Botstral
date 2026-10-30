@@ -1,0 +1,12 @@
+{
+  "MainPID": "710",
+  "ExecMainStartTimestamp": "Fri 2026-10-30 10:50:30 UTC",
+  "ActiveState": "active",
+  "SubState": "running",
+  "UnitFileState": "enabled",
+  "InvocationID": "cbf4e504ea5645af8b1629695c094cdd",
+  "binary_sha256": "57a671a63e904189510ac7c4d1a7f0f13e3df500cbff005d873b242464872fa3",
+  "boot_id": "b4b87cad-8100-42e3-bfe1-f9e6d3597293",
+  "ciphertext_sha256": "9176eb1fc9464080cbe4ec6f0e799450a24a79902d5029dfb4970b4213b605e0",
+  "vault": "unlocked"
+}

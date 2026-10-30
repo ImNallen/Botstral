@@ -1,0 +1,33 @@
+{
+  "uid": 1000,
+  "machine": "x86_64",
+  "hostname": "botstral-manager",
+  "boot_id": "96625ae4-32cf-40b5-b7e1-355c7866229d",
+  "user_processes": [
+    {
+      "pid": 823,
+      "name": "systemd"
+    },
+    {
+      "pid": 852,
+      "name": "(sd-pam)"
+    },
+    {
+      "pid": 1737,
+      "name": "botstral-manage"
+    },
+    {
+      "pid": 1843,
+      "name": "sshd"
+    },
+    {
+      "pid": 1844,
+      "name": "python3"
+    }
+  ],
+  "system_services": "botstral-p06-reboot-b78326ddd1e9.service loaded active running P06 owned reboot fixture\n  cron.service                             loaded active running Regular background program processing daemon\n  dbus.service                             loaded active running D-Bus System Message Bus\n  getty@tty1.service                       loaded active running Getty on tty1\n  ModemManager.service                     loaded active running Modem Manager\n  multipathd.service                       loaded active running Device-Mapper Multipath Device Controller\n  polkit.service                           loaded active running Authorization Manager\n  qemu-guest-agent.service                 loaded active running QEMU Guest Agent\n  rsyslog.service                          loaded active running System Logging Service\n  serial-getty@ttyS0.service               loaded active running Serial Getty on ttyS0\n  ssh.service                              loaded active running OpenBSD Secure Shell server\n  systemd-journald.service                 loaded active running Journal Service\n  systemd-logind.service                   loaded active running User Login Management\n  systemd-networkd.service                 loaded active running Network Configuration\n  systemd-resolved.service                 loaded active running Network Name Resolution\n  systemd-timesyncd.service                loaded active running Network Time Synchronization\n  systemd-udevd.service                    loaded active running Rule-based Manager for Device Events and Files\n  udisks2.service                          loaded active running Disk Manager\n  unattended-upgrades.service              loaded active running Unattended Upgrades Shutdown\n  user@1000.service                        loaded active running User Manager for UID 1000",
+  "user_services": "UNIT LOAD ACTIVE SUB DESCRIPTION\n\n0 loaded units listed.",
+  "busy_user_pids": [],
+  "unexpected_system_services": [],
+  "package_locks_held": false
+}

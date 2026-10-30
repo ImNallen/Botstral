@@ -1,0 +1,14 @@
+[Unit]
+Description=P06 owned reboot fixture
+After=network.target
+[Service]
+Type=exec
+User=botstral
+Group=botstral
+UMask=0077
+WorkingDirectory=/home/botstral/p06-reboot-b78326ddd1e9
+ExecStart=/home/botstral/p06-reboot-b78326ddd1e9/botstral-manager --state-dir /home/botstral/p06-reboot-b78326ddd1e9/state --listen 127.0.0.1:0 --setup-listen 127.0.0.1:0 --public-listen 127.0.0.1:0 --public-tls-cert /home/botstral/p06-reboot-b78326ddd1e9/manager.pem --public-tls-key /home/botstral/p06-reboot-b78326ddd1e9/manager.key --public-worker-ca /home/botstral/p06-reboot-b78326ddd1e9/ca.pem
+StandardOutput=append:/home/botstral/p06-reboot-b78326ddd1e9/manager.log
+StandardError=append:/home/botstral/p06-reboot-b78326ddd1e9/manager.log
+[Install]
+WantedBy=multi-user.target
