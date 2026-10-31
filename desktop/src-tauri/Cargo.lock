@@ -326,6 +326,7 @@ dependencies = [
  "objc2-app-kit",
  "objc2-foundation",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "sha2",
@@ -336,6 +337,7 @@ dependencies = [
  "tauri-plugin-notification",
  "tempfile",
  "tokio",
+ "tokio-rustls",
  "uuid",
  "zeroize",
 ]
