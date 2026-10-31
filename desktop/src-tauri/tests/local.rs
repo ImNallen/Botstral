@@ -364,6 +364,33 @@ async fn transport_rejects_redirects_oversize_and_untrusted_addresses() {
     );
 }
 
+#[tokio::test]
+async fn sign_in_accepts_a_slow_but_successful_grant() {
+    let mut server = Server::start().await;
+    let service = LocalManager::new().unwrap();
+    let signing_in = spawn_sign_in(&service, &server.endpoint);
+    let request = server.next("POST", "/v1/sessions").await;
+    tokio::time::sleep(Duration::from_secs(5)).await;
+    request
+        .reply
+        .send((
+            201,
+            json!({"token":TOKEN,"session":{"id":ID,"created_at":100,"expires_at":10000000000_i64}})
+                .to_string(),
+        ))
+        .unwrap();
+    let (session_reads, result) = tokio::join!(
+        tokio::time::timeout(Duration::from_secs(2), server.snapshot(json!([]))),
+        signing_in
+    );
+    let snapshot = result.unwrap().expect("a 5s grant must succeed");
+    assert!(
+        session_reads.is_ok(),
+        "sign-in must continue into session reads after a 5s grant"
+    );
+    assert!(matches!(snapshot.session, SessionView::SignedIn { .. }));
+}
+
 struct ChildGuard(Child);
 impl Drop for ChildGuard {
     fn drop(&mut self) {
