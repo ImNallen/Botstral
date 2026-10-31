@@ -503,3 +503,39 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         0o600
     );
 }
+
+#[tokio::test]
+async fn invite_device_binary_prints_a_join_code() {
+    let f = Fixture::new().await;
+    let manager_state = f.root.path().join("manager");
+    let mut invite = Command::new(manager_binary())
+        .args([
+            "invite",
+            "device",
+            "--label",
+            "X",
+            "--state-dir",
+            manager_state.to_str().unwrap(),
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    invite
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(b"synthetic transport password\n")
+        .unwrap();
+    let invited = invite.wait_with_output().unwrap();
+    assert!(
+        invited.status.success(),
+        "invite device: {}",
+        String::from_utf8_lossy(&invited.stderr)
+    );
+    let stdout = String::from_utf8(invited.stdout).unwrap();
+    let code = stdout.lines().next().unwrap();
+    assert!(code.starts_with("bj1/device/"), "device join code: {code}");
+    assert!(JoinCode::parse(code).is_ok());
+}
