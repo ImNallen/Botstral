@@ -3,7 +3,6 @@ use super::*;
 #[tokio::test]
 #[ignore = "Starts the isolated C02 graphical fixture until its stop file appears."]
 async fn c02_desktop_fixture() {
-    let started = std::time::Instant::now();
     let root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").expect("fixture root"));
     let local = crate::LocalState::open(&root.join("manager-state")).unwrap();
     let fixture = Fixture::start().await;
@@ -39,12 +38,6 @@ async fn c02_desktop_fixture() {
     .unwrap();
     let details = json!({"local":app.address.trim_start_matches("http://"),"public":public,"password":PASSWORD,"bot":app.bot,"session":worker.session.id,"runtime":CertificateFingerprint::from_der(b"fixture runtime"),"synthetic_worker":true});
     std::fs::write(root.join("fixture.json"), details.to_string()).unwrap();
-    if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
-        eprintln!(
-            "SIGNIN_TIMING {{\"role\":\"fixture\",\"phase\":\"ready\",\"ms\":{}}}",
-            started.elapsed().as_millis()
-        );
-    }
     let mut sequence = 0;
     let mut started = std::collections::HashMap::new();
     let mut finished = std::collections::HashSet::new();

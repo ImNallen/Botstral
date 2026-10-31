@@ -67,8 +67,7 @@ def main():
     with (root/'manager.log').open('w') as log:
         process = subprocess.Popen(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', 'c02_desktop_fixture', '--', '--ignored', '--nocapture'], cwd=ROOT, env=env, stdout=log, stderr=log, start_new_session=True)
         try:
-            waiting = time.monotonic()
-            until = waiting+180
+            until = time.monotonic()+180
             while not (root/'fixture.json').exists():
                 if process.poll() is not None or time.monotonic() > until:
                     raise RuntimeError('Fixture startup failed. Inspect '+str(root/'manager.log'))
@@ -97,8 +96,6 @@ def main():
                     raise RuntimeError('The native renderer boundary contract failed.')
                 return
             if args.verify_journal:
-                if os.environ.get('BOTSTRAL_SIGNIN_TIMING'):
-                    print('SIGNIN_TIMING '+json.dumps({'role':'harness','phase':'fixture_wait','ms':int((time.monotonic()-waiting)*1000)}), flush=True)
                 journal = subprocess.run(['cargo', 'test', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--no-default-features', '--locked', '--test', 'journal', args.journal_case, '--', '--ignored', '--exact', '--nocapture'], cwd=ROOT, env=env)
                 if journal.returncode:
                     raise RuntimeError('The native journal contract failed.')
@@ -115,13 +112,6 @@ def main():
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid, signal.SIGTERM)
                 process.wait(timeout=10)
-            if os.environ.get('BOTSTRAL_SIGNIN_TIMING'):
-                try:
-                    for line in (root/'manager.log').read_text().splitlines():
-                        if 'SIGNIN_TIMING' in line:
-                            print(line, flush=True)
-                except FileNotFoundError:
-                    pass
             if args.verify_memory and os.environ.get('BOTSTRAL_MEMORY_NATIVE_VIEWS'):
                 shutil.copyfile(root/'manager.log', Path(os.environ['BOTSTRAL_MEMORY_NATIVE_VIEWS']).with_name('native-manager.log'))
             if temporary:

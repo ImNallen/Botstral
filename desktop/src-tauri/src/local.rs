@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{
     net::SocketAddr,
     sync::{Arc, Mutex},
-    time::{Duration, Instant},
+    time::Duration,
 };
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 use uuid::Uuid;
@@ -483,32 +483,9 @@ impl LocalManager {
         if let Some(body) = body {
             request = request.json(&body);
         }
-        let started = Instant::now();
-        let mut response = request.send().await.map_err(|error| {
-            if matches!(route, Route::SignIn)
-                && std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some()
-            {
-                eprintln!(
-                    "SIGNIN_TIMING {{\"role\":\"client\",\"phase\":\"send\",\"ms\":{},\"error\":\"timeout={},connect={}\"}}",
-                    started.elapsed().as_millis(),
-                    error.is_timeout(),
-                    error.is_connect()
-                );
-            }
-            transport_error(error)
-        })?;
-        let status = response.status();
-        if status != expected {
-            if matches!(route, Route::SignIn)
-                && std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some()
-            {
-                eprintln!(
-                    "SIGNIN_TIMING {{\"role\":\"client\",\"phase\":\"status\",\"ms\":{},\"status\":{}}}",
-                    started.elapsed().as_millis(),
-                    status.as_u16()
-                );
-            }
-            return Err(match status.as_u16() {
+        let mut response = request.send().await.map_err(transport_error)?;
+        if response.status() != expected {
+            return Err(match response.status().as_u16() {
                 400 => ErrorCode::InvalidInput,
                 401 => ErrorCode::Unauthorized,
                 409 => ErrorCode::Conflict,
@@ -530,13 +507,6 @@ impl LocalManager {
                 return Err(ErrorCode::Protocol);
             }
             bytes.extend_from_slice(&chunk);
-        }
-        if matches!(route, Route::SignIn) && std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
-            eprintln!(
-                "SIGNIN_TIMING {{\"role\":\"client\",\"phase\":\"grant\",\"ms\":{},\"status\":{}}}",
-                started.elapsed().as_millis(),
-                status.as_u16()
-            );
         }
         Ok(bytes)
     }

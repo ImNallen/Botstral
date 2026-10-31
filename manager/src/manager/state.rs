@@ -331,20 +331,16 @@ impl State {
         &mut self,
         password: LoginPassword,
     ) -> Result<SessionGrant, OperationError> {
-        let started = Instant::now();
         self.sign_in_attempts.admit()?;
-        let admit_ms = started.elapsed().as_millis();
         let hash: Option<String> = self
             .connection
             .query_row("SELECT password_hash FROM owner WHERE id = 1", [], |row| {
                 row.get(0)
             })
             .optional()?;
-        let query_ms = started.elapsed().as_millis() - admit_ms;
         if !hash.is_some_and(|hash| crypto::verify_password(&password, &hash)) {
             return Err(OperationError::Unauthorized);
         }
-        let verify_ms = started.elapsed().as_millis() - admit_ms - query_ms;
         let token = SessionToken(age::secrecy::SecretString::from(crypto::random_token()));
         let now = self.now();
         let session = SessionMetadata {
@@ -359,13 +355,6 @@ impl State {
         tx.execute("INSERT INTO sessions(id, token_hash, owner_id, created_at, expires_at) VALUES(?1, ?2, 1, ?3, ?4)",
             params![session.id.0.to_string(), crypto::token_hash(token.0.expose_secret()).as_slice(), now, session.expires_at])?;
         tx.commit()?;
-        if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
-            eprintln!(
-                "SIGNIN_TIMING {{\"role\":\"state\",\"phase\":\"sign_in\",\"admit_ms\":{admit_ms},\"query_ms\":{query_ms},\"verify_ms\":{verify_ms},\"write_ms\":{},\"total_ms\":{}}}",
-                started.elapsed().as_millis() - admit_ms - query_ms - verify_ms,
-                started.elapsed().as_millis()
-            );
-        }
         Ok(SessionGrant { token, session })
     }
 
