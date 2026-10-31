@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-31",
+  "source_head": "0e3eb53dee202f4be62f327f3aba4912bc6646cb",
+  "platform": {
+    "os": "macOS 27.0.1",
+    "build": "26A434",
+    "arch": "arm64"
+  },
+  "binary": {
+    "path": "desktop/src-tauri/target/debug/bundle/macos/Botstral.app/Contents/MacOS/botstral-desktop",
+    "sha256": "0e7f71b340a23990c9ae2da4f944ccdd32ed7eb5be6eef377373a4e7e39a40af",
+    "debug": true,
+    "signature": "linker ad hoc; no Developer ID signing or notarization claimed",
+    "same_binary_pairing_and_relaunch": true
+  },
+  "fixture": {
+    "provider": "recorded",
+    "worker": "synthetic",
+    "owner_profile": "fresh disposable debug override",
+    "paid_inference": false
+  },
+  "commands": [
+    {
+      "command": "npm ci",
+      "exit": 0
+    },
+    {
+      "command": "npm run desktop -- build --debug --bundles app",
+      "exit": 0
+    },
+    {
+      "command": "python3 -B desktop/fixtures/paired_manager.py --root /private/tmp/botstral-c03-UNIQUE/fixture --duration 7200",
+      "exit": 0
+    },
+    {
+      "command": "python3 -B desktop/fixtures/c02_source_record.py --check-controls --manifest docs/evidence/c03/source.json",
+      "exit": 0
+    }
+  ],
+  "export": {
+    "bytes": 65,
+    "mode": "0600",
+    "sha256": "c8a964046ab394d5f439d44153ef69eea6d53edb4912eff6cde223535b621906",
+    "synthetic": true
+  },
+  "hidden_activity": {
+    "process_alive_after_close": true,
+    "cached_cursor_running": 54,
+    "cached_cursor_completed": 59,
+    "task_states_before": [
+      "completed",
+      "cancelled",
+      "running"
+    ],
+    "task_states_after": [
+      "completed",
+      "cancelled",
+      "completed"
+    ],
+    "restoration": "Process terminated with SIGTERM, then same binary relaunched. Tray restoration was not observed."
+  },
+  "inconclusive": [
+    "delivered test notification",
+    "delivered activity notification while hidden",
+    "native tray Show",
+    "native tray Quit",
+    "nonzero operation progress"
+  ],
+  "cleanup": {
+    "keychain_absent_exit": 44,
+    "local_tcp_closed": true,
+    "public_tcp_closed": true,
+    "app_process_absent": true,
+    "notification_setting_restored": "off",
+    "fixture_exit": 0,
+    "private_fixture_and_plaintext_logs_removed": true
+  }
+}
