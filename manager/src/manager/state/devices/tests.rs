@@ -57,12 +57,8 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
     state.test_time = Some(1000);
     let manager = state.manager_identity().unwrap();
     let secret = crypto::random_token();
-    let request = PairingRequest {
-        fingerprint: DeviceFingerprint::from_credential(&secret),
-        label: "Probe".into(),
-    };
     let grant = state
-        .invite_device(token(&local), request.clone(), 60)
+        .invite_device(token(&local), "Probe".into(), 60)
         .unwrap();
     let invitation = grant.secret.expose_secret();
     let previous = OwnerHello::Enroll {
@@ -89,11 +85,7 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
         state.connect_owner(wrong_role, stop()),
         Err(OperationError::Unauthorized)
     ));
-    assert!(matches!(
-        state.connect_owner(enroll(manager, &crypto::random_token(), invitation), stop()),
-        Err(OperationError::Unauthorized)
-    ));
-    state.connection.execute_batch("CREATE TRIGGER reject_consume BEFORE UPDATE ON owner_invitations BEGIN SELECT RAISE(ABORT,'test'); END;").unwrap();
+    state.connection.execute_batch("CREATE TRIGGER reject_consume BEFORE UPDATE ON join_invitations BEGIN SELECT RAISE(ABORT,'test'); END;").unwrap();
     assert!(matches!(
         state.connect_owner(enroll(manager, &secret, invitation), stop()),
         Err(OperationError::Internal)
@@ -113,9 +105,17 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
     let (_, first) = state
         .connect_owner(enroll(manager, &secret, invitation), first_stop)
         .unwrap();
+    let replay = state.connect_owner(enroll(manager, &secret, invitation), stop());
+    assert!(
+        replay.is_ok(),
+        "same device replay failed with {:?}",
+        replay.err()
+    );
+    assert_eq!(replay.unwrap().1.device, first.device);
+    let other = crypto::random_token();
     assert!(matches!(
-        state.connect_owner(enroll(manager, &secret, invitation), stop()),
-        Err(OperationError::Unauthorized)
+        state.connect_owner(enroll(manager, &other, invitation), stop()),
+        Err(OperationError::Protocol(ErrorCode::InvitationUsed))
     ));
     let (second_stop, second_stopped) = watch::channel(false);
     let (_, second) = state
@@ -161,9 +161,15 @@ fn enrollment_binding_atomicity_lost_response_and_revocation_survive_restart() {
         state.resume(second, 0, 64),
         Err(OperationError::Unauthorized)
     ));
+    let again = state
+        .invite_device(token(&local), "Probe".into(), 60)
+        .unwrap();
     assert!(matches!(
-        state.invite_device(token(&local), request, 60),
-        Err(OperationError::Conflict)
+        state.connect_owner(
+            enroll(manager, &secret, again.secret.expose_secret()),
+            stop()
+        ),
+        Err(OperationError::Protocol(ErrorCode::Conflict))
     ));
     assert!(matches!(
         state.connect_owner(auth(manager, &secret), stop()),
@@ -197,14 +203,7 @@ fn rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials() {
     state.test_time = Some(state.now());
     let secret = crypto::random_token();
     let grant = state
-        .invite_device(
-            token(&local),
-            PairingRequest {
-                fingerprint: DeviceFingerprint::from_credential(&secret),
-                label: "Reconnect".into(),
-            },
-            600,
-        )
+        .invite_device(token(&local), "Reconnect".into(), 600)
         .unwrap();
     let (_, lease) = state
         .connect_owner(
@@ -227,9 +226,7 @@ fn rejected_handshakes_cannot_lock_out_valid_owner_or_worker_credentials() {
         authenticated.err()
     );
     let peer = crate::worker_http::VerifiedIdentity::for_test(b"valid worker after flood");
-    let worker = state
-        .invite_worker(token(&local), peer.fingerprint().clone(), 600)
-        .unwrap();
+    let worker = state.invite_worker(token(&local), 600).unwrap();
     assert!(state.enroll_worker(peer, worker.secret).is_ok());
 }
 
@@ -241,14 +238,7 @@ fn invitations_expire_and_attempt_limits_persist() {
     let now = state.now();
     let secret = crypto::random_token();
     let grant = state
-        .invite_device(
-            token(&local),
-            PairingRequest {
-                fingerprint: DeviceFingerprint::from_credential(&secret),
-                label: "Expiring".into(),
-            },
-            1,
-        )
+        .invite_device(token(&local), "Expiring".into(), 1)
         .unwrap();
     state.test_time = Some(now + 1);
     assert!(matches!(
@@ -256,7 +246,7 @@ fn invitations_expire_and_attempt_limits_persist() {
             enroll(grant.manager, &secret, grant.secret.expose_secret()),
             stop()
         ),
-        Err(OperationError::Unauthorized)
+        Err(OperationError::Protocol(ErrorCode::InvitationExpired))
     ));
     state.test_time = Some(now);
     for _ in 1..120 {
@@ -275,6 +265,42 @@ fn invitations_expire_and_attempt_limits_persist() {
         Err(OperationError::RateLimited)
     ));
     state.test_time = Some(now + 62);
+    assert!(matches!(
+        state.connect_owner(auth(grant.manager, &secret), stop()),
+        Err(OperationError::Unauthorized)
+    ));
+}
+
+#[test]
+fn tampered_device_secret_and_unregistered_device_are_refused() {
+    let root = tempfile::tempdir().unwrap();
+    let (mut state, local) = setup(root.path());
+    let secret = crypto::random_token();
+    let grant = state
+        .invite_device(token(&local), "Tamper".into(), 60)
+        .unwrap();
+    let mut bad = grant.secret.expose_secret().to_owned();
+    bad.replace_range(0..1, "!");
+    assert!(matches!(
+        state.connect_owner(enroll(grant.manager, &secret, &bad), stop()),
+        Err(OperationError::Protocol(ErrorCode::InvalidInvitation))
+    ));
+    assert!(matches!(
+        state.connect_owner(auth(grant.manager, &secret), stop()),
+        Err(OperationError::Unauthorized)
+    ));
+    state
+        .connect_owner(
+            enroll(grant.manager, &secret, grant.secret.expose_secret()),
+            stop(),
+        )
+        .unwrap();
+    state
+        .revoke_device(
+            token(&local),
+            state.owner_devices(token(&local)).unwrap()[0].id,
+        )
+        .unwrap();
     assert!(matches!(
         state.connect_owner(auth(grant.manager, &secret), stop()),
         Err(OperationError::Unauthorized)

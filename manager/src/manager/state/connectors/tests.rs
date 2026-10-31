@@ -34,9 +34,7 @@ fn runner() -> ConnectorRunner {
 }
 fn fixture() -> Fixture {
     let (root, mut state, input) = inference::tests::fixture();
-    let invitation = state
-        .invite_worker(token(), peer().fingerprint().clone(), 600)
-        .unwrap();
+    let invitation = state.invite_worker(token(), 600).unwrap();
     let worker = state.enroll_worker(peer(), invitation.secret).unwrap();
     let session = state
         .open_computer_session(token(), input.bot, worker)

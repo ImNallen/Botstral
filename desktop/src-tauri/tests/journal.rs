@@ -56,7 +56,15 @@ async fn paired_at(
         .unwrap();
     let trust =
         serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
-    let bundle = local.invite_device(request, trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint.clone(),
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let candidate = service
         .command(IntentCommand::Stage(bundle))
         .await
@@ -257,7 +265,15 @@ async fn observed_revocation_blocks_cached_activity_after_offline_restart() {
         .unwrap(),
     )
     .unwrap();
-    let bundle = local.invite_device(request, trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint,
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let candidate = restarted
         .command(IntentCommand::Stage(bundle))
         .await

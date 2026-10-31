@@ -263,13 +263,18 @@ async fn pick_json<T: serde::de::DeserializeOwned>(app: &tauri::AppHandle) -> Re
 #[tauri::command]
 async fn import_pairing(
     window: WebviewWindow,
-    app: tauri::AppHandle,
     service: tauri::State<'_, RemoteService>,
+    code: String,
 ) -> Result<RemoteSnapshot, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
-    service
-        .command(IntentCommand::Stage(pick_json(&app).await?))
-        .await
+    match crate::remote::parse_pairing_link(&code)? {
+        crate::remote::PairingLink::Code(code) => {
+            crate::remote::stage_join_code(&service, &code).await
+        }
+        crate::remote::PairingLink::Bundle(bundle) => {
+            service.command(IntentCommand::Stage(bundle)).await
+        }
+    }
 }
 #[tauri::command]
 async fn import_trust(
@@ -290,12 +295,8 @@ async fn pair_local(
     local: tauri::State<'_, LocalManager>,
 ) -> Result<RemoteSnapshot, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
-    let request = service.inspect().pairing.ok_or("begin_pairing_first")?;
-    let bundle = local
-        .invite_device(request, pick_json(&app).await?)
-        .await
-        .map_err(|_| "local_invitation_failed")?;
-    service.command(IntentCommand::Stage(bundle)).await
+    let _ = (app, local);
+    Err("paste a join code".into())
 }
 #[tauri::command]
 async fn confirm_pairing(
@@ -627,15 +628,11 @@ async fn issue_invitation(
     window: WebviewWindow,
     app: tauri::AppHandle,
     service: tauri::State<'_, LocalManager>,
-    fingerprint: botstral_link::DeviceFingerprint,
     label: String,
 ) -> Result<bool, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
-    let bundle = service
-        .invite_device(
-            botstral_link::PairingRequest { fingerprint, label },
-            pick_json(&app).await?,
-        )
+    let code = service
+        .invite_device(label)
         .await
         .map_err(|_| "local_invitation_failed")?;
     let (tx, rx) = tokio::sync::oneshot::channel();
@@ -648,7 +645,7 @@ async fn issue_invitation(
     let Some(path) = rx.await.map_err(|_| "dialog")? else {
         return Ok(false);
     };
-    let bytes = serde_json::to_vec(&bundle).map_err(|_| "invalid_input")?;
+    let bytes = code.into_bytes();
     crate::remote::save_artifact(
         &path.into_path().map_err(|_| "invalid_input")?,
         crate::remote::VerifiedArtifact {
@@ -774,18 +771,36 @@ pub fn run() {
             app.manage(remote.clone());
             if let Some(urls) = app.deep_link().get_current()? {
                 for url in urls {
-                    if let Ok(bundle) = crate::remote::parse_pairing_link(url.as_str()) {
+                    if let Ok(link) = crate::remote::parse_pairing_link(url.as_str()) {
                         let service = remote.clone();
-                        tauri::async_runtime::spawn(async move { let _ = service.command(IntentCommand::Stage(bundle)).await; });
+                        tauri::async_runtime::spawn(async move {
+                            let _ = match link {
+                                crate::remote::PairingLink::Bundle(bundle) => {
+                                    service.command(IntentCommand::Stage(bundle)).await
+                                }
+                                crate::remote::PairingLink::Code(code) => {
+                                    crate::remote::stage_join_code(&service, &code).await
+                                }
+                            };
+                        });
                     }
                 }
             }
             let link_service = remote.clone();
             app.deep_link().on_open_url(move |event| {
                 for url in event.urls() {
-                    if let Ok(bundle) = crate::remote::parse_pairing_link(url.as_str()) {
+                    if let Ok(link) = crate::remote::parse_pairing_link(url.as_str()) {
                         let service = link_service.clone();
-                        tauri::async_runtime::spawn(async move { let _ = service.command(IntentCommand::Stage(bundle)).await; });
+                        tauri::async_runtime::spawn(async move {
+                            let _ = match link {
+                                crate::remote::PairingLink::Bundle(bundle) => {
+                                    service.command(IntentCommand::Stage(bundle)).await
+                                }
+                                crate::remote::PairingLink::Code(code) => {
+                                    crate::remote::stage_join_code(&service, &code).await
+                                }
+                            };
+                        });
                     }
                 }
             });

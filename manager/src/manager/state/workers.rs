@@ -2,39 +2,65 @@ mod dispatch;
 
 use super::*;
 use botstral_link::{
-    Acknowledgment, Capability, CertificateFingerprint, CommandAction, CommandId, ComputerSession,
-    ComputerSessionId, ControlStatus, Envelope, ErrorCode, Generation, Hello, InputFence,
-    InputOwner, MAX_PENDING, MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkerId,
-    WorkerMessage,
+    Acknowledgment, Capability, CommandAction, CommandId, ComputerSession, ComputerSessionId,
+    ControlStatus, Envelope, ErrorCode, Generation, Hello, InputFence, InputOwner, MAX_PENDING,
+    MAX_SESSIONS, ManagerMessage, RequestId, Revision, WorkerId, WorkerMessage,
 };
 
 impl State {
     pub(in crate::manager) fn invite_worker(
         &mut self,
         token: SessionToken,
-        fingerprint: CertificateFingerprint,
         lifetime_seconds: u32,
     ) -> Result<InvitationGrant, OperationError> {
         self.authorize(&token)?;
         if !(1..=600).contains(&lifetime_seconds) {
             return Err(OperationError::InvalidInput);
         }
+        #[cfg(test)]
+        if self.advertised_endpoint.is_none() || self.manager_pin.is_none() {
+            self.advertise_for_test();
+        }
+        let endpoint = self
+            .advertised_endpoint
+            .clone()
+            .ok_or(OperationError::InvalidInput)?;
+        let pin = self
+            .manager_pin
+            .clone()
+            .ok_or(OperationError::InvalidInput)?;
         let now = self.now();
         self.connection.execute(
-            "DELETE FROM worker_invitations WHERE expires_at <= ?1",
+            "DELETE FROM join_invitations WHERE expires_at <= ?1 AND consumed_at IS NULL",
             [now],
         )?;
-        let count: i64 =
-            self.connection
-                .query_row("SELECT count(*) FROM worker_invitations", [], |r| r.get(0))?;
+        let count: i64 = self.connection.query_row(
+            "SELECT count(*) FROM join_invitations WHERE consumed_at IS NULL AND expires_at > ?1",
+            [now],
+            |r| r.get(0),
+        )?;
         if count >= 128 {
             return Err(OperationError::Busy);
         }
         let secret = SecretString::from(crypto::random_token());
+        let join = botstral_link::JoinSecret::parse(secret.expose_secret())
+            .map_err(|_| OperationError::Internal)?;
         let expires_at = now + i64::from(lifetime_seconds);
-        self.connection.execute("INSERT INTO worker_invitations(token_hash, fingerprint, expires_at, manager) VALUES(?1, ?2, ?3, ?4)",
-            params![crypto::worker_invitation_hash(secret.expose_secret()).as_slice(), fingerprint.as_str(), expires_at, self.manager_identity()?.to_string()])?;
-        Ok(InvitationGrant { secret, expires_at })
+        self.connection.execute(
+            "INSERT INTO join_invitations(token_hash, role, expires_at) VALUES(?1, 'worker', ?2)",
+            params![
+                join.hash(botstral_link::PeerRole::Worker).as_slice(),
+                expires_at
+            ],
+        )?;
+        let code =
+            botstral_link::JoinCode::new(botstral_link::PeerRole::Worker, endpoint, pin, join)
+                .render();
+        Ok(InvitationGrant {
+            secret,
+            expires_at,
+            code: code.to_string(),
+        })
     }
 
     pub(in crate::manager) fn workers(
@@ -274,12 +300,28 @@ impl State {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        let hash = crypto::worker_invitation_hash(secret.expose_secret());
-        let (fingerprint, expires_at, consumed): (String, i64, Option<i64>) = tx.query_row(
-            "SELECT fingerprint, expires_at, consumed_at FROM worker_invitations WHERE manager = (SELECT identity FROM manager_identity WHERE id=1) AND role='worker' AND token_hash = ?1", [hash.as_slice()],
-            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?))).optional()?.ok_or(ErrorCode::InvalidInvitation)?;
-        if peer.fingerprint().as_str() != fingerprint {
-            return Err(ErrorCode::IdentityMismatch.into());
+        let join = botstral_link::JoinSecret::parse(secret.expose_secret())
+            .map_err(|_| ErrorCode::InvalidInvitation)?;
+        let hash = join.hash(botstral_link::PeerRole::Worker);
+        let (expires_at, consumed, bound): (i64, Option<i64>, Option<String>) = tx
+            .query_row(
+                "SELECT expires_at, consumed_at, bound_identity FROM join_invitations WHERE role='worker' AND token_hash = ?1",
+                [hash.as_slice()],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .optional()?
+            .ok_or(ErrorCode::InvalidInvitation)?;
+        let presented = peer.fingerprint().as_str().to_owned();
+        if let Some(bound) = bound {
+            if bound == presented {
+                let id: String = tx.query_row(
+                    "SELECT id FROM workers WHERE fingerprint = ?1 AND revoked = 0",
+                    [&presented],
+                    |r| r.get(0),
+                )?;
+                return id.parse().map_err(|_| OperationError::Internal);
+            }
+            return Err(ErrorCode::InvitationUsed.into());
         }
         if expires_at <= now {
             return Err(ErrorCode::InvitationExpired.into());
@@ -289,7 +331,7 @@ impl State {
         }
         let exists: bool = tx.query_row(
             "SELECT EXISTS(SELECT 1 FROM workers WHERE fingerprint = ?1)",
-            [&fingerprint],
+            [&presented],
             |r| r.get(0),
         )?;
         if exists {
@@ -298,11 +340,11 @@ impl State {
         let id = WorkerId::new();
         tx.execute(
             "INSERT INTO workers(id, fingerprint) VALUES(?1, ?2)",
-            params![id.to_string(), fingerprint],
+            params![id.to_string(), presented],
         )?;
         tx.execute(
-            "UPDATE worker_invitations SET consumed_at = ?1 WHERE token_hash = ?2",
-            params![now, hash.as_slice()],
+            "UPDATE join_invitations SET consumed_at = ?1, bound_identity = ?2 WHERE token_hash = ?3",
+            params![now, peer.fingerprint().as_str(), hash.as_slice()],
         )?;
         super::tasks::event(&tx, "worker_enrolled", id)?;
         tx.commit()?;

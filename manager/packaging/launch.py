@@ -3,7 +3,6 @@ import argparse
 import ipaddress
 import os
 from pathlib import Path
-import stat
 import sys
 
 
@@ -12,7 +11,7 @@ def arguments(path, binary='/usr/bin/botstral-manager'):
     path = absolute(path)
     metadata(path, True)
     value = read_json(path)
-    required = {'state_dir', 'listen', 'setup_listen', 'public_listen', 'certificate', 'key', 'worker_ca'}
+    required = {'state_dir', 'listen', 'setup_listen', 'public_listen'}
     if type(value) is not dict or set(value) != required or any(type(item) is not str for item in value.values()):
         raise ValueError('invalid manager service configuration')
     for key in ('listen', 'setup_listen', 'public_listen'):
@@ -20,13 +19,9 @@ def arguments(path, binary='/usr/bin/botstral-manager'):
         address = ipaddress.ip_address(host.strip('[]'))
         if not 1 <= int(port) <= 65535 or (key != 'public_listen' and not address.is_loopback):
             raise ValueError('invalid manager listener')
-    for key in ('certificate', 'key', 'worker_ca'):
-        selected = absolute(value[key])
-        if not stat.S_ISREG(metadata(selected, True).st_mode):
-            raise ValueError('private TLS file required')
     state = absolute(value['state_dir'])
     metadata(state, True)
-    pairs = [('state-dir', value['state_dir']), ('listen', value['listen']), ('setup-listen', value['setup_listen']), ('public-listen', value['public_listen']), ('public-tls-cert', value['certificate']), ('public-tls-key', value['key']), ('public-worker-ca', value['worker_ca'])]
+    pairs = [('state-dir', value['state_dir']), ('listen', value['listen']), ('setup-listen', value['setup_listen']), ('public-listen', value['public_listen'])]
     return [binary, *[argument for name, content in pairs for argument in ('--' + name, content)]]
 
 

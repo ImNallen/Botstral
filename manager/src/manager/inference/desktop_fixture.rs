@@ -24,7 +24,14 @@ async fn c02_desktop_fixture() {
     .await;
     let (public, mut stop, mut public_task) =
         desktop_listener(&root, &app, "127.0.0.1:0".parse().unwrap()).await;
-    let trust = app.call("POST", "/v1/device-trust", json!({"endpoint":public.to_string(),"server_name":"localhost","ca_pem":std::fs::read_to_string(root.join("ca.pem")).unwrap(),"certificate_pem":std::fs::read_to_string(root.join("manager.pem")).unwrap()}), 200).await;
+    let trust = app
+        .call(
+            "POST",
+            "/v1/device-trust",
+            json!({"endpoint": public.to_string()}),
+            200,
+        )
+        .await;
     use std::os::unix::fs::PermissionsExt;
     std::fs::write(
         root.join("trust.json"),
@@ -262,14 +269,22 @@ async fn desktop_listener(
     app: &App,
     address: std::net::SocketAddr,
 ) -> (std::net::SocketAddr, watch::Sender<bool>, JoinHandle<()>) {
+    let identity = botstral_link::tls::ensure_identity(root, "manager-identity").unwrap();
     let listener = crate::public_http::PublicListener::bind(crate::PublicTls {
         listen: address,
-        certificate: root.join("manager.pem"),
-        key: root.join("manager.key"),
-        client_ca: root.join("ca.pem"),
+        certificate: identity.certificate,
+        key: identity.key,
     })
     .await
     .unwrap();
+    app.manager
+        .set_join_advertisement(
+            botstral_link::ManagerEndpoint::parse(&listener.local_addr().unwrap().to_string())
+                .unwrap(),
+            identity.pin,
+        )
+        .await
+        .unwrap();
     let public = listener.local_addr().unwrap();
     let (stop, stopped) = watch::channel(false);
     let manager = app.manager.clone();

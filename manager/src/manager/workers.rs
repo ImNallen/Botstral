@@ -14,19 +14,30 @@ pub struct WorkerSummary {
 pub struct InvitationGrant {
     pub secret: SecretString,
     pub expires_at: i64,
+    pub code: String,
 }
 
 impl Manager {
+    pub async fn set_join_advertisement(
+        &self,
+        endpoint: botstral_link::ManagerEndpoint,
+        pin: botstral_link::ManagerPin,
+    ) -> Result<(), OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.set_join_advertisement(endpoint, pin);
+                Ok(())
+            })
+            .await
+    }
+
     pub async fn invite_worker(
         &self,
         token: SessionToken,
-        fingerprint: CertificateFingerprint,
         lifetime_seconds: u32,
     ) -> Result<InvitationGrant, OperationError> {
         self.queue
-            .call(false, move |s| {
-                s.invite_worker(token, fingerprint, lifetime_seconds)
-            })
+            .call(false, move |s| s.invite_worker(token, lifetime_seconds))
             .await
     }
 

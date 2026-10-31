@@ -77,14 +77,22 @@ async fn m06_integrated_remote_fixture() {
     }
     let config: Value =
         serde_json::from_slice(&std::fs::read(root.join("config.json")).unwrap()).unwrap();
+    let identity = botstral_link::tls::ensure_identity(&root, "manager-identity").unwrap();
     let listener = crate::public_http::PublicListener::bind(crate::PublicTls {
         listen: config["public"].as_str().unwrap().parse().unwrap(),
-        certificate: root.join("manager.pem"),
-        key: root.join("manager.key"),
-        client_ca: root.join("ca.pem"),
+        certificate: identity.certificate,
+        key: identity.key,
     })
     .await
     .unwrap();
+    app.manager
+        .set_join_advertisement(
+            botstral_link::ManagerEndpoint::parse(&listener.local_addr().unwrap().to_string())
+                .unwrap(),
+            identity.pin,
+        )
+        .await
+        .unwrap();
     let public = listener.local_addr().unwrap();
     let (stop, stopped) = watch::channel(false);
     let server = tokio::spawn(listener.serve(app.manager.clone(), stopped));

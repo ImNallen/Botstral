@@ -1,5 +1,5 @@
 use super::*;
-use botstral_link::{CertificateFingerprint, ComputerSession, ComputerSessionId, WorkerId};
+use botstral_link::{ComputerSession, ComputerSessionId, WorkerId};
 
 pub(super) fn router() -> Router<Manager> {
     Router::new()
@@ -17,7 +17,6 @@ pub(super) fn router() -> Router<Manager> {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct InvitationBody {
-    fingerprint: CertificateFingerprint,
     lifetime_seconds: u32,
 }
 #[derive(Deserialize)]
@@ -34,9 +33,9 @@ async fn invite(
 ) -> ApiResult<Response> {
     use age::secrecy::ExposeSecret;
     let grant = manager
-        .invite_worker(token(&headers)?, body.fingerprint, body.lifetime_seconds)
+        .invite_worker(token(&headers)?, body.lifetime_seconds)
         .await?;
-    Ok((StatusCode::CREATED, Json(serde_json::json!({"invitation":grant.secret.expose_secret(), "expires_at":grant.expires_at}))).into_response())
+    Ok((StatusCode::CREATED, Json(serde_json::json!({"invitation":grant.secret.expose_secret(), "expires_at":grant.expires_at, "code":grant.code}))).into_response())
 }
 async fn workers(
     State(manager): State<Manager>,

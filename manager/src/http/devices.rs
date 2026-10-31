@@ -21,9 +21,6 @@ async fn identity(
 #[serde(deny_unknown_fields)]
 struct ExportTrust {
     endpoint: String,
-    server_name: String,
-    ca_pem: String,
-    certificate_pem: String,
 }
 async fn export_trust(
     State(manager): State<Manager>,
@@ -31,25 +28,22 @@ async fn export_trust(
     StrictJson(body): StrictJson<ExportTrust>,
 ) -> ApiResult<Json<ManagerTrust>> {
     let identity = manager.manager_identity(token(&headers)?).await?;
-    let certificates = rustls_pemfile::certs(&mut body.certificate_pem.as_bytes())
-        .collect::<Result<Vec<_>, _>>()
+    let endpoint = botstral_link::ManagerEndpoint::parse(&body.endpoint)
         .map_err(|_| OperationError::InvalidInput)?;
-    let leaf = certificates.first().ok_or(OperationError::InvalidInput)?;
-    let profile = ManagerTrust {
+    let pin = manager
+        .join_pin(token(&headers)?)
+        .await?
+        .ok_or(OperationError::InvalidInput)?;
+    Ok(Json(ManagerTrust {
         manager: identity,
-        endpoint: body.endpoint,
-        server_name: body.server_name,
-        ca_pem: body.ca_pem,
-        leaf: CertificateFingerprint::from_der(leaf.as_ref()),
-    };
-    botstral_link::tls::validate_manager_trust(&profile, &certificates)
-        .map_err(|_| OperationError::InvalidInput)?;
-    Ok(Json(profile))
+        endpoint: endpoint.as_str().to_owned(),
+        pin: pin.fingerprint().clone(),
+    }))
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct InvitationBody {
-    request: PairingRequest,
+    label: String,
     lifetime_seconds: u32,
 }
 async fn invite(
@@ -59,10 +53,10 @@ async fn invite(
 ) -> ApiResult<Json<serde_json::Value>> {
     use age::secrecy::ExposeSecret;
     let grant = manager
-        .invite_device(token(&headers)?, body.request, body.lifetime_seconds)
+        .invite_device(token(&headers)?, body.label, body.lifetime_seconds)
         .await?;
     Ok(Json(
-        serde_json::json!({"manager":grant.manager,"fingerprint":grant.fingerprint,"role":grant.role,"expires_at":grant.expires_at,"invitation":grant.secret.expose_secret()}),
+        serde_json::json!({"manager":grant.manager,"role":grant.role,"expires_at":grant.expires_at,"invitation":grant.secret.expose_secret(),"code":grant.code}),
     ))
 }
 async fn devices(

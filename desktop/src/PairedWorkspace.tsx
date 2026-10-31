@@ -43,7 +43,7 @@ function WorkspaceDialog({
 }
 function Pairing({
   controller,
-  local,
+  local: _local,
   onLocal,
 }: {
   controller: PairedController;
@@ -89,30 +89,25 @@ function Pairing({
             Have your trusted local administrator authorize exactly this fingerprint for the owner
             role.
           </p>
-          <div className="action-row">
-            <button
-              disabled={busy}
-              onClick={() => {
-                void controller.run(() => controller.app.importPairing());
-              }}
-            >
-              Import invitation file
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const data = new FormData(event.currentTarget);
+              const code = String(data.get('code') ?? '');
+              void controller.run(() => controller.app.importPairing(code));
+            }}
+          >
+            <label>
+              Join code
+              <textarea name="code" required spellCheck={false} />
+            </label>
+            <button className="primary-button" disabled={busy}>
+              Continue with join code
             </button>
-            {local && (
-              <button
-                disabled={busy}
-                onClick={() => {
-                  void controller.run(() => controller.app.pairLocal());
-                }}
-              >
-                Authorize with local manager
-              </button>
-            )}
-          </div>
+          </form>
           <p className="muted small-copy">
-            Local authorization opens a native chooser for the authenticated manager trust export.
-            Invitation files must be protected with permissions 0600. Pairing links contain a
-            short-lived invitation and must be handled privately.
+            Paste the device join code from the manager. A QR code contains the same text. The
+            code is single-use and must be handled privately.
           </p>
         </>
       )}
@@ -125,10 +120,8 @@ function Pairing({
             <dd>{candidate.manager}</dd>
             <dt>Address</dt>
             <dd>{candidate.endpoint}</dd>
-            <dt>Server name</dt>
-            <dd>{candidate.server_name}</dd>
-            <dt>Exact certificate pin</dt>
-            <dd>{candidate.leaf}</dd>
+            <dt>Manager pin</dt>
+            <dd>{candidate.pin}</dd>
             <dt>Role</dt>
             <dd>{candidate.role}</dd>
             <dt>Device fingerprint</dt>
@@ -153,7 +146,6 @@ function Pairing({
 }
 function Administration({ controller }: { controller: PairedController }) {
   const [devices, setDevices] = useState<Device[]>([]);
-  const [fingerprint, setFingerprint] = useState('');
   const [label, setLabel] = useState('Another desktop');
   const [issue, setIssue] = useState<string | null>(null);
   const load = async () => {
@@ -203,25 +195,16 @@ function Administration({ controller }: { controller: PairedController }) {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            void controller.export(() => controller.app.issueInvitation(fingerprint, label));
+            void controller.export(() => controller.app.issueInvitation(label));
           }}
         >
           <label>
             Device name
             <input required value={label} onChange={(event) => setLabel(event.target.value)} />
           </label>
-          <label>
-            Confirmed device fingerprint
-            <input
-              required
-              pattern="[a-f0-9]{64}"
-              value={fingerprint}
-              onChange={(event) => setFingerprint(event.target.value)}
-            />
-          </label>
           <p className="small-copy muted">
-            Choose the authenticated trust export, then a private destination for the invitation.
-            Deliver the invitation privately.
+            Save the join code privately and deliver it to the other desktop. The first redeem
+            binds that desktop's own key.
           </p>
           <button>Save protected invitation</button>
         </form>

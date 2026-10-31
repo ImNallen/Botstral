@@ -4,14 +4,7 @@ fn review_device(f: &mut Live) -> crate::manager::devices::DeviceLease {
     let credential = crypto::random_token();
     let invitation = f
         .state
-        .invite_device(
-            owner(),
-            PairingRequest {
-                fingerprint: DeviceFingerprint::from_credential(&credential),
-                label: "Independent synthetic owner".into(),
-            },
-            60,
-        )
+        .invite_device(owner(), "Independent synthetic owner".into(), 60)
         .unwrap();
     f.state
         .connect_owner(

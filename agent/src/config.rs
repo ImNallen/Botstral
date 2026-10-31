@@ -12,7 +12,7 @@ use std::{
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub manager: String,
-    pub manager_ca: PathBuf,
+    pub pin: botstral_link::CertificateFingerprint,
     pub client_cert: PathBuf,
     pub client_key: PathBuf,
 }
@@ -100,55 +100,75 @@ fn run_cli(test_worker: bool) -> Result<(), Box<dyn std::error::Error>> {
     }
     if command == "--help" {
         println!(
-            "botstral-agent identity --client-cert PATH\nbotstral-agent enroll --state-dir PATH --manager wss://HOST:PORT --manager-ca PATH --client-cert PATH --client-key PATH --invitation-file PATH\nbotstral-agent run|check --state-dir PATH"
+            "botstral-agent identity --client-cert PATH\nbotstral-agent join --state-dir PATH CODE\nbotstral-agent run|check --state-dir PATH"
         );
         return Ok(());
     }
-    let mut values = std::collections::HashMap::new();
-    while let Some(key) = args.next() {
-        if ![
-            "--state-dir",
-            "--manager",
-            "--manager-ca",
-            "--client-cert",
-            "--client-key",
-            "--invitation-file",
-        ]
-        .contains(&key.as_str())
-        {
-            return Err("unknown option".into());
-        }
-        if values
-            .insert(key, args.next().ok_or("missing option value")?)
-            .is_some()
-        {
-            return Err("duplicate option".into());
-        }
-    }
-    let required = |key: &str| values.get(key).cloned().ok_or("missing option");
     if command == "identity" {
-        let certs = tls::certificates(Path::new(&required("--client-cert")?))?;
-        println!(
-            "{}",
-            botstral_link::CertificateFingerprint::from_der(certs[0].as_ref()).as_str()
-        );
+        if args.next().as_deref() != Some("--client-cert") {
+            return Err("missing option".into());
+        }
+        let cert = args.next().ok_or("missing option value")?;
+        if args.next().is_some() {
+            return Err("extra argument".into());
+        }
+        let certs = tls::certificates(Path::new(&cert))?;
+        let identity = botstral_link::IdentityPublicKey::from_certificate(certs[0].as_ref())
+            .map_err(|_| "invalid identity")?;
+        println!("{}", identity.fingerprint().as_str());
         return Ok(());
     }
-    let state = StateDir::open(required("--state-dir")?.into())?;
+    let mut state_dir = None;
+    let mut code = None;
+    if command == "join" {
+        while let Some(key) = args.next() {
+            if key == "--state-dir" {
+                if state_dir
+                    .replace(args.next().ok_or("missing option value")?)
+                    .is_some()
+                {
+                    return Err("duplicate option".into());
+                }
+            } else if code.is_none() && !key.starts_with('-') {
+                code = Some(key);
+            } else {
+                return Err("unknown option".into());
+            }
+        }
+    } else {
+        while let Some(key) = args.next() {
+            if key != "--state-dir" {
+                return Err("unknown option".into());
+            }
+            if state_dir
+                .replace(args.next().ok_or("missing option value")?)
+                .is_some()
+            {
+                return Err("duplicate option".into());
+            }
+        }
+    }
+    let state = StateDir::open(state_dir.ok_or("missing option")?.into())?;
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
-    if command == "enroll" {
+    if command == "join" {
+        let parsed = botstral_link::JoinCode::parse(&code.ok_or("missing join code")?)
+            .map_err(|_| "invalid invitation")?;
+        if parsed.role() != botstral_link::PeerRole::Worker {
+            return Err("worker join code required".into());
+        }
+        let identity = tls::ensure_identity(&state.path, "worker-identity")?;
         let config = Config {
-            manager: required("--manager")?,
-            manager_ca: fs::canonicalize(required("--manager-ca")?)?,
-            client_cert: fs::canonicalize(required("--client-cert")?)?,
-            client_key: fs::canonicalize(required("--client-key")?)?,
+            manager: parsed.endpoint().to_wss(),
+            pin: parsed.pin().fingerprint().clone(),
+            client_cert: identity.certificate,
+            client_key: identity.key,
         };
         crate::transport::endpoint(&config)?;
         state.save(&config)?;
-        let secret = tls::private_bytes(Path::new(&required("--invitation-file")?))?;
-        runtime.block_on(crate::transport::enroll(&config, &secret))?;
+        let secret = parsed.secret_text();
+        runtime.block_on(crate::transport::enroll(&config, secret.as_str()))?;
         println!("worker enrolled");
     } else if command == "run" || command == "check" {
         let config: Config =

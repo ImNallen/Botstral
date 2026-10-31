@@ -45,6 +45,7 @@ tokio = { version = "1.49", features = ["macros", "rt-multi-thread", "net", "syn
 uuid = { version = "1.20", features = ["v4"] }
 zeroize = "1.8"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "rustls-tls-native-roots", "json", "stream"] }
+qrcode = { workspace = true }
 
 jsonschema = { version = "=0.58.4", default-features = false }
 

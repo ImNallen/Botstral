@@ -331,7 +331,7 @@ fn migration_preserves_old_frozen_document_and_null_no_context() {
         let mut f = fixture();
         f.state.submit_run(token(), f.input.clone()).unwrap();
         let doc = legacy(&f, "Present-day memory.");
-        f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_entries_snapshot; DROP TABLE memory_publications; DROP TABLE memory_imports; DROP TABLE credential_prepare_attempts; DROP TABLE credential_authorities; DROP TABLE credential_codes; DROP TABLE credential_rules; DROP TABLE credential_uses; ALTER TABLE execution_leases RENAME TO connector_leases; DROP TABLE credential_epochs; DROP TABLE credential_items; DROP TABLE credential_writes; DROP TABLE run_files; DROP TABLE staged_run_files; PRAGMA user_version=11;").unwrap();
+        f.state.connection.execute_batch("DROP TRIGGER immutable_run; ALTER TABLE runs DROP COLUMN memory_entries_snapshot; DROP TABLE memory_publications; DROP TABLE memory_imports; DROP TABLE credential_prepare_attempts; DROP TABLE credential_authorities; DROP TABLE credential_codes; DROP TABLE credential_rules; DROP TABLE credential_uses; ALTER TABLE execution_leases RENAME TO connector_leases; DROP TABLE credential_epochs; DROP TABLE credential_items; DROP TABLE credential_writes; DROP TABLE run_files; DROP TABLE staged_run_files; ALTER TABLE workers DROP COLUMN second_key; ALTER TABLE owner_devices DROP COLUMN second_key; DROP TABLE join_invitations; PRAGMA user_version=11;").unwrap();
         if let Some(markdown) = old {
             let mut frozen = doc.clone();
             frozen.markdown = markdown.into();

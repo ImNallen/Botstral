@@ -30,10 +30,10 @@ impl DeviceLease {
 
 pub struct DeviceInvitationGrant {
     pub manager: ManagerId,
-    pub fingerprint: DeviceFingerprint,
     pub role: DeviceRole,
     pub expires_at: i64,
     pub secret: SecretString,
+    pub code: String,
 }
 
 pub(crate) struct MaterializedOwnerReply {
@@ -87,14 +87,28 @@ impl Manager {
             })
             .await
     }
+    pub async fn join_pin(
+        &self,
+        token: SessionToken,
+    ) -> Result<Option<botstral_link::ManagerPin>, OperationError> {
+        self.queue
+            .call(false, move |s| {
+                s.authorize(&token)?;
+                Ok(s.join_pin())
+            })
+            .await
+    }
+    pub async fn public_manager_identity(&self) -> Result<ManagerId, OperationError> {
+        self.queue.call(false, |s| s.manager_identity()).await
+    }
     pub async fn invite_device(
         &self,
         token: SessionToken,
-        request: PairingRequest,
+        label: String,
         lifetime: u32,
     ) -> Result<DeviceInvitationGrant, OperationError> {
         self.queue
-            .call(false, move |s| s.invite_device(token, request, lifetime))
+            .call(false, move |s| s.invite_device(token, label, lifetime))
             .await
     }
     pub async fn owner_devices(
@@ -271,14 +285,7 @@ mod tests {
         let token = || SessionToken::new(grant.token.0.expose_secret().into()).unwrap();
         let credential = crypto::random_token();
         let invitation = manager
-            .invite_device(
-                token(),
-                PairingRequest {
-                    fingerprint: DeviceFingerprint::from_credential(&credential),
-                    label: "Shutdown fixture".into(),
-                },
-                600,
-            )
+            .invite_device(token(), "Shutdown fixture".into(), 600)
             .await
             .unwrap();
         let (_, lease) = manager

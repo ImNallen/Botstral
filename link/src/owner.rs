@@ -98,9 +98,7 @@ pub struct PairingRequest {
 pub struct ManagerTrust {
     pub manager: ManagerId,
     pub endpoint: String,
-    pub server_name: String,
-    pub ca_pem: String,
-    pub leaf: CertificateFingerprint,
+    pub pin: CertificateFingerprint,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]

@@ -19,7 +19,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10.9"
 libc = "0.2"
-tokio = { version = "1.49", features = ["macros", "rt-multi-thread", "net", "sync", "time"] }
+tokio = { version = "1.49", features = ["macros", "rt-multi-thread", "net", "sync", "time", "io-util"] }
 tokio-rustls.workspace = true
 tokio-tungstenite.workspace = true
 zeroize = "1.8"

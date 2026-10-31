@@ -61,6 +61,7 @@ pub(in crate::manager::state) fn fixture() -> (tempfile::TempDir, State, SubmitI
             },
         },
     };
+    state.advertise_for_test();
     state.configure_inference(token(), input).unwrap();
     let permit = state
         .prepare_inference_verification(token(), VerifyInference { bot, revision: 1 })

@@ -46,9 +46,7 @@ pub(super) fn prepare(state: &mut State, bot: BotId, marker: &str, schema_marker
         .unwrap();
     let peer =
         || crate::worker_http::VerifiedIdentity::for_test(b"catalog regression connector peer");
-    let invitation = state
-        .invite_worker(token(), peer().fingerprint().clone(), 600)
-        .unwrap();
+    let invitation = state.invite_worker(token(), 600).unwrap();
     let worker = state.enroll_worker(peer(), invitation.secret).unwrap();
     let session = state
         .open_computer_session(token(), bot, worker)

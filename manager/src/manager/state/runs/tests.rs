@@ -16,9 +16,7 @@ fn token() -> SessionToken {
 fn fixture() -> Fixture {
     let (root, mut state, inference) = inference::tests::fixture();
     let peer = || VerifiedIdentity::for_test(b"M04 synthetic worker identity");
-    let grant = state
-        .invite_worker(token(), peer().fingerprint().clone(), 600)
-        .unwrap();
+    let grant = state.invite_worker(token(), 600).unwrap();
     let worker = state.enroll_worker(peer(), grant.secret).unwrap();
     let session = state
         .open_computer_session(token(), inference.bot, worker)

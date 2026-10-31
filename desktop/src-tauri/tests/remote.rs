@@ -269,7 +269,15 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap();
     let trust =
         serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
-    let bundle = local.invite_device(request.clone(), trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint.clone(),
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let invitation = Zeroizing::new(bundle.invitation.clone());
     let candidate_view = service.command(IntentCommand::Stage(bundle)).await.unwrap();
     let candidate = candidate_view.candidate.as_ref().unwrap().clone();

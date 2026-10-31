@@ -39,7 +39,7 @@ export const pairedApplication: PairedApplication = {
       if (result.success) receive(result.data);
     }),
   beginPairing: (label) => snapshot('begin_pairing', { label }),
-  importPairing: () => snapshot('import_pairing'),
+  importPairing: (code) => snapshot('import_pairing', { code }),
   importTrust: () => snapshot('import_trust'),
   pairLocal: () => snapshot('pair_local'),
   confirmPairing: (candidate) => snapshot('confirm_pairing', { candidate }),
@@ -72,6 +72,6 @@ export const pairedApplication: PairedApplication = {
   revokeDevice: async (device) => {
     await call('revoke_device', { device });
   },
-  issueInvitation: async (fingerprint, label) =>
-    z.boolean().parse(await call('issue_invitation', { fingerprint, label })),
+  issueInvitation: async (label) =>
+    z.boolean().parse(await call('issue_invitation', { label })),
 };

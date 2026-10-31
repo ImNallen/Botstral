@@ -4,6 +4,26 @@ use super::*;
 async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     let mut f = Fixture::new().await;
     let grant = f.invitation(&f.worker, 600).await;
+    let enrolled = worker_http(
+        &f.worker,
+        "POST",
+        "/worker/v1/enroll",
+        json!({"invitation":grant["invitation"]}),
+    )
+    .await;
+    assert_eq!(enrolled.0, 201);
+    let bound = enrolled.1["worker_id"].clone();
+    assert_eq!(
+        worker_http(
+            &f.worker,
+            "POST",
+            "/worker/v1/enroll",
+            json!({"invitation":grant["invitation"]}),
+        )
+        .await
+        .1["worker_id"],
+        bound
+    );
     assert_eq!(
         worker_http(
             &f.other,
@@ -13,7 +33,21 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         )
         .await
         .1["error"],
-        "identity_mismatch"
+        "invitation_used"
+    );
+    let original = grant["invitation"].as_str().unwrap();
+    let mut tampered = original.to_owned();
+    tampered.replace_range(0..1, if original.starts_with('A') { "B" } else { "A" });
+    assert_eq!(
+        worker_http(
+            &f.other,
+            "POST",
+            "/worker/v1/enroll",
+            json!({"invitation": tampered})
+        )
+        .await
+        .1["error"],
+        "invalid_invitation"
     );
     let expired = f.invitation(&f.other, 1).await;
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -28,25 +62,37 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         .1["error"],
         "invitation_expired"
     );
-    let invitation_file = f.root.path().join("invitation.json");
-    private(&invitation_file, &serde_json::to_vec(&grant).unwrap());
+    let manager_state = f.root.path().join("manager");
+    let mut invite = Command::new(manager_binary())
+        .args([
+            "invite",
+            "worker",
+            "--state-dir",
+            manager_state.to_str().unwrap(),
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    invite
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(b"synthetic transport password\n")
+        .unwrap();
+    let invited = invite.wait_with_output().unwrap();
+    assert!(
+        invited.status.success(),
+        "invite worker: {}",
+        String::from_utf8_lossy(&invited.stderr)
+    );
+    let code = String::from_utf8(invited.stdout).unwrap();
+    let code = code.lines().next().unwrap();
+    assert!(JoinCode::parse(code).is_ok());
     let agent_state = f.root.path().join("agent");
     let output = Command::new(agent_binary())
-        .args([
-            "enroll",
-            "--state-dir",
-            agent_state.to_str().unwrap(),
-            "--manager",
-            &f.worker.manager,
-            "--manager-ca",
-            f.worker.manager_ca.to_str().unwrap(),
-            "--client-cert",
-            f.worker.client_cert.to_str().unwrap(),
-            "--client-key",
-            f.worker.client_key.to_str().unwrap(),
-            "--invitation-file",
-            invitation_file.to_str().unwrap(),
-        ])
+        .args(["join", "--state-dir", agent_state.to_str().unwrap(), code])
         .output()
         .unwrap();
     assert!(
@@ -54,53 +100,46 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         "actual enrollment: {}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(
-        worker_http(
-            &f.worker,
-            "POST",
-            "/worker/v1/enroll",
-            json!({"invitation":grant["invitation"]})
-        )
-        .await
-        .1["error"],
-        "invitation_used"
+    let joined = super::public_fingerprint(&agent_state.join("worker-identity.pem"));
+    assert!(
+        f.owner("GET", "/v1/workers", json!({}))
+            .await
+            .1
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|worker| worker["fingerprint"] == joined.as_str() && worker["revoked"] == false),
+        "joined worker is enrolled"
+    );
+    let daemon_state = f.root.path().join("daemon");
+    fs::create_dir(&daemon_state).unwrap();
+    fs::set_permissions(&daemon_state, fs::Permissions::from_mode(0o700)).unwrap();
+    private(
+        &daemon_state.join("config.json"),
+        &serde_json::to_vec(&f.worker).unwrap(),
     );
     for config in [&f.wrong, &f.expired] {
         assert!(transport::connect_socket(config).await.is_err());
     }
-    let mut bad = f.worker.clone();
-    bad.manager_ca = f.root.path().join("wrong.pem");
-    assert!(transport::connect_socket(&bad).await.is_err());
-    bad = f.worker.clone();
-    bad.manager = bad.manager.replace("localhost", "127.0.0.1");
-    assert!(transport::connect_socket(&bad).await.is_err());
-    for (name, config) in [
-        ("wrong-host", bad.clone()),
-        (
-            "wrong-ca",
-            Config {
-                manager_ca: f.root.path().join("wrong.pem"),
-                ..f.worker.clone()
-            },
-        ),
-    ] {
-        let state = f.root.path().join(name);
-        fs::create_dir(&state).unwrap();
-        fs::set_permissions(&state, fs::Permissions::from_mode(0o700)).unwrap();
-        private(
-            &state.join("config.json"),
-            &serde_json::to_vec(&config).unwrap(),
-        );
-        let result = Command::new(agent_binary())
-            .args(["check", "--state-dir", state.to_str().unwrap()])
-            .output()
-            .unwrap();
-        assert!(!result.status.success(), "actual daemon rejects {name}");
-        assert_eq!(
-            String::from_utf8_lossy(&result.stderr),
-            "worker operation failed\n"
-        );
-    }
+    let state = f.root.path().join("wrong-pin");
+    fs::create_dir(&state).unwrap();
+    fs::set_permissions(&state, fs::Permissions::from_mode(0o700)).unwrap();
+    private(
+        &state.join("config.json"),
+        &serde_json::to_vec(&f.wrong).unwrap(),
+    );
+    let result = Command::new(agent_binary())
+        .args(["check", "--state-dir", state.to_str().unwrap()])
+        .output()
+        .unwrap();
+    assert!(
+        !result.status.success(),
+        "actual daemon rejects a manager pin mismatch"
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&result.stderr),
+        "worker operation failed\n"
+    );
     for path in [
         "/v1/owner",
         "/v1/sessions",
@@ -267,9 +306,7 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
             }
         );
     }
-    let fingerprint = CertificateFingerprint::from_der(
-        tls::certificates(&f.worker.client_cert).unwrap()[0].as_ref(),
-    );
+    let fingerprint = super::public_fingerprint(&f.worker.client_cert);
     let workers = f.owner("GET", "/v1/workers", json!({})).await.1;
     assert_eq!(
         workers
@@ -281,8 +318,8 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         0
     );
     let race = Config {
-        client_cert: f.root.path().join("race.pem"),
-        client_key: f.root.path().join("race.key"),
+        client_cert: f.root.path().join("race/worker-identity.pem"),
+        client_key: f.root.path().join("race/worker-identity.key"),
         ..f.worker.clone()
     };
     let invitation = f.invitation(&race, 600).await;
@@ -291,13 +328,12 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
         worker_http(&race, "POST", "/worker/v1/enroll", body.clone()),
         worker_http(&race, "POST", "/worker/v1/enroll", body)
     );
-    assert!(
-        (one.0 == 201 && two.1["error"] == "invitation_used")
-            || (two.0 == 201 && one.1["error"] == "invitation_used")
-    );
+    assert_eq!(one.0, 201, "{one:?}");
+    assert_eq!(two.0, 201, "{two:?}");
+    assert_eq!(one.1["worker_id"], two.1["worker_id"]);
     let recovery = Config {
-        client_cert: f.root.path().join("recovery.pem"),
-        client_key: f.root.path().join("recovery.key"),
+        client_cert: f.root.path().join("recovery/worker-identity.pem"),
+        client_key: f.root.path().join("recovery/worker-identity.key"),
         ..f.worker.clone()
     };
     let invitation = f.invitation(&recovery, 600).await;
@@ -307,9 +343,7 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     lost.write_all(format!("POST /worker/v1/enroll HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len()).as_bytes()).await.unwrap();
     lost.write_all(&body).await.unwrap();
     lost.flush().await.unwrap();
-    let fingerprint = CertificateFingerprint::from_der(
-        tls::certificates(&recovery.client_cert).unwrap()[0].as_ref(),
-    );
+    let fingerprint = super::public_fingerprint(&recovery.client_cert);
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
             if f.owner("GET", "/v1/workers", json!({}))
@@ -341,7 +375,7 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     drop(recovered);
     let mut daemon = launch(
         agent_binary(),
-        &["run", "--state-dir", agent_state.to_str().unwrap()],
+        &["run", "--state-dir", daemon_state.to_str().unwrap()],
         f.root.path(),
         "agent",
     );
@@ -350,7 +384,7 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
     f.wait_phase("disconnected", 1).await;
     let mut daemon = launch(
         agent_binary(),
-        &["run", "--state-dir", agent_state.to_str().unwrap()],
+        &["run", "--state-dir", daemon_state.to_str().unwrap()],
         f.root.path(),
         "agent-reconnect",
     );
@@ -468,6 +502,13 @@ async fn enrollment_tls_negotiation_and_lifecycle_use_actual_binaries() {
                 "synthetic transport password",
                 "synthetic transport passphrase",
             ] {
+                if secret == "PRIVATE KEY"
+                    && path.file_name().is_some_and(|name| {
+                        name == "manager-identity.key" || name == "manager-identity.pem"
+                    })
+                {
+                    continue;
+                }
                 assert!(
                     !bytes.windows(secret.len()).any(|w| w == secret.as_bytes()),
                     "secret absent in {}",

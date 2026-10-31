@@ -108,9 +108,7 @@ fn recovery_fixture(root: PathBuf, export: bool) {
     fs::set_permissions(&memory_path, fs::Permissions::from_mode(0o600)).unwrap();
     let entries = state.memory_context(bot).unwrap();
     let peer = crate::worker_http::VerifiedIdentity::for_test(b"recovery worker");
-    let invitation = state
-        .invite_worker(session(&grant), peer.fingerprint().clone(), 600)
-        .unwrap();
+    let invitation = state.invite_worker(session(&grant), 600).unwrap();
     let worker = state.enroll_worker(peer, invitation.secret).unwrap();
     let computer = state
         .open_computer_session(session(&grant), bot, worker)

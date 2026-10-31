@@ -68,6 +68,8 @@ pub(super) struct State {
         std::collections::HashMap<botstral_link::WorkerId, workers::WorkerConnection>,
     owner_connections:
         std::collections::HashMap<botstral_link::OwnerConnectionId, devices::DeviceConnection>,
+    advertised_endpoint: Option<botstral_link::ManagerEndpoint>,
+    manager_pin: Option<botstral_link::ManagerPin>,
     #[cfg(test)]
     pub(in crate::manager) test_time: Option<i64>,
 }
@@ -80,7 +82,7 @@ impl From<rusqlite::Error> for OperationError {
 
 fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
     let version: i64 = connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
-    if version > 17 {
+    if version > 18 {
         return Err(OperationError::Internal);
     }
     if version == 0 {
@@ -172,6 +174,11 @@ fn migrate(connection: &mut Connection) -> Result<(), OperationError> {
         tx.execute_batch(include_str!("../../migrations/0017.sql"))?;
         tx.commit()?;
     }
+    if version < 18 {
+        let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(include_str!("../../migrations/0018.sql"))?;
+        tx.commit()?;
+    }
     Ok(())
 }
 
@@ -238,6 +245,8 @@ impl State {
             setup_attempts: Attempts::new(),
             worker_connections: Default::default(),
             owner_connections: Default::default(),
+            advertised_endpoint: None,
+            manager_pin: None,
             #[cfg(test)]
             test_time: None,
         };
@@ -281,6 +290,27 @@ impl State {
         control: Arc<super::inference::InferenceControl>,
     ) {
         self.inference_control = Some(control);
+    }
+
+    pub(in crate::manager) fn join_pin(&self) -> Option<botstral_link::ManagerPin> {
+        self.manager_pin.clone()
+    }
+
+    pub(in crate::manager) fn set_join_advertisement(
+        &mut self,
+        endpoint: botstral_link::ManagerEndpoint,
+        pin: botstral_link::ManagerPin,
+    ) {
+        self.advertised_endpoint = Some(endpoint);
+        self.manager_pin = Some(pin);
+    }
+
+    #[cfg(test)]
+    pub(in crate::manager) fn advertise_for_test(&mut self) {
+        self.set_join_advertisement(
+            botstral_link::ManagerEndpoint::parse("127.0.0.1:1").expect("test endpoint"),
+            botstral_link::ManagerPin::from_public_key(&[3; 32]),
+        );
     }
 
     pub(super) fn change_sequence(&self) -> Option<i64> {
@@ -930,28 +960,33 @@ mod migration_tests {
             plaintext,
             b"botstral-provider-v1\0mistral\0synthetic migration provider key"
         );
-        let fingerprint = botstral_link::CertificateFingerprint::from_der(b"synthetic certificate");
-        let invitation = state
-            .invite_worker(token(), fingerprint.clone(), 600)
-            .unwrap();
+        state.advertise_for_test();
+        let invitation = state.invite_worker(token(), 600).unwrap();
         let stored: Vec<u8> = state
             .connection
-            .query_row("SELECT token_hash FROM worker_invitations", [], |r| {
-                r.get(0)
-            })
+            .query_row("SELECT token_hash FROM join_invitations", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(
-            stored,
-            crypto::worker_invitation_hash(invitation.secret.expose_secret())
-        );
+        let join = botstral_link::JoinSecret::parse(invitation.secret.expose_secret()).unwrap();
+        assert_eq!(stored, join.hash(botstral_link::PeerRole::Worker));
         assert!(
             !stored
                 .windows(invitation.secret.expose_secret().len())
                 .any(|v| v == invitation.secret.expose_secret().as_bytes())
         );
+        state
+            .enroll_worker(
+                crate::worker_http::VerifiedIdentity::for_test(b"migration worker"),
+                invitation.secret,
+            )
+            .unwrap();
+        let second: Option<Vec<u8>> = state
+            .connection
+            .query_row("SELECT second_key FROM workers", [], |r| r.get(0))
+            .unwrap();
+        assert!(second.is_none());
         state.sign_out(token()).unwrap();
         assert!(matches!(
-            state.invite_worker(token(), fingerprint, 600),
+            state.invite_worker(token(), 600),
             Err(OperationError::Unauthorized)
         ));
     }

@@ -186,8 +186,7 @@ export const remoteSnapshotSchema = z.strictObject({
       id: candidateId,
       manager: id,
       endpoint: z.string(),
-      server_name: z.string(),
-      leaf: digest,
+      pin: digest,
       fingerprint: digest,
       role: z.literal('owner'),
       expires_at: z.number().int().safe(),
@@ -257,7 +256,7 @@ export interface PairedApplication {
   inspect(): Promise<RemoteSnapshot>;
   observe(receive: (value: RemoteSnapshot) => void): Promise<() => void>;
   beginPairing(label: string): Promise<RemoteSnapshot>;
-  importPairing(): Promise<RemoteSnapshot>;
+  importPairing(code: string): Promise<RemoteSnapshot>;
   importTrust(): Promise<RemoteSnapshot>;
   pairLocal(): Promise<RemoteSnapshot>;
   confirmPairing(
@@ -283,7 +282,7 @@ export interface PairedApplication {
   lifecycle(suspended: boolean): Promise<RemoteSnapshot>;
   devices(): Promise<Device[]>;
   revokeDevice(device: Device['id']): Promise<void>;
-  issueInvitation(fingerprint: string, label: string): Promise<boolean>;
+  issueInvitation(label: string): Promise<boolean>;
 }
 export const remoteIssues: Record<string, string> = {
   offline:

@@ -1,121 +1,262 @@
 use rustls::{
-    RootCertStore,
-    pki_types::{CertificateDer, PrivateKeyDer},
+    DigitallySignedStruct, DistinguishedName, Error, RootCertStore, SignatureScheme,
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    pki_types::{CertificateDer, PrivateKeyDer, UnixTime},
+    server::danger::{ClientCertVerified, ClientCertVerifier},
 };
 use std::{
     fs::{File, OpenOptions},
     io::{self, BufReader, Read},
     os::unix::fs::{MetadataExt, OpenOptionsExt},
-    path::Path,
+    path::{Path, PathBuf},
+    sync::Arc,
 };
 use zeroize::Zeroizing;
 
-fn trust_roots(profile: &crate::ManagerTrust) -> io::Result<RootCertStore> {
-    if profile.ca_pem.len() > 32768
-        || profile.server_name.len() > 253
-        || profile.endpoint.len() > 512
-        || profile.endpoint.is_empty()
-        || profile.endpoint.contains(['/', '?', '#', '@'])
-    {
-        return Err(io::Error::other("invalid manager trust"));
+pub struct IdentityFiles {
+    pub certificate: PathBuf,
+    pub key: PathBuf,
+    pub pin: crate::ManagerPin,
+}
+
+pub fn pin_from_certificate(der: &[u8]) -> io::Result<crate::ManagerPin> {
+    let key = crate::IdentityPublicKey::from_certificate(der)
+        .map_err(|_| io::Error::other("manager identity"))?;
+    Ok(crate::ManagerPin::from_public_key(key.as_bytes()))
+}
+
+pub fn ensure_identity(directory: &Path, stem: &str) -> io::Result<IdentityFiles> {
+    if stem.is_empty() || !stem.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-') {
+        return Err(io::Error::other("invalid identity name"));
     }
-    let mut roots = RootCertStore::empty();
-    for certificate in rustls_pemfile::certs(&mut profile.ca_pem.as_bytes()) {
-        roots.add(certificate?).map_err(io::Error::other)?;
+    let certificate = directory.join(format!("{stem}.pem"));
+    let key = directory.join(format!("{stem}.key"));
+    match (certificate.exists(), key.exists()) {
+        (true, true) => {
+            check_private_file(&certificate)?;
+            let certificates = certificates(&certificate)?;
+            let pin = pin_from_certificate(certificates[0].as_ref())?;
+            let _ = private_key(&key)?;
+            Ok(IdentityFiles {
+                certificate,
+                key,
+                pin,
+            })
+        }
+        (false, false) => {
+            let key_pair = rcgen::KeyPair::generate_for(&rcgen::PKCS_ED25519)
+                .map_err(|e| io::Error::other(e.to_string()))?;
+            let mut params = rcgen::CertificateParams::new(Vec::<String>::new())
+                .map_err(|e| io::Error::other(e.to_string()))?;
+            params
+                .distinguished_name
+                .push(rcgen::DnType::CommonName, "botstral");
+            params.is_ca = rcgen::IsCa::NoCa;
+            params.key_usages = vec![rcgen::KeyUsagePurpose::DigitalSignature];
+            params.extended_key_usages = vec![
+                rcgen::ExtendedKeyUsagePurpose::ServerAuth,
+                rcgen::ExtendedKeyUsagePurpose::ClientAuth,
+            ];
+            params.not_before = rcgen::date_time_ymd(2026, 1, 1);
+            params.not_after = rcgen::date_time_ymd(2036, 1, 1);
+            let cert = params
+                .self_signed(&key_pair)
+                .map_err(|e| io::Error::other(e.to_string()))?;
+            let pin = pin_from_certificate(cert.der())?;
+            write_private(&key, key_pair.serialize_pem().as_bytes())?;
+            write_private(&certificate, cert.pem().as_bytes())?;
+            Ok(IdentityFiles {
+                certificate,
+                key,
+                pin,
+            })
+        }
+        _ => Err(io::Error::other("incomplete identity")),
     }
-    Ok(roots)
+}
+
+fn algorithms() -> rustls::crypto::WebPkiSupportedAlgorithms {
+    rustls::crypto::ring::default_provider().signature_verification_algorithms
 }
 
 #[derive(Debug)]
-struct PinnedManager {
-    verifier: std::sync::Arc<rustls::client::WebPkiServerVerifier>,
-    leaf: crate::CertificateFingerprint,
+struct PinVerifier {
+    pin: crate::CertificateFingerprint,
 }
-impl rustls::client::danger::ServerCertVerifier for PinnedManager {
+
+impl ServerCertVerifier for PinVerifier {
     fn verify_server_cert(
         &self,
-        leaf: &CertificateDer<'_>,
-        intermediates: &[CertificateDer<'_>],
-        name: &rustls::pki_types::ServerName<'_>,
-        ocsp: &[u8],
-        now: rustls::pki_types::UnixTime,
-    ) -> Result<rustls::client::danger::ServerCertVerified, rustls::Error> {
-        self.verifier
-            .verify_server_cert(leaf, intermediates, name, ocsp, now)?;
-        if crate::CertificateFingerprint::from_der(leaf.as_ref()) != self.leaf {
-            return Err(rustls::Error::InvalidCertificate(
+        end_entity: &CertificateDer<'_>,
+        _intermediates: &[CertificateDer<'_>],
+        _server_name: &rustls::pki_types::ServerName<'_>,
+        _ocsp_response: &[u8],
+        _now: UnixTime,
+    ) -> Result<ServerCertVerified, Error> {
+        let pin = pin_from_certificate(end_entity.as_ref()).map_err(|_| {
+            Error::InvalidCertificate(rustls::CertificateError::ApplicationVerificationFailure)
+        })?;
+        if pin.as_str() != self.pin.as_str() {
+            return Err(Error::InvalidCertificate(
                 rustls::CertificateError::ApplicationVerificationFailure,
             ));
         }
-        Ok(rustls::client::danger::ServerCertVerified::assertion())
+        Ok(ServerCertVerified::assertion())
     }
+
     fn verify_tls12_signature(
         &self,
         message: &[u8],
-        certificate: &CertificateDer<'_>,
-        signature: &rustls::DigitallySignedStruct,
-    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
-        self.verifier
-            .verify_tls12_signature(message, certificate, signature)
+        cert: &CertificateDer<'_>,
+        dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        rustls::crypto::verify_tls12_signature(message, cert, dss, &algorithms())
     }
+
     fn verify_tls13_signature(
         &self,
         message: &[u8],
-        certificate: &CertificateDer<'_>,
-        signature: &rustls::DigitallySignedStruct,
-    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
-        self.verifier
-            .verify_tls13_signature(message, certificate, signature)
+        cert: &CertificateDer<'_>,
+        dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        rustls::crypto::verify_tls13_signature(message, cert, dss, &algorithms())
     }
-    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
-        self.verifier.supported_verify_schemes()
+
+    fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
+        algorithms().supported_schemes()
     }
 }
 
+#[derive(Debug)]
+struct ExtractEd25519;
+
+impl ClientCertVerifier for ExtractEd25519 {
+    fn offer_client_auth(&self) -> bool {
+        true
+    }
+
+    fn client_auth_mandatory(&self) -> bool {
+        false
+    }
+
+    fn root_hint_subjects(&self) -> &[DistinguishedName] {
+        &[]
+    }
+
+    fn verify_client_cert(
+        &self,
+        end_entity: &CertificateDer<'_>,
+        _intermediates: &[CertificateDer<'_>],
+        _now: UnixTime,
+    ) -> Result<ClientCertVerified, Error> {
+        crate::IdentityPublicKey::from_certificate(end_entity.as_ref())
+            .map_err(|_| Error::InvalidCertificate(rustls::CertificateError::BadEncoding))?;
+        Ok(ClientCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        message: &[u8],
+        cert: &CertificateDer<'_>,
+        dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        rustls::crypto::verify_tls12_signature(message, cert, dss, &algorithms())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        message: &[u8],
+        cert: &CertificateDer<'_>,
+        dss: &DigitallySignedStruct,
+    ) -> Result<HandshakeSignatureValid, Error> {
+        rustls::crypto::verify_tls13_signature(message, cert, dss, &algorithms())
+    }
+
+    fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
+        algorithms().supported_schemes()
+    }
+}
+
+fn pin_verifier(pin: &crate::ManagerPin) -> Arc<PinVerifier> {
+    Arc::new(PinVerifier {
+        pin: pin.fingerprint().clone(),
+    })
+}
+
 pub fn pinned_manager_config(profile: &crate::ManagerTrust) -> io::Result<rustls::ClientConfig> {
-    let provider = std::sync::Arc::new(rustls::crypto::ring::default_provider());
-    let verifier = rustls::client::WebPkiServerVerifier::builder_with_provider(
-        std::sync::Arc::new(trust_roots(profile)?),
-        provider.clone(),
-    )
-    .build()
-    .map_err(io::Error::other)?;
+    let pin = crate::ManagerPin::parse(profile.pin.as_str())
+        .map_err(|_| io::Error::other("manager pin"))?;
+    pinned_owner_config(&pin)
+}
+
+pub fn pinned_owner_config(pin: &crate::ManagerPin) -> io::Result<rustls::ClientConfig> {
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
     Ok(rustls::ClientConfig::builder_with_provider(provider)
         .with_safe_default_protocol_versions()
         .map_err(io::Error::other)?
         .dangerous()
-        .with_custom_certificate_verifier(std::sync::Arc::new(PinnedManager {
-            verifier,
-            leaf: profile.leaf.clone(),
-        }))
+        .with_custom_certificate_verifier(pin_verifier(pin))
         .with_no_client_auth())
+}
+
+pub fn pinned_worker_config(
+    pin: &crate::ManagerPin,
+    certificate: Vec<CertificateDer<'static>>,
+    key: PrivateKeyDer<'static>,
+) -> io::Result<rustls::ClientConfig> {
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    rustls::ClientConfig::builder_with_provider(provider)
+        .with_safe_default_protocol_versions()
+        .map_err(io::Error::other)?
+        .dangerous()
+        .with_custom_certificate_verifier(pin_verifier(pin))
+        .with_client_auth_cert(certificate, key)
+        .map_err(io::Error::other)
+}
+
+pub fn public_server_config(
+    certificate: Vec<CertificateDer<'static>>,
+    key: PrivateKeyDer<'static>,
+) -> io::Result<rustls::ServerConfig> {
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let verifier = Arc::new(ExtractEd25519);
+    rustls::ServerConfig::builder_with_provider(provider)
+        .with_safe_default_protocol_versions()
+        .map_err(io::Error::other)?
+        .with_client_cert_verifier(verifier)
+        .with_single_cert(certificate, key)
+        .map_err(io::Error::other)
 }
 
 pub fn validate_manager_trust(
     profile: &crate::ManagerTrust,
     certificates: &[CertificateDer<'_>],
 ) -> io::Result<()> {
-    use rustls::{
-        client::{WebPkiServerVerifier, danger::ServerCertVerifier},
-        pki_types::{ServerName, UnixTime},
-    };
-    let verifier = WebPkiServerVerifier::builder_with_provider(
-        std::sync::Arc::new(trust_roots(profile)?),
-        std::sync::Arc::new(rustls::crypto::ring::default_provider()),
-    )
-    .build()
-    .map_err(io::Error::other)?;
+    if profile.endpoint.len() > 512 || profile.endpoint.is_empty() {
+        return Err(io::Error::other("invalid manager trust"));
+    }
+    crate::ManagerEndpoint::parse(&profile.endpoint)
+        .map_err(|_| io::Error::other("invalid manager trust"))?;
     let leaf = certificates
         .first()
         .ok_or_else(|| io::Error::other("missing manager certificate"))?;
-    if crate::CertificateFingerprint::from_der(leaf.as_ref()) != profile.leaf {
+    let pin = pin_from_certificate(leaf.as_ref())?;
+    if pin.as_str() != profile.pin.as_str() {
         return Err(io::Error::other("manager pin mismatch"));
     }
-    let name = ServerName::try_from(profile.server_name.clone()).map_err(io::Error::other)?;
-    verifier
-        .verify_server_cert(leaf, &certificates[1..], &name, &[], UnixTime::now())
-        .map_err(io::Error::other)?;
     Ok(())
+}
+
+fn write_private(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    use std::io::Write;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC)
+        .open(path)?;
+    file.write_all(bytes)?;
+    file.sync_all()
 }
 
 pub fn certificates(path: &Path) -> io::Result<Vec<CertificateDer<'static>>> {
