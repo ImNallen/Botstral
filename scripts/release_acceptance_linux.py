@@ -22,7 +22,11 @@ from release_model import authority, digest, require, write_json
 def fixture_binary(directory):
     result = subprocess.check_output(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', '--no-run', '--message-format=json'], cwd=ROOT, text=True)
     outputs = [json.loads(line) for line in result.splitlines() if line.startswith('{')]
-    return Path(next(v['executable'] for v in outputs if v.get('reason') == 'compiler-artifact' and v.get('executable') and v['target']['name'] == 'botstral_manager'))
+    source = Path(next(v['executable'] for v in outputs if v.get('reason') == 'compiler-artifact' and v.get('executable') and v['target']['name'] == 'botstral_manager'))
+    helper = directory / 'manager-fixture'
+    shutil.copyfile(source, helper)
+    helper.chmod(0o755)
+    return helper
 
 
 def snapshot(state):
