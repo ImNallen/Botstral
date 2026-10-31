@@ -385,6 +385,11 @@ pub(super) async fn verify() {
         .unwrap();
     let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
     let path = format!("/events/v1/publishers/{publisher}");
+    macro_rules! publish {
+        ($bytes:expr, $bearer:expr) => {
+            publish_public(&fixture_root, &path, $bytes, $bearer).await
+        };
+    }
     let payload = PublisherEvent {
         id: "build-1".into(),
         timestamp: now,
@@ -395,73 +400,34 @@ pub(super) async fn verify() {
         )]),
     };
     let bytes = serde_json::to_vec(&payload).unwrap();
-    assert_eq!(
-        publish_public(&fixture_root, &path, &bytes, None).await.0,
-        401
-    );
-    assert_eq!(
-        publish_public(&fixture_root, &path, &bytes, Some(&"x".repeat(48)))
-            .await
-            .0,
-        401
-    );
-    let first = publish_public(&fixture_root, &path, &bytes, Some(&credential)).await;
+    assert_eq!(publish!(&bytes, None).0, 401);
+    assert_eq!(publish!(&bytes, Some(&"x".repeat(48))).0, 401);
+    let first = publish!(&bytes, Some(&credential));
     assert_eq!(first.0, 202);
     assert_eq!(first.1["matched"], 1);
-    assert_eq!(
-        publish_public(&fixture_root, &path, &bytes, Some(&credential)).await,
-        first
-    );
+    assert_eq!(publish!(&bytes, Some(&credential)), first);
     let mut changed = payload.clone();
     changed
         .fields
         .insert("branch".into(), EventScalar::Text("other".into()));
     assert_eq!(
-        publish_public(
-            &fixture_root,
-            &path,
-            &serde_json::to_vec(&changed).unwrap(),
-            Some(&credential)
-        )
-        .await
-        .0,
+        publish!(&serde_json::to_vec(&changed).unwrap(), Some(&credential)).0,
         409
     );
     changed.id = "old".into();
     changed.timestamp = now - EVENT_REPLAY_SECONDS - 1;
     assert_eq!(
-        publish_public(
-            &fixture_root,
-            &path,
-            &serde_json::to_vec(&changed).unwrap(),
-            Some(&credential)
-        )
-        .await
-        .0,
+        publish!(&serde_json::to_vec(&changed).unwrap(), Some(&credential)).0,
         400
     );
     changed.id = "future".into();
     changed.timestamp = now + 3600;
     assert_eq!(
-        publish_public(
-            &fixture_root,
-            &path,
-            &serde_json::to_vec(&changed).unwrap(),
-            Some(&credential)
-        )
-        .await
-        .0,
+        publish!(&serde_json::to_vec(&changed).unwrap(), Some(&credential)).0,
         400
     );
     assert_eq!(
-        publish_public(
-            &fixture_root,
-            &path,
-            &vec![b'x'; MAX_EVENT_BYTES + 1],
-            Some(&credential)
-        )
-        .await
-        .0,
+        publish!(&vec![b'x'; MAX_EVENT_BYTES + 1], Some(&credential)).0,
         413
     );
     service
@@ -478,13 +444,7 @@ pub(super) async fn verify() {
     changed.id = "paused".into();
     changed.timestamp = now;
     changed.fields = payload.fields.clone();
-    let paused = publish_public(
-        &fixture_root,
-        &path,
-        &serde_json::to_vec(&changed).unwrap(),
-        Some(&credential),
-    )
-    .await;
+    let paused = publish!(&serde_json::to_vec(&changed).unwrap(), Some(&credential));
     assert_eq!(paused.0, 202);
     assert_eq!(paused.1["matched"], 0);
     service
@@ -499,22 +459,12 @@ pub(super) async fn verify() {
         .await
         .unwrap();
     assert_eq!(
-        publish_public(
-            &fixture_root,
-            &path,
-            &serde_json::to_vec(&changed).unwrap(),
-            Some(&credential)
-        )
-        .await,
+        publish!(&serde_json::to_vec(&changed).unwrap(), Some(&credential)),
         paused
     );
     let mut limited = false;
     for _ in 0..64 {
-        if publish_public(&fixture_root, &path, &bytes, Some(&credential))
-            .await
-            .0
-            == 429
-        {
+        if publish!(&bytes, Some(&credential)).0 == 429 {
             limited = true;
             break;
         }
@@ -530,12 +480,7 @@ pub(super) async fn verify() {
         }))
         .await
         .unwrap();
-    assert_eq!(
-        publish_public(&fixture_root, &path, &bytes, Some(&credential))
-            .await
-            .0,
-        401
-    );
+    assert_eq!(publish!(&bytes, Some(&credential)).0, 401);
     let received = service.command(IntentCommand::Refresh).await.unwrap();
     let state = &received.workspace.as_ref().unwrap().state.routine_state;
     assert_eq!(

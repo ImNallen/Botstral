@@ -16,7 +16,7 @@ Bind the address workers should dial. That address is copied into the join code.
 
 ## Invite and join the worker
 
-On the manager host, invite a worker. The command signs in on the loopback owner API, prints one join code, and signs out. It reads the owner password from the terminal, or from standard input when there is no terminal. Do not put the password on the command line.
+On the manager host, invite a worker. The command signs in on the loopback owner API, prints one join code, and signs out. It reads the owner password from the terminal or from standard input.
 
 ```sh
 ./target/release/botstral-manager invite worker --state-dir manager-state

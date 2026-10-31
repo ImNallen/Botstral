@@ -51,14 +51,10 @@ pub fn ensure_identity(directory: &Path, stem: &str) -> io::Result<IdentityFiles
             params
                 .distinguished_name
                 .push(rcgen::DnType::CommonName, "botstral");
-            params.is_ca = rcgen::IsCa::NoCa;
-            params.key_usages = vec![rcgen::KeyUsagePurpose::DigitalSignature];
             params.extended_key_usages = vec![
                 rcgen::ExtendedKeyUsagePurpose::ServerAuth,
                 rcgen::ExtendedKeyUsagePurpose::ClientAuth,
             ];
-            params.not_before = rcgen::date_time_ymd(2026, 1, 1);
-            params.not_after = rcgen::date_time_ymd(2036, 1, 1);
             let cert = params
                 .self_signed(&key_pair)
                 .map_err(|e| io::Error::other(e.to_string()))?;
@@ -226,25 +222,6 @@ pub fn public_server_config(
         .with_client_cert_verifier(verifier)
         .with_single_cert(certificate, key)
         .map_err(io::Error::other)
-}
-
-pub fn validate_manager_trust(
-    profile: &crate::ManagerTrust,
-    certificates: &[CertificateDer<'_>],
-) -> io::Result<()> {
-    if profile.endpoint.len() > 512 || profile.endpoint.is_empty() {
-        return Err(io::Error::other("invalid manager trust"));
-    }
-    crate::ManagerEndpoint::parse(&profile.endpoint)
-        .map_err(|_| io::Error::other("invalid manager trust"))?;
-    let leaf = certificates
-        .first()
-        .ok_or_else(|| io::Error::other("missing manager certificate"))?;
-    let pin = pin_from_certificate(leaf.as_ref())?;
-    if pin.as_str() != profile.pin.as_str() {
-        return Err(io::Error::other("manager pin mismatch"));
-    }
-    Ok(())
 }
 
 fn write_private(path: &Path, bytes: &[u8]) -> io::Result<()> {

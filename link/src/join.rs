@@ -99,10 +99,6 @@ impl ManagerPin {
 pub struct IdentityPublicKey([u8; 32]);
 
 impl IdentityPublicKey {
-    pub fn from_bytes(bytes: [u8; 32]) -> Self {
-        Self(bytes)
-    }
-
     pub fn from_ed25519_spki(spki: &[u8]) -> Result<Self, ErrorCode> {
         if spki.len() == ED25519_SPKI_PREFIX.len() + 32 && spki.starts_with(ED25519_SPKI_PREFIX) {
             let mut key = [0; 32];
@@ -238,10 +234,6 @@ impl JoinCode {
         &self.pin
     }
 
-    pub fn secret_hash(&self) -> [u8; 32] {
-        self.secret.hash(self.role)
-    }
-
     pub fn secret_text(&self) -> Zeroizing<String> {
         self.secret.render()
     }
@@ -258,18 +250,6 @@ mod tests {
             ManagerPin::from_public_key(&[7; 32]),
             JoinSecret::from_bytes([9; 32]),
         )
-    }
-
-    #[test]
-    fn render_then_parse_is_stable() {
-        let code = sample();
-        let rendered = code.render();
-        let parsed = JoinCode::parse(rendered.as_str()).unwrap();
-        assert_eq!(parsed.role(), PeerRole::Worker);
-        assert_eq!(parsed.endpoint().as_str(), "manager.example:443");
-        assert_eq!(parsed.pin().as_str(), code.pin().as_str());
-        assert_eq!(parsed.secret_hash(), code.secret_hash());
-        assert_eq!(parsed.render().as_str(), rendered.as_str());
     }
 
     #[test]

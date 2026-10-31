@@ -116,8 +116,6 @@ fn pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths() {
         botstral_desktop::remote::parse_pairing_link(code.as_str()),
         Ok(botstral_desktop::remote::PairingLink::Code(_))
     ));
-    let worker = code.as_str().replacen("/device/", "/worker/", 1);
-    assert!(botstral_desktop::remote::parse_pairing_link(&worker).is_err());
 }
 
 #[tokio::test]

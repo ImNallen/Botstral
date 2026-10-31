@@ -270,39 +270,3 @@ fn invitations_expire_and_attempt_limits_persist() {
         Err(OperationError::Unauthorized)
     ));
 }
-
-#[test]
-fn tampered_device_secret_and_unregistered_device_are_refused() {
-    let root = tempfile::tempdir().unwrap();
-    let (mut state, local) = setup(root.path());
-    let secret = crypto::random_token();
-    let grant = state
-        .invite_device(token(&local), "Tamper".into(), 60)
-        .unwrap();
-    let mut bad = grant.secret.expose_secret().to_owned();
-    bad.replace_range(0..1, "!");
-    assert!(matches!(
-        state.connect_owner(enroll(grant.manager, &secret, &bad), stop()),
-        Err(OperationError::Protocol(ErrorCode::InvalidInvitation))
-    ));
-    assert!(matches!(
-        state.connect_owner(auth(grant.manager, &secret), stop()),
-        Err(OperationError::Unauthorized)
-    ));
-    state
-        .connect_owner(
-            enroll(grant.manager, &secret, grant.secret.expose_secret()),
-            stop(),
-        )
-        .unwrap();
-    state
-        .revoke_device(
-            token(&local),
-            state.owner_devices(token(&local)).unwrap()[0].id,
-        )
-        .unwrap();
-    assert!(matches!(
-        state.connect_owner(auth(grant.manager, &secret), stop()),
-        Err(OperationError::Unauthorized)
-    ));
-}

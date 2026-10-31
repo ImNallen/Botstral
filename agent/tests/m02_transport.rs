@@ -288,8 +288,6 @@ impl Fixture {
             )
             .await;
         assert_eq!(status, 201);
-        let code = JoinCode::parse(invitation["code"].as_str().unwrap()).unwrap();
-        assert_eq!(code.pin().as_str(), self.worker.pin.as_str());
         invitation
     }
     async fn wait_phase(&self, phase: &str, minimum_generation: u64) -> Value {

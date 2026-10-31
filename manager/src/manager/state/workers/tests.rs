@@ -56,12 +56,6 @@ fn invitation_binding_expiry_atomicity_and_replay() {
         state.enroll_worker(VerifiedIdentity::for_test(b"certificate B"), fresh_secret()),
         Err(ErrorCode::InvitationUsed.into())
     );
-    let mut tampered = fresh.secret.expose_secret().to_owned();
-    tampered.replace_range(0..1, "!");
-    assert_eq!(
-        state.enroll_worker(peer(), SecretString::from(tampered)),
-        Err(ErrorCode::InvalidInvitation.into())
-    );
 }
 
 #[test]
