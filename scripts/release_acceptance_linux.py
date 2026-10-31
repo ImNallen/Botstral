@@ -19,10 +19,14 @@ from release_artifacts import inspect_deb
 from release_model import authority, digest, require, write_json
 
 
-def fixture_binary():
+def fixture_binary(directory):
     result = subprocess.check_output(['cargo', 'test', '-p', 'botstral-manager', '--locked', '--lib', '--no-run', '--message-format=json'], cwd=ROOT, text=True)
     outputs = [json.loads(line) for line in result.splitlines() if line.startswith('{')]
-    return Path(next(v['executable'] for v in outputs if v.get('reason') == 'compiler-artifact' and v.get('executable') and v['target']['name'] == 'botstral_manager'))
+    source = Path(next(v['executable'] for v in outputs if v.get('reason') == 'compiler-artifact' and v.get('executable') and v['target']['name'] == 'botstral_manager'))
+    helper = directory / 'manager-fixture'
+    shutil.copyfile(source, helper)
+    helper.chmod(0o755)
+    return helper
 
 
 def snapshot(state):
@@ -238,7 +242,6 @@ def accept(args, old, new, old_artifacts, artifacts):
         require(subprocess.check_output(['systemctl', '--version'], text=True).startswith('systemd 255'), 'systemd 255 required')
     for package in ('botstral-manager', 'botstral-agent'):
         require(not Path('/usr/bin/' + package).exists() and not Path('/usr/lib/' + package).exists(), 'acceptance host already has Botstral installed')
-    helper = fixture_binary()
     account = 'botstral-release-test'
     run(['useradd', '--create-home', '--shell', '/bin/bash', account])
     user = pwd.getpwnam(account)
@@ -253,6 +256,7 @@ def accept(args, old, new, old_artifacts, artifacts):
     with tempfile.TemporaryDirectory(prefix='botstral-native-') as directory:
         root = Path(directory)
         root.chmod(0o755)
+        helper = fixture_binary(root)
         for component in ('manager', 'agent'):
             previous = next(a for a in old_artifacts if a.component == component)
             artifact = next(a for a in artifacts if a.component == component)

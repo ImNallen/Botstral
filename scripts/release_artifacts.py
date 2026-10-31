@@ -10,6 +10,17 @@ import tempfile
 from release_model import embedded, require
 
 
+def checked_command(args, **kwargs):
+    try:
+        return subprocess.run(args, check=True, capture_output=True, **kwargs)
+    except subprocess.CalledProcessError as error:
+        for stream, output in ((sys.stdout, error.stdout), (sys.stderr, error.stderr)):
+            if output:
+                stream.buffer.write(output.encode() if isinstance(output, str) else output)
+                stream.flush()
+        raise
+
+
 def ar_members(path):
     result = {}
     with Path(path).open('rb') as stream:
@@ -91,23 +102,23 @@ def inspect_app(app, identity, production=False):
     require(content[:4] == b'\xcf\xfa\xed\xfe' and struct.unpack('<I', content[4:8])[0] == 0x0100000c, 'arm64 Mach-O required')
     require(embedded(executable)['identity'] == identity.json(), 'desktop binary identity mismatch')
     if production:
-        subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], check=True, capture_output=True)
-        detail = subprocess.run(['codesign', '-d', '--verbose=4', str(app)], check=True, capture_output=True, text=True).stderr
+        checked_command(['codesign', '--verify', '--deep', '--strict', str(app)])
+        detail = checked_command(['codesign', '-d', '--verbose=4', str(app)], text=True).stderr
         require('Authority=Developer ID Application:' in detail and 'TeamIdentifier=not set' not in detail, 'Developer ID Application signature required')
-        subprocess.run(['spctl', '--assess', '--type', 'execute', '--verbose=2', str(app)], check=True, capture_output=True)
-        subprocess.run(['xcrun', 'stapler', 'validate', str(app)], check=True, capture_output=True)
+        checked_command(['spctl', '--assess', '--type', 'execute', '--verbose=2', str(app)])
+        checked_command(['xcrun', 'stapler', 'validate', str(app)])
     return executable
 
 
 def app_team(app):
-    detail = subprocess.run(['codesign', '-d', '--verbose=4', str(app)], check=True, capture_output=True, text=True).stderr
+    detail = checked_command(['codesign', '-d', '--verbose=4', str(app)], text=True).stderr
     teams = [line.partition('=')[2] for line in detail.splitlines() if line.startswith('TeamIdentifier=')]
     require(len(teams) == 1 and teams[0] != 'not set', 'signed application TeamIdentifier required')
     return teams[0]
 
 
 def mount_dmg(path, mount):
-    subprocess.run(['hdiutil', 'attach', '-readonly', '-nobrowse', '-mountpoint', str(mount), str(path)], check=True, capture_output=True)
+    checked_command(['hdiutil', 'attach', '-readonly', '-nobrowse', '-mountpoint', str(mount), str(path)])
 
 
 def inspect_artifacts(directory, release, production=False):
@@ -117,9 +128,9 @@ def inspect_artifacts(directory, release, production=False):
             inspect_deb(path, artifact, release)
         elif sys.platform == 'darwin':
             if production:
-                subprocess.run(['codesign', '--verify', '--strict', str(path)], check=True, capture_output=True)
-                subprocess.run(['xcrun', 'stapler', 'validate', str(path)], check=True, capture_output=True)
-                subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', str(path)], check=True, capture_output=True)
+                checked_command(['codesign', '--verify', '--strict', str(path)])
+                checked_command(['xcrun', 'stapler', 'validate', str(path)])
+                checked_command(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', str(path)])
             with tempfile.TemporaryDirectory() as directory:
                 mount = Path(directory) / 'volume'
                 mount_dmg(path, mount)
@@ -127,4 +138,4 @@ def inspect_artifacts(directory, release, production=False):
                     require({p.name for p in mount.iterdir()} == {'Botstral.app'}, 'unexpected DMG contents')
                     inspect_app(mount / 'Botstral.app', release.identity, production)
                 finally:
-                    subprocess.run(['hdiutil', 'detach', str(mount)], check=True, capture_output=True)
+                    checked_command(['hdiutil', 'detach', str(mount)])
