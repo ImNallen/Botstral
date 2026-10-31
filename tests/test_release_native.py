@@ -25,7 +25,6 @@ class StaplerTransportTests(unittest.TestCase):
         'com.apple.gk.ticket-delivery/production/public/records/lookup}\n'
         "CloudKit's response is inconsistent with expections: (null)\n"
         'The validate action failed! Error 68.\n')
-    # Verbatim stapler output from run 41210932173 job 124583500160, without Actions prefixes.
     nightly_staple_diagnostic = (
         'error is Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost." '
         'UserInfo={_kCFStreamErrorCodeKey=-4, NSUnderlyingError=0x600001c29e00 '
