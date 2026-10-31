@@ -21,7 +21,12 @@ use hyper_util::{
     service::TowerToHyperService,
 };
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use std::{io, net::SocketAddr, sync::Arc, time::Duration};
+use std::{
+    io,
+    net::SocketAddr,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 use tokio::{
     net::TcpListener,
     sync::{Semaphore, watch},
@@ -515,9 +520,16 @@ async fn sign_in(
     StrictJson(body): StrictJson<PasswordBody>,
 ) -> ApiResult<Response> {
     use age::secrecy::ExposeSecret;
+    let started = Instant::now();
     let grant = manager
         .sign_in(LoginPassword::from_secret(body.password)?)
         .await?;
+    if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+        eprintln!(
+            "SIGNIN_TIMING {{\"role\":\"http\",\"phase\":\"sign_in\",\"ms\":{}}}",
+            started.elapsed().as_millis()
+        );
+    }
     let (token, session) = grant.into_response_parts();
     #[derive(Serialize)]
     struct GrantWire<'a> {

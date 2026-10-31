@@ -14,7 +14,7 @@ use devices::OwnerAuthority;
 pub use workers::*;
 
 use age::secrecy::{ExposeSecret, SecretString};
-use std::{path::PathBuf, sync::Arc, thread};
+use std::{path::PathBuf, sync::Arc, thread, time::Instant};
 use tokio::sync::{Semaphore, mpsc, oneshot, watch};
 use uuid::Uuid;
 
@@ -279,8 +279,21 @@ impl Manager {
     }
 
     pub async fn sign_in(&self, password: LoginPassword) -> Result<SessionGrant, OperationError> {
+        let enqueued = Instant::now();
         self.queue
-            .call(true, move |state| state.sign_in(password))
+            .call(true, move |state| {
+                let wait_ms = enqueued.elapsed().as_millis();
+                let started = Instant::now();
+                let result = state.sign_in(password);
+                if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+                    eprintln!(
+                        "SIGNIN_TIMING {{\"role\":\"queue\",\"phase\":\"sign_in\",\"wait_ms\":{wait_ms},\"job_ms\":{},\"ok\":{}}}",
+                        started.elapsed().as_millis(),
+                        result.is_ok()
+                    );
+                }
+                result
+            })
             .await
     }
     pub async fn owner(&self, token: SessionToken) -> Result<OwnerProfile, OperationError> {

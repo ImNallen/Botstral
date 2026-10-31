@@ -2,7 +2,7 @@ use super::*;
 use botstral_link::*;
 use std::sync::atomic::{AtomicBool, Ordering};
 #[cfg(test)]
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::{
     sync::Notify,
     task::{JoinHandle, JoinSet},

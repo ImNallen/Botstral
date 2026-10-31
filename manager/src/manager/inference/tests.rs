@@ -258,12 +258,20 @@ struct App {
 }
 impl App {
     async fn start(directory: PathBuf, fixture: &Fixture) -> Self {
+        let started = Instant::now();
         let runtime = Manager::start_with_provider(
             directory.clone(),
             Provider::fixture(fixture.endpoint.clone()),
         )
         .unwrap();
+        if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+            eprintln!(
+                "SIGNIN_TIMING {{\"role\":\"fixture\",\"phase\":\"manager_start\",\"ms\":{}}}",
+                started.elapsed().as_millis()
+            );
+        }
         if let Some(setup) = &runtime.setup {
+            let owner_started = Instant::now();
             setup
                 .create_owner(
                     BootstrapToken::new(
@@ -279,6 +287,12 @@ impl App {
                 )
                 .await
                 .unwrap();
+            if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+                eprintln!(
+                    "SIGNIN_TIMING {{\"role\":\"fixture\",\"phase\":\"create_owner\",\"ms\":{}}}",
+                    owner_started.elapsed().as_millis()
+                );
+            }
         }
         let manager = runtime.manager.clone();
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -290,6 +304,12 @@ impl App {
             stopped,
             None,
         ));
+        if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+            eprintln!(
+                "SIGNIN_TIMING {{\"role\":\"fixture\",\"phase\":\"listener\",\"ms\":{}}}",
+                started.elapsed().as_millis()
+            );
+        }
         let mut app = Self {
             manager,
             runtime,
@@ -299,9 +319,16 @@ impl App {
             stop,
             server,
         };
+        let grant_started = Instant::now();
         let grant = app
             .call("POST", "/v1/sessions", json!({"password":PASSWORD}), 201)
             .await;
+        if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_some() {
+            eprintln!(
+                "SIGNIN_TIMING {{\"role\":\"fixture\",\"phase\":\"first_grant\",\"ms\":{}}}",
+                grant_started.elapsed().as_millis()
+            );
+        }
         app.token = grant["token"].as_str().unwrap().into();
         app
     }

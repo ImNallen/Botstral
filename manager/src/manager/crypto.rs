@@ -6,6 +6,7 @@ use argon2::{
 use rand::{RngCore, rngs::OsRng};
 use sha2::{Digest, Sha256};
 use std::io::{Read, Write};
+use std::time::Instant;
 use zeroize::Zeroizing;
 
 const PROVIDER_PREFIX: &[u8] = b"botstral-provider-v1\0mistral\0";
@@ -37,19 +38,36 @@ fn argon2() -> Argon2<'static> {
 }
 
 pub(super) fn hash_password(password: &LoginPassword) -> Result<String, OperationError> {
+    let started = Instant::now();
     let salt = SaltString::generate(&mut OsRng);
-    argon2()
+    let result = argon2()
         .hash_password(password.0.expose_secret().as_bytes(), &salt)
         .map(|hash| hash.to_string())
-        .map_err(|_| OperationError::Internal)
+        .map_err(|_| OperationError::Internal);
+    signin_timing("argon", "hash", started);
+    result
 }
 
 pub(super) fn verify_password(password: &LoginPassword, hash: &str) -> bool {
-    PasswordHash::new(hash).is_ok_and(|hash| {
+    let started = Instant::now();
+    let ok = PasswordHash::new(hash).is_ok_and(|hash| {
         argon2()
             .verify_password(password.0.expose_secret().as_bytes(), &hash)
             .is_ok()
-    })
+    });
+    signin_timing("argon", "verify", started);
+    ok
+}
+
+fn signin_timing(role: &str, phase: &str, started: Instant) {
+    if std::env::var_os("BOTSTRAL_SIGNIN_TIMING").is_none() {
+        return;
+    }
+    eprintln!(
+        "SIGNIN_TIMING {{\"role\":\"{role}\",\"phase\":\"{phase}\",\"ms\":{},\"debug\":{}}}",
+        started.elapsed().as_millis(),
+        cfg!(debug_assertions)
+    );
 }
 
 fn encrypt(encryptor: age::Encryptor, plaintext: &[u8]) -> Result<Vec<u8>, OperationError> {
