@@ -637,7 +637,7 @@ async fn delayed_claim_rejects_revocation_policy_and_expiry() {
                 .owner(
                     "PUT",
                     &format!("/v1/tasks/{}/approval", task["id"].as_str().unwrap()),
-                    json!({"expires_at":epoch()+1}),
+                    json!({"expires_at":epoch()+3}),
                 )
                 .await;
             assert_eq!(v.0, 200);
