@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-31",
+  "app_process_absent": true,
+  "keychain_absent_exit": 44,
+  "fixture_process_absent": true,
+  "endpoints_closed": {
+    "local": true,
+    "public": true
+  },
+  "binary_sha256": "0e7f71b340a23990c9ae2da4f944ccdd32ed7eb5be6eef377373a4e7e39a40af",
+  "notification_setting_restored": "off",
+  "private_fixture_removed": true,
+  "owner_observations": [
+    {
+      "reply": "Works",
+      "instruction_scope": [
+        "delivered activity notification while hidden",
+        "native tray Show"
+      ]
+    },
+    {
+      "reply": "Both worked",
+      "instruction_scope": [
+        "delivered explicit test notification",
+        "native tray Quit"
+      ]
+    }
+  ],
+  "parent_native_observation": {
+    "task_state": "Completed",
+    "result_bytes": 65,
+    "worker": "synthetic",
+    "same_binary_sha256": true
+  },
+  "unproved": [
+    "nonzero operation counts",
+    "new live Linux worker execution",
+    "Developer ID signing and notarization",
+    "release upgrade behavior"
+  ]
+}
