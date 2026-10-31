@@ -12,6 +12,7 @@ use zeroize::Zeroizing;
 const DEFAULT_ENDPOINT: &str = "127.0.0.1:43120";
 const MAX_RESPONSE: usize = 1024 * 1024;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(4);
+const SIGN_IN_TIMEOUT: Duration = Duration::from_secs(15);
 const QUEUE_TIMEOUT: Duration = Duration::from_secs(24);
 
 #[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
@@ -471,7 +472,11 @@ impl LocalManager {
         let (method, path, expected) = route.parts();
         let mut request = self
             .client
-            .request(method, format!("http://{endpoint}{path}"));
+            .request(method, format!("http://{endpoint}{path}"))
+            .timeout(match route {
+                Route::SignIn => SIGN_IN_TIMEOUT,
+                _ => REQUEST_TIMEOUT,
+            });
         if let Some(token) = token {
             request = request.bearer_auth(token);
         }
