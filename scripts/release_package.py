@@ -8,11 +8,15 @@ import tempfile
 
 from release_model import (ROOT, ReleaseIdentity, authority, digest, embedded, filename,
                            read_json, require, write_json)
-from release_artifacts import inspect_app
+from release_artifacts import checked_command, inspect_app
 
 
 def command(args, **kwargs):
-    subprocess.run([str(a) for a in args], check=True, **kwargs)
+    argv = [str(a) for a in args]
+    if (len(argv) == 4 and argv[0] == 'xcrun' and argv[1] == 'stapler'
+            and argv[2] in ('validate', 'staple')):
+        return checked_command(argv, **kwargs)
+    subprocess.run(argv, check=True, **kwargs)
 
 
 def verify_source():
