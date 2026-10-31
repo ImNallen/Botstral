@@ -20,14 +20,15 @@ def checked_command(args, **kwargs):
                            for output in (error.stdout, error.stderr) if output)
             ticket_connection_lost = (
                 isinstance(error.cmd, (list, tuple)) and len(error.cmd) == 4
-                and tuple(error.cmd[:3]) == ('xcrun', 'stapler', 'validate')
+                and tuple(error.cmd[:2]) == ('xcrun', 'stapler')
+                and error.cmd[2] in ('validate', 'staple')
                 and error.returncode == 68
                 and any('Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost."' in output
                         and 'NSErrorFailingURLStringKey=https://api.apple-cloudkit.com/database/1/'
                         'com.apple.gk.ticket-delivery/production/public/records/lookup,' in output
                         for output in diagnostics))
             if ticket_connection_lost and attempt < 3:
-                print(f'Apple ticket lookup connection lost; retrying stapler validate (attempt {attempt + 1}/3).',
+                print(f'Apple ticket lookup connection lost; retrying stapler {error.cmd[2]} (attempt {attempt + 1}/3).',
                       file=sys.stderr, flush=True)
                 time.sleep(attempt)
                 continue
