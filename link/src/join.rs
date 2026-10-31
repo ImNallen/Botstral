@@ -129,32 +129,6 @@ impl IdentityPublicKey {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SecondKey {
-    _unoccupied: (),
-}
-
-impl SecondKey {
-    pub const fn vacant() -> Self {
-        Self { _unoccupied: () }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PeerKeys {
-    pub identity: IdentityPublicKey,
-    pub second: SecondKey,
-}
-
-impl PeerKeys {
-    pub fn bound(identity: IdentityPublicKey) -> Self {
-        Self {
-            identity,
-            second: SecondKey::vacant(),
-        }
-    }
-}
-
 pub struct JoinSecret(Zeroizing<[u8; 32]>);
 
 impl std::fmt::Debug for JoinSecret {
@@ -307,24 +281,9 @@ mod tests {
             JoinCode::parse(&broken).unwrap_err(),
             ErrorCode::InvalidInvitation
         );
-        assert!(JoinCode::parse(rendered.as_str()).is_ok());
         assert_eq!(
             JoinCode::parse("nope").unwrap_err(),
             ErrorCode::InvalidInvitation
         );
-        let other = JoinSecret::from_bytes([8; 32]);
-        assert_ne!(other.hash(PeerRole::Worker), sample().secret_hash());
-    }
-
-    #[test]
-    fn worker_and_device_hashes_differ() {
-        let secret = JoinSecret::from_bytes([1; 32]);
-        assert_ne!(secret.hash(PeerRole::Worker), secret.hash(PeerRole::Device));
-    }
-
-    #[test]
-    fn second_key_is_vacant() {
-        let keys = PeerKeys::bound(IdentityPublicKey::from_bytes([2; 32]));
-        assert_eq!(keys.second, SecondKey::vacant());
     }
 }

@@ -100,10 +100,7 @@ pub use vibe::*;
 mod process;
 pub use process::*;
 mod owner;
-pub use join::{
-    IdentityPublicKey, JoinCode, JoinSecret, ManagerEndpoint, ManagerPin, PeerKeys, PeerRole,
-    SecondKey,
-};
+pub use join::{IdentityPublicKey, JoinCode, JoinSecret, ManagerEndpoint, ManagerPin, PeerRole};
 pub use owner::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]

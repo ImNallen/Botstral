@@ -1,5 +1,5 @@
 use rustls::{
-    DigitallySignedStruct, DistinguishedName, Error, RootCertStore, SignatureScheme,
+    DigitallySignedStruct, DistinguishedName, Error, SignatureScheme,
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
     pki_types::{CertificateDer, PrivateKeyDer, UnixTime},
     server::danger::{ClientCertVerified, ClientCertVerifier},
@@ -305,12 +305,4 @@ pub fn private_key(path: &Path) -> io::Result<PrivateKeyDer<'static>> {
     let bytes = private_bytes(path)?;
     rustls_pemfile::private_key(&mut bytes.as_slice())?
         .ok_or_else(|| io::Error::other("missing private key"))
-}
-
-pub fn roots(path: &Path) -> io::Result<RootCertStore> {
-    let mut roots = RootCertStore::empty();
-    for certificate in certificates(path)? {
-        roots.add(certificate).map_err(io::Error::other)?;
-    }
-    Ok(roots)
 }

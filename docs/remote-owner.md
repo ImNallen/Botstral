@@ -10,11 +10,9 @@ On the manager host, after first-owner setup, print a device join code and a QR 
 ./target/release/botstral-manager invite device --label "My desktop" --state-dir manager-state
 ```
 
-The code is `bj1/device/HOST:PORT/PIN/SECRET`. The desktop pastes that string, or a QR decode of it. It shows the manager pin. Confirm that pin before continuing. The desktop generates its own device credential, connects to the endpoint, and redeems the secret. The first redeem binds that credential. A second credential with the same secret is rejected. No further loopback sign-in on the manager host is required for pairing.
+The code is `bj1/device/HOST:PORT/PIN/SECRET`. The desktop pastes that string, or a QR decode of it. It shows the manager pin. Confirm that pin before continuing. No further loopback sign-in on the manager host is required for pairing.
 
-The owner API equivalent is `POST /v1/device-invitations` with `{"label":"My desktop","lifetime_seconds":600}`. The response includes `code`. `POST /v1/device-trust` with `{"endpoint":"HOST:PORT"}` returns the manager id, that endpoint, and the pin.
-
-A stolen unused code can be redeemed once by whoever presents it first. A stolen device credential can impersonate that device until revocation. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body. Revocation takes effect immediately.
+The owner API equivalent is `POST /v1/device-invitations` with `{"label":"My desktop","lifetime_seconds":600}`. The response includes `code`. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body.
 
 The owner probe uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. The desktop uses the same extracted transport with an injected native Keychain or Secret Service record. It never creates `device.json`. One client admits one live session, and that session retains the directory lock until it ends. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
 
@@ -28,7 +26,7 @@ The owner probe uses a mode 0700 directory, mode 0600 files, exclusive process l
 
 Bind the address devices should dial. That address is copied into the join code. `--public-listen` is an alias of `--worker-listen`. The manager generates the TLS identity. Certificate and CA flags are not accepted.
 
-`listeners.json` reports the same address under `public` and `worker`. The existing loopback owner and setup listeners remain separate. The public listener exposes the worker protocol, production coding proxy, `GET /owner/v1/identity`, and `GET /owner/v1/connect`. It does not expose ordinary owner HTTP administration or setup. Forwarded address headers do not grant local authority.
+`listeners.json` reports the same address under `public` and `worker`. The existing loopback owner and setup listeners remain separate. The public listener exposes the worker protocol, production coding proxy, and `GET /owner/v1/connect`. It does not expose ordinary owner HTTP administration or setup. Forwarded address headers do not grant local authority.
 
 Worker routes require a client certificate whose Ed25519 public key the manager can extract. Owner routes require the absence of a client certificate and use the device credential. Workers retain wire version 3 and their existing paths. Owners use wire version 3 of the owner hello.
 

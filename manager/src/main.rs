@@ -13,17 +13,11 @@ fn main() -> ExitCode {
     if botstral_link::release::print_version("manager") {
         return ExitCode::SUCCESS;
     }
-    match run() {
-        Ok(()) => ExitCode::SUCCESS,
-        Err(error) if std::env::args().nth(1).as_deref() == Some("invite") => {
-            eprintln!("{error}");
-            ExitCode::FAILURE
-        }
-        Err(_) => {
-            eprintln!("manager startup or shutdown failed");
-            ExitCode::FAILURE
-        }
+    if run().is_err() {
+        eprintln!("manager startup or shutdown failed");
+        return ExitCode::FAILURE;
     }
+    ExitCode::SUCCESS
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {

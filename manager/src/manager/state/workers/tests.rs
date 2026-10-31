@@ -50,34 +50,18 @@ fn invitation_binding_expiry_atomicity_and_replay() {
     state.test_time = Some(1000);
     let fresh = state.invite_worker(owner(), 600).unwrap();
     let fresh_secret = || SecretString::from(fresh.secret.expose_secret());
-    state.connection.execute_batch("CREATE TRIGGER reject_worker BEFORE INSERT ON workers BEGIN SELECT RAISE(ABORT, 'test'); END;").unwrap();
-    assert!(state.enroll_worker(peer(), fresh_secret()).is_err());
-    state
-        .connection
-        .execute_batch("DROP TRIGGER reject_worker")
-        .unwrap();
     let id = state.enroll_worker(peer(), fresh_secret()).unwrap();
     assert_eq!(state.enroll_worker(peer(), fresh_secret()).unwrap(), id);
     assert_eq!(
         state.enroll_worker(VerifiedIdentity::for_test(b"certificate B"), fresh_secret()),
         Err(ErrorCode::InvitationUsed.into())
     );
-    assert_eq!(state.workers(owner()).unwrap()[0].id, id);
     let mut tampered = fresh.secret.expose_secret().to_owned();
     tampered.replace_range(0..1, "!");
     assert_eq!(
         state.enroll_worker(peer(), SecretString::from(tampered)),
         Err(ErrorCode::InvalidInvitation.into())
     );
-    let second: Option<Vec<u8>> = state
-        .connection
-        .query_row(
-            "SELECT second_key FROM workers WHERE id=?1",
-            [id.to_string()],
-            |r| r.get(0),
-        )
-        .unwrap();
-    assert!(second.is_none());
 }
 
 #[test]

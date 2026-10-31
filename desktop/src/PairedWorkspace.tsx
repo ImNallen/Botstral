@@ -85,10 +85,7 @@ function Pairing({
         <>
           <h2>Device fingerprint</h2>
           <code className="fingerprint">{snapshot.pairing.fingerprint}</code>
-          <p>
-            Have your trusted local administrator authorize exactly this fingerprint for the owner
-            role.
-          </p>
+          <p>Paste a device join code from the manager.</p>
           <form
             onSubmit={(event) => {
               event.preventDefault();

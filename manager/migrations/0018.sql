@@ -14,6 +14,4 @@ CREATE TABLE join_invitations (
         OR (consumed_at IS NOT NULL AND bound_identity IS NOT NULL)
     )
 ) STRICT;
-ALTER TABLE workers ADD COLUMN second_key BLOB CHECK(second_key IS NULL);
-ALTER TABLE owner_devices ADD COLUMN second_key BLOB CHECK(second_key IS NULL);
 PRAGMA user_version = 18;

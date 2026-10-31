@@ -32,14 +32,6 @@ The code looks like `bj1/worker/HOST:PORT/PIN/SECRET`. `PIN` is the manager's ra
 
 `join` generates the worker key, pins the manager, redeems the secret, and prints `worker enrolled`. `check` validates the authenticated connection, negotiation, and snapshot, then exits. `run` stays connected and retries after disconnection. `worker-state/config.json` stores the manager origin, the manager pin, and the generated certificate paths. It does not store a CA or the join secret.
 
-The same secret redeemed again by the same worker key returns the existing worker. A different key is rejected. A worker that presents a key the manager never enrolled cannot connect. A manager certificate that does not match the pin is refused before enrollment.
-
-`identity` prints the worker's public-key hex:
-
-```sh
-./target/release/botstral-agent identity --client-cert worker-state/worker-identity.pem
-```
-
 The owner API equivalent is `POST /v1/worker-invitations` with `{"lifetime_seconds":600}`. The response includes `code`.
 
 ## Create sessions and take control
@@ -61,9 +53,7 @@ This worker manipulates deterministic in-memory inputs. It provides no operating
 
 ## Replace a worker
 
-Revoke the old worker through `DELETE /v1/workers/{id}`. Revocation takes effect immediately: the live connection stops and the revoked key cannot connect again. The worker row remains so existing session references stay valid. Invite a new code and run `join` on the replacement machine. Repeat `POST /v1/computer-sessions` with each existing bot ID and the new worker ID. Rebinding preserves the session ID, advances its revision, and requires the old worker to be revoked. Stop the old daemon so it does not continue retrying.
-
-The manager key is the pin inside every later join code. Replacing that key means every worker and device must join again. There is no CA to rotate.
+Revoke the old worker through `DELETE /v1/workers/{id}`. Invite a new code and run `join` on the replacement machine. Repeat `POST /v1/computer-sessions` with each existing bot ID and the new worker ID. Rebinding preserves the session ID, advances its revision, and requires the old worker to be revoked. Stop the old daemon so it does not continue retrying. There is no CA to rotate.
 
 Two-VM transport and synthetic session acceptance passed on October 26, 2026. [The acceptance record](m02-two-vm-acceptance.md) describes the hosts, observed behavior, and coverage boundaries. The fixtures do not configure a permanent owner installation.
 

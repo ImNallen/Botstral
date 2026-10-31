@@ -1,6 +1,6 @@
 # Security and recovery reference
 
-M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. The manager generates a long-term Ed25519 key and a self-signed certificate on first start. Workers and owner devices join with a single-use code that carries the manager address, that key's pin, and a secret. Each peer generates its own key. The manager stores the 64-character hex of the raw public key and a vacant second key for a later transport. Model calls use the configured provider.
+M01 serves one local owner on literal loopback addresses. Setup has its own listener and a random bootstrap capability in a private file. The ordinary router cannot create the owner. Host and browser checks apply before routing. The manager generates a long-term Ed25519 key and a self-signed certificate on first start. Workers and owner devices join with a single-use code that carries the manager address, that key's pin, and a secret. Each peer generates its own key. The manager stores the 64-character hex of the raw public key. Model calls use the configured provider.
 
 ## Authentication
 
@@ -56,7 +56,7 @@ The manager identity is an Ed25519 key. Its TLS certificate is self-signed and w
 
 `botstral-manager invite worker` and `botstral-manager invite device --label LABEL` create a join code. The code is `bj1`, the role, the manager endpoint, the pin, and a single-use secret. The secret is stored as SHA-256 over a fixed domain, the role, and the secret bytes. The first redeem binds the presented public key. The same key can redeem again and receives the same worker. A different key is rejected. An unknown secret is rejected. An unused expired secret is rejected. A code that does not parse is rejected. There is no MAC.
 
-The worker generates its key locally and proves it with a client certificate on worker routes. Owner routes stay certificate-absent and keep the device credential. A key the manager did not enroll cannot connect. Revocation takes effect immediately. `second_key` stays null until a later transport uses it.
+The worker generates its key locally and proves it with a client certificate on worker routes. Owner routes stay certificate-absent and keep the device credential. A key the manager did not enroll cannot connect. Revocation takes effect immediately.
 
 The dedicated public listener exposes worker routes and `GET /owner/v1/connect`. Worker schemas cannot grant approvals, enroll owner devices, retrieve credentials, or change security policy.
 

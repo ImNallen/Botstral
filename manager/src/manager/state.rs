@@ -973,17 +973,6 @@ mod migration_tests {
                 .windows(invitation.secret.expose_secret().len())
                 .any(|v| v == invitation.secret.expose_secret().as_bytes())
         );
-        state
-            .enroll_worker(
-                crate::worker_http::VerifiedIdentity::for_test(b"migration worker"),
-                invitation.secret,
-            )
-            .unwrap();
-        let second: Option<Vec<u8>> = state
-            .connection
-            .query_row("SELECT second_key FROM workers", [], |r| r.get(0))
-            .unwrap();
-        assert!(second.is_none());
         state.sign_out(token()).unwrap();
         assert!(matches!(
             state.invite_worker(token(), 600),
