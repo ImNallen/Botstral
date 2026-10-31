@@ -105,6 +105,19 @@ fn pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths() {
         assert!(botstral_desktop::remote::parse_pairing_link(value).is_err());
     }
     assert!(botstral_desktop::remote::parse_pairing_link(&"a".repeat(65537)).is_err());
+    let code = botstral_link::JoinCode::new(
+        botstral_link::PeerRole::Device,
+        botstral_link::ManagerEndpoint::parse("manager.example:443").unwrap(),
+        botstral_link::ManagerPin::from_public_key(&[7; 32]),
+        botstral_link::JoinSecret::from_bytes([9; 32]),
+    )
+    .render();
+    assert!(matches!(
+        botstral_desktop::remote::parse_pairing_link(code.as_str()),
+        Ok(botstral_desktop::remote::PairingLink::Code(_))
+    ));
+    let worker = code.as_str().replacen("/device/", "/worker/", 1);
+    assert!(botstral_desktop::remote::parse_pairing_link(&worker).is_err());
 }
 
 #[tokio::test]

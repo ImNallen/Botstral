@@ -2023,12 +2023,10 @@ pub async fn stage_join_code(
     if code.role() != PeerRole::Device {
         return Err("invalid_invitation".into());
     }
-    let manager = botstral_owner_client::read_manager_id(
-        code.endpoint().as_str(),
-        code.pin().fingerprint(),
-    )
-    .await
-    .map_err(|_| "trust")?;
+    let manager =
+        botstral_owner_client::read_manager_id(code.endpoint().as_str(), code.pin().fingerprint())
+            .await
+            .map_err(|_| "trust")?;
     let bundle = OwnerInvitation {
         trust: ManagerTrust {
             manager,

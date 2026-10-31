@@ -9,10 +9,10 @@ The manager creates its own Ed25519 key and self-signed certificate on first sta
 ```sh
 ./target/release/botstral-manager --state-dir manager-state \
   --listen 127.0.0.1:43120 --setup-listen 127.0.0.1:43121 \
-  --worker-listen 0.0.0.0:43122
+  --worker-listen 192.168.1.40:43122
 ```
 
-Complete [local owner setup](local-api.md) on the manager host. The worker listener is optional. When it is set, the manager serves public TLS with the key in `manager-state/manager-identity.key` and the certificate in `manager-state/manager-identity.pem`. Private `listeners.json` records the worker address in `worker`, or `null` when the listener is disabled.
+Bind the address workers should dial. That address is copied into the join code. Complete [local owner setup](local-api.md) on the manager host. The worker listener is optional. When it is set, the manager serves public TLS with the key in `manager-state/manager-identity.key` and the certificate in `manager-state/manager-identity.pem`. Private `listeners.json` records the worker address in `worker`, or `null` when the listener is disabled.
 
 ## Invite and join the worker
 

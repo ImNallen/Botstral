@@ -326,7 +326,8 @@ impl LocalManager {
             .map_err(|code| self.failed(operation.generation, code))?;
         let grant: Grant =
             serde_json::from_slice(&bytes).map_err(|_| self.failure(ErrorCode::Protocol))?;
-        if grant.role != botstral_link::DeviceRole::Owner || botstral_link::JoinCode::parse(&grant.code).is_err()
+        if grant.role != botstral_link::DeviceRole::Owner
+            || botstral_link::JoinCode::parse(&grant.code).is_err()
         {
             return Err(self.failure(ErrorCode::Protocol));
         }

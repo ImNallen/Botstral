@@ -23,10 +23,10 @@ The owner probe uses a mode 0700 directory, mode 0600 files, exclusive process l
 ```sh
 ./target/release/botstral-manager --state-dir manager-state \
   --listen 127.0.0.1:43120 --setup-listen 127.0.0.1:43121 \
-  --worker-listen 0.0.0.0:43122
+  --worker-listen 192.168.1.40:43122
 ```
 
-`--public-listen` is an alias of `--worker-listen`. The manager generates the TLS identity. Certificate and CA flags are not accepted.
+Bind the address devices should dial. That address is copied into the join code. `--public-listen` is an alias of `--worker-listen`. The manager generates the TLS identity. Certificate and CA flags are not accepted.
 
 `listeners.json` reports the same address under `public` and `worker`. The existing loopback owner and setup listeners remain separate. The public listener exposes the worker protocol, production coding proxy, `GET /owner/v1/identity`, and `GET /owner/v1/connect`. It does not expose ordinary owner HTTP administration or setup. Forwarded address headers do not grant local authority.
 
