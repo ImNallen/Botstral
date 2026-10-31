@@ -10,7 +10,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'manager/tests'))
@@ -103,15 +102,6 @@ def main():
                 journal = subprocess.run(['cargo', 'test', '--manifest-path', 'desktop/src-tauri/Cargo.toml', '--no-default-features', '--locked', '--test', 'journal', args.journal_case, '--', '--ignored', '--exact', '--nocapture'], cwd=ROOT, env=env)
                 if journal.returncode:
                     raise RuntimeError('The native journal contract failed.')
-                if os.environ.get('BOTSTRAL_SIGNIN_TIMING'):
-                    for index in range(5):
-                        payload = json.dumps({'password': fixture['password']}).encode()
-                        request = urllib.request.Request('http://'+fixture['local']+'/v1/sessions', data=payload, headers={'content-type':'application/json'}, method='POST')
-                        probe = time.monotonic()
-                        with urllib.request.urlopen(request, timeout=15) as response:
-                            status = response.status
-                            response.read()
-                        print('SIGNIN_TIMING '+json.dumps({'role':'probe','phase':'grant','n':index,'ms':int((time.monotonic()-probe)*1000),'status':status}), flush=True)
                 return
             until = time.monotonic()+args.duration
             while process.poll() is None and time.monotonic() < until and not (root/'stop').exists():
