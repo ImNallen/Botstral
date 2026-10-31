@@ -288,14 +288,8 @@ async fn import_trust(
         .await
 }
 #[tauri::command]
-async fn pair_local(
-    window: WebviewWindow,
-    app: tauri::AppHandle,
-    service: tauri::State<'_, RemoteService>,
-    local: tauri::State<'_, LocalManager>,
-) -> Result<RemoteSnapshot, String> {
+async fn pair_local(window: WebviewWindow) -> Result<RemoteSnapshot, String> {
     authorize(&window).map_err(|_| "unauthorized")?;
-    let _ = (app, local);
     Err("paste a join code".into())
 }
 #[tauri::command]
