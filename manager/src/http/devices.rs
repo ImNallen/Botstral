@@ -50,14 +50,12 @@ async fn invite(
     State(manager): State<Manager>,
     headers: HeaderMap,
     StrictJson(body): StrictJson<InvitationBody>,
-) -> ApiResult<Json<serde_json::Value>> {
+) -> ApiResult<Response> {
     use age::secrecy::ExposeSecret;
     let grant = manager
         .invite_device(token(&headers)?, body.label, body.lifetime_seconds)
         .await?;
-    Ok(Json(
-        serde_json::json!({"manager":grant.manager,"role":grant.role,"expires_at":grant.expires_at,"invitation":grant.secret.expose_secret(),"code":grant.code}),
-    ))
+    Ok((StatusCode::CREATED, Json(serde_json::json!({"manager":grant.manager,"role":grant.role,"expires_at":grant.expires_at,"invitation":grant.secret.expose_secret(),"code":grant.code}))).into_response())
 }
 async fn devices(
     State(manager): State<Manager>,

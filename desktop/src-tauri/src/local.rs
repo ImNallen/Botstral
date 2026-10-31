@@ -245,7 +245,7 @@ impl Route {
             Self::InviteDevice => (
                 Method::POST,
                 "/v1/device-invitations".into(),
-                StatusCode::OK,
+                StatusCode::CREATED,
             ),
             Self::Devices => (Method::GET, "/v1/devices".into(), StatusCode::OK),
             Self::RevokeDevice(id) => (
