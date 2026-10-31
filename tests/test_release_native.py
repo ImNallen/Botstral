@@ -15,6 +15,169 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_model import MARKER, ReleaseIdentity
 
 
+class StaplerTransportTests(unittest.TestCase):
+    transport_diagnostic = (
+        'error is Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost." '
+        'UserInfo={NSLocalizedDescription=The network connection was lost., '
+        'NSErrorFailingURLStringKey=https://api.apple-cloudkit.com/database/1/'
+        'com.apple.gk.ticket-delivery/production/public/records/lookup, '
+        'NSErrorFailingURLKey=https://api.apple-cloudkit.com/database/1/'
+        'com.apple.gk.ticket-delivery/production/public/records/lookup}\n'
+        "CloudKit's response is inconsistent with expections: (null)\n"
+        'The validate action failed! Error 68.\n')
+
+    def run_validator(self, command, failures, *, diagnostic=None, returncode=68, text=False,
+                      diagnostic_stream='stderr'):
+        with tempfile.TemporaryDirectory(prefix='synthetic-ticket-') as directory:
+            root = Path(directory)
+            (root / 'config.json').write_text(json.dumps({
+                'failures': failures, 'returncode': returncode, 'diagnostic_stream': diagnostic_stream,
+                'diagnostic': self.transport_diagnostic if diagnostic is None else diagnostic}))
+            tool = root / 'synthetic-validator'
+            tool.write_text('#!' + sys.executable + '\n' + '''import json, pathlib, sys
+root = pathlib.Path(__file__).resolve().parent
+config = json.loads((root / 'config.json').read_text())
+with (root / 'attempts').open('a') as attempts:
+    attempts.write(json.dumps(sys.argv[1:]) + '\\n')
+attempt = len((root / 'attempts').read_text().splitlines())
+if attempt <= config['failures']:
+    print(f'synthetic failed inspection {attempt}', flush=True)
+    print(config['diagnostic'], end='', file=getattr(sys, config['diagnostic_stream']), flush=True)
+    sys.exit(config['returncode'])
+print('validated')
+print('validation detail', file=sys.stderr)
+''')
+            tool.chmod(0o755)
+            for name in ('xcrun', 'codesign', 'spctl', 'hdiutil', 'installer'):
+                (root / name).symlink_to(tool)
+            code = '''import json, pathlib, subprocess, sys
+from release_artifacts import checked_command
+text = json.loads(sys.argv[2])
+try:
+    result = checked_command(json.loads(sys.argv[1]), text=text)
+except subprocess.CalledProcessError as error:
+    def decode(value):
+        return value if isinstance(value, str) else value.decode()
+    pathlib.Path(sys.argv[3]).write_text(json.dumps({
+        'args': error.cmd, 'returncode': error.returncode,
+        'stdout': decode(error.stdout), 'stderr': decode(error.stderr),
+        'text': isinstance(error.stdout, str)}))
+    raise
+assert result.stdout == ('validated\\n' if text else b'validated\\n'), result.stdout
+assert result.stderr == ('validation detail\\n' if text else b'validation detail\\n'), result.stderr
+'''
+            error_file = root / 'error.json'
+            result = subprocess.run([sys.executable, '-c', code, json.dumps(command),
+                                     json.dumps(text), str(error_file)], capture_output=True, timeout=10,
+                                    env=dict(os.environ, PATH=str(root),
+                                             PYTHONPATH=str(Path(__file__).resolve().parents[1] / 'scripts')))
+            attempts = [json.loads(line) for line in (root / 'attempts').read_text().splitlines()]
+            error = json.loads(error_file.read_text()) if error_file.exists() else None
+            return result, attempts, error
+
+    def test_connection_loss_then_actual_validation_success(self):
+        for text in (False, True):
+            with self.subTest(text=text):
+                result, attempts, error = self.run_validator(
+                    ['xcrun', 'stapler', 'validate', 'Synthetic.app'], 1, text=text)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                self.assertEqual(attempts, [['stapler', 'validate', 'Synthetic.app']] * 2)
+                self.assertIsNone(error)
+                self.assertEqual(result.stdout, b'')
+                self.assertIn(b'retrying stapler validate', result.stderr)
+
+    def test_normal_success_is_quiet_and_preserves_captured_stream_types(self):
+        for text in (False, True):
+            with self.subTest(text=text):
+                result, attempts, error = self.run_validator(
+                    ['xcrun', 'stapler', 'validate', 'Synthetic.app'], 0, text=text)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                self.assertEqual(len(attempts), 1)
+                self.assertIsNone(error)
+                self.assertEqual((result.stdout, result.stderr), (b'', b''))
+
+    def test_permanent_invalid_ticket_fails_once_with_diagnostics(self):
+        diagnostic = 'The ticket is invalid.\nThe validate action failed! Error 68.\n'
+        result, attempts, error = self.run_validator(
+            ['xcrun', 'stapler', 'validate', 'Synthetic.app'], 10, diagnostic=diagnostic)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(len(attempts), 1)
+        self.assertEqual(error['returncode'], 68)
+        self.assertEqual(result.stdout, b'synthetic failed inspection 1\n')
+        self.assertIn(diagnostic.encode(), result.stderr)
+        self.assertNotIn(b'retrying', result.stderr)
+
+    def test_other_operations_never_retry_transport_diagnostic(self):
+        commands = [
+            ['codesign', '--verify', 'Synthetic.app'],
+            ['spctl', '--assess', 'Synthetic.app'],
+            ['hdiutil', 'attach', 'Synthetic.dmg'],
+            ['hdiutil', 'detach', 'volume'],
+            ['installer', '-pkg', 'Synthetic.pkg'],
+            ['xcrun', 'stapler', 'staple', 'Synthetic.app'],
+            ['xcrun', 'notarytool', 'submit', 'Synthetic.app'],
+            ['xcrun', 'stapler', 'validate', 'Synthetic.app', '--unknown'],
+        ]
+        for command in commands:
+            with self.subTest(command=command):
+                result, attempts, error = self.run_validator(command, 10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(len(attempts), 1)
+                self.assertEqual(error['args'], command)
+                self.assertNotIn(b'retrying', result.stderr)
+
+    def test_only_observed_transport_diagnostic_and_exit_code_retry(self):
+        diagnostics = [
+            '',
+            self.transport_diagnostic.replace('Code=-1005', 'Code=-1001'),
+            self.transport_diagnostic.replace('NSURLErrorDomain', 'OtherErrorDomain'),
+            self.transport_diagnostic.replace('The network connection was lost.', 'Invalid ticket.'),
+            self.transport_diagnostic.replace('api.apple-cloudkit.com', 'example.invalid'),
+            self.transport_diagnostic.replace('/records/lookup,', '/records/lookup/other,'),
+            self.transport_diagnostic.replace('NSErrorFailingURLStringKey=', 'OtherKey='),
+        ]
+        for diagnostic, returncode in [(value, 68) for value in diagnostics] + [(self.transport_diagnostic, 1)]:
+            with self.subTest(diagnostic=diagnostic, returncode=returncode):
+                result, attempts, error = self.run_validator(
+                    ['xcrun', 'stapler', 'validate', 'Synthetic.app'], 10,
+                    diagnostic=diagnostic, returncode=returncode)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(len(attempts), 1)
+                self.assertEqual(error['returncode'], returncode)
+                self.assertNotIn(b'retrying', result.stderr)
+
+    def test_transport_exhaustion_rethrows_final_failure_with_diagnostics(self):
+        command = ['xcrun', 'stapler', 'validate', 'Synthetic.app']
+        for text in (False, True):
+            for diagnostic_stream in ('stdout', 'stderr'):
+                with self.subTest(text=text, diagnostic_stream=diagnostic_stream):
+                    result, attempts, error = self.run_validator(
+                        command, 10, text=text, diagnostic_stream=diagnostic_stream)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(attempts, [command[1:]] * 3)
+                    expected_stdout = 'synthetic failed inspection 3\n'
+                    expected_stderr = ''
+                    if diagnostic_stream == 'stdout':
+                        expected_stdout += self.transport_diagnostic
+                    else:
+                        expected_stderr = self.transport_diagnostic
+                    self.assertEqual(error, {'args': command, 'returncode': 68, 'text': text,
+                                             'stdout': expected_stdout, 'stderr': expected_stderr})
+                    self.assertEqual(result.stdout, expected_stdout.encode())
+                    self.assertIn(self.transport_diagnostic.encode(), result.stdout + result.stderr)
+                    self.assertIn(b'exit status 68', result.stderr)
+                    self.assertEqual(result.stderr.count(b'retrying stapler validate'), 2)
+
+    def test_validation_can_succeed_on_last_allowed_attempt(self):
+        result, attempts, error = self.run_validator(
+            ['xcrun', 'stapler', 'validate', 'Synthetic.app'], 2, diagnostic_stream='stdout')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(len(attempts), 3)
+        self.assertIsNone(error)
+        self.assertEqual(result.stdout, b'')
+        self.assertEqual(result.stderr.count(b'retrying stapler validate'), 2)
+
+
 class NativeValidationDiagnosticsTests(unittest.TestCase):
     def test_failed_app_checks_retain_external_process_diagnostics(self):
         identity = ReleaseIdentity.parse({'version': '0.1.0', 'channel': 'stable',

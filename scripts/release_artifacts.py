@@ -6,19 +6,36 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 
 from release_model import embedded, require
 
 
 def checked_command(args, **kwargs):
-    try:
-        return subprocess.run(args, check=True, capture_output=True, **kwargs)
-    except subprocess.CalledProcessError as error:
-        for stream, output in ((sys.stdout, error.stdout), (sys.stderr, error.stderr)):
-            if output:
-                stream.buffer.write(output.encode() if isinstance(output, str) else output)
-                stream.flush()
-        raise
+    for attempt in range(1, 4):
+        try:
+            return subprocess.run(args, check=True, capture_output=True, **kwargs)
+        except subprocess.CalledProcessError as error:
+            diagnostics = (output if isinstance(output, str) else output.decode(errors='replace')
+                           for output in (error.stdout, error.stderr) if output)
+            ticket_connection_lost = (
+                isinstance(error.cmd, (list, tuple)) and len(error.cmd) == 4
+                and tuple(error.cmd[:3]) == ('xcrun', 'stapler', 'validate')
+                and error.returncode == 68
+                and any('Error Domain=NSURLErrorDomain Code=-1005 "The network connection was lost."' in output
+                        and 'NSErrorFailingURLStringKey=https://api.apple-cloudkit.com/database/1/'
+                        'com.apple.gk.ticket-delivery/production/public/records/lookup,' in output
+                        for output in diagnostics))
+            if ticket_connection_lost and attempt < 3:
+                print(f'Apple ticket lookup connection lost; retrying stapler validate (attempt {attempt + 1}/3).',
+                      file=sys.stderr, flush=True)
+                time.sleep(attempt)
+                continue
+            for stream, output in ((sys.stdout, error.stdout), (sys.stderr, error.stderr)):
+                if output:
+                    stream.buffer.write(output.encode() if isinstance(output, str) else output)
+                    stream.flush()
+            raise
 
 
 def ar_members(path):
