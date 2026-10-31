@@ -106,8 +106,8 @@ function Pairing({
             </button>
           </form>
           <p className="muted small-copy">
-            Paste the device join code from the manager. A QR code contains the same text. The
-            code is single-use and must be handled privately.
+            Paste the device join code from the manager. A QR code contains the same text. The code
+            is single-use and must be handled privately.
           </p>
         </>
       )}
@@ -203,8 +203,8 @@ function Administration({ controller }: { controller: PairedController }) {
             <input required value={label} onChange={(event) => setLabel(event.target.value)} />
           </label>
           <p className="small-copy muted">
-            Save the join code privately and deliver it to the other desktop. The first redeem
-            binds that desktop's own key.
+            Save the join code privately and deliver it to the other desktop. The first redeem binds
+            that desktop's own key.
           </p>
           <button>Save protected invitation</button>
         </form>

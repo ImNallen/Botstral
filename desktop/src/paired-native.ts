@@ -72,6 +72,5 @@ export const pairedApplication: PairedApplication = {
   revokeDevice: async (device) => {
     await call('revoke_device', { device });
   },
-  issueInvitation: async (label) =>
-    z.boolean().parse(await call('issue_invitation', { label })),
+  issueInvitation: async (label) => z.boolean().parse(await call('issue_invitation', { label })),
 };
