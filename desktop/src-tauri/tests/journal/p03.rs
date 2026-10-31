@@ -384,10 +384,10 @@ pub(super) async fn verify() {
         .await
         .unwrap();
     let fixture_root = PathBuf::from(std::env::var_os("BOTSTRAL_C02_FIXTURE_ROOT").unwrap());
-    let path = format!("/events/v1/publishers/{publisher}");
+    let route = format!("/events/v1/publishers/{publisher}");
     macro_rules! publish {
         ($bytes:expr, $bearer:expr) => {
-            publish_public(&fixture_root, &path, $bytes, $bearer).await
+            publish_public(&fixture_root, &route, $bytes, $bearer).await
         };
     }
     let payload = PublisherEvent {
