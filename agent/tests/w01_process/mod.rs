@@ -421,17 +421,21 @@ async fn exercise_processes(f: &mut Fixture, session: &ComputerSession, daemon: 
         request(session, "/usr/bin/printf", &["expired"], f.root.path()),
     )
     .await;
-    assert_eq!(
-        f.owner(
+    let approval = f
+        .owner(
             "PUT",
             &format!("/v1/tasks/{}/approval", expired["id"].as_str().unwrap()),
-            json!({"expires_at":epoch()+1})
+            json!({"expires_at":epoch()+3}),
         )
-        .await
-        .0,
-        200
-    );
-    tokio::time::sleep(Duration::from_secs(2)).await;
+        .await;
+    assert_eq!(approval.0, 200);
+    while epoch()
+        < approval.1["approval"]["binding"]["expires_at"]
+            .as_i64()
+            .unwrap()
+    {
+        tokio::time::sleep(Duration::from_millis(20)).await;
+    }
     cancel(f, &running).await;
     assert!(pids.iter().all(|p| !live(*p)));
     let second = task(f, &queued, "completed").await;
