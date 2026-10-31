@@ -13,11 +13,17 @@ fn main() -> ExitCode {
     if botstral_link::release::print_version("manager") {
         return ExitCode::SUCCESS;
     }
-    if run().is_err() {
-        eprintln!("manager startup or shutdown failed");
-        return ExitCode::FAILURE;
+    match run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) if std::env::args().nth(1).as_deref() == Some("invite") => {
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+        Err(_) => {
+            eprintln!("manager startup or shutdown failed");
+            ExitCode::FAILURE
+        }
     }
-    ExitCode::SUCCESS
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -209,8 +215,8 @@ fn http_json(
 ) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
     let payload = serde_json::to_vec(body)?;
     let mut stream = TcpStream::connect(address)?;
-    stream.set_read_timeout(Some(Duration::from_secs(5)))?;
-    stream.set_write_timeout(Some(Duration::from_secs(5)))?;
+    stream.set_read_timeout(Some(Duration::from_secs(15)))?;
+    stream.set_write_timeout(Some(Duration::from_secs(15)))?;
     let mut request = format!(
         "{method} {path} HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n",
         payload.len()

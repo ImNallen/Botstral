@@ -78,7 +78,7 @@ def main():
             print('Local manager: '+fixture['local'], flush=True)
             print('Paired WSS route: wss://'+fixture['public']+'/owner/v1/connect', flush=True)
             print('Manager identity: '+trust['manager'], flush=True)
-            print('Manager leaf: '+trust['leaf'], flush=True)
+            print('Manager pin: '+trust['pin'], flush=True)
             if not os.environ.get('BOTSTRAL_P06_EVIDENCE'):
                 print('Synthetic password: '+fixture['password'], flush=True)
             print('Trusted export: '+str(root/'trust.json'), flush=True)
