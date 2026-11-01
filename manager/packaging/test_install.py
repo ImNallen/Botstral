@@ -16,6 +16,20 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class InstallationTests(unittest.TestCase):
+    def test_agent_deb_depends_include_setup_tools(self):
+        depends = next(line for line in (ROOT / 'agent/packaging/debian/control').read_text().splitlines() if line.startswith('Depends:'))
+        self.assertIn('xz-utils', depends)
+        self.assertIn('curl', depends)
+
+    def test_setup_does_not_extract_into_tmp(self):
+        dest = Path('/tmp') / ('botstral-setup-test-' + str(os.getpid()))
+        self.assertFalse(dest.exists())
+        if os.access('/var/lib', os.W_OK):
+            self.skipTest('fallback state dir is writable; live install covers this path')
+        result = subprocess.run([str(ROOT / 'agent/runtime/setup.sh'), str(dest)], capture_output=True, text=True)
+        self.assertFalse(dest.exists(), result.stderr)
+        self.assertNotEqual(result.returncode, 0)
+
     def test_manager_and_worker_cannot_share_an_installation_root(self):
         for first, second in [('manager', 'agent'), ('agent', 'manager')]:
             with self.subTest(first=first), tempfile.TemporaryDirectory() as temporary:

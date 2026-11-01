@@ -3,6 +3,11 @@ set -euo pipefail
 umask 077
 [[ $(uname -sm) == 'Linux x86_64' ]] || { echo 'Linux x86_64 required' >&2; exit 1; }
 runtime_root=${1:?Provide a fresh absolute runtime directory.}
+if [[ $runtime_root == /tmp || $runtime_root == /tmp/* ]]; then
+  runtime_root=/var/lib/botstral-agent/runtime
+  mkdir -p /var/lib/botstral-agent
+  chmod 755 /var/lib/botstral-agent
+fi
 [[ $runtime_root == /* && ! -e $runtime_root ]] || exit 1
 mkdir -m 700 "$runtime_root"
 source_root=$(cd "$(dirname "$0")" && pwd)
