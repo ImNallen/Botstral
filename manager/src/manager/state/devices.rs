@@ -544,6 +544,15 @@ impl State {
             }
             OwnerOperation::Artifact { .. } => Err(ErrorCode::UnsupportedExecution.into()),
             OwnerOperation::VerifyInference { .. } => Err(OperationError::InvalidInput),
+            OwnerOperation::UpdateStatus => {
+                self.authorize_owner(&lease.into())?;
+                Ok(OwnerReply::Update(self.read_update_report()?))
+            }
+            OwnerOperation::ApplyUpdate => {
+                self.authorize_owner(&lease.into())?;
+                self.write_update_request()?;
+                Ok(OwnerReply::Update(self.read_update_report()?))
+            }
         }
     }
 }

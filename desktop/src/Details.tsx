@@ -4,9 +4,11 @@ import { connectionText, formatDate } from './format';
 export function Details({
   snapshot,
   signedIn,
+  managerVersion,
 }: {
   snapshot: Snapshot | null;
   signedIn: SignedIn | null;
+  managerVersion?: { version: string; result: string } | null;
 }) {
   const workers = signedIn?.details.workers.filter((worker) => !worker.revoked) ?? [];
   const ready = workers.filter((worker) => worker.phase === 'ready').length;
@@ -63,6 +65,10 @@ export function Details({
           <dd>Not implemented</dd>
           <dt>Remote access</dt>
           <dd>Disabled</dd>
+          <dt>Manager version</dt>
+          <dd>{managerVersion?.version ?? 'Unavailable'}</dd>
+          <dt>Last update</dt>
+          <dd>{managerVersion?.result ?? 'No update yet'}</dd>
         </dl>
         <p className="muted small-copy">
           Worker state comes from the manager. Provider metadata does not establish a working model

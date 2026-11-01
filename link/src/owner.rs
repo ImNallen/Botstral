@@ -129,6 +129,109 @@ pub enum OwnerHello {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum UpdateBusyReason {
+    ActiveTask,
+    ActiveProcess,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "state", rename_all = "snake_case", deny_unknown_fields)]
+pub enum UpdateBusy {
+    Busy { reason: UpdateBusyReason },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct UpdateIdentity {
+    pub version: String,
+    pub channel: String,
+    pub revision: String,
+    pub build_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct UpdateProtocols {
+    pub worker: u16,
+    pub owner: u16,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct VersionEnvelope {
+    pub identity: UpdateIdentity,
+    pub protocols: UpdateProtocols,
+    pub link_schema_sha256: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub component: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum UpdateTrigger {
+    Timer,
+    Now,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum UpdateRejectReason {
+    Signature,
+    Tamper,
+    Channel,
+    Downgrade,
+    Identity,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RollbackMethod {
+    ReinstallPackage,
+    RestoreBackup,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
+pub enum UpdateOutcome {
+    Current,
+    Deferred {
+        busy: UpdateBusy,
+    },
+    Rejected {
+        reason: UpdateRejectReason,
+    },
+    Applied {
+        previous: UpdateIdentity,
+        current: UpdateIdentity,
+    },
+    RolledBack {
+        previous: UpdateIdentity,
+        failed: UpdateIdentity,
+        method: RollbackMethod,
+    },
+    Failed {
+        detail: String,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct UpdateAttempt {
+    pub started_at: i64,
+    pub finished_at: i64,
+    pub trigger: UpdateTrigger,
+    pub outcome: UpdateOutcome,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct UpdateReport {
+    pub installed: VersionEnvelope,
+    pub last: Option<UpdateAttempt>,
+}
+
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "method", rename_all = "snake_case", deny_unknown_fields)]
 pub enum OwnerOperation {
@@ -317,6 +420,8 @@ pub enum OwnerOperation {
     Artifacts {
         query: ArtifactQuery,
     },
+    UpdateStatus,
+    ApplyUpdate,
 }
 
 #[derive(Clone, Serialize, Deserialize, JsonSchema)]
@@ -389,6 +494,7 @@ pub enum OwnerReply {
         declaration: OutputDeclaration,
         base64: String,
     },
+    Update(UpdateReport),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

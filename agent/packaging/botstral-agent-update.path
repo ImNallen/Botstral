@@ -1,0 +1,9 @@
+[Unit]
+Description=Botstral worker update request
+
+[Path]
+PathExists=/home/botstral-agent/.local/share/botstral-agent/update.request
+Unit=botstral-agent-update.service
+
+[Install]
+WantedBy=multi-user.target

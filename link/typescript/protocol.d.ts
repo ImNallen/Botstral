@@ -822,6 +822,12 @@ export type OwnerOperation =
   | {
       method: 'artifacts';
       query: ArtifactQuery;
+    }
+  | {
+      method: 'update_status';
+    }
+  | {
+      method: 'apply_update';
     };
 export type UseDecision = 'allow_once' | 'deny' | 'remember_password';
 export type BrowserInstanceId = string;
@@ -1085,6 +1091,10 @@ export type OwnerReply =
         base64: string;
         declaration: OutputDeclaration;
       };
+    }
+  | {
+      type: 'update';
+      value: UpdateReport;
     };
 export type CredentialWriteStatus =
   | {
@@ -1362,6 +1372,41 @@ export type TaskEvent =
     };
 export type LogCode = 'started' | 'input_applied' | 'stopped';
 export type TaskStatus = 'running' | 'suspended' | 'completed' | 'cancelled' | 'failed';
+export type UpdateOutcome =
+  | {
+      type: 'current';
+    }
+  | {
+      busy: UpdateBusy;
+      type: 'deferred';
+    }
+  | {
+      reason: UpdateRejectReason;
+      type: 'rejected';
+    }
+  | {
+      current: UpdateIdentity;
+      previous: UpdateIdentity;
+      type: 'applied';
+    }
+  | {
+      failed: UpdateIdentity;
+      method: RollbackMethod;
+      previous: UpdateIdentity;
+      type: 'rolled_back';
+    }
+  | {
+      detail: string;
+      type: 'failed';
+    };
+export type UpdateBusy = {
+  reason: UpdateBusyReason;
+  state: 'busy';
+};
+export type UpdateBusyReason = 'active_task' | 'active_process';
+export type UpdateRejectReason = 'signature' | 'tamper' | 'channel' | 'downgrade' | 'identity';
+export type RollbackMethod = 'reinstall_package' | 'restore_backup';
+export type UpdateTrigger = 'timer' | 'now';
 export type OwnerServerMessage =
   | {
       id: RequestId;
@@ -2374,6 +2419,32 @@ export interface SavedArtifact {
   id: ArtifactId;
   output: OutputView;
   task: TaskId;
+}
+export interface UpdateReport {
+  installed: VersionEnvelope;
+  last?: UpdateAttempt | null;
+}
+export interface VersionEnvelope {
+  component?: string | null;
+  identity: UpdateIdentity;
+  link_schema_sha256: string;
+  protocols: UpdateProtocols;
+}
+export interface UpdateIdentity {
+  build_id: string;
+  channel: string;
+  revision: string;
+  version: string;
+}
+export interface UpdateProtocols {
+  owner: number;
+  worker: number;
+}
+export interface UpdateAttempt {
+  finished_at: number;
+  outcome: UpdateOutcome;
+  started_at: number;
+  trigger: UpdateTrigger;
 }
 export interface Envelope {
   message: WorkerMessage;

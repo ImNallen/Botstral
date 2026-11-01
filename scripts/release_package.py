@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -103,8 +104,21 @@ def build_dmg(identity, output, env, unsigned):
     notarization = env.get('APPLE_NOTARY_PROFILE')
     require(unsigned or (signing and notarization), 'Developer ID signing identity and notarytool keychain profile required')
     command(['npm', 'ci'], cwd=ROOT, env=env)
-    command(['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app', '--', '--locked'], cwd=ROOT, env=env)
-    source = ROOT / 'desktop/src-tauri/target/release/bundle/macos/Botstral.app'
+    arguments = ['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app']
+    if env.get('TAURI_SIGNING_PRIVATE_KEY'):
+        arguments.extend(['--config', json.dumps({'bundle': {'createUpdaterArtifacts': True}})])
+    arguments.extend(['--', '--locked'])
+    command(arguments, cwd=ROOT, env=env)
+    bundle = ROOT / 'desktop/src-tauri/target/release/bundle/macos'
+    updater = Path(output).parent / 'updater-bundle'
+    for name in ('Botstral.app.tar.gz', 'Botstral.app.tar.gz.sig'):
+        artifact = bundle / name
+        if artifact.is_file() and not artifact.is_symlink():
+            updater.mkdir(exist_ok=True)
+            shutil.copy2(artifact, updater / name)
+    if env.get('TAURI_SIGNING_PRIVATE_KEY') and not (updater / 'Botstral.app.tar.gz').is_file():
+        require(False, 'updater signing key did not produce an updater bundle')
+    source = bundle / 'Botstral.app'
     with tempfile.TemporaryDirectory(prefix='botstral-dmg-') as directory:
         stage = Path(directory) / 'volume'
         stage.mkdir()

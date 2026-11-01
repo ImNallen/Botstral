@@ -8,6 +8,22 @@ import shutil
 import sys
 
 
+def stage_updater(library):
+    scripts = Path(__file__).resolve().parents[2] / 'scripts'
+    shutil.copyfile(scripts / 'release_update.py', library / 'update.py')
+    (library / 'update.py').chmod(0o755)
+    tool_scripts = library / 'tools' / 'scripts'
+    tool_scripts.mkdir(parents=True)
+    for name in ('release_model.py', 'release_upgrade.py', 'release_artifacts.py'):
+        shutil.copyfile(scripts / name, tool_scripts / name)
+        (tool_scripts / name).chmod(0o644)
+    root = library / 'tools'
+    shutil.copyfile(scripts.parent / 'release.json', root / 'release.json')
+    schema = root / 'link' / 'schema'
+    schema.mkdir(parents=True)
+    shutil.copyfile(scripts.parent / 'link' / 'schema' / 'protocol.json', schema / 'protocol.json')
+
+
 def install(component, binary, root, source=None, identity=None):
     from recovery import absolute, require
     root = Path('/') if str(root) == '/' else absolute(root)
@@ -48,11 +64,18 @@ def install(component, binary, root, source=None, identity=None):
     diagnostic.write_text('#!/bin/sh\nexec /usr/bin/python3 /usr/lib/botstral-' + component + '/diagnose.py ' + component + ' "$@"\n')
     diagnostic.chmod(0o755)
     unit = 'botstral-' + component + '.service'
-    unit_dir = absolute(root / ('usr/lib/systemd/system' if component == 'manager' else 'usr/lib/systemd/user'))
-    unit_dir.mkdir(parents=True, exist_ok=True)
-    require(not (unit_dir / unit).exists() and not (unit_dir / unit).is_symlink(), 'service unit already exists')
-    shutil.copyfile(source / unit, unit_dir / unit)
-    (unit_dir / unit).chmod(0o644)
+    service_dir = absolute(root / ('usr/lib/systemd/system' if component == 'manager' else 'usr/lib/systemd/user'))
+    service_dir.mkdir(parents=True, exist_ok=True)
+    require(not (service_dir / unit).exists() and not (service_dir / unit).is_symlink(), 'service unit already exists')
+    shutil.copyfile(source / unit, service_dir / unit)
+    (service_dir / unit).chmod(0o644)
+    update_dir = absolute(root / 'usr/lib/systemd/system')
+    update_dir.mkdir(parents=True, exist_ok=True)
+    for name in ('botstral-' + component + '-update.service', 'botstral-' + component + '-update.timer', 'botstral-' + component + '-update.path'):
+        require(not (update_dir / name).exists() and not (update_dir / name).is_symlink(), 'service unit already exists')
+        shutil.copyfile(source / name, update_dir / name)
+        (update_dir / name).chmod(0o644)
+    stage_updater(library)
     if component == 'manager':
         shutil.copyfile(source / 'launch.py', library / 'launch.py')
         (library / 'launch.py').chmod(0o755)
@@ -60,11 +83,15 @@ def install(component, binary, root, source=None, identity=None):
         configuration.mkdir(parents=True, mode=0o700)
         shutil.copyfile(source / 'service.example.json', configuration / 'service.example.json')
         (configuration / 'service.example.json').chmod(0o600)
+        shutil.copyfile(source / 'update.example.json', configuration / 'update.example.json')
+        (configuration / 'update.example.json').chmod(0o600)
     else:
         configuration = absolute(root / 'etc/botstral-agent')
         configuration.mkdir(parents=True, mode=0o700)
         shutil.copyfile(source / 'recovery-plan.example.json', configuration / 'recovery-plan.example.json')
         (configuration / 'recovery-plan.example.json').chmod(0o600)
+        shutil.copyfile(source / 'update.example.json', configuration / 'update.example.json')
+        (configuration / 'update.example.json').chmod(0o600)
     release = identity or json.loads((Path(__file__).resolve().parents[2] / 'release.json').read_text())
     manifest = {'component': component, 'binary_sha256': source_id, 'version': release['version'], 'services_enabled': False, 'runtime': {'python': '3.9 or newer', 'sqlite': '3.37 or newer', 'systemd': '255 for worker', 'rust_build': '1.93.0', 'dependencies': 'Cargo.lock'}}
     (library / 'install.json').write_text(json.dumps(manifest, sort_keys=True, indent=2) + '\n')

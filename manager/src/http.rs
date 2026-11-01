@@ -271,6 +271,7 @@ pub(crate) fn regular_router(manager: Manager) -> Router {
         .route("/v1/bots", get(list_bots))
         .route("/v1/bots/{id}", put(create_bot).get(get_bot))
         .route("/v1/status", get(status))
+        .route("/v1/update", get(update_status).post(apply_update))
         .route("/v1/vault/unlock", post(unlock))
         .route("/v1/vault/lock", post(lock))
         .route("/v1/provider-keys/mistral", put(replace_key))
@@ -635,6 +636,19 @@ async fn status(
         "vault": match status.vault { VaultStatus::Locked => "locked", VaultStatus::Unlocked => "unlocked" },
         "provider": status.provider.map(ProviderWire::from), "worker":"not_implemented", "inference":"single_turn_text", "remote":"disabled",
     })))
+}
+async fn update_status(
+    State(manager): State<Manager>,
+    headers: HeaderMap,
+) -> ApiResult<Json<botstral_link::UpdateReport>> {
+    Ok(Json(manager.update_report(token(&headers)?).await?))
+}
+async fn apply_update(
+    State(manager): State<Manager>,
+    headers: HeaderMap,
+    StrictJson(_): StrictJson<Empty>,
+) -> ApiResult<Json<botstral_link::UpdateReport>> {
+    Ok(Json(manager.request_update(token(&headers)?).await?))
 }
 async fn unlock(
     State(manager): State<Manager>,

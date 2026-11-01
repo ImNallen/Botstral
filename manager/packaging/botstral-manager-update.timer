@@ -1,0 +1,11 @@
+[Unit]
+Description=Botstral manager update schedule
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+Timezone=Europe/Stockholm
+Unit=botstral-manager-update.service
+
+[Install]
+WantedBy=timers.target

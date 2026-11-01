@@ -177,6 +177,12 @@ pub enum IntentCommand {
         decision: UseDecision,
     },
     LockVault,
+    UpdateStatus {
+        result: oneshot::Sender<Result<UpdateReport, String>>,
+    },
+    ApplyUpdate {
+        result: oneshot::Sender<Result<UpdateReport, String>>,
+    },
     Protected {
         generation: u64,
         request: protected::ProtectedOwnerRequest,
@@ -539,6 +545,16 @@ impl RemoteService {
             .await?;
         receiver.await.map_err(|_| "unresolved".to_string())?
     }
+    pub async fn update_report(&self) -> Result<UpdateReport, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::UpdateStatus { result }).await?;
+        receiver.await.map_err(|_| "offline".to_string())?
+    }
+    pub async fn apply_update(&self) -> Result<UpdateReport, String> {
+        let (result, receiver) = oneshot::channel();
+        self.command(IntentCommand::ApplyUpdate { result }).await?;
+        receiver.await.map_err(|_| "offline".to_string())?
+    }
     pub async fn credential_uses(&self) -> Result<Vec<CredentialUseReview>, String> {
         let (result, receiver) = oneshot::channel();
         self.command(IntentCommand::CredentialUses { result })
@@ -659,6 +675,20 @@ impl Actor {
                 v.revision += 1;
             }
         });
+    }
+    async fn owner_update(&mut self, operation: OwnerOperation) -> Result<UpdateReport, String> {
+        self.recover().await?;
+        match self
+            .session
+            .as_mut()
+            .ok_or("offline")?
+            .call(operation)
+            .await
+        {
+            Ok(OwnerReply::Update(report)) => Ok(report),
+            Err(error) => Err(error_code(error)),
+            Ok(_) => Err("protocol".into()),
+        }
     }
     async fn run(mut self, mut rx: mpsc::Receiver<Envelope>) {
         if self.root.exists()
@@ -1490,6 +1520,16 @@ impl Actor {
                     .call(OwnerOperation::LockVault)
                     .await
                     .map_err(error_code)?;
+                Ok(())
+            }
+            IntentCommand::UpdateStatus { result } => {
+                let value = self.owner_update(OwnerOperation::UpdateStatus).await;
+                let _ = result.send(value);
+                Ok(())
+            }
+            IntentCommand::ApplyUpdate { result } => {
+                let value = self.owner_update(OwnerOperation::ApplyUpdate).await;
+                let _ = result.send(value);
                 Ok(())
             }
             IntentCommand::LoginItems { result } => {

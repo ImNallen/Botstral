@@ -47,6 +47,11 @@ fn main() {
             "list_devices",
             "revoke_device",
             "issue_invitation",
+            "update_facts",
+            "apply_server_update",
+            "restart_to_update",
+            "remote_update_facts",
+            "remote_apply_update",
         ]),
     ))
     .expect("desktop build configuration");

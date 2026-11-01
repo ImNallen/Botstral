@@ -48,8 +48,13 @@ def guard(component, version, identity, operation):
             if json.loads(metadata.read_text()) != identity:
                 refuse('same native version has a different release identity')
     paths = [executable, executable + '-backup', executable + '-diagnose', '/usr/lib/' + package, '/usr/share/' + package,
-             '/usr/lib/systemd/' + ('system' if component == 'manager' else 'user') + '/' + package + '.service']
-    if component == 'agent':
+             '/usr/lib/systemd/system/' + package + '-update.service',
+             '/usr/lib/systemd/system/' + package + '-update.timer',
+             '/usr/lib/systemd/system/' + package + '-update.path']
+    if component == 'manager':
+        paths.append('/usr/lib/systemd/system/' + package + '.service')
+    else:
+        paths.append('/usr/lib/systemd/user/' + package + '.service')
         paths.append(executable + '-supervisor-check')
     for path in paths:
         if os.path.lexists(path):

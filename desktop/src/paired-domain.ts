@@ -283,6 +283,9 @@ export interface PairedApplication {
   devices(): Promise<Device[]>;
   revokeDevice(device: Device['id']): Promise<void>;
   issueInvitation(label: string): Promise<boolean>;
+  updateFacts?(): Promise<import('./update-domain').UpdateFacts>;
+  applyServerUpdate?(): Promise<import('./update-domain').UpdateFacts>;
+  restartToUpdate?(): Promise<void>;
 }
 export const remoteIssues: Record<string, string> = {
   offline:
@@ -311,7 +314,7 @@ export const remoteIssues: Record<string, string> = {
     'Configure and verify inference for this bot through trusted manager administration.',
   receipt_manager_mismatch: 'Reconnect to the original manager to reconcile the protected entry.',
   receipt_provenance_unknown: 'The protected entry receipt has no verifiable manager identity.',
-  vault_locked: 'Unlock the manager Vault through protected entry or trusted local administration.',
+  vault_locked: 'The vault is locked. The owner must unlock it to resume.',
   permission_denied: 'Allow execution for this bot before reviewing an action.',
   stale_review: 'This review expired or the workspace changed. Review the current action again.',
   refused: 'The manager refused the request. Refresh and review its current state.',

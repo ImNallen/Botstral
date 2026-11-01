@@ -9,6 +9,7 @@ import { Details } from './Details';
 import { CreateDialog } from './CreateDialog';
 import { formatDate } from './format';
 import { Roster } from './Roster';
+import { UpdateNotice } from './UpdateNotice';
 
 export function App({ controller }: { controller: ApplicationController }) {
   const [paired, setPaired] = useState(!!controller.paired);
@@ -68,6 +69,22 @@ function LocalApp({
     }, 15000);
     return () => window.clearInterval(timer);
   }, [controller, signedIn, busy]);
+  useEffect(() => {
+    let interval = 0;
+    const first = window.setTimeout(() => {
+      void controller.checkUpdates();
+      interval = window.setInterval(
+        () => {
+          void controller.checkUpdates();
+        },
+        60 * 60 * 1000,
+      );
+    }, 15000);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(interval);
+    };
+  }, [controller]);
   const createOpen =
     state.creation.kind === 'editing' || (state.creation.kind === 'pending' && state.creation.open);
   return (
@@ -123,6 +140,16 @@ function LocalApp({
               {state.notice}
             </div>
           )}
+          <UpdateNotice
+            notices={state.notices}
+            busy={busy}
+            onRestart={() => {
+              void controller.restartToUpdate();
+            }}
+            onApply={() => {
+              void controller.applyServerUpdate();
+            }}
+          />
           {signedIn && snapshot?.connection === 'offline' && (
             <div className="banner offline-banner" role="status">
               Showing the last successful snapshot. Refresh when the manager is available.
@@ -200,7 +227,11 @@ function LocalApp({
                 <p>Created {formatDate(selected.created_at)}</p>
               </div>
             )}
-            <Details snapshot={snapshot} signedIn={signedIn} />
+            <Details
+              snapshot={snapshot}
+              signedIn={signedIn}
+              managerVersion={state.managerVersion}
+            />
             <section className="details-section">
               <h3>Desktop</h3>
               <button

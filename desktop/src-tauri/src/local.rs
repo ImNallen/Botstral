@@ -238,6 +238,8 @@ enum Route {
     InviteDevice,
     Devices,
     RevokeDevice(botstral_link::DeviceId),
+    Update,
+    ApplyUpdate,
 }
 impl Route {
     fn parts(&self) -> (Method, String, StatusCode) {
@@ -261,6 +263,8 @@ impl Route {
             Self::Bot(id) => (Method::PUT, format!("/v1/bots/{id}"), StatusCode::OK),
             Self::Status => (Method::GET, "/v1/status".into(), StatusCode::OK),
             Self::Workers => (Method::GET, "/v1/workers".into(), StatusCode::OK),
+            Self::Update => (Method::GET, "/v1/update".into(), StatusCode::OK),
+            Self::ApplyUpdate => (Method::POST, "/v1/update".into(), StatusCode::OK),
         }
     }
 }
@@ -359,6 +363,35 @@ impl LocalManager {
         .map_err(|code| self.failed(operation.generation, code))?;
         Ok(())
     }
+    pub async fn update_report(&self) -> Result<botstral_link::UpdateReport, Failure> {
+        let operation = self.begin().await?;
+        let auth = operation
+            .auth
+            .as_ref()
+            .ok_or_else(|| self.failure(ErrorCode::Unauthorized))?;
+        self.get(operation.endpoint, Route::Update, Some(&auth.token))
+            .await
+            .map_err(|code| self.failed(operation.generation, code))
+    }
+
+    pub async fn apply_update(&self) -> Result<botstral_link::UpdateReport, Failure> {
+        let operation = self.begin().await?;
+        let auth = operation
+            .auth
+            .as_ref()
+            .ok_or_else(|| self.failure(ErrorCode::Unauthorized))?;
+        let bytes = self
+            .request(
+                operation.endpoint,
+                Route::ApplyUpdate,
+                Some(&auth.token),
+                Some(serde_json::json!({})),
+            )
+            .await
+            .map_err(|code| self.failed(operation.generation, code))?;
+        serde_json::from_slice(&bytes).map_err(|_| self.failure(ErrorCode::Protocol))
+    }
+
     pub fn inspect(&self) -> Snapshot {
         self.state.lock().unwrap().snapshot.clone()
     }

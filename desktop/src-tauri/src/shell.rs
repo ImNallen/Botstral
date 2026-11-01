@@ -12,6 +12,7 @@ use tauri::{
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_notification::{NotificationExt, PermissionState};
+use tauri_plugin_updater::UpdaterExt;
 use zeroize::Zeroizing;
 
 fn allowed_page(url: &tauri::Url) -> bool {
@@ -41,6 +42,80 @@ enum AccessCode {
     Unauthorized,
 }
 
+const CHANNEL_URL: &str =
+    "https://github.com/ImNallen/Botstral/releases/download/channel-nightly/channel.json";
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ChannelPointer {
+    identity: botstral_link::UpdateIdentity,
+    #[serde(rename = "release")]
+    _release: String,
+    #[serde(rename = "manifest_sha256")]
+    _manifest_sha256: String,
+}
+
+#[derive(Serialize)]
+struct UpdateFacts {
+    restart_version: Option<String>,
+    report: Option<botstral_link::UpdateReport>,
+    available: Option<botstral_link::UpdateIdentity>,
+    protocol_match: bool,
+}
+
+fn protocols_match(report: &botstral_link::UpdateReport) -> bool {
+    let Ok(ours) = serde_json::from_value::<botstral_link::VersionEnvelope>(
+        botstral_link::release::identity(),
+    ) else {
+        return false;
+    };
+    report.installed.protocols == ours.protocols
+        && report.installed.link_schema_sha256 == ours.link_schema_sha256
+}
+
+async fn channel_identity() -> Option<botstral_link::UpdateIdentity> {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(4))
+        .build()
+        .ok()?;
+    let response = client.get(CHANNEL_URL).send().await.ok()?;
+    let pointer: ChannelPointer = response.error_for_status().ok()?.json().await.ok()?;
+    Some(pointer.identity)
+}
+
+async fn restart_version(app: &tauri::AppHandle) -> Option<String> {
+    let updater = app.updater().ok()?;
+    updater
+        .check()
+        .await
+        .ok()
+        .flatten()
+        .map(|update| update.version)
+}
+
+async fn collect_facts(
+    app: &tauri::AppHandle,
+    report: Option<botstral_link::UpdateReport>,
+) -> UpdateFacts {
+    let protocol_match = report.as_ref().is_none_or(protocols_match);
+    UpdateFacts {
+        restart_version: restart_version(app).await,
+        available: channel_identity().await,
+        report,
+        protocol_match,
+    }
+}
+
+fn fresh_attempt(
+    before: Option<i64>,
+    started: Option<(i64, botstral_link::UpdateTrigger)>,
+) -> bool {
+    matches!(
+        started,
+        Some((at, botstral_link::UpdateTrigger::Now)) if before.is_none_or(|previous| at > previous)
+    )
+}
+
 fn denied() -> CommandFailure {
     CommandFailure::Access {
         code: AccessCode::Unauthorized,
@@ -54,6 +129,106 @@ fn authorize(window: &WebviewWindow) -> Result<(), CommandFailure> {
     Err(denied())
 }
 
+#[tauri::command]
+async fn update_facts(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, LocalManager>,
+) -> Result<UpdateFacts, CommandFailure> {
+    authorize(&window)?;
+    let report = service.update_report().await.ok();
+    Ok(collect_facts(&app, report).await)
+}
+#[tauri::command]
+async fn apply_server_update(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, LocalManager>,
+) -> Result<UpdateFacts, CommandFailure> {
+    authorize(&window)?;
+    let before = service
+        .update_report()
+        .await
+        .ok()
+        .and_then(|report| report.last.map(|attempt| attempt.started_at));
+    service
+        .apply_update()
+        .await
+        .map_err(CommandFailure::Operation)?;
+    let mut report = None;
+    for _ in 0..90 {
+        if let Ok(next) = service.update_report().await {
+            let started = next
+                .last
+                .as_ref()
+                .map(|attempt| (attempt.started_at, attempt.trigger));
+            let fresh = fresh_attempt(before, started);
+            report = Some(next);
+            if fresh {
+                break;
+            }
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+    }
+    Ok(collect_facts(&app, report).await)
+}
+#[tauri::command]
+async fn restart_to_update(window: WebviewWindow, app: tauri::AppHandle) -> Result<(), String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    let Some(update) = app
+        .updater()
+        .map_err(|_| "updater")?
+        .check()
+        .await
+        .map_err(|_| "updater")?
+    else {
+        return Err("current".into());
+    };
+    update
+        .download_and_install(|_, _| {}, || {})
+        .await
+        .map_err(|_| "updater")?;
+    app.request_restart();
+    Ok(())
+}
+#[tauri::command]
+async fn remote_update_facts(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<UpdateFacts, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    let report = service.update_report().await.ok();
+    Ok(collect_facts(&app, report).await)
+}
+#[tauri::command]
+async fn remote_apply_update(
+    window: WebviewWindow,
+    app: tauri::AppHandle,
+    service: tauri::State<'_, RemoteService>,
+) -> Result<UpdateFacts, String> {
+    authorize(&window).map_err(|_| "unauthorized")?;
+    let before = service
+        .update_report()
+        .await
+        .ok()
+        .and_then(|report| report.last.map(|attempt| attempt.started_at));
+    let mut report = Some(service.apply_update().await?);
+    for _ in 0..90 {
+        let started = report
+            .as_ref()
+            .and_then(|item| item.last.as_ref())
+            .map(|attempt| (attempt.started_at, attempt.trigger));
+        if fresh_attempt(before, started) {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+        if let Ok(next) = service.update_report().await {
+            report = Some(next);
+        }
+    }
+    Ok(collect_facts(&app, report).await)
+}
 #[tauri::command]
 fn inspect(
     window: WebviewWindow,
@@ -707,6 +882,8 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(LocalManager::new().expect("local client initialization"))
         .invoke_handler(tauri::generate_handler![
             open_login_entry, login_items, update_login, credential_write_status, credential_uses, decide_credential_use, lock_vault,
@@ -747,7 +924,12 @@ pub fn run() {
             source_task,
             list_devices,
             revoke_device,
-            issue_invitation
+            issue_invitation,
+            update_facts,
+            apply_server_update,
+            restart_to_update,
+            remote_update_facts,
+            remote_apply_update
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
