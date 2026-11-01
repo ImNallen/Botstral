@@ -10,7 +10,7 @@ import threading
 import unittest
 import uuid
 
-AGENT = Path(__file__).resolve().parents[1] / 'agent'
+AGENT = Path(__file__).resolve().parents[1]
 module = importlib.util.spec_from_file_location('managed_vibe', AGENT / 'vibe/runtime.py')
 runtime = importlib.util.module_from_spec(module)
 module.loader.exec_module(runtime)
