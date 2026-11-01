@@ -352,8 +352,8 @@ type Settings = {
   runtime: string;
   process: boolean;
 };
-function defaultTokenBudget(contextTokens: number, outputTokens: number) {
-  return contextTokens + outputTokens;
+function defaultTokenBudget(contextTokens: number, outputTokens: number, turns: number) {
+  return turns * (contextTokens + outputTokens);
 }
 export function PairedWorkspace({
   controller,
@@ -412,7 +412,7 @@ export function PairedWorkspace({
   const config = workspace?.configurations.find((c) => c.bot === bot?.id);
   const tokens =
     !explicitTokens && config
-      ? defaultTokenBudget(config.context_tokens, settings.output)
+      ? defaultTokenBudget(config.context_tokens, settings.output, settings.turns)
       : settings.tokens;
   const permission = workspace?.permissions.find((p) => p.bot === bot?.id);
   const unknown = snapshot?.intents.some((i) => i.status === 'unknown');
