@@ -68,9 +68,15 @@ async fn show(unit: &str) -> io::Result<BTreeMap<String, String>> {
         .collect())
 }
 fn same(unit: &BTreeMap<String, String>, scope: &ProcessScope) -> bool {
-    unit.get("LoadState").is_some_and(|s| s == "loaded")
+    unit.get("LoadState").is_some_and(|state| state == "loaded")
         && unit.get("InvocationID") == Some(&scope.invocation)
         && unit.get("ControlGroup") == Some(&scope.cgroup)
+}
+fn recognized(unit: &BTreeMap<String, String>, scope: &ProcessScope) -> bool {
+    same(unit, scope)
+        || (unit.get("LoadState").is_some_and(|state| state == "loaded")
+            && unit.get("InvocationID") == Some(&scope.invocation)
+            && unit.get("ControlGroup").is_some_and(String::is_empty))
 }
 fn cgroup(scope: &ProcessScope) -> PathBuf {
     Path::new("/sys/fs/cgroup").join(scope.cgroup.trim_start_matches('/'))
@@ -377,13 +383,7 @@ impl Backend {
             return Err(io::Error::other("scope boot changed"));
         }
         let unit = show(&scope.unit).await?;
-        let automatically_stopped = unit.get("LoadState").is_some_and(|v| v == "loaded")
-            && unit.get("InvocationID") == Some(&scope.invocation)
-            && unit.get("ControlGroup").is_some_and(String::is_empty)
-            && unit
-                .get("ActiveState")
-                .is_some_and(|v| matches!(v.as_str(), "inactive" | "failed"));
-        if !same(&unit, scope) && !automatically_stopped {
+        if !recognized(&unit, scope) {
             return Err(io::Error::other("cannot prove stopped scope identity"));
         }
         let group = cgroup(scope);
@@ -640,5 +640,72 @@ mod stop_tests {
             result.is_err(),
             "active service received stopped scope proof"
         );
+    }
+    fn sample_scope() -> ProcessScope {
+        let journal = JournalId::new();
+        let execution = ExecutionId::new();
+        let unit = format!("botstral-{journal}-{execution}.service");
+        ProcessScope {
+            journal,
+            execution,
+            host: CertificateFingerprint::from_public_key(&[0; 32]),
+            boot: RequestId::new().to_string(),
+            invocation: "a".repeat(32),
+            cgroup: format!("/user.slice/{unit}"),
+            unit,
+        }
+    }
+    fn show_map(scope: &ProcessScope, group: &str, active: &str) -> BTreeMap<String, String> {
+        BTreeMap::from([
+            ("LoadState".into(), "loaded".into()),
+            ("InvocationID".into(), scope.invocation.clone()),
+            ("ControlGroup".into(), group.into()),
+            ("ActiveState".into(), active.into()),
+        ])
+    }
+    #[test]
+    fn live_cgroup_is_recognized() {
+        let scope = sample_scope();
+        assert!(recognized(
+            &show_map(&scope, &scope.cgroup, "active"),
+            &scope
+        ));
+    }
+    #[test]
+    fn inactive_empty_cgroup_is_recognized() {
+        let scope = sample_scope();
+        assert!(recognized(&show_map(&scope, "", "inactive"), &scope));
+    }
+    #[test]
+    fn remain_after_exit_empty_cgroup_is_recognized() {
+        let scope = sample_scope();
+        assert!(recognized(&show_map(&scope, "", "active"), &scope));
+    }
+    #[test]
+    fn wrong_invocation_is_not_recognized() {
+        let scope = sample_scope();
+        let mut unit = show_map(&scope, "", "active");
+        unit.insert("InvocationID".into(), "b".repeat(32));
+        assert!(!recognized(&unit, &scope));
+    }
+    #[test]
+    fn foreign_cgroup_is_not_recognized() {
+        let scope = sample_scope();
+        assert!(!recognized(
+            &show_map(&scope, "/user.slice/other.service", "active"),
+            &scope
+        ));
+    }
+    #[tokio::test]
+    #[ignore = "requires Linux systemd user manager and real cgroups"]
+    async fn remain_after_exit_empty_cgroup_is_stopped() {
+        let (backend, scope) = fixture_sleep("0.2").await;
+        tokio::time::sleep(Duration::from_millis(400)).await;
+        let observed = show(&scope.unit).await.unwrap();
+        assert_eq!(observed["ActiveState"], "active");
+        assert!(observed["ControlGroup"].is_empty());
+        assert_eq!(observed["InvocationID"], scope.invocation);
+        let proof = backend.stop(&scope).await.unwrap();
+        assert_eq!(proof.scope(), &scope);
     }
 }

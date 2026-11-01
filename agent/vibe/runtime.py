@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 import secrets
 import selectors
-import ssl
 import subprocess
 import sys
 import threading
@@ -188,10 +187,16 @@ class Handler(BaseHTTPRequestHandler):
         if target.scheme != 'wss' or target.path not in ('', '/'):
             self.send_error(500)
             return
-        context = ssl.create_default_context(cafile=transport['manager_ca'])
-        context.load_cert_chain(transport['client_cert'], transport['client_key'])
+        try:
+            connection = s.connector_runtime.pinned_https(target.hostname, target.port, transport, 120)
+        except ValueError:
+            self.send_error(500)
+            return
+        except (OSError, http.client.HTTPException):
+            s.failed = True
+            self.send_error(502)
+            return
         call = str(uuid.uuid4())
-        connection = http.client.HTTPSConnection(target.hostname, target.port, context=context, timeout=120)
         s.calls += 1
         try:
             path = '/worker/v1/coding/' + s.launch['task'] + '/' + s.launch['execution'] + '/' + call

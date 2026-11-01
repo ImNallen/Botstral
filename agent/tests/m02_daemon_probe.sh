@@ -58,7 +58,7 @@ import json, sys
 root, address = sys.argv[1:]
 print(json.dumps({
     "manager": f"wss://{address}:43123",
-    "manager_ca": root + "/ca.pem",
+    "pin": "0" * 64,
     "client_cert": root + "/worker.pem",
     "client_key": root + "/worker.key",
 }))

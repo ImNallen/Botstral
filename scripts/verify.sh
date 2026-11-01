@@ -10,6 +10,7 @@ python3 -m unittest discover -s manager/packaging -p 'test_*.py' -v
 python3 -m unittest discover -s manager/tests -p 'test_first_acceptance*.py' -v
 python3 -m unittest discover -s manager/tests -p 'test_p06_reboot.py' -v
 python3 agent/tests/m06_connector_contract.py
+python3 agent/tests/test_vibe_pin_transport.py
 cargo test --workspace --locked -- --nocapture
 
 features=botstral-agent/nonproduction-test-worker,botstral-manager/nonproduction-test-worker
