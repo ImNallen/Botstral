@@ -22,7 +22,7 @@ state.mkdir(mode=0o700)
 certs = home / 'fixture-certs'
 certs.mkdir(mode=0o700)
 (certs / 'fixture.pem').write_text('isolated invalid TLS fixture; no network authentication')
-config = {'manager': 'wss://127.0.0.1:1', 'manager_ca': str(certs / 'fixture.pem'), 'client_cert': str(certs / 'fixture.pem'), 'client_key': str(certs / 'fixture.pem')}
+config = {'manager': 'wss://127.0.0.1:1', 'pin': '0' * 64, 'client_cert': str(certs / 'fixture.pem'), 'client_key': str(certs / 'fixture.pem')}
 (state / 'config.json').write_text(json.dumps(config))
 process = {'profile': 'linux_systemd_v1', 'account': {'uid': os.geteuid(), 'gid': os.getegid()}, 'ceilings': {'runtime_seconds': 10, 'output_bytes': 1024, 'processes': 8, 'memory_bytes': 67108864}}
 (state / 'process.json').write_text(json.dumps(process))
@@ -39,7 +39,7 @@ result = subprocess.run(['/usr/bin/botstral-agent', 'check', '--state-dir', str(
 assert result.returncode == 1, 'invalid TLS fixture unexpectedly connected'
 assert b'InvalidMessage' not in result.stderr and b'connector runtime changed' not in result.stderr, result.stderr
 with sqlite3.connect(state / 'agent.sqlite3') as db:
-    assert db.execute('PRAGMA user_version').fetchone()[0] == 2
+    assert db.execute('PRAGMA user_version').fetchone()[0] == WORKER_SCHEMA
     identity = db.execute('SELECT incarnation FROM metadata').fetchone()[0]
 if os.environ.get('BOTSTRAL_ACCEPTANCE_PACKAGE_ONLY') == '1':
     sys.exit(0)
@@ -109,7 +109,8 @@ def main():
         result['supervisor'] = run([*user, '/usr/bin/botstral-agent-supervisor-check', '--scratch', '/home/botstral-agent/supervisor-proof']).strip()
         connector = Path(__file__).resolve().parents[1] / 'connector'
         files = {name: (connector / name).read_text() for name in ('configure.py', 'runtime.py')}
-        fixture = 'CONNECTOR_FILES = ' + repr(files) + '\n' + FIXTURE
+        schema = json.loads((Path(__file__).resolve().parents[2] / 'release.json').read_text())['data_compatibility']['worker_schema']
+        fixture = 'CONNECTOR_FILES = ' + repr(files) + '\nWORKER_SCHEMA = ' + str(schema) + '\n' + FIXTURE
         result['recovery'] = run([*user, 'python3', '-c', fixture]).strip()
         result['packages'] = run([args.engine, 'exec', name, 'cat', '/usr/share/botstral-image-packages.txt'])
         result['ok'] = True

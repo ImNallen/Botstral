@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import ssl
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -295,7 +296,7 @@ class WorkerRecoveryTests(unittest.TestCase):
             certificate = internal_certificates / 'identity.pem'
             certificate.write_text('retained worker identity certificate')
             certificate.chmod(0o600)
-            (state / 'config.json').write_text(json.dumps({'manager_ca': str(certificate), 'client_cert': str(certificate), 'client_key': str(certificate)}))
+            (state / 'config.json').write_text(json.dumps({'manager': 'wss://127.0.0.1:1', 'pin': '0' * 64, 'client_cert': str(certificate), 'client_key': str(certificate)}))
             (state / 'config.json').chmod(0o600)
             processes = state / 'processes'
             processes.mkdir(mode=0o700)
@@ -343,6 +344,39 @@ class WorkerRecoveryTests(unittest.TestCase):
             with patch.object(r, 'worker_quiet'):
                 with self.assertRaisesRegex(ValueError, 'unproved'):
                     r.create('agent', state, root / 'unsafe', {'roots': selected})
+
+    def test_pin_worker_config_is_diagnosable_without_manager_ca(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            state = root / 'state'
+            state.mkdir(mode=0o700)
+            (state / 'agent.lock').touch(mode=0o600)
+            certificate = root / 'identity.pem'
+            key = root / 'identity.key'
+            certificate.write_text('retained worker identity certificate')
+            key.write_text('retained worker identity key')
+            certificate.chmod(0o600)
+            key.chmod(0o600)
+            config = {
+                'manager': 'wss://127.0.0.1:1',
+                'pin': '0' * 64,
+                'client_cert': str(certificate),
+                'client_key': str(key),
+            }
+            (state / 'config.json').write_text(json.dumps(config))
+            (state / 'config.json').chmod(0o600)
+            try:
+                refs = r.references(state)
+            except KeyError as error:
+                self.fail('references still requires ' + str(error))
+            self.assertEqual(set(refs), {str(certificate), str(key)})
+            import diagnose
+            try:
+                diagnose.connectivity(config)
+            except KeyError as error:
+                self.fail('diagnose still requires ' + str(error))
+            except (OSError, ValueError, ssl.SSLError):
+                pass
 
 
 if __name__ == '__main__':
