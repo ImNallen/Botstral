@@ -79,9 +79,12 @@ class UpdateTests(unittest.TestCase):
             calls['health'].append(_listen)
             return health
 
+        def reinstall(release_dir, component, version):
+            install(release_dir, component, version, None, None, None)
+
         effects = Effects(lambda _url: pointer, download, lambda: json.loads(version_path.read_text()),
                           lambda: {'idle': True}, lambda: calls['stop'].append('stop'),
-                          lambda: calls['start'].append('start'), install, probe, lambda *_args: None,
+                          lambda: calls['start'].append('start'), install, reinstall, probe, lambda *_args: None,
                           lambda: 1_700_000_000)
         options = type('Options', (), {})()
         options.component = 'manager'
@@ -145,6 +148,13 @@ class DomainTests(unittest.TestCase):
         latest = parse_latest({'version': newer.version, 'notes': 'Botstral ' + newer.version,
                                'pub_date': '2026-11-01T00:00:00Z', 'platforms': {}})
         self.assertEqual(latest['platforms'], {})
+        changed = dict(authority()['data_compatibility'])
+        changed['manager_schema'] = changed['manager_schema'] + 1
+        same = authority()['data_compatibility']
+        self.assertEqual(rollback_method({'data_compatibility': same}, {'data_compatibility': same}, 'manager'),
+                         'reinstall_package')
+        self.assertEqual(rollback_method({'data_compatibility': same}, {'data_compatibility': changed}, 'manager'),
+                         'restore_backup')
 
 
 if __name__ == '__main__':

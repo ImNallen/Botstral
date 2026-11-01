@@ -104,7 +104,11 @@ export function selectNotices(input: {
     });
   }
   if (input.report?.last?.outcome.type === 'deferred') notices.push({ type: 'update_deferred' });
-  if (input.vaultLocked && input.report?.last?.outcome.type === 'applied')
+  if (
+    input.vaultLocked &&
+    (input.report?.last?.outcome.type === 'applied' ||
+      input.report?.last?.outcome.type === 'rolled_back')
+  )
     notices.push({ type: 'vault_locked' });
   return notices;
 }

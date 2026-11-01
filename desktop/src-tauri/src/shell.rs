@@ -156,7 +156,7 @@ async fn apply_server_update(
         .await
         .map_err(CommandFailure::Operation)?;
     let mut report = None;
-    for _ in 0..6 {
+    for _ in 0..90 {
         if let Ok(next) = service.update_report().await {
             let started = next
                 .last
@@ -168,7 +168,7 @@ async fn apply_server_update(
                 break;
             }
         }
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
     }
     Ok(collect_facts(&app, report).await)
 }
@@ -214,7 +214,7 @@ async fn remote_apply_update(
         .ok()
         .and_then(|report| report.last.map(|attempt| attempt.started_at));
     let mut report = Some(service.apply_update().await?);
-    for _ in 0..6 {
+    for _ in 0..90 {
         let started = report
             .as_ref()
             .and_then(|item| item.last.as_ref())
@@ -222,7 +222,7 @@ async fn remote_apply_update(
         if fresh_attempt(before, started) {
             break;
         }
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
         if let Ok(next) = service.update_report().await {
             report = Some(next);
         }

@@ -61,8 +61,10 @@ def ar_members(path):
 
 def validate_payload(archive, component):
     package = 'botstral-' + component
+    unit_dir = 'usr/lib/systemd/' + ('system' if component == 'manager' else 'user') + '/'
     files = {'usr/bin/' + package, 'usr/bin/' + package + '-backup', 'usr/bin/' + package + '-diagnose',
-             'usr/lib/systemd/' + ('system' if component == 'manager' else 'user') + '/' + package + '.service'}
+             unit_dir + package + '.service', unit_dir + package + '-update.service',
+             unit_dir + package + '-update.timer', unit_dir + package + '-update.path'}
     if component == 'agent':
         files.add('usr/bin/' + package + '-supervisor-check')
     roots = {'usr/lib/' + package, 'usr/share/' + package}

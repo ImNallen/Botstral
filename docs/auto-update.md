@@ -8,7 +8,7 @@ Copy the release manifest public key to the host through a channel you already t
 
 On the manager, save it at `/etc/botstral-manager/manifest-public.pem` with mode `0600`. On the worker, save it at `/etc/botstral-agent/manifest-public.pem` with mode `0600`.
 
-Copy `update.example.json` from `/usr/share/botstral-manager` or `/usr/share/botstral-agent` to `/etc/botstral-manager/update.json` or `/etc/botstral-agent/update.json`. Set `channel_url` to the channel you want and `trusted_key` to the public key path. The default channel URL is nightly. Editing this file is the channel setting. The desktop app does not switch channels.
+Copy `/etc/botstral-manager/update.example.json` or `/etc/botstral-agent/update.example.json` to `update.json` in the same directory. Set `channel_url` to the channel you want and `trusted_key` to the public key path. The default channel URL is nightly. Editing this file is the channel setting. The desktop app does not switch channels.
 
 The first manual install must leave its verified release set at `/var/lib/botstral-manager/installed-release` on the manager and at `~/.local/share/botstral-agent/installed-release` on the worker. A later update uses that set to put the previous package back when health fails. After a successful update the updater replaces that directory with the release it installed.
 

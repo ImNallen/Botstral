@@ -205,6 +205,13 @@ class PayloadPolicyTests(unittest.TestCase):
         member.mode = 0o4755
         with self.assertRaisesRegex(ValueError, 'mode'):
             validate_payload(Archive(member), 'manager')
+        for path in ('usr/lib/systemd/system/botstral-manager-update.service',
+                     'usr/lib/systemd/system/botstral-manager-update.timer',
+                     'usr/lib/systemd/system/botstral-manager-update.path'):
+            member = tarfile.TarInfo('./' + path)
+            member.uid = member.gid = 0
+            member.mode = 0o644
+            validate_payload(Archive(member), 'manager')
 
 
 if __name__ == '__main__':

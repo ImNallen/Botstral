@@ -135,6 +135,7 @@ class Effects:
     stop: object
     start: object
     install: object
+    reinstall: object
     health: object
     restore: object
     now: object
@@ -312,15 +313,27 @@ def install_release(effects, release_dir, component, version, backup_receipt, co
     effects.install(release_dir, component, version, backup_receipt, config_backup, receipt)
 
 
+def previous_deb(release_dir, component):
+    for item in read_json(release_dir / 'manifest.json')['artifacts']:
+        if item.get('component') == component:
+            path = release_dir / item['filename']
+            require(path.is_file() and not path.is_symlink(), 'previous package missing')
+            return path
+    raise ValueError('previous package missing')
+
+
+def reinstall_previous(release_dir, component):
+    package = 'botstral-' + component
+    deb = previous_deb(release_dir, component)
+    subprocess.run(['dpkg', '--remove', package], check=True)
+    subprocess.run(['dpkg', '--install', str(deb)], check=True)
+
+
 def perform_rollback(effects, options, backup, previous_manifest, target_manifest, previous_version):
     method = rollback_method(previous_manifest, target_manifest, options.component)
     if method == 'restore_backup':
         effects.restore(backup / 'state', backup / 'config')
-    receipt = backup / 'rollback-receipt.json'
-    if receipt.exists():
-        receipt.unlink()
-    install_release(effects, backup / 'release', options.component, previous_version,
-                    backup / 'backup.json', backup / 'config', receipt)
+    effects.reinstall(backup / 'release', options.component, previous_version)
     return method
 
 
@@ -385,8 +398,6 @@ def _run(options, effects):
     snapshot_state(options.state_dir, backup / 'state')
     write_json(backup / 'backup.json', {'stopped_at': effects.now(), 'manager': options.component == 'manager',
                                         'worker': options.component == 'agent'})
-    write_atomic(options.state_dir / 'update-inflight.json', {
-        'previous': current.json(), 'target': checked.identity.json(), 'component': options.component})
     try:
         effects.stop()
         receipt = backup / 'apply-receipt.json'
@@ -399,16 +410,12 @@ def _run(options, effects):
                                       checked.value, current.version)
             effects.start()
             restored = effects.version() or installed
-            outcome = RolledBack(current.json(), checked.identity.json(), method)
-            code = finish(options.report, restored, started, effects, trigger, outcome)
-            (options.state_dir / 'update-inflight.json').unlink(missing_ok=True)
-            return code
+            return finish(options.report, restored, started, effects, trigger,
+                          RolledBack(current.json(), checked.identity.json(), method))
         replace_tree(incoming, previous_set)
         applied = effects.version() or installed
-        code = finish(options.report, applied, started, effects, trigger,
+        return finish(options.report, applied, started, effects, trigger,
                       Applied(current.json(), checked.identity.json()))
-        (options.state_dir / 'update-inflight.json').unlink(missing_ok=True)
-        return code
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         try:
             effects.stop()
@@ -417,7 +424,6 @@ def _run(options, effects):
             effects.start()
         except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
             pass
-        (options.state_dir / 'update-inflight.json').unlink(missing_ok=True)
         return finish(options.report, effects.version() or installed, started, effects, trigger, Failed(str(error)))
 
 
@@ -454,6 +460,9 @@ def production_effects(component, state_dir, trusted_key):
                         '--backup-receipt', str(backup_receipt), '--config-backup', str(config_backup),
                         '--receipt', str(receipt), '--apply'], check=True)
 
+    def reinstall(release_dir, selected, _version):
+        reinstall_previous(release_dir, selected)
+
     def probe(listen):
         if component == 'agent':
             command = ['systemctl', '--user', 'is-active', '--quiet', 'botstral-agent.service']
@@ -472,7 +481,7 @@ def production_effects(component, state_dir, trusted_key):
     return Effects(lambda url: json.loads(fetch_bytes(url)),
                    lambda url, pointer, directory: download_release(url, pointer, directory, fetch_bytes),
                    version, idle, lambda: systemctl('stop'), lambda: systemctl('start'),
-                   install, probe, restore, lambda: int(time.time()))
+                   install, reinstall, probe, restore, lambda: int(time.time()))
 
 
 def load_key(component):
