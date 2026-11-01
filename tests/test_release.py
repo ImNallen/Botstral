@@ -252,6 +252,17 @@ class UpdaterManifestTests(unittest.TestCase):
             self.assertEqual(published_tarball, tarball)
             self.assertEqual(published_signature, signature_path)
 
+    def test_platforms_refuse_an_empty_signature(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / 'release-set'
+            release.mkdir()
+            (root / 'Botstral.app.tar.gz').write_bytes(b'bundle')
+            (root / 'Botstral.app.tar.gz.sig').write_text('\n  \t')
+            with self.assertRaisesRegex(ValueError, 'updater bundle required'):
+                updater_platforms(release, 'channel-nightly')
+
 
 if __name__ == '__main__':
     unittest.main()
