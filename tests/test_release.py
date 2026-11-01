@@ -238,14 +238,19 @@ class UpdaterManifestTests(unittest.TestCase):
             root = Path(directory)
             release = root / 'release-set'
             release.mkdir()
-            (root / 'Botstral.app.tar.gz').write_bytes(b'bundle')
-            (root / 'Botstral.app.tar.gz.sig').write_text('minisign-signature\n')
-            self.assertEqual(updater_platforms(release, 'channel-nightly'), {
+            tarball = root / 'Botstral.app.tar.gz'
+            signature_path = root / 'Botstral.app.tar.gz.sig'
+            tarball.write_bytes(b'bundle')
+            signature_path.write_text('minisign-signature\n')
+            platforms, published_tarball, published_signature = updater_platforms(release, 'channel-nightly')
+            self.assertEqual(platforms, {
                 'darwin-aarch64': {
                     'signature': 'minisign-signature',
                     'url': 'https://github.com/ImNallen/Botstral/releases/download/channel-nightly/Botstral.app.tar.gz',
                 }
             })
+            self.assertEqual(published_tarball, tarball)
+            self.assertEqual(published_signature, signature_path)
 
 
 if __name__ == '__main__':

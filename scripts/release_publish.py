@@ -27,7 +27,7 @@ def updater_platforms(directory, channel):
             'signature': signature_path.read_text().strip(),
             'url': 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name,
         }
-    }
+    }, tarball, signature_path
 
 
 def main():
@@ -42,9 +42,7 @@ def main():
         identity = release.identity
         require(identity.revision == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'publication checkout differs from signed source revision')
         channel = 'channel-' + identity.channel
-        platforms = updater_platforms(directory, channel)
-        tarball = directory.parent / 'Botstral.app.tar.gz'
-        signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
+        platforms, tarball, signature_path = updater_platforms(directory, channel)
         tag = ('v' if identity.channel == 'stable' else 'nightly-') + identity.version
         existing = subprocess.run(['gh', 'release', 'view', tag], capture_output=True)
         require(existing.returncode != 0, 'immutable release already exists; do not overwrite it')
