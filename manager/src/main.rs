@@ -1,13 +1,20 @@
-use botstral_link::tls;
+use botstral_link::{
+    ConfigureInference, InferenceAcknowledgment, InferenceBilling, InferenceEndpoint,
+    InferencePolicy, InferencePrices, ModelReleaseAcknowledgment, tls,
+};
 use botstral_manager::{LocalState, WorkerTls, protect_process, serve_with_worker};
 use std::{
+    ffi::OsString,
     io::{BufRead, IsTerminal, Read, Write},
     net::{SocketAddr, TcpStream},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::ExitCode,
-    time::Duration,
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use zeroize::Zeroizing;
+
+const ADMIN_TIMEOUT: Duration = Duration::from_secs(30);
+const INVITE_TIMEOUT: Duration = Duration::from_secs(15);
 
 fn main() -> ExitCode {
     if botstral_link::release::print_version("manager") {
@@ -23,8 +30,13 @@ fn main() -> ExitCode {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     protect_process()?;
     let mut arguments = std::env::args_os().skip(1);
-    if arguments.next().as_deref() == Some("invite".as_ref()) {
-        return invite(arguments);
+    match arguments.next().as_deref() {
+        Some(command) if command == "invite" => return invite(arguments),
+        Some(command) if command == "setup" => return setup(arguments),
+        Some(command) if command == "unlock" => return unlock(arguments),
+        Some(command) if command == "provider-key" => return provider_key(arguments),
+        Some(command) if command == "configure" => return configure(arguments),
+        _ => {}
     }
     let mut directory = PathBuf::from(".state");
     let mut listen: SocketAddr = "127.0.0.1:43120".parse()?;
@@ -34,7 +46,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(argument) = arguments.next() {
         if argument == "--help" {
             println!(
-                "botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT]\nbotstral-manager invite worker [--state-dir PATH]\nbotstral-manager invite device --label LABEL [--state-dir PATH]"
+                "botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT]\nbotstral-manager invite worker [--state-dir PATH]\nbotstral-manager invite device --label LABEL [--state-dir PATH]\nbotstral-manager setup [--state-dir PATH]\nbotstral-manager unlock [--state-dir PATH]\nbotstral-manager provider-key [--state-dir PATH]\nbotstral-manager configure NAME --model ID [--endpoint eu] --input-price N --output-price N [--expected-revision N] [--context N] [--state-dir PATH]"
             );
             return Ok(());
         }
@@ -76,9 +88,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn invite(
-    arguments: impl Iterator<Item = std::ffi::OsString>,
-) -> Result<(), Box<dyn std::error::Error>> {
+fn invite(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::error::Error>> {
     let mut directory = PathBuf::from(".state");
     let mut kind = None;
     let mut label = None;
@@ -109,19 +119,15 @@ fn invite(
     if kind == "device" && label.as_ref().is_none_or(|v| v.is_empty()) {
         return Err("missing device label".into());
     }
-    let listeners: serde_json::Value =
-        serde_json::from_slice(&std::fs::read(directory.join("listeners.json"))?)?;
-    let address: SocketAddr = listeners["listen"]
-        .as_str()
-        .ok_or("manager is not running")?
-        .parse()?;
-    let password = read_password()?;
+    let address = listen_address(&directory)?;
+    let password = read_password("Password: ")?;
     let (status, body) = http_json(
         address,
         "POST",
         "/v1/sessions",
         None,
         &serde_json::json!({"password": password.as_str()}),
+        INVITE_TIMEOUT,
     )?;
     if status != 201 {
         return Err("sign-in failed".into());
@@ -138,13 +144,14 @@ fn invite(
             serde_json::json!({"label": label.unwrap(), "lifetime_seconds": 600}),
         )
     };
-    let (status, body) = http_json(address, "POST", path, Some(token), &payload)?;
+    let (status, body) = http_json(address, "POST", path, Some(token), &payload, INVITE_TIMEOUT)?;
     let signed_out = http_json(
         address,
         "DELETE",
         "/v1/session",
         Some(token),
         &serde_json::json!({}),
+        INVITE_TIMEOUT,
     );
     if status != 201 {
         return Err("invitation failed".into());
@@ -167,8 +174,391 @@ fn invite(
     Ok(())
 }
 
-fn read_password() -> Result<Zeroizing<String>, Box<dyn std::error::Error>> {
-    eprint!("Password: ");
+fn setup(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = only_state_dir(arguments)?;
+    let listeners = listeners(&directory)?;
+    let Some(setup) = listeners["setup"].as_str() else {
+        eprintln!("setup is closed");
+        return Err("setup is closed".into());
+    };
+    let address: SocketAddr = setup.parse()?;
+    let token = std::fs::read_to_string(directory.join("bootstrap.token"))?;
+    if read_line("Type yes to accept: ")? != "yes" {
+        eprintln!("not accepted");
+        return Err("not accepted".into());
+    }
+    let name = read_line("Owner name: ")?;
+    let password = read_password("New sign-in password: ")?;
+    if read_password("Repeat sign-in password: ")?.as_str() != password.as_str() {
+        eprintln!("mismatch");
+        return Err("mismatch".into());
+    }
+    let vault = read_password("Vault passphrase: ")?;
+    if read_password("Repeat vault passphrase: ")?.as_str() != vault.as_str() {
+        eprintln!("mismatch");
+        return Err("mismatch".into());
+    }
+    let body = expect_status(
+        address,
+        "POST",
+        "/v1/owner",
+        Some(token.trim()),
+        Some(&serde_json::json!({
+            "name": name,
+            "password": password.as_str(),
+            "vault_passphrase": vault.as_str(),
+            "acknowledge_no_escrow": true
+        })),
+        201,
+    )?;
+    println!("{body}");
+    Ok(())
+}
+
+fn unlock(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = only_state_dir(arguments)?;
+    let address = listen_address(&directory)?;
+    let token = sign_in(address)?;
+    let passphrase = read_password("Vault passphrase: ")?;
+    let result = expect_status(
+        address,
+        "POST",
+        "/v1/vault/unlock",
+        Some(token.as_str()),
+        Some(&serde_json::json!({"passphrase": passphrase.as_str()})),
+        204,
+    );
+    let signed_out = sign_out(address, token.as_str());
+    result?;
+    signed_out?;
+    println!("vault unlocked");
+    Ok(())
+}
+
+fn provider_key(
+    arguments: impl Iterator<Item = OsString>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = only_state_dir(arguments)?;
+    let address = listen_address(&directory)?;
+    let token = sign_in(address)?;
+    let secret = read_password("Mistral API key: ")?;
+    let body = expect_status(
+        address,
+        "PUT",
+        "/v1/provider-keys/mistral",
+        Some(token.as_str()),
+        Some(&serde_json::json!({"secret": secret.as_str()})),
+        200,
+    );
+    let signed_out = sign_out(address, token.as_str());
+    let body = body?;
+    signed_out?;
+    println!("{body}");
+    Ok(())
+}
+
+struct ConfigureRequest {
+    name: String,
+    model: String,
+    endpoint: InferenceEndpoint,
+    input_price: u64,
+    output_price: u64,
+    expected_revision: u64,
+    context: Option<u32>,
+}
+
+fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::error::Error>> {
+    let mut directory = PathBuf::from(".state");
+    let mut name = None;
+    let mut model = None;
+    let mut endpoint = InferenceEndpoint::Eu;
+    let mut input_price = None;
+    let mut output_price = None;
+    let mut expected_revision = 0u64;
+    let mut context = None;
+    let mut arguments = arguments.peekable();
+    while let Some(argument) = arguments.next() {
+        if argument == "--state-dir" {
+            directory = PathBuf::from(arguments.next().ok_or("missing option value")?);
+        } else if argument == "--model" {
+            model = Some(required_string(arguments.next(), "invalid model")?);
+        } else if argument == "--endpoint" {
+            endpoint = match required_string(arguments.next(), "invalid endpoint")?.as_str() {
+                "eu" => InferenceEndpoint::Eu,
+                "global" => InferenceEndpoint::Global,
+                "us" => InferenceEndpoint::Us,
+                _ => return Err("unknown endpoint".into()),
+            };
+        } else if argument == "--input-price" {
+            input_price = Some(required_parse(arguments.next(), "invalid price")?);
+        } else if argument == "--output-price" {
+            output_price = Some(required_parse(arguments.next(), "invalid price")?);
+        } else if argument == "--expected-revision" {
+            expected_revision = required_parse(arguments.next(), "invalid revision")?;
+        } else if argument == "--context" {
+            context = Some(required_parse(arguments.next(), "invalid context")?);
+        } else if argument
+            .to_str()
+            .is_some_and(|value| value.starts_with('-'))
+            || name.is_some()
+        {
+            return Err("unknown option".into());
+        } else {
+            name = Some(argument.into_string().map_err(|_| "invalid name")?);
+        }
+    }
+    let request = ConfigureRequest {
+        name: name.ok_or("missing bot name")?,
+        model: model.ok_or("missing model")?,
+        endpoint,
+        input_price: input_price.ok_or("missing input price")?,
+        output_price: output_price.ok_or("missing output price")?,
+        expected_revision,
+        context,
+    };
+    let address = listen_address(&directory)?;
+    let token = sign_in(address)?;
+    let outcome = configure_bot(address, token.as_str(), &request);
+    let signed_out = sign_out(address, token.as_str());
+    outcome?;
+    signed_out?;
+    Ok(())
+}
+
+fn configure_bot(
+    address: SocketAddr,
+    token: &str,
+    request: &ConfigureRequest,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let bots = expect_status(address, "GET", "/v1/bots", Some(token), None, 200)?;
+    let existing = bots
+        .as_array()
+        .ok_or("bots")?
+        .iter()
+        .find(|bot| bot["name"].as_str() == Some(request.name.as_str()));
+    let bot_id = match existing {
+        Some(bot) => bot["id"].as_str().ok_or("bot")?.to_owned(),
+        None => {
+            let id = uuid::Uuid::new_v4().to_string();
+            expect_status(
+                address,
+                "PUT",
+                &format!("/v1/bots/{id}"),
+                Some(token),
+                Some(&serde_json::json!({"name": request.name})),
+                200,
+            )?;
+            id
+        }
+    };
+    let context_tokens = match request.context {
+        Some(tokens) => tokens,
+        None => {
+            let key = read_password("Mistral API key: ")?;
+            mistral_context(request.endpoint, &request.model, key.as_str())?
+        }
+    };
+    let now = unix_seconds()?;
+    let policy = ConfigureInference {
+        bot: bot_id.parse()?,
+        expected_revision: request.expected_revision,
+        policy: InferencePolicy {
+            endpoint: request.endpoint,
+            model_id: request.model.clone(),
+            context_tokens,
+            acknowledgment: InferenceAcknowledgment {
+                model_developer: "Mistral AI".into(),
+                developer_terms_url: "https://legal.mistral.ai/terms/commercial-terms-of-service/"
+                    .into(),
+                privacy_terms_url: "https://legal.mistral.ai/terms/privacy-policy/".into(),
+                acknowledged_at: now,
+                release: ModelReleaseAcknowledgment::Stable,
+            },
+            prices: InferencePrices {
+                input_microusd_per_million_tokens: request.input_price,
+                output_microusd_per_million_tokens: request.output_price,
+                effective_at: now.checked_sub(60).ok_or("clock")?,
+                expires_at: now.checked_add(30 * 24 * 60 * 60).ok_or("clock")?,
+                billing: InferenceBilling::TextTokensOnlyAtAcknowledgedCeilings,
+            },
+        },
+    };
+    let configured = expect_status(
+        address,
+        "PUT",
+        "/v1/inference-configurations",
+        Some(token),
+        Some(&serde_json::to_value(policy)?),
+        200,
+    )?;
+    println!("configured {configured}");
+    let revision = configured["revision"].as_u64().ok_or("revision")?;
+    let verified = expect_status(
+        address,
+        "POST",
+        "/v1/inference-configurations/verify",
+        Some(token),
+        Some(&serde_json::json!({"bot": bot_id, "revision": revision})),
+        200,
+    )?;
+    println!("{verified}");
+    Ok(())
+}
+
+fn only_state_dir(
+    arguments: impl Iterator<Item = OsString>,
+) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let mut directory = PathBuf::from(".state");
+    let mut arguments = arguments.peekable();
+    while let Some(argument) = arguments.next() {
+        if argument == "--state-dir" {
+            directory = PathBuf::from(arguments.next().ok_or("missing option value")?);
+        } else {
+            return Err("unknown option".into());
+        }
+    }
+    Ok(directory)
+}
+
+fn listeners(directory: &Path) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    Ok(serde_json::from_slice(&std::fs::read(
+        directory.join("listeners.json"),
+    )?)?)
+}
+
+fn listen_address(directory: &Path) -> Result<SocketAddr, Box<dyn std::error::Error>> {
+    let listeners = listeners(directory)?;
+    let Some(listen) = listeners["listen"].as_str() else {
+        eprintln!("manager is not running");
+        return Err("manager is not running".into());
+    };
+    Ok(listen.parse()?)
+}
+
+fn sign_in(address: SocketAddr) -> Result<Zeroizing<String>, Box<dyn std::error::Error>> {
+    let password = read_password("Password: ")?;
+    let body = expect_status(
+        address,
+        "POST",
+        "/v1/sessions",
+        None,
+        Some(&serde_json::json!({"password": password.as_str()})),
+        201,
+    )?;
+    Ok(Zeroizing::new(
+        body["token"].as_str().ok_or("sign-in failed")?.to_owned(),
+    ))
+}
+
+fn sign_out(address: SocketAddr, token: &str) -> Result<(), Box<dyn std::error::Error>> {
+    expect_status(
+        address,
+        "DELETE",
+        "/v1/session",
+        Some(token),
+        Some(&serde_json::json!({})),
+        204,
+    )?;
+    Ok(())
+}
+
+fn required_string(
+    value: Option<OsString>,
+    error: &'static str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    Ok(value
+        .ok_or("missing option value")?
+        .into_string()
+        .map_err(|_| error)?)
+}
+
+fn required_parse<T: std::str::FromStr>(
+    value: Option<OsString>,
+    error: &'static str,
+) -> Result<T, Box<dyn std::error::Error>> {
+    value
+        .ok_or("missing option value")?
+        .to_str()
+        .ok_or(error)?
+        .parse()
+        .map_err(|_| error.into())
+}
+
+fn unix_seconds() -> Result<i64, Box<dyn std::error::Error>> {
+    let elapsed = SystemTime::now().duration_since(UNIX_EPOCH)?;
+    i64::try_from(elapsed.as_secs()).map_err(|_| "clock".into())
+}
+
+fn model_segment(model: &str) -> bool {
+    !model.is_empty()
+        && model.len() <= 128
+        && model
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.'))
+}
+
+fn mistral_context(
+    endpoint: InferenceEndpoint,
+    model: &str,
+    key: &str,
+) -> Result<u32, Box<dyn std::error::Error>> {
+    if !model_segment(model) {
+        return Err("invalid model".into());
+    }
+    let host = match endpoint {
+        InferenceEndpoint::Eu => "api.eu.mistral.ai",
+        InferenceEndpoint::Us => "api.us.mistral.ai",
+        InferenceEndpoint::Global => "api.mistral.ai",
+    };
+    let url = format!("https://{host}/v1/models/{model}");
+    let value = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()?
+        .block_on(fetch_model(&url, key))?;
+    let tokens = value["max_context_length"]
+        .as_u64()
+        .ok_or("missing max_context_length")?;
+    u32::try_from(tokens).map_err(|_| "invalid context".into())
+}
+
+async fn fetch_model(
+    url: &str,
+    key: &str,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let response = reqwest::Client::builder()
+        .https_only(true)
+        .no_proxy()
+        .redirect(reqwest::redirect::Policy::none())
+        .retry(reqwest::retry::never())
+        .connect_timeout(Duration::from_secs(5))
+        .timeout(ADMIN_TIMEOUT)
+        .build()
+        .map_err(|_| "model lookup failed")?
+        .get(url)
+        .bearer_auth(key)
+        .send()
+        .await
+        .map_err(|_| "model lookup failed")?;
+    let status = response.status();
+    if !status.is_success() {
+        eprintln!("http {}", status.as_u16());
+        return Err("model lookup failed".into());
+    }
+    let bytes = response.bytes().await.map_err(|_| "model lookup failed")?;
+    serde_json::from_slice(&bytes).map_err(|_| "model lookup failed".into())
+}
+
+fn read_line(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
+    eprint!("{prompt}");
+    std::io::stderr().flush()?;
+    let mut line = String::new();
+    std::io::stdin().lock().read_line(&mut line)?;
+    trim_line(&mut line);
+    Ok(line)
+}
+
+fn read_password(prompt: &str) -> Result<Zeroizing<String>, Box<dyn std::error::Error>> {
+    eprint!("{prompt}");
     std::io::stderr().flush()?;
     let mut line = String::new();
     if std::io::stdin().is_terminal() {
@@ -191,13 +581,56 @@ fn read_password() -> Result<Zeroizing<String>, Box<dyn std::error::Error>> {
     } else {
         std::io::stdin().lock().read_line(&mut line)?;
     }
+    trim_line(&mut line);
+    Ok(Zeroizing::new(line))
+}
+
+fn trim_line(line: &mut String) {
     if line.ends_with('\n') {
         line.pop();
         if line.ends_with('\r') {
             line.pop();
         }
     }
-    Ok(Zeroizing::new(line))
+}
+
+fn expect_status(
+    address: SocketAddr,
+    method: &str,
+    path: &str,
+    token: Option<&str>,
+    body: Option<&serde_json::Value>,
+    want: u16,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let (status, value) = if method == "GET" {
+        http_get(address, path, token, ADMIN_TIMEOUT)?
+    } else {
+        http_json(
+            address,
+            method,
+            path,
+            token,
+            body.ok_or("missing body")?,
+            ADMIN_TIMEOUT,
+        )?
+    };
+    if status != want {
+        match value["error"].as_str() {
+            Some(code) if !code.is_empty() => eprintln!("{code}"),
+            _ => eprintln!("http {status}"),
+        }
+        return Err("request failed".into());
+    }
+    Ok(value)
+}
+
+fn http_get(
+    address: SocketAddr,
+    path: &str,
+    token: Option<&str>,
+    timeout: Duration,
+) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
+    exchange(address, "GET", path, token, None, timeout)
 }
 
 fn http_json(
@@ -206,21 +639,39 @@ fn http_json(
     path: &str,
     token: Option<&str>,
     body: &serde_json::Value,
+    timeout: Duration,
 ) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
-    let payload = serde_json::to_vec(body)?;
+    exchange(address, method, path, token, Some(body), timeout)
+}
+
+fn exchange(
+    address: SocketAddr,
+    method: &str,
+    path: &str,
+    token: Option<&str>,
+    body: Option<&serde_json::Value>,
+    timeout: Duration,
+) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
+    let payload = body.map(serde_json::to_vec).transpose()?;
     let mut stream = TcpStream::connect(address)?;
-    stream.set_read_timeout(Some(Duration::from_secs(15)))?;
-    stream.set_write_timeout(Some(Duration::from_secs(15)))?;
-    let mut request = format!(
-        "{method} {path} HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n",
-        payload.len()
-    );
+    stream.set_read_timeout(Some(timeout))?;
+    stream.set_write_timeout(Some(timeout))?;
+    let mut request =
+        format!("{method} {path} HTTP/1.1\r\nHost: {address}\r\nConnection: close\r\n");
+    if let Some(payload) = &payload {
+        request.push_str(&format!(
+            "Content-Type: application/json\r\nContent-Length: {}\r\n",
+            payload.len()
+        ));
+    }
     if let Some(token) = token {
         request.push_str(&format!("Authorization: Bearer {token}\r\n"));
     }
     request.push_str("\r\n");
     stream.write_all(request.as_bytes())?;
-    stream.write_all(&payload)?;
+    if let Some(payload) = payload {
+        stream.write_all(&payload)?;
+    }
     let mut response = Vec::new();
     stream.read_to_end(&mut response)?;
     let text = String::from_utf8(response)?;
