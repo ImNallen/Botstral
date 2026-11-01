@@ -212,7 +212,9 @@ describe('paired presentation boundary', () => {
     await user.type(screen.getByLabelText('Message'), 'Hello');
     await user.click(screen.getByRole('button', { name: 'Send' }));
     const output = send.mock.calls[0]?.[0].output_tokens ?? 0;
-    expect(send.mock.calls[0]?.[0].tokens).toBeGreaterThanOrEqual(context + output);
+    const turns = send.mock.calls[0]?.[0].turns ?? 0;
+    expect(turns).toBeGreaterThan(1);
+    expect(send.mock.calls[0]?.[0].tokens).toBe(turns * (context + output));
   });
   it('keeps an explicit token budget below the configured model context', async () => {
     const value = snapshot();

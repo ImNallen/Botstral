@@ -207,7 +207,7 @@ pub(crate) async fn worker_request(
                 .header("cache-control", "no-store")
                 .body(Body::from(crate::manager::coding::sse(value)))
                 .unwrap(),
-            Err(error) => error_response(StatusCode::CONFLICT, protocol_error(error)),
+            Err(error) => json_response(StatusCode::CONFLICT, worker_coding_error(error)),
         }
     } else if request.method() == "GET"
         && request.uri().path() == "/worker/v1/connect"
@@ -258,6 +258,15 @@ pub(crate) fn protocol_error(error: OperationError) -> ErrorCode {
         OperationError::Unauthorized => ErrorCode::Unauthorized,
         _ => ErrorCode::InvalidMessage,
     }
+}
+
+fn worker_coding_error(error: OperationError) -> serde_json::Value {
+    serde_json::json!({
+        "error": match error {
+            OperationError::InferenceBudget => "inference_budget",
+            error => protocol_error(error).as_str(),
+        }
+    })
 }
 
 type Socket = WebSocketStream<TokioIo<hyper::upgrade::Upgraded>>;
@@ -362,5 +371,18 @@ async fn socket_loop(
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn worker_coding_budget_refusal_is_named() {
+        assert_eq!(
+            worker_coding_error(OperationError::InferenceBudget),
+            serde_json::json!({"error": "inference_budget"})
+        );
     }
 }

@@ -146,6 +146,7 @@ class Relay(HTTPServer):
         self.transport = transport
         self.token = secrets.token_urlsafe(32)
         self.failed = False
+        self.refusal = None
         self.calls = 0
         self.sessions = {}
         module = importlib.util.spec_from_file_location('connector_runtime', Path(launch['directory']) / 'connector-runtime.py')
@@ -207,6 +208,12 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('coding response bound')
             if response.status != 200:
                 s.failed = True
+                try:
+                    error = json.loads(data).get('error')
+                except (ValueError, TypeError, AttributeError):
+                    error = None
+                if error == 'inference_budget':
+                    s.refusal = error
             self.send_response(response.status)
             self.send_header('Content-Type', response.getheader('Content-Type', 'application/json'))
             self.send_header('Content-Length', str(len(data)))
@@ -333,16 +340,28 @@ def execute(path):
         denied, failed = outcome(output / 'transcript.out', code)
         print(json.dumps({'native_session': session, 'exit_code': code, 'calls': relay.calls,
                           'approval_denied': denied, 'tool_errors': failed}))
+        if relay.refusal == 'inference_budget':
+            raise ValueError('inference_budget')
         return code or int(bool(denied or failed or relay.failed))
+    except Exception:
+        if relay.refusal == 'inference_budget':
+            raise ValueError('inference_budget') from None
+        raise
     finally:
         relay.shutdown()
         relay.server_close()
         lock.close()
 
 
+def reported_failure(error, refusal=None):
+    if refusal == 'inference_budget' or str(error) == 'inference_budget':
+        return 'inference_budget'
+    return 'coding runtime failed'
+
+
 if __name__ == '__main__':
     try:
         sys.exit(execute(sys.argv[1]))
-    except Exception:
-        print('coding runtime failed', file=sys.stderr)
+    except Exception as error:
+        print(reported_failure(error), file=sys.stderr)
         sys.exit(1)

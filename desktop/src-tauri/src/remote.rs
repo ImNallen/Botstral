@@ -1880,7 +1880,7 @@ impl Actor {
                         runtime_seconds: input.seconds,
                         output_bytes: 1024,
                         processes: 8,
-                        memory_bytes: 64 * 1024 * 1024,
+                        memory_bytes: DEFAULT_PROCESS_MEMORY_BYTES,
                     },
                 });
                 let computer = input.runtime.map(|sha256| ComputerToolPolicy {

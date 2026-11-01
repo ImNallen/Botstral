@@ -18,6 +18,8 @@ pub struct ProcessAccount {
     pub gid: u32,
 }
 
+pub const DEFAULT_PROCESS_MEMORY_BYTES: u64 = 256 * 1024 * 1024;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ProcessLimits {
@@ -234,6 +236,18 @@ mod tests {
                 memory_bytes: 268435456,
             },
         }
+    }
+
+    #[test]
+    fn default_process_memory_is_the_vibe_ceiling() {
+        let limits = ProcessLimits {
+            runtime_seconds: 120,
+            output_bytes: 1024,
+            processes: 8,
+            memory_bytes: DEFAULT_PROCESS_MEMORY_BYTES,
+        };
+        assert_eq!(DEFAULT_PROCESS_MEMORY_BYTES, 256 * 1024 * 1024);
+        limits.validate().unwrap();
     }
 
     #[test]
