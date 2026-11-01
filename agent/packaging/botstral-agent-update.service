@@ -5,4 +5,4 @@ After=network-online.target
 [Service]
 Type=oneshot
 UMask=0077
-ExecStart=/usr/bin/python3 /usr/lib/botstral-agent/update.py --component agent --state-dir %h/.local/share/botstral-agent
+ExecStart=/usr/bin/python3 /usr/lib/botstral-agent/update.py --component agent --state-dir /home/botstral-agent/.local/share/botstral-agent

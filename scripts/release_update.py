@@ -9,6 +9,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import pwd
 import re
 import shutil
 import sqlite3
@@ -392,14 +393,14 @@ def _run(options, effects):
     if isinstance(decided, Deferred):
         return finish(options.report, installed, started, effects, trigger, decided)
     previous_set = options.state_dir / 'installed-release'
-    if not (previous_set / 'manifest.json').is_file():
-        return finish(options.report, installed, started, effects, trigger,
-                      Failed('previous release set is not saved'))
     backup = options.state_dir / 'update-backup'
     if backup.exists():
         shutil.rmtree(backup)
     backup.mkdir()
-    shutil.copytree(previous_set, backup / 'release')
+    if (previous_set / 'manifest.json').is_file():
+        shutil.copytree(previous_set, backup / 'release')
+    else:
+        (backup / 'release').mkdir()
     (backup / 'config').mkdir()
     snapshot_state(options.state_dir, backup / 'state')
     write_json(backup / 'backup.json', {'stopped_at': effects.now(), 'manager': options.component == 'manager',
@@ -424,9 +425,13 @@ def _run(options, effects):
                       Applied(current.json(), checked.identity.json()))
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         try:
-            effects.stop()
-            perform_rollback(effects, options, backup, read_json(backup / 'release' / 'manifest.json'),
-                             checked.value, current.version)
+            if (backup / 'release' / 'manifest.json').is_file():
+                effects.stop()
+                perform_rollback(effects, options, backup, read_json(backup / 'release' / 'manifest.json'),
+                                 checked.value, current.version)
+        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+            pass
+        try:
             effects.start()
         except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
             pass
@@ -477,10 +482,7 @@ def production_effects(component, state_dir, trusted_key):
         return host_idle(component, state_dir)
 
     def systemctl(action):
-        command = ['systemctl', action, 'botstral-' + component + '.service']
-        if component == 'agent':
-            command.insert(1, '--user')
-        subprocess.run(command, check=True)
+        subprocess.run(host_service(component, state_dir, action), check=True)
 
     def install(release_dir, selected, version, backup_receipt, config_backup, receipt):
         script = Path(__file__).resolve().parent
@@ -495,7 +497,8 @@ def production_effects(component, state_dir, trusted_key):
 
     def probe(listen):
         if component == 'agent':
-            command = ['systemctl', '--user', 'is-active', '--quiet', 'botstral-agent.service']
+            command = host_service(component, state_dir, 'is-active')
+            command.insert(-1, '--quiet')
             return Probe.OK if subprocess.run(command).returncode == 0 else Probe.FAIL
         return health('http://' + listen + '/health')
 
@@ -513,6 +516,14 @@ def production_effects(component, state_dir, trusted_key):
                        url, pointer, directory, fetch_bytes, trusted_key),
                    version, idle, lambda: systemctl('stop'), lambda: systemctl('start'),
                    install, reinstall, probe, restore, lambda: int(time.time()))
+
+
+def host_service(component, state_dir, action):
+    unit = 'botstral-' + component + '.service'
+    if component == 'manager':
+        return ['systemctl', action, unit]
+    user = pwd.getpwuid(state_dir.stat().st_uid).pw_name
+    return ['systemctl', '--user', '--machine=' + user + '@', action, unit]
 
 
 def load_key(component):
@@ -548,8 +559,14 @@ def main(argv=None):
     if component is None:
         parser.error('--component is required')
     configured = read_config(component)
-    state_dir = args.state_dir or Path(
-        '/var/lib/botstral-manager' if component == 'manager' else Path.home() / '.local/share/botstral-agent')
+    if args.state_dir:
+        state_dir = args.state_dir
+    elif component == 'manager':
+        state_dir = Path('/var/lib/botstral-manager')
+    elif os.getuid() == 0:
+        state_dir = Path('/home/botstral-agent/.local/share/botstral-agent')
+    else:
+        state_dir = Path.home() / '.local/share/botstral-agent'
     options = argparse.Namespace(
         component=component,
         state_dir=state_dir,

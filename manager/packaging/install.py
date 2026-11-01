@@ -64,13 +64,17 @@ def install(component, binary, root, source=None, identity=None):
     diagnostic.write_text('#!/bin/sh\nexec /usr/bin/python3 /usr/lib/botstral-' + component + '/diagnose.py ' + component + ' "$@"\n')
     diagnostic.chmod(0o755)
     unit = 'botstral-' + component + '.service'
-    unit_dir = absolute(root / ('usr/lib/systemd/system' if component == 'manager' else 'usr/lib/systemd/user'))
-    unit_dir.mkdir(parents=True, exist_ok=True)
-    units = [unit, 'botstral-' + component + '-update.service', 'botstral-' + component + '-update.timer', 'botstral-' + component + '-update.path']
-    for name in units:
-        require(not (unit_dir / name).exists() and not (unit_dir / name).is_symlink(), 'service unit already exists')
-        shutil.copyfile(source / name, unit_dir / name)
-        (unit_dir / name).chmod(0o644)
+    service_dir = absolute(root / ('usr/lib/systemd/system' if component == 'manager' else 'usr/lib/systemd/user'))
+    service_dir.mkdir(parents=True, exist_ok=True)
+    require(not (service_dir / unit).exists() and not (service_dir / unit).is_symlink(), 'service unit already exists')
+    shutil.copyfile(source / unit, service_dir / unit)
+    (service_dir / unit).chmod(0o644)
+    update_dir = absolute(root / 'usr/lib/systemd/system')
+    update_dir.mkdir(parents=True, exist_ok=True)
+    for name in ('botstral-' + component + '-update.service', 'botstral-' + component + '-update.timer', 'botstral-' + component + '-update.path'):
+        require(not (update_dir / name).exists() and not (update_dir / name).is_symlink(), 'service unit already exists')
+        shutil.copyfile(source / name, update_dir / name)
+        (update_dir / name).chmod(0o644)
     stage_updater(library)
     if component == 'manager':
         shutil.copyfile(source / 'launch.py', library / 'launch.py')

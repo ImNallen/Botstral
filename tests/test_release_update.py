@@ -42,7 +42,7 @@ class UpdateTests(unittest.TestCase):
         return {'component': 'manager', 'identity': identity.json(), 'protocols': config['protocols'],
                 'link_schema_sha256': digest(ROOT / 'link/schema/protocol.json')}
 
-    def prepare(self, root, tamper=False, health=Probe.OK):
+    def prepare(self, root, tamper=False, health=Probe.OK, previous_set=True, component='manager'):
         key = root / 'key.pem'
         public = root / 'public.pem'
         subprocess.run(['openssl', 'genrsa', '-out', str(key), '2048'], check=True, capture_output=True)
@@ -59,7 +59,8 @@ class UpdateTests(unittest.TestCase):
             (target_dir / 'manifest.json').write_text((target_dir / 'manifest.json').read_text() + '\n')
         state = root / 'state'
         state.mkdir()
-        shutil.copytree(previous_dir, state / 'installed-release')
+        if previous_set:
+            shutil.copytree(previous_dir, state / 'installed-release')
         install_root = root / 'installed'
         install_root.mkdir()
         version_path = install_root / 'version.json'
@@ -89,7 +90,7 @@ class UpdateTests(unittest.TestCase):
                           lambda: calls['start'].append('start'), install, reinstall, probe, lambda *_args: None,
                           lambda: 1_700_000_000)
         options = type('Options', (), {})()
-        options.component = 'manager'
+        options.component = component
         options.state_dir = state
         options.channel_url = 'https://updates.example/channel-stable/channel.json'
         options.trusted_key = public
@@ -134,6 +135,41 @@ class UpdateTests(unittest.TestCase):
             self.assertEqual(json.loads(version_path.read_text())['identity'], previous.json())
             self.assertGreaterEqual(len(calls['install']), 2)
             self.assertTrue(calls['health'])
+
+    def test_first_update_without_installed_release_applies(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options, effects, calls, version_path, previous, target = self.prepare(
+                Path(directory), previous_set=False)
+            self.assertFalse((options.state_dir / 'installed-release' / 'manifest.json').is_file())
+            self.assertEqual(run(options, effects), 0)
+            report = self.report(options)
+            self.assertEqual(report['last']['outcome'], {
+                'type': 'applied', 'previous': previous.json(), 'current': target.json()})
+            self.assertEqual(len(calls['install']), 1)
+            self.assertEqual(json.loads(version_path.read_text())['identity'], target.json())
+            self.assertTrue((options.state_dir / 'installed-release' / 'manifest.json').is_file())
+
+    def test_worker_update_applies_when_idle(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options, effects, calls, version_path, previous, target = self.prepare(
+                Path(directory), component='agent')
+            self.assertEqual(run(options, effects), 0)
+            report = self.report(options)
+            self.assertEqual(report['last']['outcome'], {
+                'type': 'applied', 'previous': previous.json(), 'current': target.json()})
+            self.assertEqual(len(calls['install']), 1)
+            self.assertEqual(json.loads(version_path.read_text())['identity'], target.json())
+
+    def test_pre_install_failure_does_not_stop_the_worker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options, effects, calls, version_path, previous, _target = self.prepare(
+                Path(directory), tamper=True, component='agent')
+            self.assertEqual(run(options, effects), 0)
+            report = self.report(options)
+            self.assertEqual(report['last']['outcome'], {'type': 'rejected', 'reason': 'signature'})
+            self.assertEqual(calls['install'], [])
+            self.assertEqual(calls['stop'], [])
+            self.assertEqual(json.loads(version_path.read_text())['identity'], previous.json())
 
     def test_busy_host_is_deferred(self):
         with tempfile.TemporaryDirectory() as directory:

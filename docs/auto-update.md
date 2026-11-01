@@ -16,7 +16,7 @@ Copy `update.example.json` to `update.json` in `/etc/botstral-manager` or `/etc/
 
 ```sh
 sudo systemctl enable --now botstral-manager-update.timer botstral-manager-update.path
-systemctl --user enable --now botstral-agent-update.timer botstral-agent-update.path
+sudo systemctl enable --now botstral-agent-update.timer botstral-agent-update.path
 ```
 
 The manager timer runs at 04:00 Europe/Stockholm. The worker timer runs at 04:30. The Mac app checks within an hour of launch.
