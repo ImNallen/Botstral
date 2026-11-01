@@ -19,7 +19,7 @@ def updater_platforms(directory, channel):
     signature_path = Path(directory).parent / 'Botstral.app.tar.gz.sig'
     require(
         tarball.is_file() and signature_path.is_file() and not tarball.is_symlink()
-        and not signature_path.is_symlink(),
+        and not signature_path.is_symlink() and signature_path.read_text().strip(),
         'updater bundle required',
     )
     return {
