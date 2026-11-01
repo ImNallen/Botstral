@@ -68,18 +68,15 @@ async fn show(unit: &str) -> io::Result<BTreeMap<String, String>> {
         .collect())
 }
 fn same(unit: &BTreeMap<String, String>, scope: &ProcessScope) -> bool {
-    unit.get("LoadState").is_some_and(|s| s == "loaded")
+    unit.get("LoadState").is_some_and(|state| state == "loaded")
         && unit.get("InvocationID") == Some(&scope.invocation)
         && unit.get("ControlGroup") == Some(&scope.cgroup)
 }
 fn recognized(unit: &BTreeMap<String, String>, scope: &ProcessScope) -> bool {
     same(unit, scope)
-        || (unit.get("LoadState").is_some_and(|v| v == "loaded")
+        || (unit.get("LoadState").is_some_and(|state| state == "loaded")
             && unit.get("InvocationID") == Some(&scope.invocation)
-            && unit.get("ControlGroup").is_some_and(String::is_empty)
-            && unit
-                .get("ActiveState")
-                .is_some_and(|v| matches!(v.as_str(), "inactive" | "failed")))
+            && unit.get("ControlGroup").is_some_and(String::is_empty))
 }
 fn cgroup(scope: &ProcessScope) -> PathBuf {
     Path::new("/sys/fs/cgroup").join(scope.cgroup.trim_start_matches('/'))
