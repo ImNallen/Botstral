@@ -8,7 +8,8 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_model import (ROOT, ReleaseIdentity, ReleaseManifest, authority, digest,
-                           embedded, filename, verify, write_json)
+                           default_trusted_key, embedded, filename, key_fingerprint, verify,
+                           write_json)
 from release import versions
 
 
@@ -100,7 +101,7 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 verify(release, wrong_public)
 
-            with self.assertRaisesRegex(ValueError, 'independently'):
+            with self.assertRaises(subprocess.CalledProcessError):
                 verify(release)
             with self.assertRaisesRegex(ValueError, 'outside'):
                 verify(release, release / 'key.pem')
@@ -113,6 +114,21 @@ class ReleaseTests(unittest.TestCase):
             subprocess.run(['openssl', 'rsa', '-in', str(wrong), '-pubout', '-out', str(wrong_public)], check=True, capture_output=True)
             with self.assertRaises(subprocess.CalledProcessError):
                 verify(release, wrong_public)
+
+    def test_committed_public_key_is_the_default_verifier(self):
+        key = default_trusted_key()
+        self.assertTrue(key.is_file())
+        self.assertEqual(key_fingerprint(key), (ROOT / 'keys/manifest-public.sha256').read_text().strip())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / 'release'
+            release.mkdir()
+            self.manifest(release)
+            private = root / 'key.pem'
+            subprocess.run(['openssl', 'genrsa', '-out', str(private), '2048'], check=True, capture_output=True)
+            subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(private), '-out', str(release / 'manifest.sig'), str(release / 'manifest.json')], check=True, capture_output=True)
+            with self.assertRaises(subprocess.CalledProcessError):
+                verify(release)
 
 
     def test_embedded_real_binaries_if_built(self):

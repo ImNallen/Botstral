@@ -197,6 +197,15 @@ impl Manager {
             .call_wait(move |s| s.finish_inference_verification(config, epoch, verified))
             .await
     }
+    pub(super) async fn expired_verification(
+        &self,
+        bot: BotId,
+        revision: u64,
+    ) -> Result<bool, OperationError> {
+        self.queue
+            .call(false, move |s| s.configuration_refreshable(bot, revision))
+            .await
+    }
     pub async fn submit_inference(
         &self,
         token: SessionToken,
@@ -206,7 +215,11 @@ impl Manager {
             return Err(OperationError::Busy);
         }
         let wake = self.inference.clone();
-        self.queue
+        let retry = input.clone();
+        let refresh = token.clone_session();
+        let retry_token = token.clone_session();
+        let result = self
+            .queue
             .call(false, move |s| {
                 if wake.stopping.load(Ordering::Acquire) {
                     return Err(OperationError::Busy);
@@ -217,7 +230,36 @@ impl Manager {
                 }
                 result
             })
-            .await
+            .await;
+        if result == Err(OperationError::InferenceUnverified)
+            && self
+                .expired_verification(retry.bot, retry.configuration_revision)
+                .await?
+        {
+            self.verify_inference(
+                refresh,
+                VerifyInference {
+                    bot: retry.bot,
+                    revision: retry.configuration_revision,
+                },
+            )
+            .await?;
+            let wake = self.inference.clone();
+            return self
+                .queue
+                .call(false, move |s| {
+                    if wake.stopping.load(Ordering::Acquire) {
+                        return Err(OperationError::Busy);
+                    }
+                    let result = s.submit_inference(retry_token, retry);
+                    if result.is_ok() {
+                        wake.wake.notify_one();
+                    }
+                    result
+                })
+                .await;
+        }
+        result
     }
     pub async fn inference(
         &self,

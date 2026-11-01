@@ -83,6 +83,16 @@ class InstallationTests(unittest.TestCase):
                 self.assertTrue(service.is_file())
                 self.assertIn('Europe/Stockholm', timer.read_text())
                 self.assertTrue((library / 'update.py').is_file())
+                tools = library / 'tools' / 'scripts'
+                self.assertTrue((tools / 'release.py').is_file())
+                self.assertTrue((tools / 'release_upgrade.py').is_file())
+                self.assertTrue((library / 'tools' / 'keys' / 'manifest-public.pem').is_file())
+                help_release = subprocess.run(['python3', str(tools / 'release.py'), '--help'], capture_output=True, text=True, check=True)
+                self.assertIn('verify', help_release.stdout)
+                if component == 'agent':
+                    setup = library / 'runtime' / 'setup.sh'
+                    self.assertTrue(setup.is_file())
+                    self.assertEqual(setup.stat().st_mode & 0o111, 0o111)
                 self.assertIn('04:00' if component == 'manager' else '04:30', timer.read_text())
                 self.assertNotIn('--user', service.read_text())
                 self.assertNotIn('User=', service.read_text())

@@ -162,6 +162,16 @@ class ReleaseManifest:
         return cls(identity, artifacts, value)
 
 
+def default_trusted_key():
+    return ROOT / 'keys' / 'manifest-public.pem'
+
+
+def key_fingerprint(path):
+    der = subprocess.run(['openssl', 'pkey', '-pubin', '-in', str(path), '-outform', 'DER'],
+                         check=True, capture_output=True).stdout
+    return hashlib.sha256(der).hexdigest()
+
+
 def verify(directory, trusted_key=None, unsigned=False, production=False):
     directory = Path(directory)
     require(directory.is_dir() and not directory.is_symlink(), 'regular release directory required')
@@ -169,9 +179,9 @@ def verify(directory, trusted_key=None, unsigned=False, production=False):
     require(manifest.is_file() and not manifest.is_symlink(), 'regular manifest required')
     require(not (unsigned and production), 'unsigned mode cannot verify production')
     if not unsigned:
-        require(trusted_key is not None, 'independently supplied trusted public key required')
-        key = Path(trusted_key).resolve()
+        key = Path(trusted_key).resolve() if trusted_key is not None else default_trusted_key()
         require(directory.resolve() not in key.parents, 'trust key must be supplied outside release set')
+        require(key.is_file() and not key.is_symlink(), 'trusted public key required')
         signature = directory / 'manifest.sig'
         require(signature.is_file() and not signature.is_symlink(), 'manifest signature required')
         subprocess.run(['openssl', 'dgst', '-sha256', '-verify', str(key), '-signature', str(signature), str(manifest)], check=True, capture_output=True)

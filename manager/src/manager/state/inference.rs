@@ -297,6 +297,25 @@ impl State {
             && current.policy.prices.expires_at > self.now())
     }
 
+    pub(in crate::manager) fn configuration_refreshable(
+        &self,
+        bot: BotId,
+        revision: u64,
+    ) -> Result<bool, OperationError> {
+        if self.latest_inference_revision(bot)? != revision {
+            return Ok(false);
+        }
+        let current = self.load_inference_configuration(bot, revision)?;
+        let epoch: Option<i64> = self.connection.query_row(
+            "SELECT provider_epoch FROM inference_configurations WHERE bot=?1 AND revision=?2",
+            params![bot.to_string(), sql_revision(revision)?],
+            |r| r.get(0),
+        )?;
+        Ok(epoch == Some(self.provider_epoch()?)
+            && current.policy.prices.expires_at > self.now()
+            && matches!(current.verification, InferenceVerification::Verified { expires_at, .. } if expires_at <= self.now()))
+    }
+
     fn load_inference(&self, id: InferenceId) -> Result<InferenceView, OperationError> {
         parse(
             self.connection

@@ -14,7 +14,7 @@ def stage_updater(library):
     (library / 'update.py').chmod(0o755)
     tool_scripts = library / 'tools' / 'scripts'
     tool_scripts.mkdir(parents=True)
-    for name in ('release_model.py', 'release_upgrade.py', 'release_artifacts.py'):
+    for name in ('release.py', 'release_model.py', 'release_upgrade.py', 'release_artifacts.py'):
         shutil.copyfile(scripts / name, tool_scripts / name)
         (tool_scripts / name).chmod(0o644)
     root = library / 'tools'
@@ -22,6 +22,11 @@ def stage_updater(library):
     schema = root / 'link' / 'schema'
     schema.mkdir(parents=True)
     shutil.copyfile(scripts.parent / 'link' / 'schema' / 'protocol.json', schema / 'protocol.json')
+    keys = root / 'keys'
+    keys.mkdir()
+    for name in ('manifest-public.pem', 'manifest-public.sha256'):
+        shutil.copyfile(scripts.parent / 'keys' / name, keys / name)
+        (keys / name).chmod(0o644)
 
 
 def install(component, binary, root, source=None, identity=None):
@@ -92,6 +97,12 @@ def install(component, binary, root, source=None, identity=None):
         (configuration / 'recovery-plan.example.json').chmod(0o600)
         shutil.copyfile(source / 'update.example.json', configuration / 'update.example.json')
         (configuration / 'update.example.json').chmod(0o600)
+        runtime_source = Path(__file__).resolve().parents[2] / 'agent' / 'runtime'
+        runtime = library / 'runtime'
+        runtime.mkdir(mode=0o755)
+        for name in ('setup.sh', 'package.json', 'package-lock.json', 'run.mjs', 'protected.mjs', 'seal.py'):
+            shutil.copyfile(runtime_source / name, runtime / name)
+            (runtime / name).chmod(0o755 if name == 'setup.sh' else 0o644)
     release = identity or json.loads((Path(__file__).resolve().parents[2] / 'release.json').read_text())
     manifest = {'component': component, 'binary_sha256': source_id, 'version': release['version'], 'services_enabled': False, 'runtime': {'python': '3.9 or newer', 'sqlite': '3.37 or newer', 'systemd': '255 for worker', 'rust_build': '1.93.0', 'dependencies': 'Cargo.lock'}}
     (library / 'install.json').write_text(json.dumps(manifest, sort_keys=True, indent=2) + '\n')

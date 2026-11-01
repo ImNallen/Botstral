@@ -4,7 +4,7 @@ The nightly channel is the default. The matching public keys are the release man
 
 ## Public key
 
-Put the release manifest public key at `/etc/botstral-manager/manifest-public.pem` on the manager and at `/etc/botstral-agent/manifest-public.pem` on the worker, mode `0600`. A key downloaded next to the release files does not establish trust.
+The release verifier uses `keys/manifest-public.pem` by default. Automatic updates still read `/etc/botstral-manager/manifest-public.pem` on the manager and `/etc/botstral-agent/manifest-public.pem` on the worker, mode `0600`. A key downloaded next to the release files does not establish trust.
 
 The Mac app verifies updater signatures with the public key in `desktop/src-tauri/tauri.conf.json`.
 

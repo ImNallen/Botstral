@@ -6,13 +6,12 @@ Stable and nightly replace the same installation. The desktop identifier remains
 
 ## Verify the complete set
 
-Choose one immutable version. Download its `manifest.json`, `manifest.sig`, and all three named artifacts into a fresh directory. Obtain the manifest public key through an independent trusted channel. A key downloaded beside the artifacts does not establish trust.
+Choose one immutable version. Download its `manifest.json`, `manifest.sig`, and all three named artifacts into a fresh directory. The verifier uses `keys/manifest-public.pem` by default. A key downloaded beside the artifacts does not establish trust.
 
-Use the release tooling from the manifest's source revision, obtained from a trusted source checkout. Python 3.9 or newer and OpenSSL are required. Do not execute artifact contents before verification.
+Python 3.9 or newer and OpenSSL are required. Do not execute artifact contents before verification. After installing a package, the same verifier is `/usr/lib/botstral-manager/tools/scripts/release.py` or `/usr/lib/botstral-agent/tools/scripts/release.py`.
 
 ```sh
-python3 scripts/release.py verify /path/to/release-set \
-  --trusted-key /trusted/botstral-manifest-public.pem --production
+python3 scripts/release.py verify /path/to/release-set --production
 ```
 
 The verifier rejects unsigned sets, missing or extra artifacts, mixed identities, unsafe filenames, wrong package architectures, invalid signatures, corruption, and missing native acceptance. It inspects Debian metadata and embedded executable identities without running the payload. On macOS it also mounts the DMG read-only and checks the app identifier, arm64 executable, native version, Developer ID signature, notarization, and Gatekeeper assessment. Linux relies on the signed macOS acceptance receipt for DMG contents. Both receipts bind the exact artifact digests.
@@ -21,7 +20,7 @@ The verifier rejects unsigned sets, missing or extra artifacts, mixed identities
 
 ## Install on new hosts
 
-Manager and worker require separate hosts. Packages conflict if installed together. Packages neither create accounts nor activate services. They contain binaries, maintenance tools, service units, and examples under `/usr/share/botstral-manager` or `/usr/share/botstral-agent`. They never package live configuration, state, certificates, runtimes, or user homes.
+Manager and worker require separate hosts. Packages conflict if installed together. Packages neither create accounts nor activate services. They contain binaries, maintenance tools, service units, and examples under `/usr/share/botstral-manager` or `/usr/share/botstral-agent`. They never package live configuration, state, certificates, downloaded browser trees, or user homes. The worker package includes `usr/lib/botstral-agent/runtime/setup.sh` so the Playwright runtime can be installed without a git checkout.
 
 Existing unmanaged installations are refused. Stop and back them up, record their paths and identities, and retire their binaries and service units explicitly before installing a package. Preserve their state and configuration. There is no implicit adoption switch.
 
@@ -30,20 +29,22 @@ After verification, install exactly the local package named by the manifest on e
 ```sh
 sudo python3 scripts/release_upgrade.py /path/to/release-set \
   --version 0.1.0 --component manager --fresh-install \
-  --trusted-key /trusted/botstral-manifest-public.pem \
   --receipt /private/manager-install.json --apply
 ```
 
 On the separate worker host, run the same command with `--component agent` and its own receipt. The command invokes `dpkg --install` on the verified exact package. Install any declared Ubuntu dependencies with `apt` first. An unresolved dependency leaves the package unconfigured and services stopped.
 
-Create the manager account and private state directory according to [manager packaging](../manager/packaging/service.example.json). Copy the example to `/etc/botstral-manager/service.json` only when that file is absent. Set ownership and mode 0600, supply private TLS files, and follow [recovery and installation](m06-recovery.md) for account and runtime setup. Enroll the worker explicitly with its existing pinned runtime, process profile, and TLS inputs. Runtime files are independent installation inputs and remain outside the package.
+Create the manager account and private state directory according to [manager packaging](../manager/packaging/service.example.json). Copy the example to `/etc/botstral-manager/service.json` only when that file is absent. Set ownership and mode 0600, supply private TLS files, and follow [recovery and installation](m06-recovery.md) for account and runtime setup. Enroll the worker with its process profile and TLS inputs. Install the Playwright runtime from the packaged installer into a fresh external directory:
+
+```sh
+sudo /usr/lib/botstral-agent/runtime/setup.sh /home/botstral/botstral-runtime-v1
+```
 
 For a new desktop installation, use the exact verified DMG through the same preflight command:
 
 ```sh
 python3 scripts/release_upgrade.py /path/to/release-set \
   --version 0.1.0 --component desktop --fresh-install \
-  --trusted-key /trusted/botstral-manifest-public.pem \
   --receipt /private/desktop-install.json --apply
 ```
 
@@ -67,9 +68,8 @@ python3 scripts/m06-backup-pair.py \
 4. Run the exact upgrade command on each respective host. Retain the prepared receipt if replacement fails. Each receipt records previous and target identities, the target artifact digest, the coordinated backup receipt digest, and the configuration backup location.
 
 ```sh
-sudo python3 scripts/release_upgrade.py /path/to/release-set \
+sudo python3 /usr/lib/botstral-manager/tools/scripts/release_upgrade.py /path/to/release-set \
   --version 0.1.0 --component manager \
-  --trusted-key /trusted/botstral-manifest-public.pem \
   --backup-receipt /private/coordinated-backup.json \
   --config-backup /private/configuration-backup \
   --receipt /private/manager-upgrade.json --apply
