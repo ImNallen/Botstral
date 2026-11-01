@@ -173,7 +173,7 @@ def agent_accept(old_package, new_package, root, demote, environment, production
     spec.loader.exec_module(module)
     connector = ROOT / 'agent/connector'
     files = {name: (connector / name).read_text() for name in ('configure.py', 'runtime.py')}
-    source = 'CONNECTOR_FILES = ' + repr(files) + '\n' + module.FIXTURE
+    source = 'CONNECTOR_FILES = ' + repr(files) + '\nWORKER_SCHEMA = ' + str(authority()['data_compatibility']['worker_schema']) + '\n' + module.FIXTURE
     script = root / 'worker-fixture.py'
     script.write_text(source)
     script.chmod(0o644)
@@ -213,7 +213,7 @@ def worker_tls_probe(state, root, demote, environment):
             server.listen(1)
             server.settimeout(20)
             write_json(config, {'manager': 'wss://127.0.0.1:' + str(server.getsockname()[1]),
-                               'manager_ca': str(certificate), 'client_cert': str(certificate),
+                               'pin': '0' * 64, 'client_cert': str(certificate),
                                'client_key': str(key)})
             process = None
             try:
