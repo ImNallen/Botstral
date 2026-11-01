@@ -352,6 +352,9 @@ type Settings = {
   runtime: string;
   process: boolean;
 };
+function defaultTokenBudget(contextTokens: number, outputTokens: number) {
+  return contextTokens + outputTokens;
+}
 export function PairedWorkspace({
   controller,
   local,
@@ -381,6 +384,7 @@ export function PairedWorkspace({
     runtime: '',
     process: false,
   });
+  const [explicitTokens, setExplicitTokens] = useState(false);
   const [details, setDetails] = useState(false);
   const [hiddenCandidate, setHiddenCandidate] = useState<string | null>(null);
   const bot = workspace?.bots.find((b) => b.id === selected) ?? workspace?.bots[0];
@@ -406,6 +410,10 @@ export function PairedWorkspace({
   const session = workspace?.sessions.find((s) => s.bot_id === bot?.id);
   const worker = workspace?.workers.find((w) => w.id === session?.worker_id);
   const config = workspace?.configurations.find((c) => c.bot === bot?.id);
+  const tokens =
+    !explicitTokens && config
+      ? defaultTokenBudget(config.context_tokens, settings.output)
+      : settings.tokens;
   const permission = workspace?.permissions.find((p) => p.bot === bot?.id);
   const unknown = snapshot?.intents.some((i) => i.status === 'unknown');
   const routineCommand = text.startsWith('/routine ');
@@ -448,7 +456,7 @@ export function PairedWorkspace({
           prompt: '',
           duration_seconds: settings.seconds,
           max_turns: settings.turns,
-          max_total_tokens: settings.tokens,
+          max_total_tokens: tokens,
           max_cost_microusd: settings.cost,
           max_output_tokens: settings.output,
           max_operations: 16,
@@ -751,8 +759,11 @@ export function PairedWorkspace({
               bot={bot}
               controller={controller}
               busy={state.busy || snapshot?.status !== 'online'}
-              settings={settings}
-              change={setSettings}
+              settings={{ ...settings, tokens }}
+              change={(next) => {
+                if (next.tokens !== tokens) setExplicitTokens(true);
+                setSettings(next);
+              }}
             />
             {blocker && (
               <p className="composer-blocker" role="status">
@@ -805,7 +816,7 @@ export function PairedWorkspace({
                     process: settings.process,
                     seconds: settings.seconds,
                     turns: settings.turns,
-                    tokens: settings.tokens,
+                    tokens,
                     cost_microusd: settings.cost,
                     output_tokens: settings.output,
                   }),

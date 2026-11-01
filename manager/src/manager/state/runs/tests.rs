@@ -597,6 +597,60 @@ fn registry_preserves_owner_policy_and_rejects_persistent_tab_assumptions() {
     assert!(tools::decode("unknown", "{}").is_err());
 }
 
+#[test]
+fn desktop_default_token_budget_is_refused_for_mistral_small_4_context() {
+    let mut f = fixture();
+    f.state
+        .configure_inference(
+            token(),
+            ConfigureInference {
+                bot: f.input.bot,
+                expected_revision: 1,
+                policy: InferencePolicy {
+                    endpoint: InferenceEndpoint::Eu,
+                    model_id: "mistral-small-2603".into(),
+                    context_tokens: 262144,
+                    acknowledgment: InferenceAcknowledgment {
+                        model_developer: "Mistral AI".into(),
+                        developer_terms_url: "https://mistral.ai/terms/".into(),
+                        privacy_terms_url: "https://mistral.ai/privacy/".into(),
+                        acknowledged_at: 1000,
+                        release: ModelReleaseAcknowledgment::Stable,
+                    },
+                    prices: InferencePrices {
+                        input_microusd_per_million_tokens: 200_000,
+                        output_microusd_per_million_tokens: 800_000,
+                        effective_at: 999,
+                        expires_at: 10000,
+                        billing: InferenceBilling::TextTokensOnlyAtAcknowledgedCeilings,
+                    },
+                },
+            },
+        )
+        .unwrap();
+    let permit = f
+        .state
+        .prepare_inference_verification(
+            token(),
+            VerifyInference {
+                bot: f.input.bot,
+                revision: 2,
+            },
+        )
+        .unwrap();
+    f.state
+        .finish_inference_verification(permit.configuration, permit.epoch, Some((true, false)))
+        .unwrap();
+    f.input.configuration_revision = 2;
+    f.input.limits.max_total_tokens = 200_000;
+    f.input.limits.max_output_tokens = 1024;
+    f.input.limits.max_cost_microusd = 200_000;
+    assert_eq!(
+        f.state.submit_run(token(), f.input),
+        Err(OperationError::InferenceBudget)
+    );
+}
+
 #[path = "artifact_tests.rs"]
 mod artifact_tests;
 #[path = "coding_tests.rs"]
