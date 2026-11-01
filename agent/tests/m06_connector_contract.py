@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import base64
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
 import json
@@ -174,6 +175,69 @@ class Contract(unittest.TestCase):
                 leftover['manager_' + 'ca'] = str(cert)
                 with self.assertRaises((KeyError, runtime.ConnectorError)):
                     runtime.Gateway(launch, leftover).request({'type': 'catalog'})
+            finally:
+                manager.shutdown()
+                manager.server_close()
+
+    def test_rcgen_ed25519_worker_key_reaches_the_manager(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cert, key, wrapped = root / 'cert.pem', root / 'key.pem', root / 'rcgen.key'
+            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'ed25519', '-nodes', '-keyout', str(key),
+                            '-out', str(cert), '-days', '1', '-subj', '/CN=localhost',
+                            '-addext', 'subjectAltName=IP:127.0.0.1',
+                            '-addext', 'extendedKeyUsage=serverAuth,clientAuth'],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            key.chmod(0o600)
+            pem = key.read_bytes()
+            lines = [line for line in pem.splitlines() if line and not line.startswith(b'-----')]
+            der = base64.b64decode(b''.join(lines))
+            oid = bytes.fromhex('06032b6570')
+            index = der.find(oid)
+            seed = der[index + len(oid) + 4:index + len(oid) + 36]
+            public = subprocess.check_output(['openssl', 'pkey', '-in', str(key), '-pubout', '-outform', 'DER'])[-32:]
+            body = bytes.fromhex('020101300506032b657004220420') + seed + bytes([0xa1, 0x21, 0x00]) + public
+            out = bytes([0x30, len(body)]) + body
+            packed = base64.encodebytes(out).replace(b'\n', b'')
+            chunks = [packed[i:i + 64] for i in range(0, len(packed), 64)]
+            wrapped.write_bytes(b'-----BEGIN PRIVATE KEY-----\n' + b'\n'.join(chunks) + b'\n-----END PRIVATE KEY-----\n')
+            wrapped.chmod(0o600)
+            with self.assertRaises(ssl.SSLError):
+                context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                context.load_cert_chain(cert, wrapped)
+            seen = []
+
+            class Manager(BaseHTTPRequestHandler):
+                def log_message(self, *_):
+                    pass
+
+                def do_POST(self):
+                    seen.append(self.path)
+                    data = b'{"type":"catalog","tools":[]}'
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+
+            manager = ThreadingHTTPServer(('127.0.0.1', 0), Manager)
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(cert, key)
+            context.load_verify_locations(cert)
+            context.verify_mode = ssl.CERT_REQUIRED
+            manager.socket = context.wrap_socket(manager.socket, server_side=True)
+            threading.Thread(target=manager.serve_forever, daemon=True).start()
+            try:
+                launch = {'directory': str(root), 'task': str(uuid.uuid4()), 'execution': str(uuid.uuid4())}
+                pin = {
+                    'manager': f'wss://127.0.0.1:{manager.server_port}',
+                    'pin': '0' * 64,
+                    'client_cert': str(cert),
+                    'client_key': str(wrapped),
+                }
+                self.assertEqual(runtime.Gateway(launch, pin).request({'type': 'catalog'}),
+                                 {'type': 'catalog', 'tools': []})
+                self.assertTrue(seen[-1].startswith('/worker/v1/connectors/'))
             finally:
                 manager.shutdown()
                 manager.server_close()

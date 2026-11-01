@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import http.client
 import json
@@ -9,6 +10,7 @@ import ssl
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from urllib.parse import urlsplit
@@ -27,6 +29,51 @@ class ConnectorError(Exception):
 
 def encoded(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+
+
+def client_tls(transport):
+    pin = transport['pin']
+    if type(pin) is not str or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin):
+        raise ValueError('pin')
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    load_client_chain(context, transport['client_cert'], transport['client_key'])
+    return context
+
+
+def load_client_chain(context, cert, key):
+    try:
+        context.load_cert_chain(cert, key)
+        return
+    except ssl.SSLError:
+        rewritten = _openssl_ed25519_pkcs8(Path(key).read_bytes())
+    fd, name = tempfile.mkstemp()
+    try:
+        os.write(fd, rewritten)
+        os.close(fd)
+        fd = None
+        os.chmod(name, 0o600)
+        context.load_cert_chain(cert, name)
+    finally:
+        if fd is not None:
+            os.close(fd)
+        os.unlink(name)
+
+
+def _openssl_ed25519_pkcs8(pem):
+    lines = [line for line in pem.splitlines() if line and not line.startswith(b'-----')]
+    der = base64.b64decode(b''.join(lines))
+    oid = bytes.fromhex('06032b6570')
+    index = der.find(oid)
+    rest = der[index + len(oid):] if index >= 0 else b''
+    if rest[:4] != bytes.fromhex('04220420') or len(rest) < 36:
+        raise ssl.SSLError('client key')
+    body = bytes.fromhex('020100300506032b657004220420') + rest[4:36]
+    out = bytes([0x30, len(body)]) + body
+    packed = base64.encodebytes(out).replace(b'\n', b'')
+    chunks = [packed[i:i + 64] for i in range(0, len(packed), 64)]
+    return b'-----BEGIN PRIVATE KEY-----\n' + b'\n'.join(chunks) + b'\n-----END PRIVATE KEY-----\n'
 
 
 def digest(value):
@@ -280,13 +327,10 @@ class Gateway:
         target = urlsplit(self.transport['manager'])
         if target.scheme != 'wss' or target.path not in ('', '/'):
             raise ConnectorError('protocol')
-        pin = self.transport['pin']
-        if type(pin) is not str or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin):
-            raise ConnectorError('protocol')
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.check_hostname = False
-        context.verify_mode = ssl.CERT_NONE
-        context.load_cert_chain(self.transport['client_cert'], self.transport['client_key'])
+        try:
+            context = client_tls(self.transport)
+        except ValueError:
+            raise ConnectorError('protocol') from None
         connection = http.client.HTTPSConnection(target.hostname, target.port, context=context, timeout=65 if body['type'] == 'execute' else 5)
         try:
             path = '/worker/v1/connectors/' + self.launch['task'] + '/' + self.launch['execution']
