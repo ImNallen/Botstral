@@ -1,0 +1,18 @@
+[package]
+name = "qa-stack-client"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[workspace]
+resolver = "3"
+
+[dependencies]
+botstral-desktop = { path = "../../desktop/src-tauri", default-features = false }
+botstral-link = { path = "../../link", features = ["tls"] }
+botstral-owner-client = { path = "../../link/client" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "io-util", "io-std"] }
+uuid = { version = "1", features = ["v4"] }
+zeroize = "1"
