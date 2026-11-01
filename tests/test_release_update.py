@@ -8,8 +8,9 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_model import ROOT, authority, digest, filename, write_json
-from release_update import (Busy, ChannelPointer, Effects, Idle, Probe, parse_latest,
-                            parse_pointer, plan, rollback_method, run)
+from release_update import (Busy, ChannelPointer, Effects, Idle, Probe, contained_file,
+                            download_release, parse_latest, parse_pointer, plan, rollback_method,
+                            run, write_atomic)
 
 
 class UpdateTests(unittest.TestCase):
@@ -133,6 +134,49 @@ class UpdateTests(unittest.TestCase):
             self.assertEqual(json.loads(version_path.read_text())['identity'], previous.json())
             self.assertGreaterEqual(len(calls['install']), 2)
             self.assertTrue(calls['health'])
+
+
+class DownloadSafetyTests(unittest.TestCase):
+    def test_artifact_names_cannot_leave_the_download_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            incoming = root / 'incoming'
+            incoming.mkdir()
+            with self.assertRaises(ValueError):
+                contained_file(incoming, '../escape')
+            with self.assertRaises(ValueError):
+                contained_file(incoming, '/tmp/escape')
+            path = contained_file(incoming, 'botstral-manager_0.1.1_amd64.deb')
+            self.assertEqual(path.parent, incoming)
+
+    def test_unsigned_manifest_does_not_fetch_artifacts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            options, _effects, _calls, _version, _previous, _target, _manifest = UpdateTests().prepare(
+                root, tamper=True)
+            fetched = []
+
+            def fetch(url):
+                fetched.append(url.rsplit('/', 1)[-1])
+                name = url.rsplit('/', 1)[-1]
+                return (root / 'target' / name).read_bytes()
+
+            incoming = root / 'incoming'
+            with self.assertRaises(subprocess.CalledProcessError):
+                download_release(options.channel_url, type('P', (), {
+                    'release': 'v0.1.1',
+                })(), incoming, fetch, options.trusted_key)
+            self.assertEqual(fetched, ['manifest.json', 'manifest.sig'])
+            self.assertFalse(any(incoming.glob('botstral-*')))
+
+    def test_report_matches_state_directory_owner(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            report = state / 'update-report.json'
+            write_atomic(report, {'installed': {}, 'last': None})
+            self.assertEqual(report.stat().st_uid, state.stat().st_uid)
+            self.assertEqual(report.stat().st_gid, state.stat().st_gid)
+            self.assertEqual(report.stat().st_mode & 0o777, 0o600)
 
 
 class DomainTests(unittest.TestCase):

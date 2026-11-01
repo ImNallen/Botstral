@@ -26,6 +26,7 @@ from release_upgrade import replacement_policy
 CHANNEL = 'https://github.com/ImNallen/Botstral/releases/download/channel-nightly/channel.json'
 BUSY = ('active_task', 'active_run', 'active_process')
 REJECT = ('signature', 'tamper', 'channel', 'downgrade', 'identity')
+SAFE_NAME = re.compile(r'^(manifest\.(json|sig)|botstral-(manager|agent|desktop)_[A-Za-z0-9.+~-]+_(amd64\.deb|arm64\.dmg))$')
 
 
 class Probe(str, Enum):
@@ -240,16 +241,37 @@ def asset_url(channel_url, tag, name):
     return root + '/' + tag + '/' + name
 
 
-def download_release(channel_url, pointer, directory, fetch):
+def contained_file(directory, name):
+    require(isinstance(name, str) and SAFE_NAME.fullmatch(name) is not None, 'unsafe artifact name')
+    path = directory / name
+    require(path.resolve().parent == directory.resolve(), 'artifact escaped download directory')
+    return path
+
+
+def verify_signature(directory, key):
+    subprocess.run(
+        ['openssl', 'dgst', '-sha256', '-verify', str(key),
+         '-signature', str(contained_file(directory, 'manifest.sig')),
+         str(contained_file(directory, 'manifest.json'))],
+        check=True, capture_output=True,
+    )
+
+
+def download_release(channel_url, pointer, directory, fetch, trusted_key):
     if directory.exists():
         shutil.rmtree(directory)
     directory.mkdir(parents=True)
-    manifest = fetch(asset_url(channel_url, pointer.release, 'manifest.json'))
-    (directory / 'manifest.json').write_bytes(manifest)
-    parsed = json.loads(manifest)
-    names = ['manifest.sig', *[item['filename'] for item in parsed['artifacts']]]
-    for name in names:
-        (directory / name).write_bytes(fetch(asset_url(channel_url, pointer.release, name)))
+    contained_file(directory, 'manifest.json').write_bytes(
+        fetch(asset_url(channel_url, pointer.release, 'manifest.json')))
+    contained_file(directory, 'manifest.sig').write_bytes(
+        fetch(asset_url(channel_url, pointer.release, 'manifest.sig')))
+    verify_signature(directory, trusted_key)
+    parsed = json.loads(contained_file(directory, 'manifest.json').read_text())
+    require(isinstance(parsed, dict) and isinstance(parsed.get('artifacts'), list), 'invalid manifest')
+    for item in parsed['artifacts']:
+        require(isinstance(item, dict), 'invalid artifact')
+        name = item.get('filename')
+        contained_file(directory, name).write_bytes(fetch(asset_url(channel_url, pointer.release, name)))
 
 
 def write_atomic(path, value):
@@ -262,6 +284,11 @@ def write_atomic(path, value):
         stream.flush()
         os.fsync(stream.fileno())
     os.replace(temporary, path)
+    try:
+        parent = path.parent.stat()
+        os.chown(path, parent.st_uid, parent.st_gid)
+    except OSError:
+        pass
 
 
 def replace_tree(source, destination):
@@ -479,7 +506,8 @@ def production_effects(component, state_dir, trusted_key):
             shutil.copy2(item, state_dir / item.name)
 
     return Effects(lambda url: json.loads(fetch_bytes(url)),
-                   lambda url, pointer, directory: download_release(url, pointer, directory, fetch_bytes),
+                   lambda url, pointer, directory: download_release(
+                       url, pointer, directory, fetch_bytes, trusted_key),
                    version, idle, lambda: systemctl('stop'), lambda: systemctl('start'),
                    install, reinstall, probe, restore, lambda: int(time.time()))
 
