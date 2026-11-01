@@ -41,6 +41,10 @@ def main():
         inspect_artifacts(directory, release, production=True)
         identity = release.identity
         require(identity.revision == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'publication checkout differs from signed source revision')
+        channel = 'channel-' + identity.channel
+        platforms = updater_platforms(directory, channel)
+        tarball = directory.parent / 'Botstral.app.tar.gz'
+        signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
         tag = ('v' if identity.channel == 'stable' else 'nightly-') + identity.version
         existing = subprocess.run(['gh', 'release', 'view', tag], capture_output=True)
         require(existing.returncode != 0, 'immutable release already exists; do not overwrite it')
@@ -48,7 +52,6 @@ def main():
         options = ['--verify-tag'] if identity.channel == 'stable' else ['--prerelease', '--target', identity.revision]
         gh('release', 'create', tag, '--draft', '--latest=false', '--title', 'Botstral ' + identity.version, '--notes', 'Exact release set. See docs/releases.md at the recorded source revision.', *options, *files)
         gh('release', 'edit', tag, '--draft=false', '--latest=false')
-        channel = 'channel-' + identity.channel
         pointer = Path(temporary) / 'channel.json'
         write_json(pointer, {'identity': identity.json(), 'release': tag, 'manifest_sha256': digest(directory / 'manifest.json')})
         if subprocess.run(['gh', 'release', 'view', channel], capture_output=True).returncode:
@@ -56,9 +59,6 @@ def main():
         gh('release', 'upload', channel, pointer, '--clobber')
         notes = 'Botstral ' + identity.version
         published = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-        platforms = updater_platforms(directory, channel)
-        tarball = directory.parent / 'Botstral.app.tar.gz'
-        signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
         gh('release', 'upload', channel, tarball, signature_path, '--clobber')
         latest = Path(temporary) / 'latest.json'
         write_json(latest, {'version': identity.version, 'notes': notes, 'pub_date': published, 'platforms': platforms})
