@@ -32,6 +32,12 @@
       "desktop": {
         "schemes": ["botstral"]
       }
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI0MDAyQkIwMzBCNDI2NjAKUldSZ0pyUXdzQ3NBSkxLa01NT2Q0aW9qbm9jTU4wdE52NzdKQkU2dmI1eVFlQzMvQkEySk1Gd00K",
+      "endpoints": [
+        "https://github.com/ImNallen/Botstral/releases/download/channel-nightly/latest.json"
+      ]
     }
   }
 }

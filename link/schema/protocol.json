@@ -6024,6 +6024,32 @@
             "method",
             "query"
           ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "update_status"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "const": "apply_update"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "method"
+          ]
         }
       ]
     },
@@ -6661,6 +6687,23 @@
                 "declaration",
                 "base64"
               ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "update"
+            },
+            "value": {
+              "$ref": "#/$defs/UpdateReport"
             }
           },
           "additionalProperties": false,
@@ -7496,6 +7539,13 @@
       "type": "integer",
       "format": "uint64",
       "minimum": 0
+    },
+    "RollbackMethod": {
+      "type": "string",
+      "enum": [
+        "reinstall_package",
+        "restore_backup"
+      ]
     },
     "RoutineAction": {
       "oneOf": [
@@ -9695,6 +9745,260 @@
       "type": "string",
       "format": "uuid"
     },
+    "UpdateAttempt": {
+      "type": "object",
+      "properties": {
+        "finished_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "outcome": {
+          "$ref": "#/$defs/UpdateOutcome"
+        },
+        "started_at": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "trigger": {
+          "$ref": "#/$defs/UpdateTrigger"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "started_at",
+        "finished_at",
+        "trigger",
+        "outcome"
+      ]
+    },
+    "UpdateBusy": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/UpdateBusyReason"
+            },
+            "state": {
+              "type": "string",
+              "const": "busy"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "reason"
+          ]
+        }
+      ]
+    },
+    "UpdateBusyReason": {
+      "type": "string",
+      "enum": [
+        "active_task",
+        "active_run",
+        "active_process"
+      ]
+    },
+    "UpdateIdentity": {
+      "type": "object",
+      "properties": {
+        "build_id": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "channel",
+        "revision",
+        "build_id"
+      ]
+    },
+    "UpdateOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "current"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "busy": {
+              "$ref": "#/$defs/UpdateBusy"
+            },
+            "type": {
+              "type": "string",
+              "const": "deferred"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "busy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/UpdateRejectReason"
+            },
+            "type": {
+              "type": "string",
+              "const": "rejected"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "reason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "current": {
+              "$ref": "#/$defs/UpdateIdentity"
+            },
+            "previous": {
+              "$ref": "#/$defs/UpdateIdentity"
+            },
+            "type": {
+              "type": "string",
+              "const": "applied"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "previous",
+            "current"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "failed": {
+              "$ref": "#/$defs/UpdateIdentity"
+            },
+            "method": {
+              "$ref": "#/$defs/RollbackMethod"
+            },
+            "previous": {
+              "$ref": "#/$defs/UpdateIdentity"
+            },
+            "type": {
+              "type": "string",
+              "const": "rolled_back"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "previous",
+            "failed",
+            "method"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "detail": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "const": "failed"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "detail"
+          ]
+        }
+      ]
+    },
+    "UpdateProtocols": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        },
+        "worker": {
+          "type": "integer",
+          "format": "uint16",
+          "maximum": 65535,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "worker",
+        "owner"
+      ]
+    },
+    "UpdateRejectReason": {
+      "type": "string",
+      "enum": [
+        "signature",
+        "tamper",
+        "channel",
+        "downgrade",
+        "identity"
+      ]
+    },
+    "UpdateReport": {
+      "type": "object",
+      "properties": {
+        "installed": {
+          "$ref": "#/$defs/VersionEnvelope"
+        },
+        "last": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UpdateAttempt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "installed"
+      ]
+    },
+    "UpdateTrigger": {
+      "type": "string",
+      "enum": [
+        "timer",
+        "now"
+      ]
+    },
     "UseDecision": {
       "type": "string",
       "enum": [
@@ -9787,6 +10091,32 @@
       "required": [
         "bot",
         "revision"
+      ]
+    },
+    "VersionEnvelope": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "identity": {
+          "$ref": "#/$defs/UpdateIdentity"
+        },
+        "link_schema_sha256": {
+          "type": "string"
+        },
+        "protocols": {
+          "$ref": "#/$defs/UpdateProtocols"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "protocols",
+        "link_schema_sha256"
       ]
     },
     "VibeAccess": {

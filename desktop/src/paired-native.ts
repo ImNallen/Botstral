@@ -9,6 +9,7 @@ import {
   artifactQuerySchema,
   type PairedApplication,
 } from './paired-domain';
+import { updateFactsSchema } from './update-domain';
 async function call(command: string, args?: Record<string, unknown>): Promise<unknown> {
   try {
     return await invoke<unknown>(command, args);
@@ -73,4 +74,9 @@ export const pairedApplication: PairedApplication = {
     await call('revoke_device', { device });
   },
   issueInvitation: async (label) => z.boolean().parse(await call('issue_invitation', { label })),
+  updateFacts: async () => updateFactsSchema.parse(await call('remote_update_facts')),
+  applyServerUpdate: async () => updateFactsSchema.parse(await call('remote_apply_update')),
+  restartToUpdate: async () => {
+    await call('restart_to_update');
+  },
 };

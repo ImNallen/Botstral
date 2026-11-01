@@ -84,6 +84,9 @@ export interface Application {
   createBot(input: Creation): Promise<Snapshot>;
   signOut(): Promise<Snapshot>;
   testNotification(): Promise<NotificationResult>;
+  updateFacts(): Promise<import('./update-domain').UpdateFacts>;
+  applyServerUpdate(): Promise<import('./update-domain').UpdateFacts>;
+  restartToUpdate(): Promise<void>;
 }
 
 export const errorMessages: Record<ErrorCode, string> = {

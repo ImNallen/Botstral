@@ -8,6 +8,12 @@ import {
   type ErrorCode,
   type Snapshot,
 } from './domain';
+import {
+  managerUpdate,
+  selectNotices,
+  updateFactsSchema,
+  type DesktopNotice,
+} from './update-domain';
 
 type View = { kind: 'starting' } | { kind: 'ready'; snapshot: Snapshot } | { kind: 'signing_out' };
 type CreateState =
@@ -28,6 +34,8 @@ export type ViewState = {
   creation: CreateState;
   selected: BotId | null;
   notice: string | null;
+  notices: DesktopNotice[];
+  managerVersion: { version: string; result: string } | null;
 };
 
 export class ApplicationController {
@@ -40,6 +48,8 @@ export class ApplicationController {
     creation: { kind: 'closed' },
     selected: null,
     notice: null,
+    notices: [],
+    managerVersion: null,
   };
   readonly paired: PairedController | null;
   constructor(private readonly app: Application) {
@@ -152,6 +162,37 @@ export class ApplicationController {
       this.set({ creation: { kind: 'closed' }, selected: draft.id });
     else
       this.set({ creation: { kind: 'pending', draft, endpoint, status: 'uncertain', open: true } });
+  }
+  private acceptUpdate(facts: ReturnType<typeof updateFactsSchema.parse>) {
+    const snapshot = this.state.view.kind === 'ready' ? this.state.view.snapshot : null;
+    const vaultLocked = snapshot?.kind === 'signed_in' && snapshot.details.vault === 'locked';
+    this.set({
+      notices: selectNotices({
+        restartVersion: facts.restart_version,
+        report: facts.report,
+        available: facts.available,
+        protocolMatch: facts.protocol_match,
+        vaultLocked,
+      }),
+      managerVersion: managerUpdate(facts.report),
+    });
+  }
+  async checkUpdates() {
+    try {
+      this.acceptUpdate(updateFactsSchema.parse(await this.app.updateFacts()));
+    } catch {
+      return;
+    }
+  }
+  async applyServerUpdate() {
+    try {
+      this.acceptUpdate(updateFactsSchema.parse(await this.app.applyServerUpdate()));
+    } catch {
+      return;
+    }
+  }
+  async restartToUpdate() {
+    await this.app.restartToUpdate();
   }
   async testNotification() {
     this.set({ notice: null });

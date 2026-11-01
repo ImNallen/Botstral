@@ -127,6 +127,8 @@ jobs:
           TARGET: ${{ matrix.target }}
           APPLE_SIGNING_IDENTITY: ${{ vars.APPLE_SIGNING_IDENTITY }}
           APPLE_NOTARY_PROFILE: botstral-release
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           python3 scripts/release.py versions --write --identity identities/old.json
           python3 scripts/release.py build --identity identities/old.json --target "$TARGET" --output native-old
@@ -152,6 +154,12 @@ jobs:
             native-new/*
             acceptance.json
           if-no-files-found: error
+      - if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: updater-macos
+          path: updater-bundle/
+          if-no-files-found: ignore
 
   aggregate:
     needs: [identity, native]
@@ -166,6 +174,11 @@ jobs:
         with:
           pattern: native-*
           path: inputs
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: updater-macos
+          path: updater-bundle
       - env:
           PRIVATE_KEY: ${{ secrets.RELEASE_MANIFEST_PRIVATE_KEY }}
           PUBLIC_KEY: ${{ vars.RELEASE_MANIFEST_PUBLIC_KEY }}
@@ -182,10 +195,15 @@ jobs:
           python3 scripts/release.py verify release-set --production --trusted-key "$RUNNER_TEMP/manifest-public.pem"
           python3 scripts/release_negative_controls.py release-set --output "$RUNNER_TEMP/negative-controls.json"
           python3 scripts/release_cli_acceptance.py release-set --trusted-key "$RUNNER_TEMP/manifest-public.pem" --output "$RUNNER_TEMP/cli-acceptance.json"
+          mkdir -p publish-root
+          mv release-set publish-root/release-set
+          if [ -d updater-bundle ]; then
+            find updater-bundle -type f -exec cp {} publish-root/ \;
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: release-set
-          path: release-set/
+          path: publish-root/
           if-no-files-found: error
 
   publish:
@@ -203,9 +221,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: release-set
-          path: release-set
+          path: publish-root
       - env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           PUBLIC_KEY: ${{ vars.RELEASE_MANIFEST_PUBLIC_KEY }}
-        run: python3 scripts/release_publish.py release-set
+        run: python3 scripts/release_publish.py publish-root/release-set

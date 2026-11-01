@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import datetime
 import os
 from pathlib import Path
 import subprocess
@@ -7,6 +8,7 @@ import tempfile
 
 from release_model import digest, require, verify, write_json
 from release_artifacts import inspect_artifacts
+from release_update import build_latest
 
 
 def gh(*args):
@@ -37,6 +39,19 @@ def main():
         if subprocess.run(['gh', 'release', 'view', channel], capture_output=True).returncode:
             gh('release', 'create', channel, '--prerelease', '--latest=false', '--target', identity.revision, '--title', identity.channel + ' channel', '--notes', 'Discovery pointer only. Install a verified immutable exact release set.')
         gh('release', 'upload', channel, pointer, '--clobber')
+        notes = 'Botstral ' + identity.version
+        published = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+        tarball = directory.parent / 'Botstral.app.tar.gz'
+        signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
+        signature = None
+        url = None
+        if tarball.is_file() and signature_path.is_file() and not tarball.is_symlink() and not signature_path.is_symlink():
+            gh('release', 'upload', channel, tarball, signature_path, '--clobber')
+            signature = signature_path.read_text().strip()
+            url = 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name
+        latest = Path(temporary) / 'latest.json'
+        write_json(latest, build_latest(identity, notes, published, signature, url))
+        gh('release', 'upload', channel, latest, '--clobber')
         if identity.channel == 'stable':
             gh('release', 'edit', tag, '--latest')
 

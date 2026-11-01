@@ -1,5 +1,13 @@
 import { vi } from 'vitest';
 import { snapshotSchema, type Application, type SignedIn } from './domain';
+import type { UpdateFacts } from './update-domain';
+
+export const idleFacts: UpdateFacts = {
+  restart_version: null,
+  report: null,
+  available: null,
+  protocol_match: true,
+};
 
 export const botId = '00000000-0000-4000-8000-000000000001';
 export const secondBotId = '00000000-0000-4000-8000-000000000002';
@@ -40,6 +48,9 @@ export function application(initial = signedIn()) {
     createBot: vi.fn<Application['createBot']>().mockResolvedValue(initial),
     signOut: vi.fn<Application['signOut']>().mockResolvedValue(signedOut()),
     testNotification: vi.fn<Application['testNotification']>().mockResolvedValue('submitted'),
+    updateFacts: vi.fn<Application['updateFacts']>().mockResolvedValue(idleFacts),
+    applyServerUpdate: vi.fn<Application['applyServerUpdate']>().mockResolvedValue(idleFacts),
+    restartToUpdate: vi.fn<Application['restartToUpdate']>().mockResolvedValue(),
   } satisfies Application;
 }
 export function deferred<T>() {

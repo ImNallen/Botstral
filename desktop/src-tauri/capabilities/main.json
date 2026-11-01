@@ -51,6 +51,11 @@
     "allow-credential-write-status",
     "allow-credential-uses",
     "allow-decide-credential-use",
-    "allow-lock-vault"
+    "allow-lock-vault",
+    "allow-update-facts",
+    "allow-apply-server-update",
+    "allow-restart-to-update",
+    "allow-remote-update-facts",
+    "allow-remote-apply-update"
   ]
 }

@@ -3,6 +3,7 @@ import type { PairedController } from './paired-application';
 import { TaskCard } from './TaskCard';
 import { SavedResults } from './SavedResults';
 import { remoteIssues, type Device, type Workspace } from './paired-domain';
+import { UpdateNotice } from './UpdateNotice';
 import { Avatar } from './Avatar';
 import { Icon } from './Icon';
 import { formatDate } from './format';
@@ -386,6 +387,22 @@ export function PairedWorkspace({
   useEffect(() => {
     if (bot && !workspace?.bots.some((item) => item.id === selected)) setSelected(bot.id);
   }, [bot, workspace?.bots, selected]);
+  useEffect(() => {
+    let interval = 0;
+    const first = window.setTimeout(() => {
+      void controller.checkUpdates();
+      interval = window.setInterval(
+        () => {
+          void controller.checkUpdates();
+        },
+        60 * 60 * 1000,
+      );
+    }, 15000);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(interval);
+    };
+  }, [controller]);
   const session = workspace?.sessions.find((s) => s.bot_id === bot?.id);
   const worker = workspace?.workers.find((w) => w.id === session?.worker_id);
   const config = workspace?.configurations.find((c) => c.bot === bot?.id);
@@ -396,7 +413,7 @@ export function PairedWorkspace({
     snapshot?.status !== 'online'
       ? 'Reconnect and recover the workspace before sending.'
       : !workspace?.vault_unlocked
-        ? 'Unlock the manager Vault through protected entry or trusted local administration.'
+        ? 'The vault is locked. The owner must unlock it to resume.'
         : !config?.ready
           ? 'Configure and verify a tool-capable inference model for this bot in trusted manager administration.'
           : unknown
@@ -554,6 +571,16 @@ export function PairedWorkspace({
           </span>
         </header>
         <div className="conversation paired-conversation">
+          <UpdateNotice
+            notices={state.notices}
+            busy={state.busy}
+            onRestart={() => {
+              void controller.restartToUpdate();
+            }}
+            onApply={() => {
+              void controller.applyServerUpdate();
+            }}
+          />
           {issue && state.library.kind === 'closed' && (
             <div className="banner error-banner" role="alert">
               {remoteIssues[issue] ??
@@ -834,6 +861,8 @@ export function PairedWorkspace({
           <div className="details-content">
             <p>Manager {workspace?.manager ?? snapshot?.candidate?.manager ?? 'Not paired'}</p>
             <p>Applied cursor {workspace?.cursor ?? 0}</p>
+            <p>Manager version {state.managerVersion?.version ?? 'Unavailable'}</p>
+            <p>Last update {state.managerVersion?.result ?? 'No update yet'}</p>
             <button
               disabled={state.busy}
               onClick={() => {

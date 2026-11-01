@@ -100,8 +100,28 @@ fn run_cli(test_worker: bool) -> Result<(), Box<dyn std::error::Error>> {
     }
     if command == "--help" {
         println!(
-            "botstral-agent identity --client-cert PATH\nbotstral-agent join --state-dir PATH CODE\nbotstral-agent run|check --state-dir PATH"
+            "botstral-agent identity --client-cert PATH\nbotstral-agent idle --state-dir PATH\nbotstral-agent join --state-dir PATH CODE\nbotstral-agent run|check --state-dir PATH"
         );
+        return Ok(());
+    }
+    if command == "idle" {
+        let mut state_dir = None;
+        while let Some(key) = args.next() {
+            if key == "--state-dir" {
+                if state_dir
+                    .replace(args.next().ok_or("missing option value")?)
+                    .is_some()
+                {
+                    return Err("duplicate option".into());
+                }
+            } else {
+                return Err("unknown option".into());
+            }
+        }
+        match crate::journal::host_idle(Path::new(&state_dir.ok_or("missing option")?))? {
+            None => println!("{{\"idle\":true}}"),
+            Some(reason) => println!("{{\"idle\":false,\"reason\":\"{reason}\"}}"),
+        }
         return Ok(());
     }
     if command == "identity" {

@@ -337,6 +337,22 @@ impl Manager {
             .call(false, move |state| state.connection_status(token))
             .await
     }
+    pub async fn update_report(
+        &self,
+        token: SessionToken,
+    ) -> Result<botstral_link::UpdateReport, OperationError> {
+        self.queue
+            .call(false, move |state| state.update_report(token))
+            .await
+    }
+    pub async fn request_update(
+        &self,
+        token: SessionToken,
+    ) -> Result<botstral_link::UpdateReport, OperationError> {
+        self.queue
+            .call(false, move |state| state.request_update(token))
+            .await
+    }
     pub async fn unlock_vault(
         &self,
         token: SessionToken,

@@ -6,6 +6,12 @@ import {
   type PairedApplication,
   type RemoteSnapshot,
 } from './paired-domain';
+import {
+  managerUpdate,
+  selectNotices,
+  updateFactsSchema,
+  type DesktopNotice,
+} from './update-domain';
 type LibraryState =
   | { kind: 'closed' }
   | { kind: 'loading'; query: ArtifactQuery }
@@ -23,6 +29,8 @@ export type PairedState = {
   busy: boolean;
   issue: string | null;
   notice: string | null;
+  notices: DesktopNotice[];
+  managerVersion: { version: string; result: string } | null;
 };
 export class PairedController {
   private epoch = 0;
@@ -39,6 +47,8 @@ export class PairedController {
     notice: null,
     library: { kind: 'closed' },
     source: { kind: 'idle' },
+    notices: [],
+    managerVersion: null,
   };
   constructor(readonly app: PairedApplication) {}
   getState = () => this.state;
@@ -222,6 +232,38 @@ export class PairedController {
         this.set({ busy: false });
       }
     }
+  }
+  private acceptUpdate(facts: ReturnType<typeof updateFactsSchema.parse>) {
+    const vaultLocked = this.state.snapshot?.workspace?.vault_unlocked === false;
+    this.set({
+      notices: selectNotices({
+        restartVersion: facts.restart_version,
+        report: facts.report,
+        available: facts.available,
+        protocolMatch: facts.protocol_match,
+        vaultLocked,
+      }),
+      managerVersion: managerUpdate(facts.report),
+    });
+  }
+  async checkUpdates() {
+    if (!this.app.updateFacts) return;
+    try {
+      this.acceptUpdate(updateFactsSchema.parse(await this.app.updateFacts()));
+    } catch {
+      return;
+    }
+  }
+  async applyServerUpdate() {
+    if (!this.app.applyServerUpdate) return;
+    try {
+      this.acceptUpdate(updateFactsSchema.parse(await this.app.applyServerUpdate()));
+    } catch {
+      return;
+    }
+  }
+  async restartToUpdate() {
+    await this.app.restartToUpdate?.();
   }
   async signOut() {
     this.epoch += 1;

@@ -19,6 +19,8 @@ use super::{crypto, *};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 use std::{
     fs,
+    io::Write,
+    os::unix::fs::OpenOptionsExt,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 use subtle::ConstantTimeEq;
@@ -567,6 +569,57 @@ impl State {
             .optional()?;
         Ok(ConnectionStatus { vault, provider })
     }
+
+    pub(super) fn read_update_report(&self) -> Result<botstral_link::UpdateReport, OperationError> {
+        let path = self.directory.join("update-report.json");
+        let metadata = match fs::symlink_metadata(&path) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(embedded_update_report());
+            }
+            Err(_) => return Err(OperationError::Internal),
+            Ok(metadata) => metadata,
+        };
+        if !metadata.is_file() || metadata.len() > 65_536 {
+            return Err(OperationError::Internal);
+        }
+        serde_json::from_slice(&fs::read(&path).map_err(|_| OperationError::Internal)?)
+            .map_err(|_| OperationError::Internal)
+    }
+
+    pub(super) fn write_update_request(&self) -> Result<(), OperationError> {
+        let temporary = self.directory.join("update.request.tmp");
+        let mut file = fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .mode(0o600)
+            .custom_flags(libc::O_NOFOLLOW)
+            .open(&temporary)
+            .map_err(|_| OperationError::Internal)?;
+        file.write_all(b"{}\n")
+            .map_err(|_| OperationError::Internal)?;
+        file.sync_all().map_err(|_| OperationError::Internal)?;
+        fs::rename(temporary, self.directory.join("update.request"))
+            .map_err(|_| OperationError::Internal)
+    }
+
+    pub(super) fn update_report(
+        &mut self,
+        token: SessionToken,
+    ) -> Result<botstral_link::UpdateReport, OperationError> {
+        self.authorize(&token)?;
+        self.read_update_report()
+    }
+
+    pub(super) fn request_update(
+        &mut self,
+        token: SessionToken,
+    ) -> Result<botstral_link::UpdateReport, OperationError> {
+        self.authorize(&token)?;
+        self.write_update_request()?;
+        self.read_update_report()
+    }
+
     pub(super) fn unlock_vault(
         &mut self,
         token: SessionToken,
@@ -642,6 +695,15 @@ impl State {
         tasks::event(&tx, "inference_verification_invalidated", "mistral")?;
         tx.commit()?;
         Ok(metadata)
+    }
+}
+
+fn embedded_update_report() -> botstral_link::UpdateReport {
+    let mut value = botstral_link::release::identity();
+    value["component"] = "manager".into();
+    botstral_link::UpdateReport {
+        installed: serde_json::from_value(value).expect("embedded release identity"),
+        last: None,
     }
 }
 

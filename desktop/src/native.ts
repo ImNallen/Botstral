@@ -8,6 +8,7 @@ import {
   notificationSchema,
   type Application,
 } from './domain';
+import { updateFactsSchema } from './update-domain';
 
 const deniedSchema = z.strictObject({ code: z.literal('unauthorized') });
 async function call(command: string, args?: Record<string, unknown>): Promise<unknown> {
@@ -36,5 +37,18 @@ export const nativeApplication: Application = {
     const result = notificationSchema.safeParse(await call('test_notification'));
     if (!result.success) throw new ApplicationError('invalid_response');
     return result.data;
+  },
+  updateFacts: async () => {
+    const result = updateFactsSchema.safeParse(await call('update_facts'));
+    if (!result.success) throw new ApplicationError('invalid_response');
+    return result.data;
+  },
+  applyServerUpdate: async () => {
+    const result = updateFactsSchema.safeParse(await call('apply_server_update'));
+    if (!result.success) throw new ApplicationError('invalid_response');
+    return result.data;
+  },
+  restartToUpdate: async () => {
+    await call('restart_to_update');
   },
 };

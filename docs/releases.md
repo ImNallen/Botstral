@@ -2,7 +2,7 @@
 
 Botstral releases contain separate Ubuntu 24.04 amd64 manager and worker Debian packages and a macOS Apple silicon DMG. Each set identifies one version, source revision, distribution channel, and CI build. Link ships compiled into each executable. Worker protocol 4 and owner protocol 3 retain their existing admission checks.
 
-Stable and nightly replace the same installation. The desktop identifier remains `com.botstral.desktop`, and credentials remain in `com.botstral.desktop.owner.v1`. Channel switching requires an explicit coordinated upgrade. There is no background updater or rolling protocol upgrade.
+Stable and nightly replace the same installation. The desktop identifier remains `com.botstral.desktop`, and credentials remain in `com.botstral.desktop.owner.v1`. Channel switching requires an explicit coordinated upgrade. Background updates are covered in [Automatic updates](auto-update.md). There is no rolling protocol upgrade.
 
 ## Verify the complete set
 

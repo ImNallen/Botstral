@@ -772,7 +772,10 @@ impl OwnerSession {
                 | OwnerOperation::Artifact { .. }
                 | OwnerOperation::Artifacts { .. }
                 | OwnerOperation::CodingCalls { .. }
+                | OwnerOperation::UpdateStatus
+                | OwnerOperation::ApplyUpdate
         );
+        // ApplyUpdate writes one request file and is safe to repeat.
         let id = RequestId::new();
         let sent = self
             .send(OwnerClientMessage::Call {
