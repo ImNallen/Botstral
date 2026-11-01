@@ -20,6 +20,19 @@ module.loader.exec_module(runtime)
 SCHEMA = {'type': 'object', 'properties': {'value': {'type': 'string'}}, 'required': ['value'], 'additionalProperties': False}
 
 
+def ed25519_identity(root):
+    cert, key = root / 'cert.pem', root / 'key.pem'
+    subprocess.run(['openssl', 'req', '-x509', '-newkey', 'ed25519', '-nodes', '-keyout', str(key),
+                    '-out', str(cert), '-days', '1', '-subj', '/CN=localhost',
+                    '-addext', 'subjectAltName=IP:127.0.0.1',
+                    '-addext', 'extendedKeyUsage=serverAuth,clientAuth'],
+                   check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    key.chmod(0o600)
+    pem = subprocess.check_output(['openssl', 'x509', '-in', str(cert), '-pubkey', '-noout'])
+    der = subprocess.check_output(['openssl', 'pkey', '-pubin', '-outform', 'DER'], input=pem)
+    return cert, key, der[-32:].hex()
+
+
 def binding():
     return {'connection': {'connection': str(uuid.uuid4()), 'revision': 2, 'credential_epoch': 1},
             'catalog_revision': 1, 'grant_revision': 1, 'name': 'echo',
@@ -130,13 +143,7 @@ class Contract(unittest.TestCase):
     def test_pin_transport_completes_a_client_cert_call(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            cert, key = root / 'cert.pem', root / 'key.pem'
-            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(key),
-                            '-out', str(cert), '-days', '1', '-subj', '/CN=localhost',
-                            '-addext', 'subjectAltName=IP:127.0.0.1',
-                            '-addext', 'extendedKeyUsage=serverAuth,clientAuth'],
-                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            key.chmod(0o600)
+            cert, key, pin = ed25519_identity(root)
             seen = []
 
             class Manager(BaseHTTPRequestHandler):
@@ -161,16 +168,23 @@ class Contract(unittest.TestCase):
             threading.Thread(target=manager.serve_forever, daemon=True).start()
             try:
                 launch = {'directory': str(root), 'task': str(uuid.uuid4()), 'execution': str(uuid.uuid4())}
-                pin = {
+                transport = {
                     'manager': f'wss://127.0.0.1:{manager.server_port}',
-                    'pin': '0' * 64,
+                    'pin': pin,
                     'client_cert': str(cert),
                     'client_key': str(key),
                 }
-                self.assertEqual(runtime.Gateway(launch, pin).request({'type': 'catalog'}),
+                self.assertEqual(runtime.Gateway(launch, transport).request({'type': 'catalog'}),
                                  {'type': 'catalog', 'tools': []})
                 self.assertEqual(seen[-1]['body']['type'], 'catalog')
-                leftover = dict(pin)
+                accepted = len(seen)
+                for wrong in ('0' * 64, '1' * 64):
+                    refused = dict(transport)
+                    refused['pin'] = wrong
+                    with self.assertRaises(runtime.ConnectorError):
+                        runtime.Gateway(launch, refused).request({'type': 'catalog'})
+                self.assertEqual(len(seen), accepted)
+                leftover = dict(transport)
                 leftover.pop('pin')
                 leftover['manager_' + 'ca'] = str(cert)
                 with self.assertRaises((KeyError, runtime.ConnectorError)):
@@ -182,13 +196,8 @@ class Contract(unittest.TestCase):
     def test_rcgen_ed25519_worker_key_reaches_the_manager(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            cert, key, wrapped = root / 'cert.pem', root / 'key.pem', root / 'rcgen.key'
-            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'ed25519', '-nodes', '-keyout', str(key),
-                            '-out', str(cert), '-days', '1', '-subj', '/CN=localhost',
-                            '-addext', 'subjectAltName=IP:127.0.0.1',
-                            '-addext', 'extendedKeyUsage=serverAuth,clientAuth'],
-                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            key.chmod(0o600)
+            cert, key, pin = ed25519_identity(root)
+            wrapped = root / 'rcgen.key'
             pem = key.read_bytes()
             lines = [line for line in pem.splitlines() if line and not line.startswith(b'-----')]
             der = base64.b64decode(b''.join(lines))
@@ -229,13 +238,13 @@ class Contract(unittest.TestCase):
             threading.Thread(target=manager.serve_forever, daemon=True).start()
             try:
                 launch = {'directory': str(root), 'task': str(uuid.uuid4()), 'execution': str(uuid.uuid4())}
-                pin = {
+                transport = {
                     'manager': f'wss://127.0.0.1:{manager.server_port}',
-                    'pin': '0' * 64,
+                    'pin': pin,
                     'client_cert': str(cert),
                     'client_key': str(wrapped),
                 }
-                self.assertEqual(runtime.Gateway(launch, pin).request({'type': 'catalog'}),
+                self.assertEqual(runtime.Gateway(launch, transport).request({'type': 'catalog'}),
                                  {'type': 'catalog', 'tools': []})
                 self.assertTrue(seen[-1].startswith('/worker/v1/connectors/'))
             finally:
