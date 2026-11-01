@@ -49,42 +49,6 @@ pub(crate) struct Journal {
 fn err(e: impl std::fmt::Display) -> io::Error {
     io::Error::other(e.to_string())
 }
-
-pub(crate) fn host_idle(directory: &Path) -> io::Result<Option<&'static str>> {
-    // Read the stored lifecycle tag. Opening the live journal would take the writer connection the worker holds.
-    let path = directory.join("agent.sqlite3");
-    if !path.exists() {
-        return Ok(None);
-    }
-    let db = Connection::open_with_flags(
-        &path,
-        OpenFlags::SQLITE_OPEN_READ_ONLY
-            | OpenFlags::SQLITE_OPEN_NO_MUTEX
-            | OpenFlags::SQLITE_OPEN_NOFOLLOW,
-    )
-    .map_err(err)?;
-    db.busy_timeout(std::time::Duration::from_secs(2))
-        .map_err(err)?;
-    let mut statement = db.prepare("SELECT record FROM executions").map_err(err)?;
-    let rows = statement
-        .query_map([], |row| row.get::<_, String>(0))
-        .map_err(err)?;
-    for row in rows {
-        let value: serde_json::Value = serde_json::from_str(&row.map_err(err)?).map_err(err)?;
-        let Some(process) = value.get("process").filter(|item| !item.is_null()) else {
-            continue;
-        };
-        let stopped = process
-            .get("lifecycle")
-            .and_then(|lifecycle| lifecycle.get("type"))
-            .and_then(|kind| kind.as_str())
-            == Some("stopped");
-        if !stopped {
-            return Ok(Some("active_process"));
-        }
-    }
-    Ok(None)
-}
 fn encode<T: Serialize>(v: &T) -> io::Result<String> {
     serde_json::to_string(v).map_err(err)
 }

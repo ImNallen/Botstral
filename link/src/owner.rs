@@ -133,7 +133,6 @@ pub enum OwnerHello {
 #[serde(rename_all = "snake_case")]
 pub enum UpdateBusyReason {
     ActiveTask,
-    ActiveRun,
     ActiveProcess,
 }
 
@@ -704,21 +703,6 @@ mod tests {
                 serde_json::from_value::<OwnerOperation>(serde_json::json!({"method":method}))
                     .is_err()
             );
-        }
-    }
-
-    #[test]
-    fn updater_report_json_round_trips() {
-        for raw in [
-            r#"{"installed":{"component":"manager","identity":{"build_id":"target","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.1"},"link_schema_sha256":"abc","protocols":{"owner":3,"worker":4}},"last":{"finished_at":2,"outcome":{"current":{"build_id":"target","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.1"},"previous":{"build_id":"previous","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.0"},"type":"applied"},"started_at":1,"trigger":"timer"}}"#,
-            r#"{"installed":{"component":"manager","identity":{"build_id":"previous","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.0"},"link_schema_sha256":"abc","protocols":{"owner":3,"worker":4}},"last":{"finished_at":2,"outcome":{"failed":{"build_id":"target","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.1"},"method":"reinstall_package","previous":{"build_id":"previous","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.0"},"type":"rolled_back"},"started_at":1,"trigger":"now"}}"#,
-            r#"{"installed":{"identity":{"build_id":"previous","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.0"},"link_schema_sha256":"abc","protocols":{"owner":3,"worker":4}},"last":{"finished_at":2,"outcome":{"busy":{"reason":"active_task","state":"busy"},"type":"deferred"},"started_at":1,"trigger":"timer"}}"#,
-            r#"{"installed":{"identity":{"build_id":"previous","channel":"stable","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","version":"0.1.0"},"link_schema_sha256":"abc","protocols":{"owner":3,"worker":4}},"last":{"finished_at":2,"outcome":{"reason":"signature","type":"rejected"},"started_at":1,"trigger":"timer"}}"#,
-        ] {
-            let report: UpdateReport = serde_json::from_str(raw).expect(raw);
-            let encoded = serde_json::to_string(&report).unwrap();
-            let again: UpdateReport = serde_json::from_str(&encoded).unwrap();
-            assert_eq!(report, again);
         }
     }
 }

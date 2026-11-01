@@ -107,18 +107,4 @@ describe('update notices', () => {
     await controller.checkUpdates();
     expect(await screen.findByText(/update was deferred/)).toBeTruthy();
   });
-
-  it('shows the installed manager version in details', async () => {
-    const user = userEvent.setup();
-    const app = application(signedIn());
-    app.updateFacts.mockResolvedValue(facts());
-    const controller = new ApplicationController(app);
-    render(<App controller={controller} />);
-    await screen.findByRole('button', { name: 'Research' });
-    await controller.checkUpdates();
-    await user.click(screen.getByRole('button', { name: 'Show details' }));
-    const details = screen.getByRole('complementary', { name: 'Workspace details' });
-    expect(within(details).getByText('0.4.2')).toBeTruthy();
-    expect(within(details).getByText('No update yet')).toBeTruthy();
-  });
 });

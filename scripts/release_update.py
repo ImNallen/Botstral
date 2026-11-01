@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import time
@@ -24,7 +25,7 @@ from release_model import ReleaseIdentity, digest, read_json, require, verify, w
 from release_upgrade import replacement_policy
 
 CHANNEL = 'https://github.com/ImNallen/Botstral/releases/download/channel-nightly/channel.json'
-BUSY = ('active_task', 'active_run', 'active_process')
+BUSY = ('active_task', 'active_process')
 REJECT = ('signature', 'tamper', 'channel', 'downgrade', 'identity')
 SAFE_NAME = re.compile(r'^(manifest\.(json|sig)|botstral-(manager|agent|desktop)_[A-Za-z0-9.+~-]+_(amd64\.deb|arm64\.dmg))$')
 
@@ -155,24 +156,6 @@ def parse_pointer(value):
     require(re.fullmatch(r'[A-Za-z0-9._-]{1,120}', value['release']) is not None, 'invalid release tag')
     require(re.fullmatch(r'[0-9a-f]{64}', value['manifest_sha256']) is not None, 'invalid manifest digest')
     return ChannelPointer(ReleaseIdentity.parse(value['identity']), value['release'], value['manifest_sha256'])
-
-
-def parse_latest(value):
-    require(set(value) == {'version', 'notes', 'pub_date', 'platforms'}, 'invalid latest.json')
-    require(isinstance(value['version'], str) and isinstance(value['notes'], str) and isinstance(value['pub_date'], str), 'invalid latest.json')
-    require(isinstance(value['platforms'], dict), 'invalid latest.json')
-    for name, platform in value['platforms'].items():
-        require(name == 'darwin-aarch64', 'unexpected updater platform')
-        require(set(platform) == {'signature', 'url'}, 'invalid updater platform')
-        require(isinstance(platform['signature'], str) and platform['url'].startswith('https://'), 'invalid updater platform')
-    return value
-
-
-def build_latest(identity, notes, pub_date, signature=None, url=None):
-    platforms = {}
-    if signature is not None and url is not None:
-        platforms['darwin-aarch64'] = {'signature': signature, 'url': url}
-    return parse_latest({'version': identity.version, 'notes': notes, 'pub_date': pub_date, 'platforms': platforms})
 
 
 def plan(current, pointer, idle):
@@ -336,10 +319,6 @@ def finish(path, installed, started, effects, trigger, outcome):
     return 0 if not isinstance(outcome, Failed) else 1
 
 
-def install_release(effects, release_dir, component, version, backup_receipt, config_backup, receipt):
-    effects.install(release_dir, component, version, backup_receipt, config_backup, receipt)
-
-
 def previous_deb(release_dir, component):
     for item in read_json(release_dir / 'manifest.json')['artifacts']:
         if item.get('component') == component:
@@ -428,7 +407,7 @@ def _run(options, effects):
     try:
         effects.stop()
         receipt = backup / 'apply-receipt.json'
-        install_release(effects, incoming, options.component, checked.identity.version,
+        effects.install(incoming, options.component, checked.identity.version,
                         backup / 'backup.json', backup / 'config', receipt)
         effects.start()
         if effects.health(options.listen) != Probe.OK:
@@ -460,6 +439,32 @@ def fetch_bytes(url):
         return response.read()
 
 
+def host_idle(component, state_dir):
+    path = state_dir / ('manager.sqlite3' if component == 'manager' else 'agent.sqlite3')
+    if path.is_symlink() or not path.is_file():
+        return {'idle': True}
+    connection = sqlite3.connect('file:' + path.resolve().as_posix() + '?mode=ro', uri=True, timeout=2)
+    try:
+        if component == 'manager':
+            count, = connection.execute(
+                "SELECT count(*) FROM tasks WHERE json_extract(view,'$.state') IN ('running','cancelling')"
+            ).fetchone()
+            if count:
+                return {'idle': False, 'reason': 'active_task'}
+            return {'idle': True}
+        for (record,) in connection.execute('SELECT record FROM executions'):
+            process = json.loads(record).get('process')
+            if not isinstance(process, dict):
+                continue
+            lifecycle = process.get('lifecycle')
+            kind = lifecycle.get('type') if isinstance(lifecycle, dict) else None
+            if kind != 'stopped':
+                return {'idle': False, 'reason': 'active_process'}
+        return {'idle': True}
+    finally:
+        connection.close()
+
+
 def production_effects(component, state_dir, trusted_key):
     binary = Path('/usr/bin/botstral-' + component)
 
@@ -469,9 +474,7 @@ def production_effects(component, state_dir, trusted_key):
         return json.loads(subprocess.check_output([str(binary), '--version-json']))
 
     def idle():
-        completed = subprocess.run([str(binary), 'idle', '--state-dir', str(state_dir)],
-                                   check=True, capture_output=True, text=True)
-        return json.loads(completed.stdout)
+        return host_idle(component, state_dir)
 
     def systemctl(action):
         command = ['systemctl', action, 'botstral-' + component + '.service']
@@ -524,9 +527,7 @@ def read_config(component):
     return {}
 
 
-def listen_address(component, configured):
-    if configured:
-        return configured
+def listen_address(component):
     service = Path('/etc/botstral-' + component) / 'service.json'
     if component == 'manager' and service.is_file() and not service.is_symlink():
         value = read_json(service).get('listen')
@@ -542,22 +543,20 @@ def main(argv=None):
     parser.add_argument('--state-dir', type=Path)
     parser.add_argument('--channel-url')
     parser.add_argument('--trusted-key', type=Path)
-    parser.add_argument('--report', type=Path)
-    parser.add_argument('--listen')
     args = parser.parse_args(argv)
     component = args.component
     if component is None:
         parser.error('--component is required')
     configured = read_config(component)
-    state_dir = args.state_dir or Path(configured.get('state_dir') or (
-        '/var/lib/botstral-manager' if component == 'manager' else Path.home() / '.local/share/botstral-agent'))
+    state_dir = args.state_dir or Path(
+        '/var/lib/botstral-manager' if component == 'manager' else Path.home() / '.local/share/botstral-agent')
     options = argparse.Namespace(
         component=component,
         state_dir=state_dir,
         channel_url=args.channel_url or configured.get('channel_url', CHANNEL),
         trusted_key=args.trusted_key or load_key(component),
-        report=args.report or state_dir / 'update-report.json',
-        listen=listen_address(component, args.listen or configured.get('listen')),
+        report=state_dir / 'update-report.json',
+        listen=listen_address(component),
         now=args.now,
     )
     try:

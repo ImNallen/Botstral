@@ -8,7 +8,6 @@ import tempfile
 
 from release_model import digest, require, verify, write_json
 from release_artifacts import inspect_artifacts
-from release_update import build_latest
 
 
 def gh(*args):
@@ -50,7 +49,10 @@ def main():
             signature = signature_path.read_text().strip()
             url = 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name
         latest = Path(temporary) / 'latest.json'
-        write_json(latest, build_latest(identity, notes, published, signature, url))
+        platforms = {}
+        if signature is not None and url is not None:
+            platforms['darwin-aarch64'] = {'signature': signature, 'url': url}
+        write_json(latest, {'version': identity.version, 'notes': notes, 'pub_date': published, 'platforms': platforms})
         gh('release', 'upload', channel, latest, '--clobber')
         if identity.channel == 'stable':
             gh('release', 'edit', tag, '--latest')

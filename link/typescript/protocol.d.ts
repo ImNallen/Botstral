@@ -1403,7 +1403,7 @@ export type UpdateBusy = {
   reason: UpdateBusyReason;
   state: 'busy';
 };
-export type UpdateBusyReason = 'active_task' | 'active_run' | 'active_process';
+export type UpdateBusyReason = 'active_task' | 'active_process';
 export type UpdateRejectReason = 'signature' | 'tamper' | 'channel' | 'downgrade' | 'identity';
 export type RollbackMethod = 'reinstall_package' | 'restore_backup';
 export type UpdateTrigger = 'timer' | 'now';

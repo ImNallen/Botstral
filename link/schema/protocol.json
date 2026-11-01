@@ -9796,7 +9796,6 @@
       "type": "string",
       "enum": [
         "active_task",
-        "active_run",
         "active_process"
       ]
     },

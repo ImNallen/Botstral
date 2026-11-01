@@ -12,7 +12,7 @@ const outcomeSchema = z.discriminatedUnion('type', [
     type: z.literal('deferred'),
     busy: z.strictObject({
       state: z.literal('busy'),
-      reason: z.enum(['active_task', 'active_run', 'active_process']),
+      reason: z.enum(['active_task', 'active_process']),
     }),
   }),
   z.strictObject({

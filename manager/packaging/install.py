@@ -14,7 +14,7 @@ def stage_updater(library):
     (library / 'update.py').chmod(0o755)
     tool_scripts = library / 'tools' / 'scripts'
     tool_scripts.mkdir(parents=True)
-    for name in ('release_model.py', 'release_upgrade.py', 'release_artifacts.py', 'release_update.py'):
+    for name in ('release_model.py', 'release_upgrade.py', 'release_artifacts.py'):
         shutil.copyfile(scripts / name, tool_scripts / name)
         (tool_scripts / name).chmod(0o644)
     root = library / 'tools'

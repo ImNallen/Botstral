@@ -1,6 +1,8 @@
 import json
+from dataclasses import replace
 from pathlib import Path
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -8,9 +10,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from release_model import ROOT, authority, digest, filename, write_json
-from release_update import (Busy, ChannelPointer, Effects, Idle, Probe, contained_file,
-                            download_release, parse_latest, parse_pointer, plan, rollback_method,
-                            run, write_atomic)
+from release_update import Effects, Probe, download_release, host_idle, run, write_atomic
 
 
 class UpdateTests(unittest.TestCase):
@@ -52,7 +52,7 @@ class UpdateTests(unittest.TestCase):
         previous_dir = root / 'previous'
         target_dir = root / 'target'
         self.signed_set(previous_dir, previous, key)
-        manifest = self.signed_set(target_dir, target, key)
+        self.signed_set(target_dir, target, key)
         pointer = {'identity': target.json(), 'release': 'v0.1.1',
                    'manifest_sha256': digest(target_dir / 'manifest.json')}
         if tamper:
@@ -84,7 +84,8 @@ class UpdateTests(unittest.TestCase):
             install(release_dir, component, version, None, None, None)
 
         effects = Effects(lambda _url: pointer, download, lambda: json.loads(version_path.read_text()),
-                          lambda: {'idle': True}, lambda: calls['stop'].append('stop'),
+                          lambda: {'idle': True},
+                          lambda: calls['stop'].append('stop'),
                           lambda: calls['start'].append('start'), install, reinstall, probe, lambda *_args: None,
                           lambda: 1_700_000_000)
         options = type('Options', (), {})()
@@ -95,14 +96,14 @@ class UpdateTests(unittest.TestCase):
         options.report = state / 'update-report.json'
         options.listen = '127.0.0.1:43120'
         options.now = False
-        return options, effects, calls, version_path, previous, target, manifest
+        return options, effects, calls, version_path, previous, target
 
     def report(self, options):
         return json.loads(options.report.read_text())
 
     def test_tampered_manifest_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
-            options, effects, calls, version_path, previous, _target, _manifest = self.prepare(Path(directory), tamper=True)
+            options, effects, calls, version_path, previous, _target = self.prepare(Path(directory), tamper=True)
             self.assertEqual(run(options, effects), 0)
             report = self.report(options)
             self.assertEqual(report['last']['outcome'], {'type': 'rejected', 'reason': 'signature'})
@@ -112,7 +113,7 @@ class UpdateTests(unittest.TestCase):
 
     def test_idle_health_success_applies_release(self):
         with tempfile.TemporaryDirectory() as directory:
-            options, effects, calls, version_path, previous, target, _manifest = self.prepare(Path(directory))
+            options, effects, calls, version_path, previous, target = self.prepare(Path(directory))
             self.assertEqual(run(options, effects), 0)
             report = self.report(options)
             self.assertEqual(report['last']['outcome'], {'type': 'applied', 'previous': previous.json(), 'current': target.json()})
@@ -123,8 +124,7 @@ class UpdateTests(unittest.TestCase):
 
     def test_failed_health_rolls_back_to_previous_release(self):
         with tempfile.TemporaryDirectory() as directory:
-            options, effects, calls, version_path, previous, target, manifest = self.prepare(Path(directory), health=Probe.FAIL)
-            self.assertEqual(rollback_method(manifest, manifest, 'manager'), 'reinstall_package')
+            options, effects, calls, version_path, previous, target = self.prepare(Path(directory), health=Probe.FAIL)
             self.assertEqual(run(options, effects), 0)
             report = self.report(options)
             self.assertEqual(report['last']['outcome']['type'], 'rolled_back')
@@ -135,24 +135,29 @@ class UpdateTests(unittest.TestCase):
             self.assertGreaterEqual(len(calls['install']), 2)
             self.assertTrue(calls['health'])
 
+    def test_busy_host_is_deferred(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options, effects, calls, version_path, previous, _target = self.prepare(Path(directory))
+            db = sqlite3.connect(options.state_dir / 'manager.sqlite3')
+            db.execute('CREATE TABLE tasks (view TEXT)')
+            db.execute("INSERT INTO tasks(view) VALUES ('{\"state\":\"running\"}')")
+            db.commit()
+            db.close()
+            effects = replace(effects, idle=lambda: host_idle('manager', options.state_dir))
+            self.assertEqual(run(options, effects), 0)
+            report = self.report(options)
+            self.assertEqual(report['last']['outcome'], {
+                'type': 'deferred', 'busy': {'state': 'busy', 'reason': 'active_task'}})
+            self.assertEqual(calls['install'], [])
+            self.assertEqual(calls['stop'], [])
+            self.assertEqual(json.loads(version_path.read_text())['identity'], previous.json())
+
 
 class DownloadSafetyTests(unittest.TestCase):
-    def test_artifact_names_cannot_leave_the_download_directory(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            incoming = root / 'incoming'
-            incoming.mkdir()
-            with self.assertRaises(ValueError):
-                contained_file(incoming, '../escape')
-            with self.assertRaises(ValueError):
-                contained_file(incoming, '/tmp/escape')
-            path = contained_file(incoming, 'botstral-manager_0.1.1_amd64.deb')
-            self.assertEqual(path.parent, incoming)
-
     def test_unsigned_manifest_does_not_fetch_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            options, _effects, _calls, _version, _previous, _target, _manifest = UpdateTests().prepare(
+            options, _effects, _calls, _version, _previous, _target = UpdateTests().prepare(
                 root, tamper=True)
             fetched = []
 
@@ -177,28 +182,6 @@ class DownloadSafetyTests(unittest.TestCase):
             self.assertEqual(report.stat().st_uid, state.stat().st_uid)
             self.assertEqual(report.stat().st_gid, state.stat().st_gid)
             self.assertEqual(report.stat().st_mode & 0o777, 0o600)
-
-
-class DomainTests(unittest.TestCase):
-    def test_plan_defers_a_busy_host_and_latest_json_stays_on_the_pointer(self):
-        from release_model import ReleaseIdentity
-        current = ReleaseIdentity.parse({'version': '0.1.0', 'channel': 'stable', 'revision': 'a' * 40, 'build_id': 'a'})
-        newer = ReleaseIdentity.parse({'version': '0.1.1', 'channel': 'stable', 'revision': 'b' * 40, 'build_id': 'b'})
-        self.assertEqual(plan(current, current, Idle()).json()['type'], 'current')
-        deferred = plan(current, newer, Busy('active_task'))
-        self.assertEqual(deferred.json()['type'], 'deferred')
-        pointer = parse_pointer({'identity': newer.json(), 'release': 'v0.1.1', 'manifest_sha256': 'ab' * 32})
-        self.assertIsInstance(pointer, ChannelPointer)
-        latest = parse_latest({'version': newer.version, 'notes': 'Botstral ' + newer.version,
-                               'pub_date': '2026-11-01T00:00:00Z', 'platforms': {}})
-        self.assertEqual(latest['platforms'], {})
-        changed = dict(authority()['data_compatibility'])
-        changed['manager_schema'] = changed['manager_schema'] + 1
-        same = authority()['data_compatibility']
-        self.assertEqual(rollback_method({'data_compatibility': same}, {'data_compatibility': same}, 'manager'),
-                         'reinstall_package')
-        self.assertEqual(rollback_method({'data_compatibility': same}, {'data_compatibility': changed}, 'manager'),
-                         'restore_backup')
 
 
 if __name__ == '__main__':

@@ -26,10 +26,6 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if arguments.next().as_deref() == Some("invite".as_ref()) {
         return invite(arguments);
     }
-    let mut preview = std::env::args_os().skip(1);
-    if preview.next().as_deref() == Some("idle".as_ref()) {
-        return host_idle(preview);
-    }
     let mut directory = PathBuf::from(".state");
     let mut listen: SocketAddr = "127.0.0.1:43120".parse()?;
     let mut setup_listen: SocketAddr = "127.0.0.1:43121".parse()?;
@@ -38,7 +34,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(argument) = arguments.next() {
         if argument == "--help" {
             println!(
-                "botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT]\nbotstral-manager idle --state-dir PATH\nbotstral-manager invite worker [--state-dir PATH]\nbotstral-manager invite device --label LABEL [--state-dir PATH]"
+                "botstral-manager [--state-dir PATH] [--listen LOOPBACK:PORT] [--setup-listen LOOPBACK:PORT] [--worker-listen ADDRESS:PORT]\nbotstral-manager invite worker [--state-dir PATH]\nbotstral-manager invite device --label LABEL [--state-dir PATH]"
             );
             return Ok(());
         }
@@ -77,52 +73,6 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         .enable_all()
         .build()?
         .block_on(serve_with_worker(state, listen, setup_listen, worker_tls))?;
-    Ok(())
-}
-
-fn host_idle(
-    arguments: impl Iterator<Item = std::ffi::OsString>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut directory = None;
-    let mut arguments = arguments;
-    while let Some(argument) = arguments.next() {
-        if argument == "--state-dir" {
-            if directory
-                .replace(PathBuf::from(
-                    arguments.next().ok_or("missing option value")?,
-                ))
-                .is_some()
-            {
-                return Err("duplicate option".into());
-            }
-        } else {
-            return Err("unknown option".into());
-        }
-    }
-    let directory = directory.ok_or("missing option")?;
-    let path = directory.join("manager.sqlite3");
-    if !path.exists() {
-        println!("{{\"idle\":true}}");
-        return Ok(());
-    }
-    let connection = rusqlite::Connection::open_with_flags(
-        &path,
-        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY
-            | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX
-            | rusqlite::OpenFlags::SQLITE_OPEN_NOFOLLOW,
-    )?;
-    connection.busy_timeout(Duration::from_secs(2))?;
-    let tasks: i64 = connection.query_row("SELECT count(*) FROM tasks WHERE json_extract(view,'$.state') IN ('queued','running','awaiting_approval','cancelling','awaiting_attention')", [], |row| row.get(0))?;
-    if tasks > 0 {
-        println!("{{\"idle\":false,\"reason\":\"active_task\"}}");
-        return Ok(());
-    }
-    let runs: i64 = connection.query_row("SELECT count(*) FROM runs WHERE json_extract(summary,'$.phase.type') IN ('ready','calling','waiting_for_tool','waiting_for_memory','cancelling','awaiting_attention')", [], |row| row.get(0))?;
-    if runs > 0 {
-        println!("{{\"idle\":false,\"reason\":\"active_run\"}}");
-        return Ok(());
-    }
-    println!("{{\"idle\":true}}");
     Ok(())
 }
 
