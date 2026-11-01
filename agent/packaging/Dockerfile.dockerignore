@@ -19,6 +19,8 @@
 !agent/vibe/**
 !agent/packaging/
 !agent/packaging/**
+!agent/connector/
+!agent/connector/**
 !link/
 !link/Cargo.toml
 !link/src/
