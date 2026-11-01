@@ -136,6 +136,21 @@ class UpdateTests(unittest.TestCase):
             self.assertGreaterEqual(len(calls['install']), 2)
             self.assertTrue(calls['health'])
 
+    def test_first_update_failed_health_rolls_back(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options, effects, calls, version_path, previous, target = self.prepare(
+                Path(directory), previous_set=False, health=Probe.FAIL)
+            self.assertFalse((options.state_dir / 'installed-release' / 'manifest.json').is_file())
+            self.assertEqual(run(options, effects), 0)
+            report = self.report(options)
+            self.assertEqual(report['last']['outcome']['type'], 'rolled_back')
+            self.assertEqual(report['last']['outcome']['method'], 'reinstall_package')
+            self.assertEqual(report['last']['outcome']['previous'], previous.json())
+            self.assertEqual(report['last']['outcome']['failed'], target.json())
+            self.assertEqual(json.loads(version_path.read_text())['identity'], previous.json())
+            self.assertGreaterEqual(len(calls['install']), 2)
+            self.assertTrue(calls['start'])
+
     def test_first_update_without_installed_release_applies(self):
         with tempfile.TemporaryDirectory() as directory:
             options, effects, calls, version_path, previous, target = self.prepare(

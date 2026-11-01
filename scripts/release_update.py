@@ -320,6 +320,81 @@ def finish(path, installed, started, effects, trigger, outcome):
     return 0 if not isinstance(outcome, Failed) else 1
 
 
+def cached_deb(component):
+    package = 'botstral-' + component
+    archives = Path('/var/cache/apt/archives')
+    if not archives.is_dir():
+        return None
+    found = sorted(path for path in archives.glob(package + '_*.deb')
+                   if path.is_file() and not path.is_symlink() and SAFE_NAME.fullmatch(path.name))
+    return found[-1] if found else None
+
+
+def pack_installed_deb(component, directory):
+    package = 'botstral-' + component
+    try:
+        status = subprocess.check_output(['dpkg-query', '-s', package], text=True, stderr=subprocess.DEVNULL)
+        files = subprocess.check_output(['dpkg-query', '-L', package], text=True, stderr=subprocess.DEVNULL).splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    fields = {}
+    key = None
+    for line in status.splitlines():
+        if line.startswith(' ') and key is not None:
+            fields[key] += '\n' + line
+            continue
+        if ':' in line:
+            key, value = line.split(':', 1)
+            fields[key] = value.strip()
+    version = fields.get('Version', 'installed')
+    arch = fields.get('Architecture', 'amd64')
+    name = package + '_' + version + '_' + arch + '.deb'
+    if SAFE_NAME.fullmatch(name) is None:
+        return None
+    root = directory / '.pack'
+    if root.exists():
+        shutil.rmtree(root)
+    try:
+        (root / 'DEBIAN').mkdir(parents=True)
+        control = ''
+        for field in ('Package', 'Version', 'Architecture', 'Maintainer', 'Depends', 'Description'):
+            if field in fields:
+                control += field + ': ' + fields[field] + '\n'
+        if 'Description' not in fields:
+            control += 'Description: installed ' + package + '\n'
+        (root / 'DEBIAN' / 'control').write_text(control)
+        for path in files:
+            source = Path(path)
+            if not path or path == '/.' or source.is_symlink() or not source.is_file():
+                continue
+            target = root / source.relative_to('/')
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        subprocess.run(['dpkg-deb', '--build', str(root), str(directory / name)], check=True, capture_output=True)
+    finally:
+        if root.exists():
+            shutil.rmtree(root)
+    return name
+
+
+def derive_previous_set(destination, installed, incoming_manifest, component):
+    if destination.exists():
+        shutil.rmtree(destination)
+    destination.mkdir(parents=True)
+    artifacts = []
+    cached = cached_deb(component)
+    name = cached.name if cached else pack_installed_deb(component, destination)
+    if cached:
+        shutil.copy2(cached, destination / cached.name)
+    if name:
+        artifacts.append({'component': component, 'filename': name})
+    write_json(destination / 'manifest.json', {
+        'identity': installed['identity'],
+        'data_compatibility': incoming_manifest['data_compatibility'],
+        'artifacts': artifacts,
+    })
+
+
 def previous_deb(release_dir, component):
     for item in read_json(release_dir / 'manifest.json')['artifacts']:
         if item.get('component') == component:
@@ -393,14 +468,16 @@ def _run(options, effects):
     if isinstance(decided, Deferred):
         return finish(options.report, installed, started, effects, trigger, decided)
     previous_set = options.state_dir / 'installed-release'
+    if not (previous_set / 'manifest.json').is_file():
+        try:
+            derive_previous_set(previous_set, installed, checked.value, options.component)
+        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+            return finish(options.report, installed, started, effects, trigger, Failed(str(error)))
     backup = options.state_dir / 'update-backup'
     if backup.exists():
         shutil.rmtree(backup)
     backup.mkdir()
-    if (previous_set / 'manifest.json').is_file():
-        shutil.copytree(previous_set, backup / 'release')
-    else:
-        (backup / 'release').mkdir()
+    shutil.copytree(previous_set, backup / 'release')
     (backup / 'config').mkdir()
     snapshot_state(options.state_dir, backup / 'state')
     write_json(backup / 'backup.json', {'stopped_at': effects.now(), 'manager': options.component == 'manager',
