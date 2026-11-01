@@ -131,4 +131,16 @@ mod tests {
         symlink(&path, &link).unwrap();
         assert!(LocalState::open(&link).is_err());
     }
+
+    #[test]
+    fn rejects_extra_state_directory() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join("state");
+        let state = LocalState::open(&path).unwrap();
+        drop(state);
+        let extra = path.join("update-incoming");
+        fs::DirBuilder::new().mode(0o700).create(&extra).unwrap();
+        fs::set_permissions(&extra, fs::Permissions::from_mode(0o700)).unwrap();
+        assert!(LocalState::open(&path).is_err());
+    }
 }

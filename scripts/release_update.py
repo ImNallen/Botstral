@@ -29,6 +29,7 @@ CHANNEL = 'https://github.com/ImNallen/Botstral/releases/download/channel-nightl
 BUSY = ('active_task', 'active_process')
 REJECT = ('signature', 'tamper', 'channel', 'downgrade', 'identity')
 SAFE_NAME = re.compile(r'^(manifest\.(json|sig)|botstral-(manager|agent|desktop)_[A-Za-z0-9.+~-]+_(amd64\.deb|arm64\.dmg))$')
+UPDATER_FILES = ('update.lock', 'update.request', 'update-report.json')
 
 
 class Probe(str, Enum):
@@ -290,6 +291,54 @@ def replace_tree(source, destination):
         shutil.rmtree(retired)
 
 
+def ensure_state_dir(state_dir):
+    ancestor = state_dir
+    created = []
+    while not ancestor.exists() and ancestor != ancestor.parent:
+        created.append(ancestor)
+        ancestor = ancestor.parent
+    owner = ancestor.stat()
+    state_dir.mkdir(parents=True, exist_ok=True)
+    for path in created:
+        try:
+            os.chown(path, owner.st_uid, owner.st_gid)
+            path.chmod(0o700)
+        except OSError:
+            pass
+
+
+def work_dir(state_dir):
+    return state_dir.with_name(state_dir.name + '-update')
+
+
+def adopt_updater_files(state_dir):
+    owner = state_dir.stat()
+    for name in UPDATER_FILES:
+        path = state_dir / name
+        if not path.is_file():
+            continue
+        try:
+            os.chown(path, owner.st_uid, owner.st_gid)
+        except OSError:
+            pass
+        path.chmod(0o600)
+
+
+def migrate_updater_trees(state_dir, workspace):
+    workspace.mkdir(parents=True, exist_ok=True)
+    legacy = state_dir / 'installed-release'
+    current = workspace / 'installed-release'
+    if (legacy / 'manifest.json').is_file() and not (current / 'manifest.json').is_file():
+        shutil.copytree(legacy, current)
+    for name in ('update-incoming', 'update-backup', 'installed-release',
+                 'installed-release.next', 'installed-release.old'):
+        path = state_dir / name
+        if path.is_dir():
+            shutil.rmtree(path)
+        elif path.is_file() or path.is_symlink():
+            path.unlink()
+
+
 def snapshot_state(state_dir, destination):
     destination.mkdir(parents=True)
     names = ('manager.sqlite3', 'manager.sqlite3-wal', 'manager.sqlite3-shm',
@@ -301,7 +350,7 @@ def snapshot_state(state_dir, destination):
 
 
 def hold_lock(path):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_state_dir(path.parent)
     handle = open(path, 'a+')
     try:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -356,6 +405,8 @@ def pack_installed_deb(component, directory):
         shutil.rmtree(root)
     try:
         (root / 'DEBIAN').mkdir(parents=True)
+        root.chmod(0o755)
+        (root / 'DEBIAN').chmod(0o755)
         control = ''
         for field in ('Package', 'Version', 'Architecture', 'Maintainer', 'Depends', 'Description'):
             if field in fields:
@@ -404,10 +455,37 @@ def previous_deb(release_dir, component):
     raise ValueError('previous package missing')
 
 
-def reinstall_previous(release_dir, component):
+def leftover_paths(component, root=Path('/')):
+    package = 'botstral-' + component
+    paths = [
+        root / 'usr/bin' / package, root / 'usr/bin' / (package + '-backup'),
+        root / 'usr/bin' / (package + '-diagnose'), root / 'usr/lib' / package,
+        root / 'usr/share' / package,
+        root / 'usr/lib/systemd/system' / (package + '-update.service'),
+        root / 'usr/lib/systemd/system' / (package + '-update.timer'),
+        root / 'usr/lib/systemd/system' / (package + '-update.path'),
+    ]
+    if component == 'manager':
+        paths.append(root / 'usr/lib/systemd/system' / (package + '.service'))
+    else:
+        paths.append(root / 'usr/lib/systemd/user' / (package + '.service'))
+        paths.append(root / 'usr/bin' / (package + '-supervisor-check'))
+    return paths
+
+
+def clear_package_residue(component, root=Path('/')):
+    for path in leftover_paths(component, root):
+        if path.is_symlink() or path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
+
+
+def reinstall_previous(release_dir, component, root=Path('/')):
     package = 'botstral-' + component
     deb = previous_deb(release_dir, component)
     subprocess.run(['dpkg', '--remove', package], check=True)
+    clear_package_residue(component, root)
     subprocess.run(['dpkg', '--install', str(deb)], check=True)
 
 
@@ -447,7 +525,9 @@ def _run(options, effects):
     decided = plan(current, pointer.identity, Idle())
     if isinstance(decided, Current):
         return finish(options.report, installed, started, effects, trigger, decided)
-    incoming = options.state_dir / 'update-incoming'
+    workspace = work_dir(options.state_dir)
+    migrate_updater_trees(options.state_dir, workspace)
+    incoming = workspace / 'incoming'
     try:
         effects.download(options.channel_url, pointer, incoming)
         checked = verify_set(incoming, options.trusted_key)
@@ -467,13 +547,13 @@ def _run(options, effects):
     decided = plan(current, pointer.identity, idle)
     if isinstance(decided, Deferred):
         return finish(options.report, installed, started, effects, trigger, decided)
-    previous_set = options.state_dir / 'installed-release'
+    previous_set = workspace / 'installed-release'
     if not (previous_set / 'manifest.json').is_file():
         try:
             derive_previous_set(previous_set, installed, checked.value, options.component)
         except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
             return finish(options.report, installed, started, effects, trigger, Failed(str(error)))
-    backup = options.state_dir / 'update-backup'
+    backup = workspace / 'backup'
     if backup.exists():
         shutil.rmtree(backup)
     backup.mkdir()
@@ -482,21 +562,28 @@ def _run(options, effects):
     snapshot_state(options.state_dir, backup / 'state')
     write_json(backup / 'backup.json', {'stopped_at': effects.now(), 'manager': options.component == 'manager',
                                         'worker': options.component == 'agent'})
+
+    def start():
+        migrate_updater_trees(options.state_dir, workspace)
+        adopt_updater_files(options.state_dir)
+        effects.start()
+
     try:
         effects.stop()
         receipt = backup / 'apply-receipt.json'
         effects.install(incoming, options.component, checked.identity.version,
                         backup / 'backup.json', backup / 'config', receipt)
-        effects.start()
+        start()
         if effects.health(options.listen) != Probe.OK:
             effects.stop()
             method = perform_rollback(effects, options, backup, read_json(backup / 'release' / 'manifest.json'),
                                       checked.value, current.version)
-            effects.start()
+            start()
             restored = effects.version() or installed
             return finish(options.report, restored, started, effects, trigger,
                           RolledBack(current.json(), checked.identity.json(), method))
         replace_tree(incoming, previous_set)
+        adopt_updater_files(options.state_dir)
         applied = effects.version() or installed
         return finish(options.report, applied, started, effects, trigger,
                       Applied(current.json(), checked.identity.json()))
@@ -509,7 +596,7 @@ def _run(options, effects):
         except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
             pass
         try:
-            effects.start()
+            start()
         except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
             pass
         return finish(options.report, effects.version() or installed, started, effects, trigger, Failed(str(error)))
