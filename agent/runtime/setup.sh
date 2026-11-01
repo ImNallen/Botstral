@@ -5,7 +5,8 @@ umask 077
 runtime_root=${1:?Provide a fresh absolute runtime directory.}
 if [[ $runtime_root == /tmp || $runtime_root == /tmp/* ]]; then
   runtime_root=/var/lib/botstral-agent/runtime
-  mkdir -p -m 700 /var/lib/botstral-agent
+  mkdir -p /var/lib/botstral-agent
+  chmod 755 /var/lib/botstral-agent
 fi
 [[ $runtime_root == /* && ! -e $runtime_root ]] || exit 1
 mkdir -m 700 "$runtime_root"
