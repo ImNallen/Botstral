@@ -41,11 +41,11 @@
     "vibe": "2.24.2; sealed manifest and file digests required",
     "source_pins": {
       "agent/connector/configure.py": "d6d34c20d7f65ab19b62145a4dd2116085178db73250c8b7e6c69b00728eb2fc",
-      "agent/connector/runtime.py": "ee2d55c9e712e9966cb35081d2c76906245979b508a240560158d64b635364d8",
+      "agent/connector/runtime.py": "c18ab06d2e15b728810626459f65ebf54a6afcdb5d5c7a20d5818eed06dc3d95",
       "agent/runtime/package-lock.json": "cf8929cbdd493db733ca8e30ab2dd7c891c48e7e289f44f70dc76ec859e9e525",
       "agent/runtime/seal.py": "cc532eb77dd880b170e338c0bdec77206d9c1b168166593b0b1311a8d8e3d373",
       "agent/runtime/run.mjs": "fc5a8cb6b5a114113620b5b460bc6433043af789c3a31c476dce2c1c9a1f40dc",
-      "agent/vibe/runtime.py": "04d049b83ae4c91287b0e7cc9b345db95b178cd10813007e9e79a1a854e9ea72",
+      "agent/vibe/runtime.py": "2bea0f7fb8fec7355c15fb2c878203e6c168b7788f7bf73cb281ac8128863d22",
       "agent/vibe/seal.py": "14ab4abbc691d538cfd141a515c5acd4780bb908bfce45cfcfb1e393c8375f79"
     }
   }

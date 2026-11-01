@@ -188,7 +188,13 @@ class Handler(BaseHTTPRequestHandler):
         if target.scheme != 'wss' or target.path not in ('', '/'):
             self.send_error(500)
             return
-        context = ssl.create_default_context(cafile=transport['manager_ca'])
+        pin = transport['pin']
+        if type(pin) is not str or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin):
+            self.send_error(500)
+            return
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
         context.load_cert_chain(transport['client_cert'], transport['client_key'])
         call = str(uuid.uuid4())
         connection = http.client.HTTPSConnection(target.hostname, target.port, context=context, timeout=120)

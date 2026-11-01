@@ -280,7 +280,12 @@ class Gateway:
         target = urlsplit(self.transport['manager'])
         if target.scheme != 'wss' or target.path not in ('', '/'):
             raise ConnectorError('protocol')
-        context = ssl.create_default_context(cafile=self.transport['manager_ca'])
+        pin = self.transport['pin']
+        if type(pin) is not str or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin):
+            raise ConnectorError('protocol')
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
         context.load_cert_chain(self.transport['client_cert'], self.transport['client_key'])
         connection = http.client.HTTPSConnection(target.hostname, target.port, context=context, timeout=65 if body['type'] == 'execute' else 5)
         try:
