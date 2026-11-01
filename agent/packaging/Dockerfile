@@ -20,6 +20,7 @@ RUN sed -i -E 's|http://[^ ]+/ubuntu(-ports)?/|https://snapshot.ubuntu.com/ubunt
 COPY --from=build /source/release.json /source/release.json
 COPY --from=build /source/manager/packaging /source/manager/packaging
 COPY --from=build /source/agent/packaging /source/agent/packaging
+COPY --from=build /source/agent/connector /source/agent/connector
 COPY --from=build /source/target/release/botstral-agent /tmp/botstral-agent
 COPY --from=build /source/target/release/botstral-agent-supervisor-check /tmp/botstral-agent-supervisor-check
 RUN python3 /source/agent/packaging/install.py --binary /tmp/botstral-agent --root / \

@@ -59,6 +59,9 @@ def install(component, binary, root, source=None, identity=None):
     for name in ('recovery.py', 'diagnose.py'):
         shutil.copyfile(shared / name, library / name)
         (library / name).chmod(0o644)
+    if component == 'agent':
+        shutil.copyfile(Path(__file__).resolve().parents[2] / 'agent' / 'connector' / 'runtime.py', library / 'connector_runtime.py')
+        (library / 'connector_runtime.py').chmod(0o644)
     shutil.copyfile(source / 'backup.py', library / 'backup.py')
     (library / 'backup.py').chmod(0o755)
     maintenance = destination.with_name(destination.name + '-backup')

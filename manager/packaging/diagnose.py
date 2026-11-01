@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
-import socket
-import ssl
 import sqlite3
 import subprocess
 import sys
@@ -61,6 +60,17 @@ def runtime_hashes(state):
     return verified
 
 
+def connector_runtime():
+    here = Path(__file__).resolve().parent
+    for candidate in (here / 'connector_runtime.py', here.parents[1] / 'agent' / 'connector' / 'runtime.py'):
+        if candidate.is_file():
+            spec = importlib.util.spec_from_file_location('connector_runtime', candidate)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+    raise ValueError('connector runtime missing')
+
+
 def connectivity(configuration):
     endpoint = urlsplit(configuration['manager'])
     require(endpoint.scheme == 'wss' and endpoint.hostname and not endpoint.username and not endpoint.password and endpoint.path in {'', '/'} and not endpoint.query and not endpoint.fragment, 'invalid worker manager origin')
@@ -68,13 +78,8 @@ def connectivity(configuration):
     require(type(pin) is str and len(pin) == 64 and all(c in '0123456789abcdef' for c in pin), 'invalid manager pin')
     for name in ('client_cert', 'client_key'):
         metadata(absolute(configuration[name]), True)
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    context.load_cert_chain(configuration['client_cert'], configuration['client_key'])
-    with socket.create_connection((endpoint.hostname, endpoint.port or 443), timeout=5) as connection:
-        with context.wrap_socket(connection, server_hostname=endpoint.hostname):
-            pass
+    connection = connector_runtime().pinned_https(endpoint.hostname, endpoint.port or 443, configuration, 5)
+    connection.close()
 
 
 def diagnose(component, state, plan=None, connect=False, probe=False):
