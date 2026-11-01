@@ -235,7 +235,7 @@ def worker_quiet(roots):
 def references(state):
     result = []
     config = read_json(state / 'config.json')
-    for name in ('manager_ca', 'client_cert', 'client_key'):
+    for name in ('client_cert', 'client_key'):
         result.append(str(absolute(config[name])))
     for name in ('computer.json', 'vibe.json', 'connector.json'):
         path = state / name
