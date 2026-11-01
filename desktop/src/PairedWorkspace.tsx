@@ -470,7 +470,7 @@ export function PairedWorkspace({
                     runtime_seconds: settings.seconds,
                     output_bytes: 1024,
                     processes: 8,
-                    memory_bytes: 64 * 1024 * 1024,
+                    memory_bytes: 256 * 1024 * 1024,
                   },
                 }
               : null,

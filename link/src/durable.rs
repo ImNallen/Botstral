@@ -22,7 +22,8 @@ impl TaskSettings {
             || self.model.len() > 128
             || self.model.chars().any(char::is_control)
             || !(1..=1000).contains(&self.max_turns)
-            || !(1..=1_000_000).contains(&self.max_tokens)
+            || self.max_tokens == 0
+            || u64::from(self.max_tokens) > MAX_COUNTER
             || self.deadline <= 0
             || self.max_cost_micros > MAX_COUNTER
         {
@@ -396,6 +397,18 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn default_vibe_token_budget_is_accepted() {
+        let settings = TaskSettings {
+            model: "mistral-small-2603".into(),
+            max_turns: 4,
+            max_tokens: 4 * (262144 + 1024),
+            deadline: 1,
+            max_cost_micros: 200_000,
+        };
+        assert_eq!(settings.validate(), Ok(()));
+    }
+
     #[test]
     fn typed_argument_normalization_rejects_unknown_fields() {
         let a: WorkSpec =
