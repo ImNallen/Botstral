@@ -223,5 +223,30 @@ class PayloadPolicyTests(unittest.TestCase):
             validate_payload(Archive(member), 'manager')
 
 
+class UpdaterManifestTests(unittest.TestCase):
+    def test_platforms_require_the_updater_bundle(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            release = Path(directory) / 'release-set'
+            release.mkdir()
+            with self.assertRaisesRegex(ValueError, 'updater bundle required'):
+                updater_platforms(release, 'channel-nightly')
+
+    def test_platforms_use_darwin_aarch64(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / 'release-set'
+            release.mkdir()
+            (root / 'Botstral.app.tar.gz').write_bytes(b'bundle')
+            (root / 'Botstral.app.tar.gz.sig').write_text('minisign-signature\n')
+            self.assertEqual(updater_platforms(release, 'channel-nightly'), {
+                'darwin-aarch64': {
+                    'signature': 'minisign-signature',
+                    'url': 'https://github.com/ImNallen/Botstral/releases/download/channel-nightly/Botstral.app.tar.gz',
+                }
+            })
+
+
 if __name__ == '__main__':
     unittest.main()
