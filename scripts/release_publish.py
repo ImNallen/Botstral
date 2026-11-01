@@ -14,6 +14,22 @@ def gh(*args):
     subprocess.run(['gh', *map(str, args)], check=True)
 
 
+def updater_platforms(directory, channel):
+    tarball = Path(directory).parent / 'Botstral.app.tar.gz'
+    signature_path = Path(directory).parent / 'Botstral.app.tar.gz.sig'
+    require(
+        tarball.is_file() and signature_path.is_file() and not tarball.is_symlink()
+        and not signature_path.is_symlink() and signature_path.read_text().strip(),
+        'updater bundle required',
+    )
+    return {
+        'darwin-aarch64': {
+            'signature': signature_path.read_text().strip(),
+            'url': 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name,
+        }
+    }, tarball, signature_path
+
+
 def main():
     directory = Path(sys.argv[1])
     require(os.environ.get('GITHUB_ACTIONS') == 'true', 'publication is restricted to the gated CI job')
@@ -25,6 +41,8 @@ def main():
         inspect_artifacts(directory, release, production=True)
         identity = release.identity
         require(identity.revision == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'publication checkout differs from signed source revision')
+        channel = 'channel-' + identity.channel
+        platforms, tarball, signature_path = updater_platforms(directory, channel)
         tag = ('v' if identity.channel == 'stable' else 'nightly-') + identity.version
         existing = subprocess.run(['gh', 'release', 'view', tag], capture_output=True)
         require(existing.returncode != 0, 'immutable release already exists; do not overwrite it')
@@ -32,7 +50,6 @@ def main():
         options = ['--verify-tag'] if identity.channel == 'stable' else ['--prerelease', '--target', identity.revision]
         gh('release', 'create', tag, '--draft', '--latest=false', '--title', 'Botstral ' + identity.version, '--notes', 'Exact release set. See docs/releases.md at the recorded source revision.', *options, *files)
         gh('release', 'edit', tag, '--draft=false', '--latest=false')
-        channel = 'channel-' + identity.channel
         pointer = Path(temporary) / 'channel.json'
         write_json(pointer, {'identity': identity.json(), 'release': tag, 'manifest_sha256': digest(directory / 'manifest.json')})
         if subprocess.run(['gh', 'release', 'view', channel], capture_output=True).returncode:
@@ -40,18 +57,8 @@ def main():
         gh('release', 'upload', channel, pointer, '--clobber')
         notes = 'Botstral ' + identity.version
         published = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-        tarball = directory.parent / 'Botstral.app.tar.gz'
-        signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
-        signature = None
-        url = None
-        if tarball.is_file() and signature_path.is_file() and not tarball.is_symlink() and not signature_path.is_symlink():
-            gh('release', 'upload', channel, tarball, signature_path, '--clobber')
-            signature = signature_path.read_text().strip()
-            url = 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name
+        gh('release', 'upload', channel, tarball, signature_path, '--clobber')
         latest = Path(temporary) / 'latest.json'
-        platforms = {}
-        if signature is not None and url is not None:
-            platforms['darwin-aarch64'] = {'signature': signature, 'url': url}
         write_json(latest, {'version': identity.version, 'notes': notes, 'pub_date': published, 'platforms': platforms})
         gh('release', 'upload', channel, latest, '--clobber')
         if identity.channel == 'stable':

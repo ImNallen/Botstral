@@ -223,5 +223,46 @@ class PayloadPolicyTests(unittest.TestCase):
             validate_payload(Archive(member), 'manager')
 
 
+class UpdaterManifestTests(unittest.TestCase):
+    def test_platforms_require_the_updater_bundle(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            release = Path(directory) / 'release-set'
+            release.mkdir()
+            with self.assertRaisesRegex(ValueError, 'updater bundle required'):
+                updater_platforms(release, 'channel-nightly')
+
+    def test_platforms_use_darwin_aarch64(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / 'release-set'
+            release.mkdir()
+            tarball = root / 'Botstral.app.tar.gz'
+            signature_path = root / 'Botstral.app.tar.gz.sig'
+            tarball.write_bytes(b'bundle')
+            signature_path.write_text('minisign-signature\n')
+            platforms, published_tarball, published_signature = updater_platforms(release, 'channel-nightly')
+            self.assertEqual(platforms, {
+                'darwin-aarch64': {
+                    'signature': 'minisign-signature',
+                    'url': 'https://github.com/ImNallen/Botstral/releases/download/channel-nightly/Botstral.app.tar.gz',
+                }
+            })
+            self.assertEqual(published_tarball, tarball)
+            self.assertEqual(published_signature, signature_path)
+
+    def test_platforms_refuse_an_empty_signature(self):
+        from release_publish import updater_platforms
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            release = root / 'release-set'
+            release.mkdir()
+            (root / 'Botstral.app.tar.gz').write_bytes(b'bundle')
+            (root / 'Botstral.app.tar.gz.sig').write_text('\n  \t')
+            with self.assertRaisesRegex(ValueError, 'updater bundle required'):
+                updater_platforms(release, 'channel-nightly')
+
+
 if __name__ == '__main__':
     unittest.main()
