@@ -5,22 +5,12 @@ async fn actual_daemon_rejects_stale_frames_and_queued_receipts() {
     use std::sync::Arc;
     let mut f = Fixture::new().await;
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let provider = Arc::new(rustls::crypto::ring::default_provider());
-    let verifier = rustls::server::WebPkiClientVerifier::builder_with_provider(
-        Arc::new(tls::roots(&f.worker.manager_ca).unwrap()),
-        provider.clone(),
+    let manager = f.root.path().join("manager");
+    let config = tls::public_server_config(
+        tls::certificates(&manager.join("manager-identity.pem")).unwrap(),
+        tls::private_key(&manager.join("manager-identity.key")).unwrap(),
     )
-    .build()
     .unwrap();
-    let config = rustls::ServerConfig::builder_with_provider(provider)
-        .with_safe_default_protocol_versions()
-        .unwrap()
-        .with_client_cert_verifier(verifier)
-        .with_single_cert(
-            tls::certificates(&f.root.path().join("server.pem")).unwrap(),
-            tls::private_key(&f.root.path().join("server.key")).unwrap(),
-        )
-        .unwrap();
     let acceptor = tokio_rustls::TlsAcceptor::from(Arc::new(config));
     let state = f.root.path().join("probe-agent");
     fs::create_dir(&state).unwrap();

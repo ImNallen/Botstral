@@ -303,6 +303,13 @@ impl App {
             .call("POST", "/v1/sessions", json!({"password":PASSWORD}), 201)
             .await;
         app.token = grant["token"].as_str().unwrap().into();
+        app.manager
+            .set_join_advertisement(
+                botstral_link::ManagerEndpoint::parse("127.0.0.1:1").unwrap(),
+                botstral_link::ManagerPin::from_public_key(&[3; 32]),
+            )
+            .await
+            .unwrap();
         app
     }
     async fn call(&self, method: &str, path: &str, body: Value, status: u16) -> Value {
@@ -506,14 +513,7 @@ async fn m05_provider_verification_keeps_other_owner_operations_available() {
     let credential = crypto::random_token();
     let grant = app
         .manager
-        .invite_device(
-            app.session(),
-            PairingRequest {
-                fingerprint: DeviceFingerprint::from_credential(&credential),
-                label: "Provider control".into(),
-            },
-            600,
-        )
+        .invite_device(app.session(), "Provider control".into(), 600)
         .await
         .unwrap();
     let (_, first) = app

@@ -1804,11 +1804,9 @@ export interface ComputerSession {
   worker_id: WorkerId;
 }
 export interface ManagerTrust {
-  ca_pem: string;
   endpoint: string;
-  leaf: CertificateFingerprint;
   manager: ManagerId;
-  server_name: string;
+  pin: CertificateFingerprint;
 }
 export interface OwnerSnapshot {
   connections?: ConnectionSummary[];

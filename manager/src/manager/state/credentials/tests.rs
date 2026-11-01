@@ -35,14 +35,7 @@ fn fixture() -> Fixture {
         .token;
     let secret = crypto::random_token();
     let grant = state
-        .invite_device(
-            copy_token(&token),
-            PairingRequest {
-                fingerprint: DeviceFingerprint::from_credential(&secret),
-                label: "Fixture device".into(),
-            },
-            60,
-        )
+        .invite_device(copy_token(&token), "Fixture device".into(), 60)
         .unwrap();
     let (_, lease) = state
         .connect_owner(

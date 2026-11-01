@@ -105,6 +105,17 @@ fn pairing_links_are_bounded_data_and_cannot_supply_navigation_or_paths() {
         assert!(botstral_desktop::remote::parse_pairing_link(value).is_err());
     }
     assert!(botstral_desktop::remote::parse_pairing_link(&"a".repeat(65537)).is_err());
+    let code = botstral_link::JoinCode::new(
+        botstral_link::PeerRole::Device,
+        botstral_link::ManagerEndpoint::parse("manager.example:443").unwrap(),
+        botstral_link::ManagerPin::from_public_key(&[7; 32]),
+        botstral_link::JoinSecret::from_bytes([9; 32]),
+    )
+    .render();
+    assert!(matches!(
+        botstral_desktop::remote::parse_pairing_link(code.as_str()),
+        Ok(botstral_desktop::remote::PairingLink::Code(_))
+    ));
 }
 
 #[tokio::test]
@@ -269,7 +280,15 @@ async fn actual_manager_native_keychain_run_approval_artifact_and_lifecycle() {
         .unwrap();
     let trust =
         serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
-    let bundle = local.invite_device(request.clone(), trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint.clone(),
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let invitation = Zeroizing::new(bundle.invitation.clone());
     let candidate_view = service.command(IntentCommand::Stage(bundle)).await.unwrap();
     let candidate = candidate_view.candidate.as_ref().unwrap().clone();

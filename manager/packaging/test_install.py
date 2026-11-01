@@ -108,21 +108,18 @@ class InstallationTests(unittest.TestCase):
             root.chmod(0o700)
             state = root / 'state'
             state.mkdir(mode=0o700)
-            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(root / 'server.key'), '-out', str(root / 'server.pem'), '-days', '1', '-subj', '/CN=localhost'], check=True, capture_output=True)
-            for path in (root / 'server.key', root / 'server.pem'):
-                path.chmod(0o600)
             sockets = [socket.socket() for _ in range(3)]
             for selected in sockets:
                 selected.bind(('127.0.0.1', 0))
             addresses = ['127.0.0.1:' + str(selected.getsockname()[1]) for selected in sockets]
             for selected in sockets:
                 selected.close()
-            configuration = {'state_dir': str(state), 'listen': addresses[0], 'setup_listen': addresses[1], 'public_listen': addresses[2], 'certificate': str(root / 'server.pem'), 'key': str(root / 'server.key'), 'worker_ca': str(root / 'server.pem')}
+            configuration = {'state_dir': str(state), 'listen': addresses[0], 'setup_listen': addresses[1], 'public_listen': addresses[2]}
             path = root / 'service.json'
             path.write_text(json.dumps(configuration))
             path.chmod(0o600)
             command = launch.arguments(path, str(manager))
-            self.assertNotIn((root / 'server.key').read_text(), ' '.join(command))
+            self.assertNotIn('tls', ' '.join(command))
             process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
             try:
                 deadline = time.monotonic() + 10
@@ -136,10 +133,8 @@ class InstallationTests(unittest.TestCase):
                     process.send_signal(signal.SIGTERM)
                 self.assertEqual(process.wait(timeout=10), 0)
                 process.stderr.close()
-            (root / 'server.key').chmod(0o644)
-            with self.assertRaisesRegex(ValueError, 'private permissions'):
-                launch.arguments(path, str(manager))
-            (root / 'server.key').chmod(0o600)
+            identity = state / 'manager-identity.key'
+            self.assertEqual(identity.stat().st_mode & 0o777, 0o600)
             configuration['listen'] = '0.0.0.0:43120'
             path.write_text(json.dumps(configuration))
             with self.assertRaisesRegex(ValueError, 'listener'):

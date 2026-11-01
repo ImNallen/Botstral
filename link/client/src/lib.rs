@@ -509,6 +509,78 @@ impl Drop for Staging {
     }
 }
 
+fn endpoint_host(endpoint: &str) -> Result<String> {
+    let host = if let Some(rest) = endpoint.strip_prefix('[') {
+        rest.split_once("]:")
+            .map(|(host, _)| host)
+            .ok_or(ClientError::Trust)?
+    } else {
+        endpoint
+            .rsplit_once(':')
+            .map(|(host, _)| host)
+            .ok_or(ClientError::Trust)?
+    };
+    if host.is_empty() {
+        return Err(ClientError::Trust);
+    }
+    Ok(host.to_owned())
+}
+
+fn endpoint_name(endpoint: &str) -> Result<ServerName<'static>> {
+    ServerName::try_from(endpoint_host(endpoint)?).map_err(|_| ClientError::Trust)
+}
+
+pub async fn read_manager_id(endpoint: &str, pin: &CertificateFingerprint) -> Result<ManagerId> {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    let trust = ManagerTrust {
+        manager: ManagerId::new(),
+        endpoint: endpoint.to_owned(),
+        pin: pin.clone(),
+    };
+    let config = tls::pinned_manager_config(&trust).map_err(|_| ClientError::Trust)?;
+    let name = endpoint_name(endpoint)?;
+    let host = endpoint_host(endpoint)?;
+    let port: u16 = endpoint
+        .rsplit_once(':')
+        .ok_or(ClientError::Trust)?
+        .1
+        .parse()
+        .map_err(|_| ClientError::Trust)?;
+    let mut stream = tokio::time::timeout(DEADLINE, async {
+        let tcp = TcpStream::connect((host.as_str(), port))
+            .await
+            .map_err(|_| ClientError::Network)?;
+        TlsConnector::from(Arc::new(config))
+            .connect(name, tcp)
+            .await
+            .map_err(|_| ClientError::Trust)
+    })
+    .await
+    .map_err(|_| ClientError::Network)??;
+    let request =
+        format!("GET /owner/v1/identity HTTP/1.1\r\nHost: {endpoint}\r\nConnection: close\r\n\r\n");
+    tokio::time::timeout(DEADLINE, stream.write_all(request.as_bytes()))
+        .await
+        .map_err(|_| ClientError::Network)?
+        .map_err(|_| ClientError::Network)?;
+    let mut bytes = Vec::new();
+    tokio::time::timeout(DEADLINE, stream.read_to_end(&mut bytes))
+        .await
+        .map_err(|_| ClientError::Network)?
+        .map_err(|_| ClientError::Network)?;
+    let text = String::from_utf8(bytes).map_err(|_| ClientError::Protocol)?;
+    let (head, body) = text.split_once("\r\n\r\n").ok_or(ClientError::Protocol)?;
+    if !head.starts_with("HTTP/1.1 200") && !head.starts_with("HTTP/1.0 200") {
+        return Err(ClientError::Trust);
+    }
+    let value: serde_json::Value = serde_json::from_str(body).map_err(|_| ClientError::Protocol)?;
+    value["manager"]
+        .as_str()
+        .ok_or(ClientError::Protocol)?
+        .parse()
+        .map_err(|_| ClientError::Protocol)
+}
+
 impl OwnerSession {
     async fn authenticate(
         trust: &ManagerTrust,
@@ -518,8 +590,7 @@ impl OwnerSession {
         lease: Arc<ClientLease>,
     ) -> Result<Self> {
         let tls = tls::pinned_manager_config(trust).map_err(|_| ClientError::Trust)?;
-        let name =
-            ServerName::try_from(trust.server_name.clone()).map_err(|_| ClientError::Trust)?;
+        let name = endpoint_name(&trust.endpoint)?;
         let socket = tokio::time::timeout(DEADLINE, async {
             let tcp = TcpStream::connect(&trust.endpoint)
                 .await

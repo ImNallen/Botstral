@@ -56,7 +56,15 @@ async fn paired_at(
         .unwrap();
     let trust =
         serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
-    let bundle = local.invite_device(request, trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint.clone(),
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let candidate = service
         .command(IntentCommand::Stage(bundle))
         .await
@@ -73,6 +81,51 @@ async fn paired_at(
     );
     local.sign_out();
     (service, store, fixture)
+}
+
+async fn publish_public(
+    fixture_root: &Path,
+    path: &str,
+    bytes: &[u8],
+    bearer: Option<&str>,
+) -> (u16, serde_json::Value) {
+    use rustls::pki_types::ServerName;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tokio_rustls::TlsConnector;
+    let trust: ManagerTrust =
+        serde_json::from_slice(&std::fs::read(fixture_root.join("trust.json")).unwrap()).unwrap();
+    let config = tls::pinned_manager_config(&trust).unwrap();
+    let host = trust
+        .endpoint
+        .rsplit_once(':')
+        .map(|(host, _)| host)
+        .unwrap()
+        .to_owned();
+    let name = ServerName::try_from(host).unwrap();
+    let tcp = tokio::net::TcpStream::connect(trust.endpoint.as_str())
+        .await
+        .unwrap();
+    let mut stream = TlsConnector::from(Arc::new(config))
+        .connect(name, tcp)
+        .await
+        .unwrap();
+    let mut head = format!(
+        "POST {path} HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n",
+        trust.endpoint,
+        bytes.len()
+    );
+    if let Some(token) = bearer {
+        head.push_str(&format!("Authorization: Bearer {token}\r\n"));
+    }
+    head.push_str("\r\n");
+    stream.write_all(head.as_bytes()).await.unwrap();
+    stream.write_all(bytes).await.unwrap();
+    let mut response = Vec::new();
+    stream.read_to_end(&mut response).await.unwrap();
+    let text = String::from_utf8(response).unwrap();
+    let (headers, body) = text.split_once("\r\n\r\n").unwrap();
+    let status = headers.split_whitespace().nth(1).unwrap().parse().unwrap();
+    (status, serde_json::from_str(body).unwrap())
 }
 
 #[tokio::test]
@@ -257,7 +310,15 @@ async fn observed_revocation_blocks_cached_activity_after_offline_restart() {
         .unwrap(),
     )
     .unwrap();
-    let bundle = local.invite_device(request, trust).await.unwrap();
+    let code = local.invite_device(request.label.clone()).await.unwrap();
+    let parsed = botstral_link::JoinCode::parse(&code).unwrap();
+    let bundle = botstral_link::OwnerInvitation {
+        trust,
+        role: botstral_link::DeviceRole::Owner,
+        fingerprint: request.fingerprint,
+        expires_at: i64::MAX / 4,
+        invitation: parsed.secret_text().to_string(),
+    };
     let candidate = restarted
         .command(IntentCommand::Stage(bundle))
         .await

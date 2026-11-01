@@ -70,56 +70,41 @@ async fn m04_coding_production_worker_pinned_vibe() {
     let fixture = Fixture::start().await;
     let app = App::start(local.directory().into(), &fixture).await;
     app.initialize().await;
-    let certificates = root.path().join("tls");
-    assert!(
-        Command::new("bash")
-            .arg(source.join("agent/tests/m02_certificates.sh"))
-            .arg(&certificates)
-            .arg("127.0.0.1")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status()
-            .unwrap()
-            .success()
-    );
-    let certificates = certificates.join("certificates");
+    let identity_dir = root.path().join("manager-identity");
+    fs::create_dir(&identity_dir).unwrap();
+    fs::set_permissions(&identity_dir, fs::Permissions::from_mode(0o700)).unwrap();
+    let identity = botstral_link::tls::ensure_identity(&identity_dir, "manager-identity").unwrap();
     let listener = crate::worker_http::WorkerListener::bind(crate::WorkerTls {
         listen: "127.0.0.1:0".parse().unwrap(),
-        certificate: certificates.join("manager.pem"),
-        key: certificates.join("manager.key"),
-        client_ca: certificates.join("ca.pem"),
+        certificate: identity.certificate,
+        key: identity.key,
     })
     .await
     .unwrap();
-    let address = format!("wss://{}", listener.local_addr().unwrap());
+    let bound = listener.local_addr().unwrap();
+    app.manager
+        .set_join_advertisement(
+            botstral_link::ManagerEndpoint::parse(&bound.to_string()).unwrap(),
+            identity.pin,
+        )
+        .await
+        .unwrap();
     let (stop, stopped) = watch::channel(false);
     let server = tokio::spawn(listener.serve(app.manager.clone(), stopped));
-    let fingerprint = CertificateFingerprint::from_der(
-        botstral_link::tls::certificates(&certificates.join("worker.pem")).unwrap()[0].as_ref(),
-    );
     let grant = app
         .call(
             "POST",
             "/v1/worker-invitations",
-            json!({"fingerprint":fingerprint,"lifetime_seconds":600}),
+            json!({"lifetime_seconds":600}),
             201,
         )
         .await;
-    let invitation = root.path().join("invitation");
-    private(&invitation, &json!({"invitation":grant["invitation"]}));
     let state = root.path().join("agent");
     assert!(
         Command::new(&binary)
-            .args(["enroll", "--state-dir"])
+            .args(["join", "--state-dir"])
             .arg(&state)
-            .args(["--manager", &address, "--manager-ca"])
-            .arg(certificates.join("ca.pem"))
-            .arg("--client-cert")
-            .arg(certificates.join("worker.pem"))
-            .arg("--client-key")
-            .arg(certificates.join("worker.key"))
-            .arg("--invitation-file")
-            .arg(&invitation)
+            .arg(grant["code"].as_str().unwrap())
             .stdout(Stdio::null())
             .status()
             .unwrap()

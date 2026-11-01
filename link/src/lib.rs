@@ -1,3 +1,4 @@
+pub mod join;
 pub mod release;
 #[cfg(feature = "tls")]
 pub mod tls;
@@ -99,6 +100,7 @@ pub use vibe::*;
 mod process;
 pub use process::*;
 mod owner;
+pub use join::{IdentityPublicKey, JoinCode, JoinSecret, ManagerEndpoint, ManagerPin, PeerRole};
 pub use owner::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
@@ -107,6 +109,13 @@ pub struct CertificateFingerprint(String);
 impl CertificateFingerprint {
     pub fn from_der(der: &[u8]) -> Self {
         Self(format!("{:x}", Sha256::digest(der)))
+    }
+    pub fn from_public_key(key: &[u8; 32]) -> Self {
+        Self(key.iter().fold(String::with_capacity(64), |mut out, byte| {
+            use std::fmt::Write;
+            let _ = write!(out, "{byte:02x}");
+            out
+        }))
     }
     pub fn as_str(&self) -> &str {
         &self.0

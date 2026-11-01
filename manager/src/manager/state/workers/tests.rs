@@ -19,6 +19,7 @@ fn fixture() -> (tempfile::TempDir, State) {
             ],
         )
         .unwrap();
+    state.advertise_for_test();
     (temp, state)
 }
 fn owner() -> SessionToken {
@@ -28,22 +29,18 @@ fn peer() -> VerifiedIdentity {
     VerifiedIdentity::for_test(b"certificate A")
 }
 fn enroll(state: &mut State) -> WorkerId {
-    let grant = state
-        .invite_worker(owner(), peer().fingerprint().clone(), 600)
-        .unwrap();
+    let grant = state.invite_worker(owner(), 600).unwrap();
     state.enroll_worker(peer(), grant.secret).unwrap()
 }
 
 #[test]
 fn invitation_binding_expiry_atomicity_and_replay() {
     let (_temp, mut state) = fixture();
-    let grant = state
-        .invite_worker(owner(), peer().fingerprint().clone(), 1)
-        .unwrap();
+    let grant = state.invite_worker(owner(), 1).unwrap();
     let secret = || SecretString::from(grant.secret.expose_secret());
     assert_eq!(
-        state.enroll_worker(VerifiedIdentity::for_test(b"certificate B"), secret()),
-        Err(ErrorCode::IdentityMismatch.into())
+        state.enroll_worker(peer(), SecretString::from(crypto::random_token())),
+        Err(ErrorCode::InvalidInvitation.into())
     );
     state.test_time = Some(1001);
     assert_eq!(
@@ -51,18 +48,49 @@ fn invitation_binding_expiry_atomicity_and_replay() {
         Err(ErrorCode::InvitationExpired.into())
     );
     state.test_time = Some(1000);
-    state.connection.execute_batch("CREATE TRIGGER reject_worker BEFORE INSERT ON workers BEGIN SELECT RAISE(ABORT, 'test'); END;").unwrap();
-    assert!(state.enroll_worker(peer(), secret()).is_err());
-    state
-        .connection
-        .execute_batch("DROP TRIGGER reject_worker")
-        .unwrap();
-    let id = state.enroll_worker(peer(), secret()).unwrap();
+    let fresh = state.invite_worker(owner(), 600).unwrap();
+    let fresh_secret = || SecretString::from(fresh.secret.expose_secret());
+    let id = state.enroll_worker(peer(), fresh_secret()).unwrap();
+    assert_eq!(state.enroll_worker(peer(), fresh_secret()).unwrap(), id);
     assert_eq!(
-        state.enroll_worker(peer(), secret()),
+        state.enroll_worker(VerifiedIdentity::for_test(b"certificate B"), fresh_secret()),
         Err(ErrorCode::InvitationUsed.into())
     );
-    assert_eq!(state.workers(owner()).unwrap()[0].id, id);
+}
+
+#[test]
+fn unregistered_worker_is_refused_and_revocation_is_immediate() {
+    let (_temp, mut state) = fixture();
+    let worker = enroll(&mut state);
+    let (out, _) = mpsc::channel(1);
+    assert!(matches!(
+        state.connect_worker(
+            VerifiedIdentity::for_test(b"unregistered worker"),
+            Hello::current(false),
+            out,
+            watch::channel(false).0,
+            RequestId::new(),
+        ),
+        Err(OperationError::Protocol(ErrorCode::Unauthorized))
+    ));
+    let (out, _receive) = mpsc::channel(8);
+    let (stop, stopped) = watch::channel(false);
+    state
+        .connect_worker(peer(), Hello::current(false), out, stop, RequestId::new())
+        .unwrap();
+    state.revoke_worker(owner(), worker).unwrap();
+    assert!(*stopped.borrow());
+    let (out, _) = mpsc::channel(1);
+    assert!(matches!(
+        state.connect_worker(
+            peer(),
+            Hello::current(false),
+            out,
+            watch::channel(false).0,
+            RequestId::new(),
+        ),
+        Err(OperationError::Protocol(ErrorCode::Unauthorized))
+    ));
 }
 
 #[test]
@@ -272,9 +300,7 @@ fn certificate_renewal_rebinds_only_after_owner_revocation() {
     let (_temp, mut state) = fixture();
     let old = enroll(&mut state);
     let replacement = VerifiedIdentity::for_test(b"renewed certificate");
-    let grant = state
-        .invite_worker(owner(), replacement.fingerprint().clone(), 600)
-        .unwrap();
+    let grant = state.invite_worker(owner(), 600).unwrap();
     let new = state.enroll_worker(replacement, grant.secret).unwrap();
     let bot = BotId::new();
     state

@@ -4,7 +4,7 @@ use futures_util::{SinkExt, StreamExt};
 use http_body_util::{BodyExt, Full, Limited};
 use hyper::{Request, Uri, body::Bytes};
 use hyper_util::rt::TokioIo;
-use rustls::{ClientConfig, pki_types::ServerName};
+use rustls::pki_types::ServerName;
 use std::{io, sync::Arc, time::Duration};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -36,16 +36,12 @@ pub(crate) fn endpoint(config: &Config) -> io::Result<(String, u16)> {
 
 pub async fn connect_tls(config: &Config) -> io::Result<TlsStream<TcpStream>> {
     let (host, port) = endpoint(config)?;
-    let provider = Arc::new(rustls::crypto::ring::default_provider());
-    let tls_config = ClientConfig::builder_with_provider(provider)
-        .with_safe_default_protocol_versions()
-        .map_err(io::Error::other)?
-        .with_root_certificates(tls::roots(&config.manager_ca)?)
-        .with_client_auth_cert(
-            tls::certificates(&config.client_cert)?,
-            tls::private_key(&config.client_key)?,
-        )
-        .map_err(io::Error::other)?;
+    let pin = ManagerPin::parse(config.pin.as_str()).map_err(io::Error::other)?;
+    let tls_config = tls::pinned_worker_config(
+        &pin,
+        tls::certificates(&config.client_cert)?,
+        tls::private_key(&config.client_key)?,
+    )?;
     let server_name = ServerName::try_from(host.clone()).map_err(io::Error::other)?;
     tokio::time::timeout(DEADLINE, async {
         let stream = TcpStream::connect((host.as_str(), port)).await?;
@@ -57,14 +53,9 @@ pub async fn connect_tls(config: &Config) -> io::Result<TlsStream<TcpStream>> {
     .map_err(io::Error::other)?
 }
 
-pub async fn enroll(config: &Config, invitation: &[u8]) -> io::Result<()> {
-    #[derive(serde::Deserialize)]
-    struct Invitation<'a> {
-        invitation: &'a str,
-    }
-    let grant: Invitation = serde_json::from_slice(invitation)?;
+pub async fn enroll(config: &Config, secret: &str) -> io::Result<()> {
     let body = zeroize::Zeroizing::new(serde_json::to_vec(
-        &serde_json::json!({"invitation":grant.invitation}),
+        &serde_json::json!({"invitation": secret}),
     )?);
     let stream = connect_tls(config).await?;
     tokio::time::timeout(DEADLINE, async {

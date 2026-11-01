@@ -19,7 +19,7 @@ with tempfile.TemporaryDirectory() as directory:
     addresses = ['127.0.0.1:' + str(selected.getsockname()[1]) for selected in held]
     for selected in held:
         selected.close()
-    config = {'state_dir': str(state), 'listen': addresses[0], 'setup_listen': addresses[1], 'public_listen': addresses[2], 'certificate': str(root / 'server.pem'), 'key': str(root / 'server.key'), 'worker_ca': str(root / 'server.pem')}
+    config = {'state_dir': str(state), 'listen': addresses[0], 'setup_listen': addresses[1], 'public_listen': addresses[2]}
     path = root / 'service.json'
     path.write_text(json.dumps(config))
     process = subprocess.Popen(['/usr/lib/botstral-manager/launch.py', '--config', str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)

@@ -18,7 +18,7 @@ impl SyntheticWorker {
             .call(
                 "POST",
                 "/v1/worker-invitations",
-                json!({"fingerprint":peer().fingerprint(),"lifetime_seconds":600}),
+                json!({"lifetime_seconds":600}),
                 201,
             )
             .await;

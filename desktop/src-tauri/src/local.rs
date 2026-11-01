@@ -245,7 +245,7 @@ impl Route {
             Self::InviteDevice => (
                 Method::POST,
                 "/v1/device-invitations".into(),
-                StatusCode::OK,
+                StatusCode::CREATED,
             ),
             Self::Devices => (Method::GET, "/v1/devices".into(), StatusCode::OK),
             Self::RevokeDevice(id) => (
@@ -297,19 +297,18 @@ impl LocalManager {
         })
     }
 
-    pub async fn invite_device(
-        &self,
-        request: botstral_link::PairingRequest,
-        trust: botstral_link::ManagerTrust,
-    ) -> Result<botstral_link::OwnerInvitation, Failure> {
+    pub async fn invite_device(&self, label: String) -> Result<String, Failure> {
         #[derive(Deserialize)]
         #[serde(deny_unknown_fields)]
         struct Grant {
-            manager: botstral_link::ManagerId,
-            fingerprint: botstral_link::DeviceFingerprint,
+            code: String,
             role: botstral_link::DeviceRole,
-            expires_at: i64,
-            invitation: Zeroizing<String>,
+            #[serde(rename = "manager")]
+            _manager: botstral_link::ManagerId,
+            #[serde(rename = "expires_at")]
+            _expires_at: i64,
+            #[serde(rename = "invitation")]
+            _invitation: String,
         }
         let operation = self.begin().await?;
         let token = operation
@@ -321,25 +320,18 @@ impl LocalManager {
                 operation.endpoint,
                 Route::InviteDevice,
                 Some(&token.token),
-                Some(serde_json::json!({"request":request,"lifetime_seconds":600})),
+                Some(serde_json::json!({"label":label,"lifetime_seconds":600})),
             )
             .await
             .map_err(|code| self.failed(operation.generation, code))?;
         let grant: Grant =
             serde_json::from_slice(&bytes).map_err(|_| self.failure(ErrorCode::Protocol))?;
-        if grant.manager != trust.manager
-            || grant.fingerprint != request.fingerprint
-            || grant.role != botstral_link::DeviceRole::Owner
+        if grant.role != botstral_link::DeviceRole::Owner
+            || botstral_link::JoinCode::parse(&grant.code).is_err()
         {
             return Err(self.failure(ErrorCode::Protocol));
         }
-        Ok(botstral_link::OwnerInvitation {
-            trust,
-            role: grant.role,
-            fingerprint: grant.fingerprint,
-            expires_at: grant.expires_at,
-            invitation: grant.invitation.to_string(),
-        })
+        Ok(grant.code)
     }
     pub async fn devices(&self) -> Result<Vec<botstral_link::OwnerDevice>, Failure> {
         let operation = self.begin().await?;

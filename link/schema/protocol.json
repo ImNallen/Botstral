@@ -3998,29 +3998,21 @@
     "ManagerTrust": {
       "type": "object",
       "properties": {
-        "ca_pem": {
-          "type": "string"
-        },
         "endpoint": {
           "type": "string"
-        },
-        "leaf": {
-          "$ref": "#/$defs/CertificateFingerprint"
         },
         "manager": {
           "$ref": "#/$defs/ManagerId"
         },
-        "server_name": {
-          "type": "string"
+        "pin": {
+          "$ref": "#/$defs/CertificateFingerprint"
         }
       },
       "additionalProperties": false,
       "required": [
         "manager",
         "endpoint",
-        "server_name",
-        "ca_pem",
-        "leaf"
+        "pin"
       ]
     },
     "McpTool": {

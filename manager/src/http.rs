@@ -119,6 +119,14 @@ async fn listeners(
     let (stop, stopped) = watch::channel(false);
     let mut tasks = JoinSet::new();
     if let Some(listener) = worker_listener {
+        let address = listener.local_addr()?;
+        let endpoint = botstral_link::ManagerEndpoint::parse(&address.to_string())
+            .map_err(|_| io::Error::other("worker address"))?;
+        let pin = listener.pin().clone();
+        manager
+            .set_join_advertisement(endpoint, pin)
+            .await
+            .map_err(|_| io::Error::other("join advertisement"))?;
         tasks.spawn(listener.serve(manager.clone(), stopped.clone()));
     }
     tasks.spawn(serve_listener(

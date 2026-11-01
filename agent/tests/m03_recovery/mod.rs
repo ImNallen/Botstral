@@ -109,7 +109,13 @@ impl Fixture {
         let p = self.root.path();
         let state = p.join("manager");
         let _ = fs::remove_file(state.join("listeners.json"));
-        let port = self.worker.manager.rsplit(':').next().unwrap();
+        let port = self
+            .worker
+            .manager
+            .trim_end_matches('/')
+            .rsplit(':')
+            .next()
+            .unwrap();
         self.manager = launch_fault(
             &manager_binary(),
             &[
@@ -121,12 +127,6 @@ impl Fixture {
                 "127.0.0.1:0",
                 "--worker-listen",
                 &format!("127.0.0.1:{port}"),
-                "--worker-tls-cert",
-                p.join("server.pem").to_str().unwrap(),
-                "--worker-tls-key",
-                p.join("server.key").to_str().unwrap(),
-                "--worker-client-ca",
-                p.join("ca.pem").to_str().unwrap(),
             ],
             p,
             fault,

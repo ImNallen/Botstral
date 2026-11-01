@@ -2,60 +2,37 @@
 
 Use Linux or macOS with Rust 1.93.0. Build both production binaries with `make build`. The manager keeps its ordinary and setup listeners on loopback. Expose only the separate worker TLS port to the Computer VM. The worker needs outbound access to that port and no inbound application port. Reserve SSH for bootstrap and recovery.
 
-## Provision certificates
-
-Use your installation CA to issue a manager server certificate and a worker client certificate. The manager certificate must have server-auth usage and a DNS subject alternative name matching the daemon's configured hostname. The worker certificate must have client-auth usage. Supply each service with its peer's trusted CA certificate. Certificate PEM files may include intermediates after the leaf certificate.
-
-Keep the CA private key outside both services. Install service private keys as regular files owned by the service account with mode `0600`. State directories require mode `0700`. Do not place keys, passwords, tokens, or invitation contents in command arguments or environment variables. The examples below pass file paths only.
+The manager creates its own Ed25519 key and self-signed certificate on first start. The worker creates its own key when it joins. Neither machine needs a CA, a copied certificate, a fingerprint, or an invitation file. Private keys stay on the machine that generated them. State directories require mode `0700`. Generated key files are mode `0600`.
 
 ## Start the manager
 
 ```sh
 ./target/release/botstral-manager --state-dir manager-state \
-  --worker-listen 0.0.0.0:43122 \
-  --worker-tls-cert manager.pem --worker-tls-key manager-key.pem \
-  --worker-client-ca worker-ca.pem
+  --listen 127.0.0.1:43120 --setup-listen 127.0.0.1:43121 \
+  --worker-listen 192.168.1.40:43122
 ```
 
-Complete [local owner setup](local-api.md) on the manager host. The worker listener is optional. Configuring it requires all four worker options. Private `listeners.json` records the worker address in `worker`, or `null` when disabled.
+Bind the address workers should dial. That address is copied into the join code. Complete [local owner setup](local-api.md) on the manager host. The worker listener is optional. When it is set, the manager serves public TLS with the key in `manager-state/manager-identity.key` and the certificate in `manager-state/manager-identity.pem`. Private `listeners.json` records the worker address in `worker`, or `null` when the listener is disabled.
 
-## Invite and enroll the worker
+## Invite and join the worker
 
-On the Computer VM, print the public certificate fingerprint:
+On the manager host, invite a worker. The command signs in on the loopback owner API, prints one join code, and signs out. It reads the owner password from the terminal or from standard input.
 
 ```sh
-./target/release/botstral-agent identity --client-cert worker.pem
+./target/release/botstral-manager invite worker --state-dir manager-state
 ```
 
-On the manager host, use the `call` function from the [protected local API example](local-api.md#protected-input-example). Sign in with protected password entry, then run this in the same interactive Python session before signing out:
-
-```python
-import os
-fingerprint = input("Worker certificate fingerprint: ")
-invitation = call(address, "POST", "/v1/worker-invitations", {
-	"fingerprint": fingerprint,
-	"lifetime_seconds": 600,
-}, token)
-fd = os.open("worker-invitation.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-with os.fdopen(fd, "w") as file:
-	json.dump(invitation, file)
-del invitation
-```
-
-Transfer that private file through your bootstrap channel. Redeem it on the Computer VM before expiry:
+The code looks like `bj1/worker/HOST:PORT/PIN/SECRET`. `PIN` is the manager's raw Ed25519 public key as 64 lowercase hex characters. `SECRET` is single-use and expires. Carry the code to the Computer VM through a channel you trust, then join before it expires:
 
 ```sh
-./target/release/botstral-agent enroll --state-dir worker-state \
-  --manager wss://manager.internal:43122 --manager-ca manager-ca.pem \
-  --client-cert worker.pem --client-key worker-key.pem \
-  --invitation-file worker-invitation.json
+./target/release/botstral-agent join --state-dir worker-state 'bj1/worker/...'
 ./target/release/botstral-agent check --state-dir worker-state
 ./target/release/botstral-agent run --state-dir worker-state
 ```
 
-Enrollment prints `worker enrolled`. `check` validates the authenticated connection, negotiation, and snapshot, then exits. `run` stays connected and retries after disconnection. Its configuration contains the manager origin and certificate paths, never the invitation or private-key contents. Remove your invitation-file copies after successful redemption. Replaying a consumed invitation fails.
+`join` generates the worker key, pins the manager, redeems the secret, and prints `worker enrolled`. `check` validates the authenticated connection, negotiation, and snapshot, then exits. `run` stays connected and retries after disconnection. `worker-state/config.json` stores the manager origin, the manager pin, and the generated certificate paths. It does not store a CA or the join secret.
 
-The configuration is saved before redemption. If the enrollment response is lost, try `check` with the same certificate. A committed enrollment remains discoverable without redeeming the invitation again. If enrollment never committed, retry the original invitation before expiry.
+The owner API equivalent is `POST /v1/worker-invitations` with `{"lifetime_seconds":600}`. The response includes `code`.
 
 ## Create sessions and take control
 
@@ -74,11 +51,9 @@ cargo build --workspace --features botstral-agent/nonproduction-test-worker,bots
 
 This worker manipulates deterministic in-memory inputs. It provides no operating-system desktop, browser, shell, or model execution. Release compilation rejects the feature.
 
-## Renew or recover certificates
+## Replace a worker
 
-Revoke the old worker through `DELETE /v1/workers/{id}`. Provision the replacement certificate and key. Issue an invitation for its new certificate fingerprint and enroll it. Repeat `POST /v1/computer-sessions` with each existing bot ID and the new worker ID. Rebinding preserves the session ID, advances its revision, and requires the old worker to be revoked. Stop the old daemon so it does not continue retrying.
-
-To rotate a CA or manager certificate, stop the affected services, provision the replacement trust and certificate files, and restart them. Update the manager hostname when the server certificate's DNS name changes. There is no automatic CA rotation, certificate renewal, or insecure trust fallback.
+Revoke the old worker through `DELETE /v1/workers/{id}`. Invite a new code and run `join` on the replacement machine. Repeat `POST /v1/computer-sessions` with each existing bot ID and the new worker ID. Rebinding preserves the session ID, advances its revision, and requires the old worker to be revoked. Stop the old daemon so it does not continue retrying. There is no CA to rotate.
 
 Two-VM transport and synthetic session acceptance passed on October 26, 2026. [The acceptance record](m02-two-vm-acceptance.md) describes the hosts, observed behavior, and coverage boundaries. The fixtures do not configure a permanent owner installation.
 

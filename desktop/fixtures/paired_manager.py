@@ -12,8 +12,6 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'manager/tests'))
-import m05_acceptance as m
 
 
 def main():
@@ -58,7 +56,6 @@ def main():
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     if (root/'fixture.json').exists():
         raise RuntimeError('Choose a fresh fixture directory.')
-    m.certificates(root)
     env = dict(os.environ, BOTSTRAL_C02_FIXTURE_ROOT=str(root), BOTSTRAL_C02_VIEW_OUTPUT=str(root/'desktop-view.json'))
     if args.journal_case == 'p05_saved_results_restart_and_export':
         env['BOTSTRAL_P05_PROOF'] = '1'
@@ -78,7 +75,7 @@ def main():
             print('Local manager: '+fixture['local'], flush=True)
             print('Paired WSS route: wss://'+fixture['public']+'/owner/v1/connect', flush=True)
             print('Manager identity: '+trust['manager'], flush=True)
-            print('Manager leaf: '+trust['leaf'], flush=True)
+            print('Manager pin: '+trust['pin'], flush=True)
             if not os.environ.get('BOTSTRAL_P06_EVIDENCE'):
                 print('Synthetic password: '+fixture['password'], flush=True)
             print('Trusted export: '+str(root/'trust.json'), flush=True)

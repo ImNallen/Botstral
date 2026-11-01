@@ -26,7 +26,7 @@
     "owner": 3
   },
   "data_compatibility": {
-    "manager_schema": 17,
+    "manager_schema": 18,
     "worker_schema": 2,
     "rollback": "restore coordinated offline backup"
   },

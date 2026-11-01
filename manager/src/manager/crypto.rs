@@ -21,13 +21,6 @@ pub(super) fn token_hash(token: &str) -> [u8; 32] {
     Sha256::digest(token.as_bytes()).into()
 }
 
-pub(super) fn worker_invitation_hash(token: &str) -> [u8; 32] {
-    let mut hash = Sha256::new();
-    hash.update(b"botstral-worker-invitation-v1\0");
-    hash.update(token.as_bytes());
-    hash.finalize().into()
-}
-
 fn argon2() -> Argon2<'static> {
     Argon2::new(
         argon2::Algorithm::Argon2id,

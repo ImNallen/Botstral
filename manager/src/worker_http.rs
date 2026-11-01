@@ -18,7 +18,11 @@ const DEADLINE: Duration = Duration::from_secs(5);
 pub(crate) struct VerifiedIdentity(CertificateFingerprint);
 impl VerifiedIdentity {
     pub(crate) fn from_verified(der: &[u8]) -> Self {
-        Self(CertificateFingerprint::from_der(der))
+        Self(
+            IdentityPublicKey::from_certificate(der)
+                .expect("worker certificate presents an Ed25519 key")
+                .fingerprint(),
+        )
     }
     pub(crate) fn fingerprint(&self) -> &CertificateFingerprint {
         &self.0

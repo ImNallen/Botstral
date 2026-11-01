@@ -34,8 +34,7 @@ pub struct PairingCandidate {
     pub id: Uuid,
     pub manager: ManagerId,
     pub endpoint: String,
-    pub server_name: String,
-    pub leaf: CertificateFingerprint,
+    pub pin: CertificateFingerprint,
     pub fingerprint: DeviceFingerprint,
     pub role: DeviceRole,
     pub expires_at: i64,
@@ -1630,8 +1629,7 @@ impl Actor {
                     id: Uuid::new_v4(),
                     manager: bundle.trust.manager,
                     endpoint: bundle.trust.endpoint.clone(),
-                    server_name: bundle.trust.server_name.clone(),
-                    leaf: bundle.trust.leaf.clone(),
+                    pin: bundle.trust.pin.clone(),
                     fingerprint,
                     role: bundle.role,
                     expires_at: bundle.expires_at,
@@ -1658,8 +1656,7 @@ impl Actor {
                     id: Uuid::new_v4(),
                     manager: trust.manager,
                     endpoint: trust.endpoint.clone(),
-                    server_name: trust.server_name.clone(),
-                    leaf: trust.leaf.clone(),
+                    pin: trust.pin.clone(),
                     fingerprint: pairing.fingerprint.clone(),
                     role: DeviceRole::Owner,
                     expires_at: now() + 600,
@@ -1985,9 +1982,22 @@ pub fn save_artifact(destination: &Path, artifact: VerifiedArtifact) -> Result<(
     result
 }
 
-pub fn parse_pairing_link(value: &str) -> Result<OwnerInvitation, String> {
+pub enum PairingLink {
+    Bundle(OwnerInvitation),
+    Code(String),
+}
+
+pub fn parse_pairing_link(value: &str) -> Result<PairingLink, String> {
+    let value = value.trim();
     if value.len() > 65536 {
         return Err("invalid_invitation".into());
+    }
+    if let Some(raw) = value.strip_prefix("bj1/") {
+        let code = JoinCode::parse(&format!("bj1/{raw}")).map_err(|_| "invalid_invitation")?;
+        if code.role() != PeerRole::Device {
+            return Err("invalid_invitation".into());
+        }
+        return Ok(PairingLink::Code(format!("bj1/{raw}")));
     }
     let encoded = value
         .strip_prefix("botstral://pair?bundle=")
@@ -1995,7 +2005,40 @@ pub fn parse_pairing_link(value: &str) -> Result<OwnerInvitation, String> {
     let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
         .decode(encoded)
         .map_err(|_| "invalid_invitation")?;
-    serde_json::from_slice(&bytes).map_err(|_| "invalid_invitation".into())
+    serde_json::from_slice(&bytes)
+        .map(PairingLink::Bundle)
+        .map_err(|_| "invalid_invitation".into())
+}
+
+pub async fn stage_join_code(
+    service: &RemoteService,
+    code: &str,
+) -> Result<RemoteSnapshot, String> {
+    let fingerprint = service
+        .inspect()
+        .pairing
+        .ok_or("begin_pairing_first")?
+        .fingerprint;
+    let code = JoinCode::parse(code.trim()).map_err(|_| "invalid_invitation")?;
+    if code.role() != PeerRole::Device {
+        return Err("invalid_invitation".into());
+    }
+    let manager =
+        botstral_owner_client::read_manager_id(code.endpoint().as_str(), code.pin().fingerprint())
+            .await
+            .map_err(|_| "trust")?;
+    let bundle = OwnerInvitation {
+        trust: ManagerTrust {
+            manager,
+            endpoint: code.endpoint().as_str().to_owned(),
+            pin: code.pin().fingerprint().clone(),
+        },
+        role: DeviceRole::Owner,
+        fingerprint,
+        expires_at: now() + 600,
+        invitation: code.secret_text().to_string(),
+    };
+    service.command(IntentCommand::Stage(bundle)).await
 }
 
 #[derive(Serialize)]

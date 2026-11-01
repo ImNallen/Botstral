@@ -6,7 +6,6 @@ use hyper::{
     Request, Response, StatusCode, body::Incoming, server::conn::http1, service::service_fn,
 };
 use hyper_util::rt::{TokioIo, TokioTimer};
-use rustls::{ServerConfig, server::WebPkiClientVerifier};
 use std::{convert::Infallible, io, net::SocketAddr, path::PathBuf, sync::Arc, time::Duration};
 use tokio::{
     net::TcpListener,
@@ -27,36 +26,26 @@ pub struct PublicTls {
     pub listen: SocketAddr,
     pub certificate: PathBuf,
     pub key: PathBuf,
-    pub client_ca: PathBuf,
 }
 
 pub(crate) struct PublicListener {
     listener: TcpListener,
     acceptor: TlsAcceptor,
+    pin: botstral_link::ManagerPin,
 }
 impl PublicListener {
     pub(crate) async fn bind(config: PublicTls) -> io::Result<Self> {
-        let provider = Arc::new(rustls::crypto::ring::default_provider());
-        let verifier = WebPkiClientVerifier::builder_with_provider(
-            Arc::new(tls::roots(&config.client_ca)?),
-            provider.clone(),
-        )
-        .allow_unauthenticated()
-        .build()
-        .map_err(io::Error::other)?;
-        let config_tls = ServerConfig::builder_with_provider(provider)
-            .with_safe_default_protocol_versions()
-            .map_err(io::Error::other)?
-            .with_client_cert_verifier(verifier)
-            .with_single_cert(
-                tls::certificates(&config.certificate)?,
-                tls::private_key(&config.key)?,
-            )
-            .map_err(io::Error::other)?;
+        let certificates = tls::certificates(&config.certificate)?;
+        let pin = tls::pin_from_certificate(certificates[0].as_ref())?;
+        let config_tls = tls::public_server_config(certificates, tls::private_key(&config.key)?)?;
         Ok(Self {
             listener: TcpListener::bind(config.listen).await?,
             acceptor: TlsAcceptor::from(Arc::new(config_tls)),
+            pin,
         })
+    }
+    pub(crate) fn pin(&self) -> &botstral_link::ManagerPin {
+        &self.pin
     }
     pub(crate) fn local_addr(&self) -> io::Result<SocketAddr> {
         self.listener.local_addr()
@@ -204,6 +193,21 @@ async fn public_request(
                 }
             },
         );
+    }
+    if request.method() == "GET"
+        && request.uri().path() == "/owner/v1/identity"
+        && request.uri().query().is_none()
+    {
+        if peer.is_some() {
+            return Ok(error_response(
+                StatusCode::FORBIDDEN,
+                ErrorCode::Unauthorized,
+            ));
+        }
+        return Ok(match manager.public_manager_identity().await {
+            Ok(id) => json_response(StatusCode::OK, serde_json::json!({"manager": id})),
+            Err(_) => error_response(StatusCode::INTERNAL_SERVER_ERROR, ErrorCode::InvalidMessage),
+        });
     }
     if request.uri().path().starts_with("/worker/") {
         return match peer {

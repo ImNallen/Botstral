@@ -2,25 +2,33 @@
 
 M05 provides the native `owner-probe` and reusable `manager::owner_client` library. C02 supplies graphical pairing, platform keychain storage, and native notification display.
 
-## Pair through trusted local administration
+## Pair a device with a join code
 
-1. Run `owner-probe init /private/client "My device"`. Save the public pairing request from standard output. The client saves its random 256-bit credential before requesting an invitation.
-2. Sign in through the existing loopback owner interface. Independently confirm the pairing request's fingerprint. Send that request and `lifetime_seconds` to `POST /v1/device-invitations`. Lifetimes are at most 600 seconds.
-3. Export trust with authenticated `POST /v1/device-trust`. Supply `endpoint`, `server_name`, `ca_pem`, and `certificate_pem`. The Manager supplies its durable identity and validates the certificate chain, name, time, and leaf fingerprint.
-4. Combine the invitation's `role`, `fingerprint`, `expires_at`, and `invitation` with the exported `trust` object. Confirm that the grant's `manager` equals `trust.manager`. Transfer this bundle through the trusted local channel in a mode 0600 file.
-5. Run `owner-probe import /private/client /private/invitation.json`. Run `owner-probe watch /private/client 60` to authenticate and recover.
+On the manager host, after first-owner setup, print a device join code and a QR code for the same text. The command reads the owner password from the terminal or from standard input. It does not take a device fingerprint.
 
-Invitations are long random secrets. There is no short-code flow. A stolen invitation cannot enroll another credential. A stolen device credential can impersonate that device until revocation. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body.
+```sh
+./target/release/botstral-manager invite device --label "My desktop" --state-dir manager-state
+```
+
+The code is `bj1/device/HOST:PORT/PIN/SECRET`. The desktop pastes that string, or a QR decode of it. It shows the manager pin. Confirm that pin before continuing. No further loopback sign-in on the manager host is required for pairing.
+
+The owner API equivalent is `POST /v1/device-invitations` with `{"label":"My desktop","lifetime_seconds":600}`. The response includes `code`. List devices with authenticated local `GET /v1/devices`. Revoke a device with local `DELETE /v1/devices/{id}` and an empty JSON body.
 
 The owner probe uses a mode 0700 directory, mode 0600 files, exclusive process locking, and atomic writes. The desktop uses the same extracted transport with an injected native Keychain or Secret Service record. It never creates `device.json`. One client admits one live session, and that session retains the directory lock until it ends. It tries its saved credential before redeeming an invitation. A lost successful enrollment response therefore retains the same device. Revoked credentials cannot enroll again.
 
 ## Configure the public listener
 
-Configure one listener with `--public-listen`, `--public-tls-cert`, `--public-tls-key`, and `--public-worker-ca`. The old `--worker-listen`, `--worker-tls-cert`, `--worker-tls-key`, and `--worker-client-ca` flags remain aliases. Supplying both names for one setting is an error. `WorkerTls` and `serve_with_worker` remain available to Rust callers.
+```sh
+./target/release/botstral-manager --state-dir manager-state \
+  --listen 127.0.0.1:43120 --setup-listen 127.0.0.1:43121 \
+  --worker-listen 192.168.1.40:43122
+```
 
-`listeners.json` reports the same address under `public` and legacy `worker`. The existing loopback owner and setup listeners remain separate. The public listener exposes only the worker protocol, production coding proxy, and `GET /owner/v1/connect`. It does not expose ordinary owner HTTP administration or setup. Forwarded address headers do not grant local authority.
+Bind the address devices should dial. That address is copied into the join code. `--public-listen` is an alias of `--worker-listen`. The manager generates the TLS identity. Certificate and CA flags are not accepted.
 
-Workers present certificates validated against the configured worker CA. Owners omit client certificates and use their separate device credential. Certificate-bearing requests cannot use owner routes. Workers retain wire version 3 and their existing paths. Owners use wire version 1.
+`listeners.json` reports the same address under `public` and `worker`. The existing loopback owner and setup listeners remain separate. The public listener exposes the worker protocol, production coding proxy, and `GET /owner/v1/connect`. It does not expose ordinary owner HTTP administration or setup. Forwarded address headers do not grant local authority.
+
+Worker routes require a client certificate whose Ed25519 public key the manager can extract. Owner routes require the absence of a client certificate and use the device credential. Workers retain wire version 3 and their existing paths. Owners use wire version 3 of the owner hello.
 
 ## Resume and call methods
 
@@ -36,9 +44,9 @@ Storage and protocol failures after mutation transmission also produce `UnknownO
 
 ## Replace trust locally
 
-Export the replacement certificate through authenticated local `/v1/device-trust`. Verify the durable Manager identity. Transfer the profile in a protected file and run `owner-probe trust /private/client /private/replacement-trust.json`. Coordinate certificate activation and reconnect. An import for another Manager is rejected.
+Export the current pin through authenticated local `POST /v1/device-trust` with the endpoint. Verify the durable Manager identity and the pin. Transfer the profile in a protected file and run `owner-probe trust /private/client /private/replacement-trust.json`. An import for another Manager is rejected.
 
-The client validates the normal TLS chain, name, validity, handshake signatures, and exact leaf pin before sending either credential. Every reconnect applies the same rule. A client that misses rotation remains disconnected until trusted local recovery. Connection failures never discard or replace pins. There is no online rotation handshake or owner certificate authority.
+The client checks that the server certificate's Ed25519 public key matches the pin. It does not check a CA or a hostname. Every reconnect applies the same rule. A client that misses a manager-key change remains disconnected until it receives a new pin. Connection failures never discard or replace pins.
 
 ## Use an outbound relay
 
@@ -98,7 +106,7 @@ python3 manager/tests/m05_client_regressions.py --output .audit/m05-client-regre
 
 ## Use the paired desktop
 
-Open the paired workspace and create a device request. Its public fingerprint appears only after native protected storage has persisted and read back the credential. Authorize that fingerprint through trusted local administration. Import the protected invitation file through the native chooser, or sign in locally and choose **Authorize with local manager** with the authenticated trust export. Compare the displayed manager identity, endpoint, server name, owner role, device fingerprint, and exact certificate pin before confirming.
+Open the paired workspace and create a device request. Its public fingerprint appears only after native protected storage has persisted and read back the credential. Paste the device join code. Compare the displayed manager identity, endpoint, manager pin, owner role, and device fingerprint before confirming.
 
 The desktop requests the additive version 1 `Workspace` image. The manager constructs its roster, sessions, run details, existing snapshot, and cursor under one serialized authority. `Resume` and its strict snapshot shape remain unchanged for existing clients. An unsupported Workspace reply blocks the app and requires a manager upgrade. Remote tasks never fall back to local HTTP.
 
@@ -108,6 +116,6 @@ Action review displays the normalized task command and target. `GrantReviewedApp
 
 Notifications are hints. The app recovers a complete image before enabling actions. Cancellation remains pending until authoritative terminal evidence. A lost mutation reply retains its saved identity without replay. An owner can leave an uncertain identity unresolved and explicitly continue with other work after acknowledging the duplication risk.
 
-Sign-out removes local access. A durable tombstone blocks automatic authentication even if native deletion fails. Server revocation remains a separate local administration action. Admitted effects may finish. To replace a certificate, import an authenticated replacement trust export in workspace details and confirm the same durable manager identity and new pin. Connection failures never change pins.
+Sign-out removes local access. A durable tombstone blocks automatic authentication even if native deletion fails. Server revocation remains a separate local administration action. Admitted effects may finish. To replace the manager pin, import an authenticated replacement trust export in workspace details and confirm the same durable manager identity and new pin. Connection failures never change pins.
 
 The [native workflow](c02-native-workflow.md) provides a recorded-provider fixture. The [acceptance record](c02-acceptance.md) separates service checks from packaged and production-worker acceptance.

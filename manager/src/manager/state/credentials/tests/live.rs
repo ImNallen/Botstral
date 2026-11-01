@@ -75,9 +75,7 @@ fn live_with_setup<T>(
             )
             .unwrap(),
     );
-    let invitation = state
-        .invite_worker(owner(), peer().fingerprint().clone(), 600)
-        .unwrap();
+    let invitation = state.invite_worker(owner(), 600).unwrap();
     let worker = state.enroll_worker(peer(), invitation.secret).unwrap();
     let session = state
         .open_computer_session(owner(), input.bot, worker)

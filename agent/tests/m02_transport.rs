@@ -1,12 +1,9 @@
 use botstral_agent::{Config, transport};
-use botstral_link::*;
+use botstral_link::{tls, *};
 use futures_util::{SinkExt, StreamExt};
 use http_body_util::{BodyExt, Full};
 use hyper::{Request, body::Bytes};
 use hyper_util::rt::TokioIo;
-use rcgen::{
-    BasicConstraints, CertificateParams, ExtendedKeyUsagePurpose, IsCa, KeyPair, KeyUsagePurpose,
-};
 use serde_json::{Value, json};
 use std::{
     fs::{self, OpenOptions},
@@ -25,6 +22,11 @@ use tokio_tungstenite::{WebSocketStream, tungstenite::Message};
 
 type Socket = WebSocketStream<tokio_rustls::client::TlsStream<TcpStream>>;
 
+fn public_fingerprint(path: &Path) -> CertificateFingerprint {
+    IdentityPublicKey::from_certificate(tls::certificates(path).unwrap()[0].as_ref())
+        .unwrap()
+        .fingerprint()
+}
 fn private(path: &Path, bytes: &[u8]) {
     let mut file = OpenOptions::new()
         .write(true)
@@ -197,48 +199,6 @@ impl Fixture {
     async fn new() -> Self {
         let root = tempfile::tempdir().unwrap();
         let p = root.path();
-        let mut params = CertificateParams::new(vec![]).unwrap();
-        params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-        params.key_usages = vec![
-            KeyUsagePurpose::KeyCertSign,
-            KeyUsagePurpose::DigitalSignature,
-            KeyUsagePurpose::CrlSign,
-        ];
-        let key = KeyPair::generate().unwrap();
-        let ca = params.self_signed(&key).unwrap();
-        private(&p.join("ca.pem"), ca.pem().as_bytes());
-        for (name, server, expired) in [
-            ("server", true, false),
-            ("worker", false, false),
-            ("other", false, false),
-            ("expired", false, true),
-            ("race", false, false),
-            ("recovery", false, false),
-        ] {
-            let mut params = CertificateParams::new(vec!["localhost".into()]).unwrap();
-            params.extended_key_usages = vec![if server {
-                ExtendedKeyUsagePurpose::ServerAuth
-            } else {
-                ExtendedKeyUsagePurpose::ClientAuth
-            }];
-            if expired {
-                params.not_before = time::OffsetDateTime::now_utc() - time::Duration::days(2);
-                params.not_after = time::OffsetDateTime::now_utc() - time::Duration::days(1);
-            }
-            let client_key = KeyPair::generate().unwrap();
-            let cert = params.signed_by(&client_key, &ca, &key).unwrap();
-            private(&p.join(format!("{name}.pem")), cert.pem().as_bytes());
-            private(
-                &p.join(format!("{name}.key")),
-                client_key.serialize_pem().as_bytes(),
-            );
-        }
-        let wrong_key = KeyPair::generate().unwrap();
-        let mut wrong_params = CertificateParams::new(vec!["localhost".into()]).unwrap();
-        wrong_params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-        let wrong_ca = wrong_params.self_signed(&wrong_key).unwrap();
-        private(&p.join("wrong.pem"), wrong_ca.pem().as_bytes());
-        private(&p.join("wrong.key"), wrong_key.serialize_pem().as_bytes());
         let state = p.join("manager");
         let mut manager = launch(
             &manager_binary(),
@@ -251,12 +211,6 @@ impl Fixture {
                 "127.0.0.1:0",
                 "--worker-listen",
                 "127.0.0.1:0",
-                "--worker-tls-cert",
-                p.join("server.pem").to_str().unwrap(),
-                "--worker-tls-key",
-                p.join("server.key").to_str().unwrap(),
-                "--worker-client-ca",
-                p.join("ca.pem").to_str().unwrap(),
             ],
             p,
             "manager",
@@ -286,16 +240,31 @@ impl Fixture {
         .await;
         assert_eq!(status, 201);
         let address: SocketAddr = addresses["worker"].as_str().unwrap().parse().unwrap();
-        let config = |name: &str| Config {
-            manager: format!("wss://localhost:{}", address.port()),
-            manager_ca: p.join("ca.pem"),
-            client_cert: p.join(format!("{name}.pem")),
-            client_key: p.join(format!("{name}.key")),
+        let manager_pin = tls::pin_from_certificate(
+            tls::certificates(&state.join("manager-identity.pem")).unwrap()[0].as_ref(),
+        )
+        .unwrap();
+        let identity = |name: &str| {
+            let dir = p.join(name);
+            fs::create_dir(&dir).unwrap();
+            fs::set_permissions(&dir, fs::Permissions::from_mode(0o700)).unwrap();
+            tls::ensure_identity(&dir, "worker-identity").unwrap()
+        };
+        let config = |name: &str| {
+            let files = identity(name);
+            Config {
+                manager: format!("wss://{address}/"),
+                pin: manager_pin.fingerprint().clone(),
+                client_cert: files.certificate,
+                client_key: files.key,
+            }
         };
         let worker = config("worker");
         let other = config("other");
-        let wrong = config("wrong");
-        let expired = config("expired");
+        let mut wrong = worker.clone();
+        wrong.pin = CertificateFingerprint::from_public_key(&[9; 32]);
+        let expired = wrong.clone();
+        let _ = (config("race"), config("recovery"));
         Self {
             root,
             manager,
@@ -310,24 +279,19 @@ impl Fixture {
     async fn owner(&self, method: &str, path: &str, value: Value) -> (u16, Value) {
         local(self.listen, method, path, Some(&self.token), value).await
     }
-    async fn invitation(&self, config: &Config, seconds: u32) -> Value {
-        let fingerprint = CertificateFingerprint::from_der(
-            tls::certificates(&config.client_cert).unwrap()[0].as_ref(),
-        );
+    async fn invitation(&self, _config: &Config, seconds: u32) -> Value {
         let (status, invitation) = self
             .owner(
                 "POST",
                 "/v1/worker-invitations",
-                json!({"fingerprint":fingerprint,"lifetime_seconds":seconds}),
+                json!({"lifetime_seconds": seconds}),
             )
             .await;
         assert_eq!(status, 201);
         invitation
     }
     async fn wait_phase(&self, phase: &str, minimum_generation: u64) -> Value {
-        let fingerprint = CertificateFingerprint::from_der(
-            tls::certificates(&self.worker.client_cert).unwrap()[0].as_ref(),
-        );
+        let fingerprint = public_fingerprint(&self.worker.client_cert);
         tokio::time::timeout(Duration::from_secs(10), async {
             loop {
                 let workers = self.owner("GET", "/v1/workers", json!({})).await.1;

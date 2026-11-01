@@ -936,7 +936,7 @@ fn m01_real_binary_over_tcp() {
     assert_eq!(
         db.query_row::<i64, _, _>("PRAGMA user_version", [], |row| row.get(0))
             .unwrap(),
-        17
+        18
     );
     assert_eq!(
         db.query_row::<i64, _, _>("SELECT count(*) FROM owner", [], |row| row.get(0))

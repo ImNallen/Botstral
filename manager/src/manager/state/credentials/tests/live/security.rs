@@ -329,10 +329,7 @@ fn pr56_security_profile_requires_all_emissions_and_correct_worker() {
     assert!(screen(&mut f, vec![second.release], "Public status").is_err());
     assert!(screen(&mut f, vec![first.release, second.release], "Public status").is_ok());
     let other = crate::worker_http::VerifiedIdentity::for_test(b"foreign profile scope fixture");
-    let invitation = f
-        .state
-        .invite_worker(owner(), other.fingerprint().clone(), 600)
-        .unwrap();
+    let invitation = f.state.invite_worker(owner(), 600).unwrap();
     let foreign = f.state.enroll_worker(other, invitation.secret).unwrap();
     let current_first = f.state.load_task(first_task.id).unwrap();
     f.state

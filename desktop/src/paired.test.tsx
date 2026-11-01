@@ -192,6 +192,31 @@ describe('paired presentation boundary', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(send.mock.calls[0]?.[0].cost_microusd).toBe(250000);
   });
+  it('imports a pasted device join code', async () => {
+    const pairing = remoteSnapshotSchema.parse({
+      generation: 1,
+      revision: 1,
+      status: 'pairing',
+      issue: null,
+      pairing: { fingerprint: 'a'.repeat(64), label: 'My desktop' },
+      candidate: null,
+      review: null,
+      intents: [],
+      workspace: null,
+    });
+    const importPairing = vi.fn<PairedApplication['importPairing']>().mockResolvedValue(pairing);
+    const controller = new PairedController({ ...application(pairing), importPairing });
+    controller.accept(pairing);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const user = userEvent.setup();
+    const code =
+      'bj1/device/manager.example:443/' +
+      'a'.repeat(64) +
+      '/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    await user.type(screen.getByLabelText('Join code'), code);
+    await user.click(screen.getByRole('button', { name: 'Continue with join code' }));
+    expect(importPairing).toHaveBeenCalledWith(code);
+  });
   it('renders durable turns and linked tasks as inert text', () => {
     const controller = new PairedController(application());
     controller.accept(snapshot());

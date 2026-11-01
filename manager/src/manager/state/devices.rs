@@ -2,18 +2,10 @@ use super::*;
 use crate::manager::devices::{DeviceInvitationGrant, DeviceLease, OwnerAuthority};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use botstral_link::*;
-use sha2::{Digest, Sha256};
 
 pub(super) struct DeviceConnection {
     pub lease: DeviceLease,
     pub stop: watch::Sender<bool>,
-}
-
-fn invitation_hash(secret: &str) -> [u8; 32] {
-    let mut digest = Sha256::new();
-    digest.update(b"botstral-owner-invitation-v1\0");
-    digest.update(secret.as_bytes());
-    digest.finalize().into()
 }
 
 #[cfg(test)]
@@ -74,46 +66,114 @@ impl State {
     pub(in crate::manager) fn invite_device(
         &mut self,
         token: SessionToken,
-        request: PairingRequest,
+        label: String,
         lifetime: u32,
     ) -> Result<DeviceInvitationGrant, OperationError> {
         self.authorize(&token)?;
         if !(1..=600).contains(&lifetime)
-            || request.label.is_empty()
-            || request.label.len() > 100
-            || request.label.chars().any(char::is_control)
+            || label.is_empty()
+            || label.len() > 100
+            || label.chars().any(char::is_control)
         {
             return Err(OperationError::InvalidInput);
         }
+        #[cfg(test)]
+        if self.advertised_endpoint.is_none() || self.manager_pin.is_none() {
+            self.advertise_for_test();
+        }
+        let endpoint = self
+            .advertised_endpoint
+            .clone()
+            .ok_or(OperationError::InvalidInput)?;
+        let pin = self
+            .manager_pin
+            .clone()
+            .ok_or(OperationError::InvalidInput)?;
         let now = self.now();
-        self.connection
-            .execute("DELETE FROM owner_invitations WHERE expires_at<=?1", [now])?;
-        let count: i64 =
-            self.connection
-                .query_row("SELECT count(*) FROM owner_invitations", [], |r| r.get(0))?;
+        self.connection.execute(
+            "DELETE FROM join_invitations WHERE expires_at <= ?1 AND consumed_at IS NULL",
+            [now],
+        )?;
+        let count: i64 = self.connection.query_row(
+            "SELECT count(*) FROM join_invitations WHERE consumed_at IS NULL AND expires_at > ?1",
+            [now],
+            |r| r.get(0),
+        )?;
         if count >= 128 {
             return Err(OperationError::Busy);
         }
-        let hash = fingerprint_bytes(&request.fingerprint);
-        let exists: bool = self.connection.query_row(
+        let manager = self.manager_identity()?;
+        let secret = SecretString::from(crypto::random_token());
+        let join =
+            JoinSecret::parse(secret.expose_secret()).map_err(|_| OperationError::Internal)?;
+        let expires_at = now + i64::from(lifetime);
+        self.connection.execute(
+            "INSERT INTO join_invitations(token_hash, role, label, expires_at) VALUES(?1, 'device', ?2, ?3)",
+            params![join.hash(PeerRole::Device).as_slice(), label, expires_at],
+        )?;
+        let code = JoinCode::new(PeerRole::Device, endpoint, pin, join).render();
+        Ok(DeviceInvitationGrant {
+            manager,
+            role: DeviceRole::Owner,
+            expires_at,
+            secret,
+            code: code.to_string(),
+        })
+    }
+    fn bind_device_invitation(
+        &mut self,
+        credential: &str,
+        invitation: &str,
+        hash: &[u8; 32],
+    ) -> Result<(), OperationError> {
+        let join = JoinSecret::parse(invitation).map_err(|_| ErrorCode::InvalidInvitation)?;
+        let now = self.now();
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let token_hash = join.hash(PeerRole::Device);
+        let presented = DeviceFingerprint::from_credential(credential);
+        let row: Option<(i64, Option<String>, String)> = tx
+            .query_row(
+                "SELECT expires_at, bound_identity, label FROM join_invitations WHERE role='device' AND token_hash=?1",
+                [token_hash.as_slice()],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .optional()?;
+        let Some((expires_at, bound, label)) = row else {
+            return Err(ErrorCode::InvalidInvitation.into());
+        };
+        if let Some(bound) = bound {
+            if bound != presented.as_str() {
+                return Err(ErrorCode::InvitationUsed.into());
+            }
+            return Ok(());
+        }
+        if expires_at <= now {
+            return Err(ErrorCode::InvitationExpired.into());
+        }
+        let existing: bool = tx.query_row(
             "SELECT EXISTS(SELECT 1 FROM owner_devices WHERE credential_hash=?1)",
             [hash.as_slice()],
             |r| r.get(0),
         )?;
-        if exists {
-            return Err(OperationError::Conflict);
+        if existing {
+            return Err(ErrorCode::Conflict.into());
         }
-        let manager = self.manager_identity()?;
-        let secret = SecretString::from(crypto::random_token());
-        let expires_at = now + i64::from(lifetime);
-        self.connection.execute("INSERT INTO owner_invitations(token_hash,manager,role,credential_hash,label,expires_at) VALUES(?1,?2,'owner',?3,?4,?5)", params![invitation_hash(secret.expose_secret()).as_slice(),manager.to_string(),hash.as_slice(),request.label,expires_at])?;
-        Ok(DeviceInvitationGrant {
-            manager,
-            fingerprint: request.fingerprint,
-            role: DeviceRole::Owner,
-            expires_at,
-            secret,
-        })
+        let count: i64 = tx.query_row("SELECT count(*) FROM owner_devices", [], |r| r.get(0))?;
+        if count >= MAX_OWNER_DEVICES as i64 {
+            return Err(OperationError::Busy);
+        }
+        tx.execute(
+            "INSERT INTO owner_devices(id,credential_hash,label,role,created_at) VALUES(?1,?2,?3,'owner',?4)",
+            params![DeviceId::new().to_string(), hash.as_slice(), label, now],
+        )?;
+        tx.execute(
+            "UPDATE join_invitations SET consumed_at=?1, bound_identity=?2 WHERE token_hash=?3",
+            params![now, presented.as_str(), token_hash.as_slice()],
+        )?;
+        tx.commit()?;
+        Ok(())
     }
     pub(super) fn remote_attempt(&mut self) -> Result<(), OperationError> {
         let now = self.now();
@@ -183,35 +243,7 @@ impl State {
             return Err(OperationError::Busy);
         }
         if let Some(invitation) = invitation {
-            let invitation = SecretString::from(invitation);
-            if invitation.expose_secret().len() != 43 {
-                return Err(OperationError::Unauthorized);
-            }
-            let now = self.now();
-            let tx = self
-                .connection
-                .transaction_with_behavior(TransactionBehavior::Immediate)?;
-            let label: Option<String> = tx.query_row("SELECT label FROM owner_invitations WHERE token_hash=?1 AND manager=?2 AND role='owner' AND credential_hash=?3 AND expires_at>?4 AND consumed_at IS NULL", params![invitation_hash(invitation.expose_secret()).as_slice(),manager.to_string(),hash.as_slice(),now], |r| r.get(0)).optional()?;
-            let label = label.ok_or(OperationError::Unauthorized)?;
-            let existing: bool = tx.query_row(
-                "SELECT EXISTS(SELECT 1 FROM owner_devices WHERE credential_hash=?1)",
-                [hash.as_slice()],
-                |r| r.get(0),
-            )?;
-            if existing {
-                return Err(OperationError::Unauthorized);
-            }
-            let count: i64 =
-                tx.query_row("SELECT count(*) FROM owner_devices", [], |r| r.get(0))?;
-            if count >= MAX_OWNER_DEVICES as i64 {
-                return Err(OperationError::Busy);
-            }
-            tx.execute("INSERT INTO owner_devices(id,credential_hash,label,role,created_at) VALUES(?1,?2,?3,'owner',?4)", params![DeviceId::new().to_string(),hash.as_slice(),label,now])?;
-            tx.execute(
-                "UPDATE owner_invitations SET consumed_at=?1 WHERE token_hash=?2",
-                params![now, invitation_hash(invitation.expose_secret()).as_slice()],
-            )?;
-            tx.commit()?;
+            self.bind_device_invitation(credential.expose_secret(), &invitation, &hash)?;
         }
         let (id, epoch): (String,i64) = self.connection.query_row("SELECT id,epoch FROM owner_devices WHERE credential_hash=?1 AND role='owner' AND revoked=0", [hash.as_slice()], |r| Ok((r.get(0)?,r.get(1)?))).optional()?.ok_or(OperationError::Unauthorized)?;
         let lease = DeviceLease {

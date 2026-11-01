@@ -77,14 +77,22 @@ async fn c02_production_remote_fixture() {
     let mut public = "0.0.0.0:0".parse().unwrap();
     let mut generation = 0;
     loop {
+        let identity = botstral_link::tls::ensure_identity(&root, "manager-identity").unwrap();
         let listener = crate::public_http::PublicListener::bind(crate::PublicTls {
             listen: public,
-            certificate: root.join("manager.pem"),
-            key: root.join("manager.key"),
-            client_ca: root.join("ca.pem"),
+            certificate: identity.certificate,
+            key: identity.key,
         })
         .await
         .unwrap();
+        app.manager
+            .set_join_advertisement(
+                botstral_link::ManagerEndpoint::parse(&listener.local_addr().unwrap().to_string())
+                    .unwrap(),
+                identity.pin,
+            )
+            .await
+            .unwrap();
         public = listener.local_addr().unwrap();
         let (stop, stopped) = watch::channel(false);
         let manager = app.manager.clone();
