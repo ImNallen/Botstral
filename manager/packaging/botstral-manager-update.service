@@ -1,0 +1,8 @@
+[Unit]
+Description=Botstral manager update
+After=network-online.target
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /usr/lib/botstral-manager/update.py --component manager --state-dir /var/lib/botstral-manager

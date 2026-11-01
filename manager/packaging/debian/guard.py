@@ -47,8 +47,10 @@ def guard(component, version, identity, operation):
                 refuse('installed identity metadata is missing; use explicit backup recovery')
             if json.loads(metadata.read_text()) != identity:
                 refuse('same native version has a different release identity')
+    unit_dir = '/usr/lib/systemd/' + ('system' if component == 'manager' else 'user')
     paths = [executable, executable + '-backup', executable + '-diagnose', '/usr/lib/' + package, '/usr/share/' + package,
-             '/usr/lib/systemd/' + ('system' if component == 'manager' else 'user') + '/' + package + '.service']
+             unit_dir + '/' + package + '.service', unit_dir + '/' + package + '-update.service',
+             unit_dir + '/' + package + '-update.timer', unit_dir + '/' + package + '-update.path']
     if component == 'agent':
         paths.append(executable + '-supervisor-check')
     for path in paths:

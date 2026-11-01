@@ -77,6 +77,11 @@ class InstallationTests(unittest.TestCase):
                 unit = destination / ('usr/lib/systemd/' + ('system' if component == 'manager' else 'user')) / ('botstral-' + component + '.service')
                 self.assertTrue(unit.is_file())
                 self.assertFalse((destination / 'usr/lib/systemd' / ('user' if component == 'manager' else 'system') / unit.name).exists())
+                timer = unit.with_name('botstral-' + component + '-update.timer')
+                self.assertTrue(timer.is_file())
+                self.assertIn('Europe/Stockholm', timer.read_text())
+                self.assertTrue((library / 'update.py').is_file())
+                self.assertIn('04:00' if component == 'manager' else '04:30', timer.read_text())
                 with self.assertRaisesRegex(ValueError, 'already installed'):
                     install.install(component, binary, destination, ROOT / component / 'packaging')
 

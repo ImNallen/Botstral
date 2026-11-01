@@ -1,0 +1,6 @@
+{
+  "channel_url": "https://github.com/ImNallen/Botstral/releases/download/channel-nightly/channel.json",
+  "trusted_key": "/etc/botstral-manager/manifest-public.pem",
+  "state_dir": "/var/lib/botstral-manager",
+  "listen": "127.0.0.1:43120"
+}

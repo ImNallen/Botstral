@@ -1,0 +1,9 @@
+[Unit]
+Description=Botstral manager update request
+
+[Path]
+PathExists=/var/lib/botstral-manager/update.request
+Unit=botstral-manager-update.service
+
+[Install]
+WantedBy=multi-user.target
