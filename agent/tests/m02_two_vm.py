@@ -500,7 +500,7 @@ def test_sessions(f, certificates):
         response = f.worker_http("POST", "/worker/v1/enroll", {"invitation": grant["invitation"]})
         require(response["status"] == 201, "test worker enrollment failed")
         f.worker_id = response["body"]["worker_id"]
-        config = {"manager": "wss://" + f.address, "manager_ca": f.worker.root + "/certs/ca.pem",
+        config = {"manager": "wss://" + f.address, "pin": "0" * 64,
                   "client_cert": f.worker.root + "/certs/worker.pem",
                   "client_key": f.worker.root + "/certs/worker.key"}
         f.worker.call("write", files={f.worker.root + "/agent/config.json": json.dumps(config)})

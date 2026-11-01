@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
 import json
 import os
 from pathlib import Path
+import ssl
+import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 import uuid
@@ -121,6 +125,58 @@ class Contract(unittest.TestCase):
             self.assertEqual(outcomes[0], outcomes[1])
             self.assertEqual(len((root / 'effects.jsonl').read_text().splitlines()), 1)
             self.assertNotIn('synthetic-local-private-token', (root / 'connector-calls' / (p['id'] + '.json')).read_text())
+
+    def test_pin_transport_completes_a_client_cert_call(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cert, key = root / 'cert.pem', root / 'key.pem'
+            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(key),
+                            '-out', str(cert), '-days', '1', '-subj', '/CN=localhost',
+                            '-addext', 'subjectAltName=IP:127.0.0.1',
+                            '-addext', 'extendedKeyUsage=serverAuth,clientAuth'],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            key.chmod(0o600)
+            seen = []
+
+            class Manager(BaseHTTPRequestHandler):
+                def log_message(self, *_):
+                    pass
+
+                def do_POST(self):
+                    seen.append({'path': self.path, 'body': json.loads(self.rfile.read(int(self.headers['Content-Length'])))})
+                    data = b'{"type":"catalog","tools":[]}'
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+
+            manager = ThreadingHTTPServer(('127.0.0.1', 0), Manager)
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(cert, key)
+            context.load_verify_locations(cert)
+            context.verify_mode = ssl.CERT_REQUIRED
+            manager.socket = context.wrap_socket(manager.socket, server_side=True)
+            threading.Thread(target=manager.serve_forever, daemon=True).start()
+            try:
+                launch = {'directory': str(root), 'task': str(uuid.uuid4()), 'execution': str(uuid.uuid4())}
+                pin = {
+                    'manager': f'wss://127.0.0.1:{manager.server_port}',
+                    'pin': '0' * 64,
+                    'client_cert': str(cert),
+                    'client_key': str(key),
+                }
+                self.assertEqual(runtime.Gateway(launch, pin).request({'type': 'catalog'}),
+                                 {'type': 'catalog', 'tools': []})
+                self.assertEqual(seen[-1]['body']['type'], 'catalog')
+                leftover = dict(pin)
+                leftover.pop('pin')
+                leftover['manager_' + 'ca'] = str(cert)
+                with self.assertRaises((KeyError, runtime.ConnectorError)):
+                    runtime.Gateway(launch, leftover).request({'type': 'catalog'})
+            finally:
+                manager.shutdown()
+                manager.server_close()
 
 
 if __name__ == '__main__':

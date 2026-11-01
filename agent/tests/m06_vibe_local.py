@@ -94,7 +94,7 @@ def exercise(binary, report):
             threading.Thread(target=manager.serve_forever, daemon=True).start()
             shutil.copyfile(Path(__file__).parents[1] / 'connector/runtime.py', root / 'connector-runtime.py')
             launch = {'directory': str(root), 'task': task, 'execution': execution}
-            transport = {'manager': f'wss://127.0.0.1:{manager.server_port}', 'manager_ca': str(cert), 'client_cert': str(cert), 'client_key': str(key)}
+            transport = {'manager': f'wss://127.0.0.1:{manager.server_port}', 'pin': '0' * 64, 'client_cert': str(cert), 'client_key': str(key)}
             relay = runtime.Relay(launch, transport)
             threading.Thread(target=relay.serve_forever, daemon=True).start()
             home = root / 'home'
