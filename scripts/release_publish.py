@@ -14,6 +14,22 @@ def gh(*args):
     subprocess.run(['gh', *map(str, args)], check=True)
 
 
+def updater_platforms(directory, channel):
+    tarball = Path(directory).parent / 'Botstral.app.tar.gz'
+    signature_path = Path(directory).parent / 'Botstral.app.tar.gz.sig'
+    require(
+        tarball.is_file() and signature_path.is_file() and not tarball.is_symlink()
+        and not signature_path.is_symlink(),
+        'updater bundle required',
+    )
+    return {
+        'darwin-aarch64': {
+            'signature': signature_path.read_text().strip(),
+            'url': 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name,
+        }
+    }
+
+
 def main():
     directory = Path(sys.argv[1])
     require(os.environ.get('GITHUB_ACTIONS') == 'true', 'publication is restricted to the gated CI job')
@@ -40,18 +56,11 @@ def main():
         gh('release', 'upload', channel, pointer, '--clobber')
         notes = 'Botstral ' + identity.version
         published = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+        platforms = updater_platforms(directory, channel)
         tarball = directory.parent / 'Botstral.app.tar.gz'
         signature_path = directory.parent / 'Botstral.app.tar.gz.sig'
-        signature = None
-        url = None
-        if tarball.is_file() and signature_path.is_file() and not tarball.is_symlink() and not signature_path.is_symlink():
-            gh('release', 'upload', channel, tarball, signature_path, '--clobber')
-            signature = signature_path.read_text().strip()
-            url = 'https://github.com/ImNallen/Botstral/releases/download/' + channel + '/' + tarball.name
+        gh('release', 'upload', channel, tarball, signature_path, '--clobber')
         latest = Path(temporary) / 'latest.json'
-        platforms = {}
-        if signature is not None and url is not None:
-            platforms['darwin-aarch64'] = {'signature': signature, 'url': url}
         write_json(latest, {'version': identity.version, 'notes': notes, 'pub_date': published, 'platforms': platforms})
         gh('release', 'upload', channel, latest, '--clobber')
         if identity.channel == 'stable':

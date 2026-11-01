@@ -2,7 +2,6 @@ import json
 import os
 from pathlib import Path
 import platform
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -99,26 +98,24 @@ def build_deb(entry, binary, identity, output):
     return path
 
 
+def write_updater_bundle(app, updater, identity, env):
+    require(env.get('TAURI_SIGNING_PRIVATE_KEY'), 'Tauri updater signing key required')
+    updater = Path(updater)
+    updater.mkdir(exist_ok=True)
+    tarball = updater / 'Botstral.app.tar.gz'
+    command(['tar', '-czf', tarball, '-C', app.parent, app.name])
+    command(['npm', 'run', 'desktop', '--', 'signer', 'sign', '--app-version', identity.version, tarball], cwd=ROOT, env=env)
+    require((updater / 'Botstral.app.tar.gz.sig').is_file() and not (updater / 'Botstral.app.tar.gz.sig').is_symlink(), 'updater signing key did not produce an updater bundle')
+
+
 def build_dmg(identity, output, env, unsigned):
     signing = env.get('APPLE_SIGNING_IDENTITY')
     notarization = env.get('APPLE_NOTARY_PROFILE')
     require(unsigned or (signing and notarization), 'Developer ID signing identity and notarytool keychain profile required')
+    require(unsigned or env.get('TAURI_SIGNING_PRIVATE_KEY'), 'Tauri updater signing key required')
     command(['npm', 'ci'], cwd=ROOT, env=env)
-    arguments = ['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app']
-    if env.get('TAURI_SIGNING_PRIVATE_KEY'):
-        arguments.extend(['--config', json.dumps({'bundle': {'createUpdaterArtifacts': True}})])
-    arguments.extend(['--', '--locked'])
-    command(arguments, cwd=ROOT, env=env)
-    bundle = ROOT / 'desktop/src-tauri/target/release/bundle/macos'
-    updater = Path(output).parent / 'updater-bundle'
-    for name in ('Botstral.app.tar.gz', 'Botstral.app.tar.gz.sig'):
-        artifact = bundle / name
-        if artifact.is_file() and not artifact.is_symlink():
-            updater.mkdir(exist_ok=True)
-            shutil.copy2(artifact, updater / name)
-    if env.get('TAURI_SIGNING_PRIVATE_KEY') and not (updater / 'Botstral.app.tar.gz').is_file():
-        require(False, 'updater signing key did not produce an updater bundle')
-    source = bundle / 'Botstral.app'
+    command(['npm', 'run', 'desktop', '--', 'build', '--ci', '--no-sign', '--bundles', 'app', '--', '--locked'], cwd=ROOT, env=env)
+    source = ROOT / 'desktop/src-tauri/target/release/bundle/macos/Botstral.app'
     with tempfile.TemporaryDirectory(prefix='botstral-dmg-') as directory:
         stage = Path(directory) / 'volume'
         stage.mkdir()
@@ -139,6 +136,8 @@ def build_dmg(identity, output, env, unsigned):
             command(['xcrun', 'notarytool', 'submit', archive, '--keychain-profile', notarization, '--wait'])
             command(['xcrun', 'stapler', 'staple', app])
         inspect_app(app, identity, production=not unsigned)
+        if not unsigned:
+            write_updater_bundle(app, Path(output).parent / 'updater-bundle', identity, env)
         path = Path(output) / filename(next(e for e in authority()['artifacts'] if e['component'] == 'desktop'), identity)
         command(['hdiutil', 'create', '-volname', 'Botstral ' + identity.version, '-srcfolder', stage, '-format', 'UDZO', path])
         if not unsigned:
