@@ -16,6 +16,11 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class InstallationTests(unittest.TestCase):
+    def test_agent_deb_depends_include_setup_tools(self):
+        depends = next(line for line in (ROOT / 'agent/packaging/debian/control').read_text().splitlines() if line.startswith('Depends:'))
+        self.assertIn('xz-utils', depends)
+        self.assertIn('curl', depends)
+
     def test_manager_and_worker_cannot_share_an_installation_root(self):
         for first, second in [('manager', 'agent'), ('agent', 'manager')]:
             with self.subTest(first=first), tempfile.TemporaryDirectory() as temporary:
