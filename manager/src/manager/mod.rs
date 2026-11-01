@@ -56,6 +56,13 @@ secret_input!(ProviderSecret, 1, 8192);
 secret_input!(SessionToken, 43, 43);
 secret_input!(BootstrapToken, 43, 43);
 
+impl SessionToken {
+    fn clone_session(&self) -> Self {
+        Self::from_secret(SecretString::from(self.0.expose_secret().to_owned()))
+            .expect("cloned session token remains valid")
+    }
+}
+
 macro_rules! name_input {
     ($name:ident) => {
         #[derive(Debug, Clone, PartialEq, Eq)]

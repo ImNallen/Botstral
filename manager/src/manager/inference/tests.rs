@@ -1251,6 +1251,55 @@ async fn m04_crash_marks_sending_uncertain_and_never_replaces_call() {
     no_plaintext(local.directory());
 }
 
+#[tokio::test]
+async fn expired_model_verification_is_refreshed_on_submit() {
+    let root = tempfile::tempdir().unwrap();
+    let local = private_local(&root);
+    let fixture = Fixture::start().await;
+    let app = App::start(local.directory().into(), &fixture).await;
+    app.initialize().await;
+    let before = app
+        .call(
+            "GET",
+            &format!("/v1/inference-configurations/{}", app.bot),
+            Value::Null,
+            200,
+        )
+        .await;
+    assert_eq!(before["verification"]["type"], "verified");
+    let db = rusqlite::Connection::open(local.directory().join("manager.sqlite3")).unwrap();
+    db.busy_timeout(std::time::Duration::from_secs(5)).unwrap();
+    db.execute("UPDATE inference_configurations SET verified_until=1", [])
+        .unwrap();
+    drop(db);
+    let expired = app
+        .call(
+            "GET",
+            &format!("/v1/inference-configurations/{}", app.bot),
+            Value::Null,
+            200,
+        )
+        .await;
+    assert_eq!(expired["verification"]["type"], "verified");
+    assert!(expired["verification"]["expires_at"].as_i64().unwrap() <= now());
+    let models_before = fixture.state.models.load(Ordering::SeqCst);
+    let input = app.request(1);
+    let submitted = app.submit(&input, 200).await;
+    assert_eq!(submitted["phase"]["type"], "admitted");
+    let after = app
+        .call(
+            "GET",
+            &format!("/v1/inference-configurations/{}", app.bot),
+            Value::Null,
+            200,
+        )
+        .await;
+    assert_eq!(after["verification"]["type"], "verified");
+    assert!(after["verification"]["expires_at"].as_i64().unwrap() > now());
+    assert!(fixture.state.models.load(Ordering::SeqCst) > models_before);
+    app.shutdown().await;
+}
+
 #[path = "run_tests.rs"]
 mod run_tests;
 

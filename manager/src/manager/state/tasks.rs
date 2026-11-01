@@ -619,10 +619,12 @@ impl State {
             .inference_configurations
             .iter()
             .filter_map(|c| {
-                self.tools_authorized(c)
+                let authorized = self.tools_authorized(c).ok().is_some_and(|ready| ready);
+                let refreshable = self
+                    .configuration_refreshable(c.bot, c.revision)
                     .ok()
-                    .filter(|ready| *ready)
-                    .map(|_| c.bot)
+                    .is_some_and(|ready| ready);
+                (authorized || refreshable).then_some(c.bot)
             })
             .collect();
         Ok(OwnerWorkspace {

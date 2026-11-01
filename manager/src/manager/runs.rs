@@ -162,7 +162,11 @@ impl Manager {
         if control.stopping.load(Ordering::Acquire) {
             return Err(OperationError::Busy);
         }
-        self.queue
+        let retry = input.clone();
+        let refresh = token.clone_session();
+        let retry_token = token.clone_session();
+        let result = self
+            .queue
             .call(false, move |s| {
                 if control.stopping.load(Ordering::Acquire) {
                     return Err(OperationError::Busy);
@@ -171,7 +175,34 @@ impl Manager {
                 control.run_wake.notify_one();
                 result
             })
-            .await
+            .await;
+        if result == Err(OperationError::InferenceUnverified)
+            && self
+                .expired_verification(retry.bot, retry.configuration_revision)
+                .await?
+        {
+            self.verify_inference(
+                refresh,
+                VerifyInference {
+                    bot: retry.bot,
+                    revision: retry.configuration_revision,
+                },
+            )
+            .await?;
+            let control = self.inference.clone();
+            return self
+                .queue
+                .call(false, move |s| {
+                    if control.stopping.load(Ordering::Acquire) {
+                        return Err(OperationError::Busy);
+                    }
+                    let result = s.submit_run(retry_token, retry);
+                    control.run_wake.notify_one();
+                    result
+                })
+                .await;
+        }
+        result
     }
     pub async fn run(&self, token: SessionToken, id: RunId) -> Result<RunView, OperationError> {
         self.queue.call(false, move |s| s.run(token, id)).await
