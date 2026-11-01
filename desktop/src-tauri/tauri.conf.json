@@ -34,7 +34,7 @@
       }
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZDQUFBOTkyMjgzNjg3RTUKUldUbGh6WW9rcW1xYkJZZXg3V0pRTUhkMnpvUkNPcDRTeXYxSHJFVnVpSGRITE9nSzVCWHEwc0QK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRENEZGRUNBM0JGRjlEMEIKUldRTG5mODd5djVQVGN2Wmd0bGhIZzZ5V25oRVlXemcwdDNrblZQTnFXbGZiNTFOUGo4Y3FVbnQK",
       "endpoints": [
         "https://github.com/ImNallen/Botstral/releases/download/channel-nightly/latest.json"
       ]
