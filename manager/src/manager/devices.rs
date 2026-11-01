@@ -250,50 +250,49 @@ impl Manager {
             .await;
         if let (Err(OperationError::InferenceUnverified), Some((bot, revision, retry_op))) =
             (&result, retry)
+            && self.expired_verification(bot, revision).await?
         {
-            if self.expired_verification(bot, revision).await? {
-                let permit = self
-                    .queue
-                    .call(false, move |s| {
-                        s.prepare_inference_verification(lease, VerifyInference { bot, revision })
-                    })
-                    .await?;
-                let _capacity = self
-                    .provider
-                    .calls
-                    .clone()
-                    .try_acquire_owned()
-                    .map_err(|_| OperationError::Busy)?;
-                let verified = self.provider.verify(&permit).await;
-                drop(_capacity);
-                let config = permit.configuration;
-                let epoch = permit.epoch;
-                self.queue
-                    .call_wait(move |s| {
-                        s.authorize_owner(&OwnerAuthority::Device(lease))?;
-                        s.finish_inference_verification(config, epoch, verified)?;
-                        Ok(())
-                    })
-                    .await?;
-                let control = self.inference.clone();
-                let reply = self
-                    .queue
-                    .call(false, move |s| {
-                        s.authorize_owner(&OwnerAuthority::Device(lease))?;
-                        if control.stopping.load(std::sync::atomic::Ordering::Acquire) {
-                            return Err(OperationError::Busy);
-                        }
-                        let result = s.owner_operation(lease, retry_op);
-                        control.run_wake.notify_one();
-                        control.notify_inference();
-                        result
-                    })
-                    .await?;
-                return Ok(MaterializedOwnerReply {
-                    reply,
-                    permit: materialization,
-                });
-            }
+            let permit = self
+                .queue
+                .call(false, move |s| {
+                    s.prepare_inference_verification(lease, VerifyInference { bot, revision })
+                })
+                .await?;
+            let _capacity = self
+                .provider
+                .calls
+                .clone()
+                .try_acquire_owned()
+                .map_err(|_| OperationError::Busy)?;
+            let verified = self.provider.verify(&permit).await;
+            drop(_capacity);
+            let config = permit.configuration;
+            let epoch = permit.epoch;
+            self.queue
+                .call_wait(move |s| {
+                    s.authorize_owner(&OwnerAuthority::Device(lease))?;
+                    s.finish_inference_verification(config, epoch, verified)?;
+                    Ok(())
+                })
+                .await?;
+            let control = self.inference.clone();
+            let reply = self
+                .queue
+                .call(false, move |s| {
+                    s.authorize_owner(&OwnerAuthority::Device(lease))?;
+                    if control.stopping.load(std::sync::atomic::Ordering::Acquire) {
+                        return Err(OperationError::Busy);
+                    }
+                    let result = s.owner_operation(lease, retry_op);
+                    control.run_wake.notify_one();
+                    control.notify_inference();
+                    result
+                })
+                .await?;
+            return Ok(MaterializedOwnerReply {
+                reply,
+                permit: materialization,
+            });
         }
         result.map(|reply| MaterializedOwnerReply {
             reply,
