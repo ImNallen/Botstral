@@ -192,6 +192,52 @@ describe('paired presentation boundary', () => {
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(send.mock.calls[0]?.[0].cost_microusd).toBe(250000);
   });
+  it('sends a default token budget that covers the configured model context', async () => {
+    const value = snapshot();
+    const context = 262144;
+    const ready = remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        configurations: [
+          { bot: id, model: 'mistral-small-2603', ready: true, context_tokens: context },
+        ],
+      },
+    });
+    const send = vi.fn<PairedApplication['send']>().mockResolvedValue(ready);
+    const controller = new PairedController({ ...application(ready), send });
+    controller.accept(ready);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText('Message'), 'Hello');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    const output = send.mock.calls[0]?.[0].output_tokens ?? 0;
+    expect(send.mock.calls[0]?.[0].tokens).toBeGreaterThanOrEqual(context + output);
+  });
+  it('keeps an explicit token budget below the configured model context', async () => {
+    const value = snapshot();
+    const ready = remoteSnapshotSchema.parse({
+      ...value,
+      workspace: {
+        ...value.workspace,
+        configurations: [
+          { bot: id, model: 'mistral-small-2603', ready: true, context_tokens: 262144 },
+        ],
+      },
+    });
+    const send = vi.fn<PairedApplication['send']>().mockResolvedValue(ready);
+    const controller = new PairedController({ ...application(ready), send });
+    controller.accept(ready);
+    render(<PairedWorkspace controller={controller} local={false} onLocal={() => {}} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByText('Execution settings and prerequisites'));
+    const budget = screen.getByLabelText('Total token budget');
+    await user.clear(budget);
+    await user.type(budget, '180000');
+    await user.type(screen.getByLabelText('Message'), 'Hello');
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+    expect(send.mock.calls[0]?.[0].tokens).toBe(180000);
+  });
   it('imports a pasted device join code', async () => {
     const pairing = remoteSnapshotSchema.parse({
       generation: 1,
