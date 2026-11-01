@@ -7,13 +7,12 @@ import os
 from pathlib import Path
 import shutil
 import ssl
-import subprocess
 import tempfile
 import threading
 import time
 import uuid
 
-from m06_connector_contract import permit, runtime as connector_runtime
+from m06_connector_contract import ed25519_identity, permit, runtime as connector_runtime
 
 module = importlib.util.spec_from_file_location('managed_vibe', Path(__file__).parents[1] / 'vibe/runtime.py')
 runtime = importlib.util.module_from_spec(module)
@@ -25,11 +24,7 @@ def exercise(binary, report):
     for mode in ('normal', 'lost'):
         with tempfile.TemporaryDirectory(prefix='botstral-m06-vibe-local-') as directory:
             root = Path(directory).resolve()
-            cert, key = root / 'cert.pem', root / 'key.pem'
-            subprocess.run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(key), '-out', str(cert),
-                            '-days', '1', '-subj', '/CN=localhost', '-addext', 'subjectAltName=IP:127.0.0.1',
-                            '-addext', 'extendedKeyUsage=serverAuth,clientAuth'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            key.chmod(0o600)
+            cert, key, pin = ed25519_identity(root)
             task, execution = str(uuid.uuid4()), str(uuid.uuid4())
             local = permit(root, mode)
             binding = local['operation']['proposal']['tool']
@@ -94,7 +89,7 @@ def exercise(binary, report):
             threading.Thread(target=manager.serve_forever, daemon=True).start()
             shutil.copyfile(Path(__file__).parents[1] / 'connector/runtime.py', root / 'connector-runtime.py')
             launch = {'directory': str(root), 'task': task, 'execution': execution}
-            transport = {'manager': f'wss://127.0.0.1:{manager.server_port}', 'pin': '0' * 64, 'client_cert': str(cert), 'client_key': str(key)}
+            transport = {'manager': f'wss://127.0.0.1:{manager.server_port}', 'pin': pin, 'client_cert': str(cert), 'client_key': str(key)}
             relay = runtime.Relay(launch, transport)
             threading.Thread(target=relay.serve_forever, daemon=True).start()
             home = root / 'home'

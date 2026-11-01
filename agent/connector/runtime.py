@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import hmac
 import http.client
 import json
 import os
@@ -14,6 +15,8 @@ import tempfile
 import time
 import uuid
 from urllib.parse import urlsplit
+
+ED25519_SPKI_PREFIX = bytes.fromhex('302a300506032b6570032100')
 
 VERSION = '2025-06-18'
 MAX_FRAME = 131072
@@ -40,6 +43,34 @@ def client_tls(transport):
     context.verify_mode = ssl.CERT_NONE
     load_client_chain(context, transport['client_cert'], transport['client_key'])
     return context
+
+
+def pin_from_certificate(der):
+    prefix = ED25519_SPKI_PREFIX
+    index = der.find(prefix)
+    if index < 0 or index + len(prefix) + 32 > len(der):
+        raise ValueError('pin')
+    return der[index + len(prefix):index + len(prefix) + 32].hex()
+
+
+def verify_peer_pin(sock, pin):
+    der = sock.getpeercert(True)
+    if not der:
+        raise ValueError('pin')
+    if not hmac.compare_digest(pin_from_certificate(der), pin):
+        raise ValueError('pin')
+
+
+def pinned_https(host, port, transport, timeout):
+    context = client_tls(transport)
+    connection = http.client.HTTPSConnection(host, port, context=context, timeout=timeout)
+    try:
+        connection.connect()
+        verify_peer_pin(connection.sock, transport['pin'])
+    except Exception:
+        connection.close()
+        raise
+    return connection
 
 
 def load_client_chain(context, cert, key):
@@ -328,10 +359,11 @@ class Gateway:
         if target.scheme != 'wss' or target.path not in ('', '/'):
             raise ConnectorError('protocol')
         try:
-            context = client_tls(self.transport)
+            connection = pinned_https(target.hostname, target.port, self.transport, 65 if body['type'] == 'execute' else 5)
         except ValueError:
             raise ConnectorError('protocol') from None
-        connection = http.client.HTTPSConnection(target.hostname, target.port, context=context, timeout=65 if body['type'] == 'execute' else 5)
+        except OSError:
+            raise ConnectorError('transport', True) from None
         try:
             path = '/worker/v1/connectors/' + self.launch['task'] + '/' + self.launch['execution']
             connection.request('POST', path, encoded(body), {'Content-Type': 'application/json', 'Connection': 'close'})
