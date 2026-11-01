@@ -213,9 +213,27 @@ fn fresh_install_reaches_unverified_model_without_loopback_scripts() {
         !configure.status.success(),
         "configure should fail without a live Mistral key"
     );
-    let stderr = String::from_utf8_lossy(&configure.stderr);
-    assert!(
-        stderr.contains("inference_unverified"),
-        "configure stderr: {stderr}"
+    let reported = format!(
+        "{}{}",
+        String::from_utf8_lossy(&configure.stderr),
+        String::from_utf8_lossy(&configure.stdout)
     );
+    assert!(
+        reported.contains("inference_unverified"),
+        "configure output: {reported}"
+    );
+    let bots = request(process.listen, "GET", "/v1/bots", Some(token), json!({}));
+    let id = bots
+        .as_array()
+        .and_then(|bots| bots.iter().find(|bot| bot["name"] == "Botstral"))
+        .and_then(|bot| bot["id"].as_str())
+        .expect("created bot");
+    let config = request(
+        process.listen,
+        "GET",
+        &format!("/v1/inference-configurations/{id}"),
+        Some(token),
+        json!({}),
+    );
+    assert_eq!(config["verification"]["type"], "unverified");
 }

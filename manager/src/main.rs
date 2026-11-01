@@ -1,4 +1,7 @@
-use botstral_link::tls;
+use botstral_link::{
+    ConfigureInference, InferenceAcknowledgment, InferenceBilling, InferenceEndpoint,
+    InferencePolicy, InferencePrices, ModelReleaseAcknowledgment, tls,
+};
 use botstral_manager::{LocalState, WorkerTls, protect_process, serve_with_worker};
 use std::{
     ffi::OsString,
@@ -123,7 +126,7 @@ fn invite(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::
         "POST",
         "/v1/sessions",
         None,
-        Some(&serde_json::json!({"password": password.as_str()})),
+        &serde_json::json!({"password": password.as_str()}),
         INVITE_TIMEOUT,
     )?;
     if status != 201 {
@@ -141,20 +144,13 @@ fn invite(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::
             serde_json::json!({"label": label.unwrap(), "lifetime_seconds": 600}),
         )
     };
-    let (status, body) = http_json(
-        address,
-        "POST",
-        path,
-        Some(token),
-        Some(&payload),
-        INVITE_TIMEOUT,
-    )?;
+    let (status, body) = http_json(address, "POST", path, Some(token), &payload, INVITE_TIMEOUT)?;
     let signed_out = http_json(
         address,
         "DELETE",
         "/v1/session",
         Some(token),
-        Some(&serde_json::json!({})),
+        &serde_json::json!({}),
         INVITE_TIMEOUT,
     );
     if status != 201 {
@@ -187,7 +183,6 @@ fn setup(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::e
     };
     let address: SocketAddr = setup.parse()?;
     let token = std::fs::read_to_string(directory.join("bootstrap.token"))?;
-    eprintln!("There is no escrow. Keep an offline copy of the vault passphrase.");
     if read_line("Type yes to accept: ")? != "yes" {
         eprintln!("not accepted");
         return Err("not accepted".into());
@@ -203,7 +198,7 @@ fn setup(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::e
         eprintln!("mismatch");
         return Err("mismatch".into());
     }
-    let body = expect_json(
+    let body = expect_status(
         address,
         "POST",
         "/v1/owner",
@@ -225,7 +220,7 @@ fn unlock(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn std::
     let address = listen_address(&directory)?;
     let token = sign_in(address)?;
     let passphrase = read_password("Vault passphrase: ")?;
-    let result = expect_json(
+    let result = expect_status(
         address,
         "POST",
         "/v1/vault/unlock",
@@ -247,7 +242,7 @@ fn provider_key(
     let address = listen_address(&directory)?;
     let token = sign_in(address)?;
     let secret = read_password("Mistral API key: ")?;
-    let body = expect_json(
+    let body = expect_status(
         address,
         "PUT",
         "/v1/provider-keys/mistral",
@@ -262,10 +257,10 @@ fn provider_key(
     Ok(())
 }
 
-struct Configure {
+struct ConfigureRequest {
     name: String,
     model: String,
-    endpoint: String,
+    endpoint: InferenceEndpoint,
     input_price: u64,
     output_price: u64,
     expected_revision: u64,
@@ -276,7 +271,7 @@ fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn st
     let mut directory = PathBuf::from(".state");
     let mut name = None;
     let mut model = None;
-    let mut endpoint = "eu".to_string();
+    let mut endpoint = InferenceEndpoint::Eu;
     let mut input_price = None;
     let mut output_price = None;
     let mut expected_revision = 0u64;
@@ -288,7 +283,12 @@ fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn st
         } else if argument == "--model" {
             model = Some(required_string(arguments.next(), "invalid model")?);
         } else if argument == "--endpoint" {
-            endpoint = required_string(arguments.next(), "invalid endpoint")?;
+            endpoint = match required_string(arguments.next(), "invalid endpoint")?.as_str() {
+                "eu" => InferenceEndpoint::Eu,
+                "global" => InferenceEndpoint::Global,
+                "us" => InferenceEndpoint::Us,
+                _ => return Err("unknown endpoint".into()),
+            };
         } else if argument == "--input-price" {
             input_price = Some(required_parse(arguments.next(), "invalid price")?);
         } else if argument == "--output-price" {
@@ -297,13 +297,17 @@ fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn st
             expected_revision = required_parse(arguments.next(), "invalid revision")?;
         } else if argument == "--context" {
             context = Some(required_parse(arguments.next(), "invalid context")?);
-        } else if name.is_none() {
-            name = Some(argument.into_string().map_err(|_| "invalid name")?);
-        } else {
+        } else if argument
+            .to_str()
+            .is_some_and(|value| value.starts_with('-'))
+            || name.is_some()
+        {
             return Err("unknown option".into());
+        } else {
+            name = Some(argument.into_string().map_err(|_| "invalid name")?);
         }
     }
-    let request = Configure {
+    let request = ConfigureRequest {
         name: name.ok_or("missing bot name")?,
         model: model.ok_or("missing model")?,
         endpoint,
@@ -312,9 +316,6 @@ fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn st
         expected_revision,
         context,
     };
-    if !matches!(request.endpoint.as_str(), "eu" | "global" | "us") {
-        return Err("unknown endpoint".into());
-    }
     let address = listen_address(&directory)?;
     let token = sign_in(address)?;
     let outcome = configure_bot(address, token.as_str(), &request);
@@ -327,83 +328,80 @@ fn configure(arguments: impl Iterator<Item = OsString>) -> Result<(), Box<dyn st
 fn configure_bot(
     address: SocketAddr,
     token: &str,
-    request: &Configure,
+    request: &ConfigureRequest,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let bots = expect_json(address, "GET", "/v1/bots", Some(token), None, 200)?;
-    let bot = bots
+    let bots = expect_status(address, "GET", "/v1/bots", Some(token), None, 200)?;
+    let existing = bots
         .as_array()
         .ok_or("bots")?
         .iter()
-        .find(|bot| bot["name"].as_str() == Some(request.name.as_str()))
-        .cloned();
-    let bot = match bot {
-        Some(bot) => bot,
-        None => expect_json(
-            address,
-            "PUT",
-            &format!("/v1/bots/{}", uuid::Uuid::new_v4()),
-            Some(token),
-            Some(&serde_json::json!({"name": request.name})),
-            200,
-        )?,
+        .find(|bot| bot["name"].as_str() == Some(request.name.as_str()));
+    let bot_id = match existing {
+        Some(bot) => bot["id"].as_str().ok_or("bot")?.to_owned(),
+        None => {
+            let id = uuid::Uuid::new_v4().to_string();
+            expect_status(
+                address,
+                "PUT",
+                &format!("/v1/bots/{id}"),
+                Some(token),
+                Some(&serde_json::json!({"name": request.name})),
+                200,
+            )?;
+            id
+        }
     };
-    let bot_id = bot["id"].as_str().ok_or("bot")?.to_owned();
     let context_tokens = match request.context {
         Some(tokens) => tokens,
         None => {
             let key = read_password("Mistral API key: ")?;
-            mistral_context(&request.endpoint, &request.model, key.as_str())?
+            mistral_context(request.endpoint, &request.model, key.as_str())?
         }
     };
-    let now = unix_seconds();
-    let configured = expect_json(
+    let now = unix_seconds()?;
+    let policy = ConfigureInference {
+        bot: bot_id.parse()?,
+        expected_revision: request.expected_revision,
+        policy: InferencePolicy {
+            endpoint: request.endpoint,
+            model_id: request.model.clone(),
+            context_tokens,
+            acknowledgment: InferenceAcknowledgment {
+                model_developer: "Mistral AI".into(),
+                developer_terms_url: "https://legal.mistral.ai/terms/commercial-terms-of-service/"
+                    .into(),
+                privacy_terms_url: "https://legal.mistral.ai/terms/privacy-policy/".into(),
+                acknowledged_at: now,
+                release: ModelReleaseAcknowledgment::Stable,
+            },
+            prices: InferencePrices {
+                input_microusd_per_million_tokens: request.input_price,
+                output_microusd_per_million_tokens: request.output_price,
+                effective_at: now.checked_sub(60).ok_or("clock")?,
+                expires_at: now.checked_add(30 * 24 * 60 * 60).ok_or("clock")?,
+                billing: InferenceBilling::TextTokensOnlyAtAcknowledgedCeilings,
+            },
+        },
+    };
+    let configured = expect_status(
         address,
         "PUT",
         "/v1/inference-configurations",
         Some(token),
-        Some(&serde_json::json!({
-            "bot": bot_id,
-            "expected_revision": request.expected_revision,
-            "policy": {
-                "endpoint": request.endpoint,
-                "model_id": request.model,
-                "context_tokens": context_tokens,
-                "acknowledgment": {
-                    "model_developer": "Mistral AI",
-                    "developer_terms_url": "https://legal.mistral.ai/terms/commercial-terms-of-service/",
-                    "privacy_terms_url": "https://legal.mistral.ai/terms/privacy-policy/",
-                    "acknowledged_at": now,
-                    "release": {"type": "stable"}
-                },
-                "prices": {
-                    "input_microusd_per_million_tokens": request.input_price,
-                    "output_microusd_per_million_tokens": request.output_price,
-                    "effective_at": now - 60,
-                    "expires_at": now + 30 * 86400,
-                    "billing": "text_tokens_only_at_acknowledged_ceilings"
-                }
-            }
-        })),
+        Some(&serde_json::to_value(policy)?),
         200,
     )?;
     println!("configured {configured}");
     let revision = configured["revision"].as_u64().ok_or("revision")?;
-    let (status, body) = http_json(
+    let verified = expect_status(
         address,
         "POST",
         "/v1/inference-configurations/verify",
         Some(token),
         Some(&serde_json::json!({"bot": bot_id, "revision": revision})),
-        ADMIN_TIMEOUT,
+        200,
     )?;
-    if status != 200 {
-        match body["error"].as_str() {
-            Some(code) => eprintln!("{code}"),
-            None => eprintln!("http {status}"),
-        }
-        return Err("request failed".into());
-    }
-    println!("{body}");
+    println!("{verified}");
     Ok(())
 }
 
@@ -429,16 +427,17 @@ fn listeners(directory: &Path) -> Result<serde_json::Value, Box<dyn std::error::
 }
 
 fn listen_address(directory: &Path) -> Result<SocketAddr, Box<dyn std::error::Error>> {
-    listeners(directory)?["listen"]
-        .as_str()
-        .ok_or("manager is not running")?
-        .parse()
-        .map_err(Into::into)
+    let listeners = listeners(directory)?;
+    let Some(listen) = listeners["listen"].as_str() else {
+        eprintln!("manager is not running");
+        return Err("manager is not running".into());
+    };
+    Ok(listen.parse()?)
 }
 
 fn sign_in(address: SocketAddr) -> Result<Zeroizing<String>, Box<dyn std::error::Error>> {
     let password = read_password("Password: ")?;
-    let body = expect_json(
+    let body = expect_status(
         address,
         "POST",
         "/v1/sessions",
@@ -452,13 +451,13 @@ fn sign_in(address: SocketAddr) -> Result<Zeroizing<String>, Box<dyn std::error:
 }
 
 fn sign_out(address: SocketAddr, token: &str) -> Result<(), Box<dyn std::error::Error>> {
-    http_json(
+    expect_status(
         address,
         "DELETE",
         "/v1/session",
         Some(token),
         Some(&serde_json::json!({})),
-        ADMIN_TIMEOUT,
+        204,
     )?;
     Ok(())
 }
@@ -485,47 +484,68 @@ fn required_parse<T: std::str::FromStr>(
         .map_err(|_| error.into())
 }
 
-fn unix_seconds() -> i64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|elapsed| elapsed.as_secs() as i64)
-        .unwrap_or(0)
+fn unix_seconds() -> Result<i64, Box<dyn std::error::Error>> {
+    let elapsed = SystemTime::now().duration_since(UNIX_EPOCH)?;
+    i64::try_from(elapsed.as_secs()).map_err(|_| "clock".into())
+}
+
+fn model_segment(model: &str) -> bool {
+    !model.is_empty()
+        && model.len() <= 128
+        && model
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.'))
 }
 
 fn mistral_context(
-    endpoint: &str,
+    endpoint: InferenceEndpoint,
     model: &str,
     key: &str,
 ) -> Result<u32, Box<dyn std::error::Error>> {
+    if !model_segment(model) {
+        return Err("invalid model".into());
+    }
     let host = match endpoint {
-        "eu" => "api.eu.mistral.ai",
-        "global" => "api.mistral.ai",
-        "us" => "api.us.mistral.ai",
-        _ => return Err("unknown endpoint".into()),
+        InferenceEndpoint::Eu => "api.eu.mistral.ai",
+        InferenceEndpoint::Us => "api.us.mistral.ai",
+        InferenceEndpoint::Global => "api.mistral.ai",
     };
     let url = format!("https://{host}/v1/models/{model}");
     let value = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?
-        .block_on(async {
-            reqwest::Client::builder()
-                .https_only(true)
-                .no_proxy()
-                .redirect(reqwest::redirect::Policy::none())
-                .timeout(Duration::from_secs(15))
-                .build()?
-                .get(url)
-                .bearer_auth(key)
-                .send()
-                .await?
-                .error_for_status()?
-                .json::<serde_json::Value>()
-                .await
-        })?;
+        .block_on(fetch_model(&url, key))?;
     let tokens = value["max_context_length"]
         .as_u64()
         .ok_or("missing max_context_length")?;
     u32::try_from(tokens).map_err(|_| "invalid context".into())
+}
+
+async fn fetch_model(
+    url: &str,
+    key: &str,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let response = reqwest::Client::builder()
+        .https_only(true)
+        .no_proxy()
+        .redirect(reqwest::redirect::Policy::none())
+        .retry(reqwest::retry::never())
+        .connect_timeout(Duration::from_secs(5))
+        .timeout(ADMIN_TIMEOUT)
+        .build()
+        .map_err(|_| "model lookup failed")?
+        .get(url)
+        .bearer_auth(key)
+        .send()
+        .await
+        .map_err(|_| "model lookup failed")?;
+    let status = response.status();
+    if !status.is_success() {
+        eprintln!("http {}", status.as_u16());
+        return Err("model lookup failed".into());
+    }
+    let bytes = response.bytes().await.map_err(|_| "model lookup failed")?;
+    serde_json::from_slice(&bytes).map_err(|_| "model lookup failed".into())
 }
 
 fn read_line(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -574,7 +594,7 @@ fn trim_line(line: &mut String) {
     }
 }
 
-fn expect_json(
+fn expect_status(
     address: SocketAddr,
     method: &str,
     path: &str,
@@ -582,18 +602,49 @@ fn expect_json(
     body: Option<&serde_json::Value>,
     want: u16,
 ) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
-    let (status, value) = http_json(address, method, path, token, body, ADMIN_TIMEOUT)?;
+    let (status, value) = if method == "GET" {
+        http_get(address, path, token, ADMIN_TIMEOUT)?
+    } else {
+        http_json(
+            address,
+            method,
+            path,
+            token,
+            body.ok_or("missing body")?,
+            ADMIN_TIMEOUT,
+        )?
+    };
     if status != want {
         match value["error"].as_str() {
-            Some(code) => eprintln!("{code}"),
-            None => eprintln!("http {status}"),
+            Some(code) if !code.is_empty() => eprintln!("{code}"),
+            _ => eprintln!("http {status}"),
         }
         return Err("request failed".into());
     }
     Ok(value)
 }
 
+fn http_get(
+    address: SocketAddr,
+    path: &str,
+    token: Option<&str>,
+    timeout: Duration,
+) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
+    exchange(address, "GET", path, token, None, timeout)
+}
+
 fn http_json(
+    address: SocketAddr,
+    method: &str,
+    path: &str,
+    token: Option<&str>,
+    body: &serde_json::Value,
+    timeout: Duration,
+) -> Result<(u16, serde_json::Value), Box<dyn std::error::Error>> {
+    exchange(address, method, path, token, Some(body), timeout)
+}
+
+fn exchange(
     address: SocketAddr,
     method: &str,
     path: &str,
